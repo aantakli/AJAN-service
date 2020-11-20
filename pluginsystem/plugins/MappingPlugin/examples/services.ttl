@@ -1,0 +1,1304 @@
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix http-core: <http://www.w3.org/2006/http#> .
+@prefix http-headers: <http://www.w3.org/2008/http-headers#> .
+@prefix http-methods: <http://www.w3.org/2008/http-methods#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+@prefix actn: <http://bla/actn#> .
+@prefix hyb: <http://www.dfki.de/hybrit-ns#> .
+@prefix ws: <http://bla/ws#> .
+@prefix : <http://localhost:8090/rdf4j/repositories/services#> .
+
+# --------------------------------------------
+# --------------- :MotsyService --------------
+# --------------------------------------------
+
+:AvatarService
+		rdf:type hyb:Service ;
+		rdf:type actn:Resource ;
+		dct:description "Avatar Service" ;
+		actn:action :MotsyMoveAction ;
+		actn:action :MotsyGrabAction ;
+		actn:action :MotsyPlaceAction ;
+		actn:action :AirbusPlaceRacewayAction ;
+		actn:action :AirbusFixRacewayAction ;
+		actn:action :MotsyInteraction .
+
+# ------------ MoveTo Service -----------------
+
+:MotsyGrabAction
+		a actn:Action ;
+		a actn:Safe ;
+		a actn:Idempotent;
+		actn:communication actn:Asynchronous ;
+		rdfs:label "GrabAction" ;
+		dct:description "Grab object";
+		actn:runHttpBinding :RunMotsyGrab ;
+		actn:abortHttpBinding :AbortMotsyGrab ;
+		actn:variables (
+			[ a actn:ActionVariable;
+				sp:varName "avatar" ]
+			[ a actn:ActionVariable;
+				sp:varName "position" ]
+			[ a actn:ActionVariable;
+				sp:varName "target" ]
+		);
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				ASK
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?position .
+					?position rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:Object .
+				}
+			"""^^xsd:string
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				ASK
+				WHERE {
+					?avatar hyb:hasObject ?target .
+				}"""^^xsd:string ;
+		] .
+
+:MotsyPlaceAction
+		a actn:Action ;
+		a actn:Safe ;
+		a actn:Idempotent;
+		actn:communication actn:Asynchronous ;
+		rdfs:label "GrabAction" ;
+		dct:description "Grab object";
+		actn:runHttpBinding :RunMotsyPlace ;
+		actn:abortHttpBinding :AbortMotsyPlace ;
+		actn:variables (
+			[ a actn:ActionVariable;
+				sp:varName "avatar" ]
+			[ a actn:ActionVariable;
+				sp:varName "position" ]
+			[ a actn:ActionVariable;
+				sp:varName "target" ]
+			[ a actn:ActionVariable;
+				sp:varName "carries" ]
+		);
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				ASK
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?position .
+					?carries rdf:type hyb:Object .
+					?avatar hyb:hasObject ?carries .
+					?position rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .	
+				}
+			"""^^xsd:string
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				ASK
+				WHERE {
+					?carries hyb:locatedNextTo ?position .
+					FILTER NOT EXISTS { ?avatar hyb:hasObject ?carries . }
+				}"""^^xsd:string ;
+		] .
+		
+:MotsyInteraction
+		a actn:Action ;
+		a actn:Safe ;
+		a actn:Idempotent;
+		actn:communication actn:Asynchronous ;
+		rdfs:label "Interaction" ;
+		dct:description "Interact with object";
+		actn:runHttpBinding :RunMotsyInteraction ;
+		actn:abortHttpBinding :AbortMotsyInteraction ;
+		actn:variables (
+			[ a actn:ActionVariable;
+				sp:varName "avatar" ]
+			[ a actn:ActionVariable;
+				sp:varName "position" ]
+			[ a actn:ActionVariable;
+				sp:varName "target" ]
+			[ a actn:ActionVariable;
+				sp:varName "requiredObject" ]
+		);
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				ASK
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?position .
+					?position rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:Object .
+					?requiredObject rdf:type hyb:Object .
+					?avatar hyb:hasObject ?requiredObject .
+				}
+			"""^^xsd:string
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				ASK
+				WHERE {
+					?avatar hyb:fastened ?target .
+				}"""^^xsd:string ;
+		] .
+
+:AirbusFixRacewayAction
+		a actn:Action ;
+		a actn:Safe ;
+		a actn:Idempotent;
+		actn:communication actn:Asynchronous ;
+		rdfs:label "AirbusFixRaceway" ;
+		dct:description "Fix raceway";
+		actn:runHttpBinding :RunFixRaceway ;
+		actn:abortHttpBinding :AbortMotsyInteraction ;
+		actn:variables (
+			[ a actn:ActionVariable;
+				sp:varName "avatar" ]
+			[ a actn:ActionVariable;
+				sp:varName "position" ]
+			[ a actn:ActionVariable;
+				sp:varName "target" ]
+		);
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				ASK
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?position .
+					?position rdf:type hyb:LocationPosition .
+				}
+			"""^^xsd:string
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				ASK
+				WHERE {
+					?avatar hyb:fastened ?target .
+				}"""^^xsd:string ;
+		] .
+
+:AirbusPlaceRacewayAction
+		a actn:Action ;
+		a actn:Safe ;
+		a actn:Idempotent;
+		actn:communication actn:Asynchronous ;
+		rdfs:label "PlaceRaceway" ;
+		dct:description "Place raceway";
+		actn:runHttpBinding :RunPlaceRaceway ;
+		actn:abortHttpBinding :AbortMotsyInteraction ;
+		actn:variables (
+			[ a actn:ActionVariable;
+				sp:varName "avatar" ]
+			[ a actn:ActionVariable;
+				sp:varName "position" ]
+			[ a actn:ActionVariable;
+				sp:varName "target" ]
+		);
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				ASK
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?position .
+					?position rdf:type hyb:LocationPosition .
+				}
+			"""^^xsd:string
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				ASK
+				WHERE {
+					?avatar hyb:fastened ?target .
+				}"""^^xsd:string ;
+		] .
+
+:MotsyMoveAction
+		a actn:Action ;
+		a actn:Safe ;
+		a actn:Idempotent ;
+		actn:communication actn:Asynchronous ;
+		rdfs:label "MoveToAction";
+		dct:description "MoveTo action" ;
+		actn:runHttpBinding :RunMotsyMove ;
+		actn:abortHttpBinding :AbortMotsyMove ;
+		actn:variables (
+			[ a actn:ActionVariable;
+				sp:varName "avatar" ]
+			[ a actn:ActionVariable;
+				sp:varName "start" ]
+			[ a actn:ActionVariable;
+				sp:varName "target" ]
+		);
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				ASK
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?start rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .
+					FILTER (?target != ?start)
+				}"""^^xsd:string ;
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				ASK
+				WHERE {
+					?avatar hyb:locatedNextTo ?target .
+				  	FILTER ( NOT EXISTS {
+				  		?avatar hyb:locatedNextTo ?start .
+						FILTER (?target != ?start)
+				  	} )
+				}"""^^xsd:string ;
+		] .
+
+:AirbusMoveAction
+		a actn:Action ;
+		a actn:Safe ;
+		a actn:Idempotent ;
+		actn:communication actn:Asynchronous ;
+		rdfs:label "MoveToAction";
+		dct:description "MoveTo action" ;
+		actn:runHttpBinding :RunAirbusMove ;
+		actn:abortHttpBinding :AbortAirbusMove ;
+		actn:variables (
+			[ a actn:ActionVariable;
+				sp:varName "avatar" ]
+			[ a actn:ActionVariable;
+				sp:varName "start" ]
+			[ a actn:ActionVariable;
+				sp:varName "target" ]
+		);
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				ASK
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?start rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .
+					FILTER (?target != ?start)
+				}"""^^xsd:string ;
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				ASK
+				WHERE {
+					?avatar hyb:locatedNextTo ?target .
+				  	FILTER ( NOT EXISTS {
+				  		?avatar hyb:locatedNextTo ?start .
+						FILTER (?target != ?start)
+				  	} )
+				}"""^^xsd:string ;
+		] .
+
+:RunMotsyMove
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8097/hybrit/Motsy/actions/moveTo"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					hyb:MoveToRequest hyb:locatedNextTo ?target .
+					hyb:MoveToRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?start rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .
+					?c actn:asyncRequestURI ?requestURI .
+					FILTER (?target != ?start) .
+				}"""^^xsd:string ;
+		] .
+
+:RunAirbusMove
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8097/hybrit/Airbus/actions/moveTo"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					hyb:MoveToRequest hyb:locatedNextTo ?target .
+					hyb:MoveToRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?start rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .
+					?c actn:asyncRequestURI ?requestURI .
+					FILTER (?target != ?start) .
+				}"""^^xsd:string ;
+		] .
+
+:RunFixRaceway
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8097/hybrit/Airbus/actions/FixRaceway"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					hyb:InteractionRequest hyb:fixRaceway <http://localhost:8097/objects/FixRaceway> .
+					hyb:InteractionRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+
+:RunPlaceRaceway
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8097/hybrit/Airbus/actions/PlaceRaceway"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					hyb:InteractionRequest hyb:placeRaceway <http://localhost:8097/objects/placeRaceway> .
+					hyb:InteractionRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+
+:RunMotsyGrab
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8097/hybrit/Motsy/actions/grab"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					hyb:GrabRequest hyb:grab ?target .
+					hyb:GrabRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?position .
+					?position rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:Object .
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+		
+:RunMotsyPlace
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8097/hybrit/Motsy/actions/place"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					hyb:PlaceRequest hyb:place ?target .
+					hyb:PlaceRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?position .
+					?position rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:Object .
+					?target hyb:position "place_destination" .
+					?carries rdf:type hyb:Object .
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+
+:RunMotsyInteraction
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8097/hybrit/Motsy/actions/interaction"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					hyb:InteractionRequest hyb:interactWith ?target .
+					hyb:InteractionRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?position rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:Object .
+					?requiredObject rdf:type hyb:Object .
+					?avatar hyb:hasObject ?requiredObject .
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+
+:AbortMotsyMove
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8097/hybrit/Motsy/actions/moveTo/abort"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					hyb:MoveToAbortRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+
+:AbortAirbusMove
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8097/hybrit/Airbus/actions/moveTo/abort"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					hyb:MoveToAbortRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+
+:AbortMotsyGrab
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8097/hybrit/Motsy/actions/grab/abort"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					hyb:GrabAbortRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+
+:AbortMotsyPlace
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8097/hybrit/Motsy/actions/place/abort"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					hyb:PlaceAbortRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+
+:AbortMotsyInteraction
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8097/hybrit/Motsy/actions/interaction/abort"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					hyb:InteractionAbortRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+
+
+# --------------------------------------------
+# --------------- :RobotService --------------
+# --------------------------------------------
+
+:RobotService
+		a hyb:Service ;
+		a actn:Resource ;
+		dct:description "Avatar Service" ;
+		actn:action :WsMoveBaseAction ;
+		actn:action :WsMoveAction ;
+		actn:action :WsCommandAction ;
+		actn:action :SyncModeAction ;
+		actn:action :ToggleSyncAction .
+
+# ------------ :WsMoveBaseAction -------------
+
+:WsMoveBaseAction
+		a actn:Action ;
+		a actn:Safe ;
+		a actn:Idempotent ;
+		actn:communication actn:Asynchronous ;
+		rdfs:label "WsMoveBaseAction";
+		dct:description "WsMoveBase action" ;
+		actn:runHttpBinding :RunHttpMoveBase ;
+		actn:abortHttpBinding :AbortHttpMoveBase ;
+		actn:resultWsBinding :ResultWsMoveBase ;
+		actn:variables (
+			[ a actn:ActionVariable;
+				sp:varName "s" ]
+			[ a actn:ActionVariable;
+				sp:varName "p" ]
+			[ a actn:ActionVariable;
+				sp:varName "o" ]
+		);
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				ASK
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				PREFIX inv: <http://www.dfki.de/inversiv-ns#>
+				ASK
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+		] .
+
+:RunHttpMoveBase
+		a actn:Binding ;
+		a http-core:Request ;
+		http-core:httpVersion "1.1" ;
+        http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://192.168.82.148:9091/lrt/topics/simple_move_base/"^^xsd:anyURI ;
+		http-core:headers ( [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ) ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX ros: <http://ros.org/#>
+			PREFIX rosbridge: <http://ros.org/rosbridge#>
+			PREFIX rosf: <http://ros.org/rosfield#>
+			PREFIX xml: <http://www.w3.org/XML/1998/namespace>
+			PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			CONSTRUCT {
+				<http://localhost/test> a ros:Message ;
+				    ros:type "hybrit_movement/SimpleMoveBase" ;
+				    rosf:target_pose [ ros:type "geometry_msgs/Pose" ;
+				            rosf:orientation [ ros:type "geometry_msgs/Quaternion" ;
+				                    rosf:w ?oriw ;
+				                    rosf:x ?orix ;
+				                    rosf:y ?oriy ;
+				                    rosf:z ?oriz ] ;
+				            rosf:position [ ros:type "geometry_msgs/Point" ;
+				                    rosf:x ?posx ;
+				                    rosf:y ?posy ;
+				                    rosf:z ?posz ] ];
+				    rosf:frame_id "map" ;
+				    rosf:action_name "move_base" ;
+				    rosf:id "TEST1" .
+			}
+			WHERE {
+				?s hyb:oriw ?oriw .
+				?s hyb:orix ?orix .
+				?s hyb:oriy ?oriy .
+				?s hyb:oriz ?oriz .
+				?s hyb:posx ?posx .
+				?s hyb:posy ?posy .
+				?s hyb:posz ?posz .
+			}"""^^xsd:string ;
+		] .
+		
+:ResultWsMoveBase
+	a actn:Binding ;
+	a ws:Connection;
+	ws:connectionURI "ws://192.168.82.148:9091/lrtws/topics/simple_move_base_result"^^xsd:anyURI ;
+	ws:parameters ( [
+		a http-core:Header ;
+		http-core:hdrName http-headers:accept ;
+		http-core:fieldValue "text/turtle"
+	] ) .
+
+:AbortHttpMoveBase
+		a actn:Binding ;
+		a http-core:Request ;
+		http-core:requestURI "ws://localhost:8092/ws/abort"^^xsd:anyURI ;
+		http-core:httpVersion "1.1" ;
+        http-core:mthd http-methods:POST ;
+		http-core:headers ( [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ) ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				CONSTRUCT {
+					?s ?p ?o .
+				}
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+		] .
+
+# ------------ :WsMoveAction -------------
+
+:WsMoveAction
+	a actn:Action ;
+	a actn:Safe ;
+	a actn:Idempotent ;
+	actn:communication actn:Asynchronous ;
+	rdfs:label "WsMoveAction";
+	dct:description "WsMove action" ;
+	actn:runHttpBinding :RunHttpMove ;
+	actn:abortHttpBinding :AbortHttpMove ;
+	actn:resultWsBinding :ResultWsMove ;
+	actn:variables (
+		[ a actn:ActionVariable;
+			sp:varName "s" ]
+		[ a actn:ActionVariable;
+			sp:varName "p" ]
+		[ a actn:ActionVariable;
+			sp:varName "o" ]
+	);
+	actn:consumes [
+		a actn:Consumable ;
+		actn:sparql """
+			ASK
+			WHERE {
+				?s ?p ?o .
+			}"""^^xsd:string ;
+	] ;
+	actn:produces [
+		a actn:Producible ;
+		actn:sparql """
+			PREFIX inv: <http://www.dfki.de/inversiv-ns#>
+			ASK
+			WHERE {
+				?s ?p ?o .
+			}"""^^xsd:string ;
+	] .
+
+:RunHttpMove
+	a actn:Binding ;
+	a http-core:Request ;
+	http-core:httpVersion "1.1" ;
+    http-core:mthd http-methods:POST ;
+	http-core:requestURI "http://192.168.82.148:9091/lrt/topics/simple_move/"^^xsd:anyURI ;
+	http-core:headers ( [
+		a http-core:Header ;
+		http-core:hdrName http-headers:accept ;
+		http-core:fieldValue "text/turtle"
+	] ) ;
+	http-core:body [
+		a actn:Payload ;
+		actn:sparql """
+		PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX ros: <http://ros.org/#>
+		PREFIX rosbridge: <http://ros.org/rosbridge#>
+		PREFIX rosf: <http://ros.org/rosfield#>
+		PREFIX xml: <http://www.w3.org/XML/1998/namespace>
+		PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+		PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+		CONSTRUCT {
+			<http://localhost/test> a ros:Message ;
+				ros:type "hybrit_movement/SimpleMove" ;
+				rosf:goal_poses ( [ ros:type "geometry_msgs/Pose" ;
+						rosf:orientation [ ros:type "geometry_msgs/Quaternion" ;
+								rosf:x ?orix ;
+								rosf:y  ?oriy;
+								rosf:z ?oriz ;
+								rosf:w  ?oriw ] ;
+						rosf:position [ ros:type "geometry_msgs/Point" ;
+								rosf:x ?posx ;
+								rosf:y ?posy ;
+								rosf:z  ?posy ] ] );
+				rosf:goal_tolerance 0.1 ;
+				rosf:group_name "arm" ;
+				rosf:plan_only false ;
+				rosf:id "movearm2" .
+		}
+		WHERE {
+			?s hyb:oriw ?oriw .
+			?s hyb:orix ?orix .
+			?s hyb:oriy ?oriy .
+			?s hyb:oriz ?oriz .
+			?s hyb:posx ?posx .
+			?s hyb:posy ?posy .
+			?s hyb:posz ?posz .
+		}"""^^xsd:string ;
+	] .
+		
+:ResultWsMove
+	a actn:Binding ;
+	a ws:Connection;
+	ws:connectionURI "ws://192.168.82.148:9091/lrtws/topics/simple_move_result"^^xsd:anyURI ;
+	ws:parameters ( [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ) .
+
+:AbortHttpMove
+		a actn:Binding ;
+		a http-core:Request ;
+		http-core:requestURI "ws://192.168.82.148:8092/ws/abort"^^xsd:anyURI ;
+		http-core:httpVersion "1.1" ;
+        http-core:mthd http-methods:POST ;
+		http-core:headers ( [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ) ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				CONSTRUCT {
+					?s ?p ?o .
+				}
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+		] .
+
+# ------------ :WsCommandAction -------------
+
+:WsCommandAction
+	a actn:Action ;
+	a actn:Safe ;
+	a actn:Idempotent ;
+	actn:communication actn:Asynchronous ;
+	rdfs:label "WsCommandAction";
+	dct:description "WsCommand action" ;
+	actn:runHttpBinding :RunHttpCommand ;
+	actn:abortHttpBinding :AbortHttpCommand ;
+	actn:resultWsBinding :ResultWsCommand ;
+	actn:variables (
+		[ a actn:ActionVariable;
+			sp:varName "s" ]
+		[ a actn:ActionVariable;
+			sp:varName "p" ]
+		[ a actn:ActionVariable;
+			sp:varName "o" ]
+	);
+	actn:consumes [
+		a actn:Consumable ;
+		actn:sparql """
+			ASK
+			WHERE {
+				?s ?p ?o .
+			}"""^^xsd:string ;
+	] ;
+	actn:produces [
+		a actn:Producible ;
+		actn:sparql """
+			PREFIX inv: <http://www.dfki.de/inversiv-ns#>
+			ASK
+			WHERE {
+				?s ?p ?o .
+			}"""^^xsd:string ;
+	] .
+
+:RunHttpCommand
+	a actn:Binding ;
+	a http-core:Request ;
+	http-core:httpVersion "1.1" ;
+    http-core:mthd http-methods:POST ;
+	http-core:requestURI "http://192.168.82.148:9091/lrt/topics/hybrit_command/"^^xsd:anyURI ;
+	http-core:headers ( [
+		a http-core:Header ;
+		http-core:hdrName http-headers:accept ;
+		http-core:fieldValue "text/turtle"
+	] ) ;
+	http-core:body [
+		a actn:Payload ;
+		actn:sparql """
+		PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX ros: <http://ros.org/#>
+		PREFIX rosbridge: <http://ros.org/rosbridge#>
+		PREFIX rosf: <http://ros.org/rosfield#>
+		PREFIX xml: <http://www.w3.org/XML/1998/namespace>
+		PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+		CONSTRUCT {
+		<http://localhost/test> a ros:Message ;
+		    ros:type "hybrit_movement/HybritCommand" ;
+		    rosf:command ?command .
+		}
+		WHERE {
+			?s rosf:command ?command .
+		}"""^^xsd:string ;
+	] .
+
+:ResultWsCommand
+	a actn:Binding ;
+	a ws:Connection;
+	ws:connectionURI "ws://192.168.82.148:9091/lrtws/topics/hybrit_command_result"^^xsd:anyURI ;
+	ws:parameters ( [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ) .
+
+:AbortHttpCommand
+	a actn:Binding ;
+	a http-core:Request ;
+	http-core:requestURI "ws://192.168.82.148:8092/ws/abort"^^xsd:anyURI ;
+	http-core:httpVersion "1.1" ;
+    http-core:mthd http-methods:POST ;
+	http-core:headers ( [
+		a http-core:Header ;
+		http-core:hdrName http-headers:accept ;
+		http-core:fieldValue "text/turtle"
+	] ) ;
+	http-core:body [
+		a actn:Payload ;
+		actn:sparql """
+			CONSTRUCT {
+				?s ?p ?o .
+			}
+			WHERE {
+				?s ?p ?o .
+			}"""^^xsd:string ;
+	] .
+
+# ------------ :SyncModeAction -------------
+
+:SyncModeAction
+	a actn:Action ;
+	a actn:Safe ;
+	a actn:Idempotent ;
+	actn:communication actn:Synchronous ;
+	rdfs:label "SyncModeAction";
+	dct:description "SyncMode action" ;
+	actn:runHttpBinding :RunSyncMode ;
+	actn:variables (
+		[ a actn:ActionVariable;
+			sp:varName "s" ]
+		[ a actn:ActionVariable;
+			sp:varName "p" ]
+		[ a actn:ActionVariable;
+			sp:varName "o" ]
+	);
+	actn:consumes [
+		a actn:Consumable ;
+		actn:sparql """
+			ASK
+			WHERE {
+				?s <http://www.dfki.de/hybrit-ns#syncMode> ?o .
+			}"""^^xsd:string ;
+	] ;
+	actn:produces [
+		a actn:Producible ;
+		actn:sparql """
+			ASK
+			WHERE {
+				?s ?p ?o .
+				OPTIONAL { ?a ?b <http://bla/actn#FAULT> . }
+			}"""^^xsd:string ;
+	] .
+
+:RunSyncMode
+	a actn:Binding ;
+	a http-core:Request ;
+	http-core:httpVersion "1.1" ;
+	http-core:mthd http-methods:POST ;
+	http-core:requestURI "http://localhost:8097/hybrit/Robo/actions/drillSyncMode"^^xsd:anyURI ;
+	http-core:headers ( [
+		a http-core:Header ;
+		http-core:hdrName http-headers:accept ;
+		http-core:fieldValue "text/turtle"
+	] ) ;
+	http-core:body [
+		a actn:Payload ;
+		actn:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX actn: <http://bla/actn#>
+			CONSTRUCT {
+				hyb:SyncModeRequest <http://www.dfki.de/hybrit-ns#syncMode> ?o .
+			}
+			WHERE {
+				?s <http://www.dfki.de/hybrit-ns#syncMode> ?o .
+			}"""^^xsd:string ;
+	] .
+
+# ------------ :ToggleSyncAction -------------
+
+:ToggleSyncAction
+	a actn:Action ;
+	a actn:Safe ;
+	a actn:Idempotent ;
+	actn:communication actn:Synchronous ;
+	rdfs:label "ToggleSyncAction";
+	dct:description "ToggleSync action" ;
+	actn:runHttpBinding :RunToggleSync ;
+	actn:variables (
+		[ a actn:ActionVariable;
+			sp:varName "s" ]
+		[ a actn:ActionVariable;
+			sp:varName "p" ]
+		[ a actn:ActionVariable;
+			sp:varName "o" ]
+	);
+	actn:consumes [
+		a actn:Consumable ;
+		actn:sparql """
+			ASK
+			WHERE {
+				?s <http://www.dfki.de/hybrit-ns#toggleSync> ?o .
+			}"""^^xsd:string ;
+	] ;
+	actn:produces [
+		a actn:Producible ;
+		actn:sparql """
+			ASK
+			WHERE {
+				?s ?p ?o .
+				OPTIONAL { ?a ?b <http://bla/actn#FAULT> . }
+			}"""^^xsd:string ;
+	] .
+
+:RunToggleSync
+	a actn:Binding ;
+	a http-core:Request ;
+	http-core:httpVersion "1.1" ;
+	http-core:mthd http-methods:POST ;
+	http-core:requestURI "http://localhost:8097/hybrit/Robo/actions/toggleSync"^^xsd:anyURI ;
+	http-core:headers ( [
+		a http-core:Header ;
+		http-core:hdrName http-headers:accept ;
+		http-core:fieldValue "text/turtle"
+	] ) ;
+	http-core:body [
+		a actn:Payload ;
+		actn:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX actn: <http://bla/actn#>
+			CONSTRUCT {
+				hyb:ToggleSyncRequest <http://www.dfki.de/hybrit-ns#toggleSync> ?o .
+			}
+			WHERE {
+				?s <http://www.dfki.de/hybrit-ns#toggleSync> ?o .
+			}"""^^xsd:string ;
+	] .
+
+# --------------------------------------------
+# --------------- :DummyService --------------
+# --------------------------------------------
+
+:DummyService
+	a hyb:Service ;
+	a actn:Resource ;
+	dct:description "Dummy Service" ;
+	actn:action :TestAsyncAction ;
+	actn:action :TestSyncAction .
+
+# ------------ :TestAsynchAction -------------
+
+:TestAsyncAction
+	a actn:Action ;
+	a actn:Safe ;
+	a actn:Idempotent ;
+	actn:communication actn:Asynchronous ;
+	rdfs:label "TestAsyncAction";
+	dct:description "TestAsync action" ;
+	actn:runHttpBinding :RunTestAsync ;
+	actn:abortHttpBinding :AbortTestAsync ;
+	actn:variables (
+		[ a actn:ActionVariable;
+			sp:varName "s" ]
+		[ a actn:ActionVariable;
+			sp:varName "p" ]
+		[ a actn:ActionVariable;
+			sp:varName "o" ]
+	);
+	actn:consumes [
+		a actn:Consumable ;
+		actn:sparql """
+			ASK
+			WHERE {
+				?s ?p ?o .
+			}"""^^xsd:string ;
+	] ;
+	actn:produces [
+		a actn:Producible ;
+		actn:sparql """
+			ASK
+			WHERE {
+				?s ?p ?o .
+			}"""^^xsd:string ;
+	] .
+
+:RunTestAsync
+	a actn:Binding ;
+	a http-core:Request ;
+	http-core:httpVersion "1.1" ;
+	http-core:mthd http-methods:POST ;
+	http-core:requestURI "http://localhost:8092/async"^^xsd:anyURI ;
+	http-core:headers ( [
+		a http-core:Header ;
+		http-core:hdrName http-headers:accept ;
+		http-core:fieldValue "text/turtle"
+	] ) ;
+	http-core:body [
+		a actn:Payload ;
+		actn:sparql """
+		PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+		PREFIX actn: <http://bla/actn#>
+		CONSTRUCT {
+			hyb:AsyncServiceRequest hyb:text "Asynchronous!" .
+			hyb:AsyncServiceRequest actn:asyncRequestURI ?requestURI .
+		}
+		WHERE {
+			?c actn:asyncRequestURI ?requestURI .
+		}"""^^xsd:string ;
+	] .
+
+:AbortTestAsync
+	a actn:Binding ;
+	a http-core:Request ;
+	http-core:httpVersion "1.1" ;
+	http-core:mthd http-methods:POST ;
+	http-core:requestURI "http://localhost:8092/async/abort"^^xsd:anyURI ;
+	http-core:headers ( [
+		a http-core:Header ;
+		http-core:hdrName http-headers:accept ;
+		http-core:fieldValue "text/turtle"
+	] ) ;
+	http-core:body [
+		a actn:Payload ;
+		actn:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX actn: <http://bla/actn#>
+			CONSTRUCT {
+				hyb:AsyncAbortServiceRequest actn:asyncRequestURI ?requestURI .
+			}
+			WHERE {
+				?c actn:asyncRequestURI ?requestURI .
+			}"""^^xsd:string ;
+	] .
+
+# ------------ :TestSynchAction -------------
+
+:TestSyncAction
+	a actn:Action ;
+	a actn:Safe ;
+	a actn:Idempotent ;
+	actn:communication actn:Synchronous ;
+	rdfs:label "TestSyncAction";
+	dct:description "TestSync action" ;
+	actn:runHttpBinding :RunTestSync ;
+	actn:variables (
+		[ a actn:ActionVariable;
+			sp:varName "s" ]
+		[ a actn:ActionVariable;
+			sp:varName "p" ]
+		[ a actn:ActionVariable;
+			sp:varName "o" ]
+	);
+	actn:consumes [
+		a actn:Consumable ;
+		actn:sparql """
+			ASK
+			WHERE {
+				?s ?p ?o .
+			}"""^^xsd:string ;
+	] ;
+	actn:produces [
+		a actn:Producible ;
+		actn:sparql """
+			ASK
+			WHERE {
+				?s ?p ?o .
+			}"""^^xsd:string ;
+	] .
+
+:RunTestSync
+	a actn:Binding ;
+	a http-core:Request ;
+	http-core:httpVersion "1.1" ;
+	http-core:mthd http-methods:POST ;
+	http-core:requestURI "http://localhost:8092/sync"^^xsd:anyURI ;
+	http-core:headers ( [
+		a http-core:Header ;
+		http-core:hdrName http-headers:accept ;
+		http-core:fieldValue "text/turtle"
+	] ) ;
+	http-core:body [
+		a actn:Payload ;
+		actn:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX actn: <http://bla/actn#>
+			CONSTRUCT {
+				hyb:SyncServiceRequest hyb:text "Synchronous!" .
+			}
+			WHERE {
+				?s ?p ?o .
+			}"""^^xsd:string ;
+	] .

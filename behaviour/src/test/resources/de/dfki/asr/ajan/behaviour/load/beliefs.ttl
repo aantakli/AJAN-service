@@ -1,0 +1,56 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix inv: <http://www.dfki.de/inversiv-ns#> .
+@prefix : <http://www.dfki.de/inversiv/response#> .
+
+:a rdf:type ajan:AgentInitialisation .
+:a ajan:agentName "Recep"^^xsd:string .
+:a ajan:agentTemplate <http://localhost:8090/rdf4j/repositories/agents#LoggingAgent> .
+:a ajan:agentInitKnowledge :dispenser_left, :schrank1, :schrank2 .
+
+
+:dispenser_middle
+		a inv:Dispenser ;
+		a inv:Container ;
+		rdfs:label "DispenserLeft"^^xsd:string ;
+		inv:contains 1 ;
+		inv:criticalLevel 2;
+		inv:minLevel 0 ;
+		inv:maxLevel 42 .
+
+
+:dispenser_left
+		a inv:Dispenser ;
+		a inv:Container ;
+		rdfs:label "DispenserLeft"^^xsd:string ;
+		inv:contains 1 ;
+		inv:criticalLevel 2;
+		inv:minLevel 0 ;
+		inv:maxLevel 42 .
+		
+
+:schrank1
+		a inv:Storage ;
+		a inv:Container ;
+		a inv:Withdrawable ;
+		rdfs:label "Schrank1"^^xsd:string ;
+		inv:contains 10 ;
+		inv:criticalLevel 0;
+		inv:minLevel 0 ;
+		inv:maxLevel 10 .
+
+
+:schrank2
+		a inv:Storage ;
+		a inv:Container ;
+		a inv:Withdrawable ;
+		rdfs:label "Schrank2"^^xsd:string ;
+		inv:contains 10 ;
+		inv:criticalLevel 0;
+		inv:minLevel 0 ;
+		inv:maxLevel 10 .
+
+
+:message inv:loggingMessage "Blah blah blah" .

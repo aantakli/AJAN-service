@@ -1,0 +1,145 @@
+# @base <http://localhost/rdf4j/repositories/agents> .
+
+@prefix : <http://localhost:8090/rdf4j/repositories/agents#> .
+@prefix behaviors: <http://localhost:8090/rdf4j/repositories/behaviors#> .
+@prefix beliefs: <http://localhost:8090/rdf4j/repositories/beliefs#> .
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix http: <http://www.w3.org/2011/http#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/ | POST | text/turtle
+
+# ------------- Body --------------
+
+# @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+# @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+# @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+# @prefix ajan: <http://www.ajan.de/ajan-ns#> .
+# @prefix inv: <http://www.dfki.de/inversiv#> .
+# @prefix : <http://www.dfki.de/inversiv#> .
+# @prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+#
+# :initialization rdf:type ajan:AgentInitialisation .
+# :initialization ajan:agentName "Angela"^^xsd:string .
+# :initialization ajan:agentTemplate <http://localhost:8090/rdf4j/repositories/agents#TestAgent> .
+# :initialization ajan:agentInitKnowledge <http://localhost:3030/inversiv/avatars/Natalie> .
+#
+# <http://localhost:3030/inversiv/avatars/Natalie> a <http://www.dfki.de/inversiv-ns#Avatar> .
+
+
+# ----------- Templates -----------
+
+:MotsyAgent
+	rdfs:label "MotsyAgent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :UpdateEvent ;
+	ajan:event :MessageEvent ;
+	ajan:endpoint :UpdateEndpoint ;
+	ajan:endpoint :MessageEndpoint ;
+	ajan:behavior :MessageBehavior ;
+	ajan:behavior :MotsyBehavior .
+
+:RoboAgent
+	rdfs:label "RoboAgent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :UpdateEvent ;
+	ajan:endpoint :UpdateEndpoint ;
+	ajan:behavior :RoboBehavior .
+
+:AirbusAgent
+	rdfs:label "AirbusAgent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :UpdateEvent ;
+	ajan:endpoint :UpdateEndpoint ;
+	ajan:behavior :AirbusBehavior .
+
+:WsAgent
+	rdfs:label "WsAgent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :UpdateEvent ;
+	ajan:event :WebsocketEvent ;
+	ajan:endpoint :UpdateEndpoint ;
+	ajan:behavior :WsBehavior .
+
+:ScenarioAgent
+	rdfs:label "ScenarioAgent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :UpdateEvent ;
+	ajan:event :JsonEvent ;
+	ajan:endpoint :UpdateEndpoint ;
+	ajan:behavior :ScenarioBehavior .
+
+# ----------- Behaviors -----------
+
+:MotsyBehavior
+	a ajan:Behavior ;
+	ajan:trigger :UpdateEvent ;
+	ajan:bt behaviors:MotsyBehavior .
+
+:MessageBehavior
+	a ajan:Behavior ;
+	ajan:trigger :MessageEvent ;
+	ajan:bt behaviors:MessageBehavior .
+
+:RoboBehavior
+	a ajan:Behavior ;
+	ajan:trigger :UpdateEvent ;
+	ajan:bt behaviors:RoboBehavior .
+
+:AirbusBehavior
+	a ajan:Behavior ;
+	ajan:trigger :UpdateEvent ;
+	ajan:bt behaviors:AirbusBehavior .
+
+:WsBehavior
+	a ajan:Behavior ;
+	ajan:trigger :UpdateEvent ;
+	ajan:bt behaviors:WsBehavior .
+
+:ScenarioBehavior
+	a ajan:Behavior ;
+	ajan:trigger :UpdateEvent ;
+	ajan:bt behaviors:ScenarioBehavior .
+
+# ----------- Endpoints -----------
+
+:UpdateEndpoint
+	a ajan:Endpoint ;
+	rdfs:label "update" ;
+	http:paramValue "update";
+	ajan:event :UpdateEvent .
+
+:MessageEndpoint
+	a ajan:Endpoint ;
+	rdfs:label "message" ;
+	http:paramValue "message";
+	ajan:event :MessageEvent .
+
+:JsonEndpoint
+	a ajan:Endpoint ;
+	rdfs:label "json" ;
+	http:paramValue "json";
+	ajan:event :JsonEvent .
+
+# ----------- Events -----------
+
+:UpdateEvent
+	a ajan:ModelEvent ;
+	rdfs:label "e_update" .
+
+:MessageEvent
+	a ajan:ModelEvent ;
+	rdfs:label "e_message" .
+
+:JsonEvent
+	a ajan:JsonEvent ;
+	rdfs:label "e_json" .
+
+:WebsocketEvent
+	a ajan:JsonEvent ;
+	rdfs:label "e_websocket" .
+

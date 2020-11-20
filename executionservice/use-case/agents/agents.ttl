@@ -1,0 +1,249 @@
+# @base <http://localhost/rdf4j/repositories/agents> .
+
+@prefix : <http://localhost:8090/rdf4j/repositories/agents#> .
+@prefix behaviors: <http://localhost:8090/rdf4j/repositories/behaviors#> .
+@prefix beliefs: <http://localhost:8090/rdf4j/repositories/beliefs#> .
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix http: <http://www.w3.org/2011/http#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+@prefix test: <http://test/> .
+@prefix mosim: <http://www.dfki.de/mosim-ns#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/ | POST | text/turtle
+
+# ------------- Body --------------
+
+#@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+#@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+#@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+#@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+#@prefix inv: <http://www.dfki.de/inversiv#> .
+#@prefix : <http://www.dfki.de/inversiv#> .
+#@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+#@prefix http: <http://www.w3.org/2006/http#> .
+#@prefix test: <http://test/> .
+#
+#:initialization rdf:type ajan:AgentInitialisation ;
+#				ajan:agentName "Agento"^^xsd:string ;
+#				ajan:agentTemplate <http://localhost:8090/rdf4j/repositories/agents#ExampleAgent> ;
+#				ajan:agentInitKnowledge test:Subject  .
+#
+#test:Subject rdf:type test:Resource .
+#test:Subject test:predicate "Geh weg!" .
+
+
+# ----------- Templates -----------
+
+:GenericExampleAgent
+	rdfs:label "GenericExample Agent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :ExecuteEvent ;
+	ajan:endpoint :ExecuteEndpoint ;
+	ajan:initialBehavior :InitialBehavior ;
+	ajan:finalBehavior :FinalBehavior ;
+	ajan:behavior :ExampleSceneGenericBehavior .
+
+:ExampleAgent
+	rdfs:label "Example Agent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :ExecuteEvent ;
+	ajan:endpoint :ExecuteEndpoint ;
+	ajan:initialBehavior :InitialBehavior ;
+	ajan:finalBehavior :FinalBehavior ;
+	ajan:behavior :ExampleSceneBehavior .
+
+:ExamplePositionAgent
+	rdfs:label "ExamplePosition Agent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :ExecuteEvent ;
+	ajan:event :PositionGoal ;
+	ajan:event :WalkGoal ;
+	ajan:endpoint :ExecuteEndpoint ;
+	ajan:initialBehavior :InitialBehavior ;
+	ajan:finalBehavior :FinalBehavior ;
+	ajan:behavior :ExamplePositionBehavior ;
+	ajan:behavior :PositionBehavior ;
+	ajan:behavior :WalkBehavior .
+
+:MOSIMAgent
+	rdfs:label "MOSIM Agent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :ExecuteEvent ;
+	ajan:endpoint :ExecuteEndpoint ;
+	ajan:event :PositionGoal ;
+	ajan:event :WalkGoal ;
+	ajan:initialBehavior :InitialBehavior ;
+	ajan:finalBehavior :FinalBehavior ;
+	ajan:behavior :MOSIMBehavior ;
+	ajan:behavior :WalkBehavior ;
+	ajan:behavior :PositionBehavior .
+
+# --------- InitKnowledge ---------
+
+:InitKnowledge
+	test:test1 "Hallo1" ;
+	test:test2 "Hallo2" .
+
+# ----------- Behaviors -----------
+
+:InitialBehavior
+	a ajan:InitialBehavior ;
+	rdfs:label "Initial Behavior" ;
+	ajan:bt behaviors:InitialBehavior .
+
+:FinalBehavior
+	a ajan:FinalBehavior ;
+	rdfs:label "Final Behavior" ;
+	ajan:bt behaviors:FinalBehavior .
+
+:ExampleSceneGenericBehavior
+	a ajan:Behavior, mosim:Breakdown ;
+	rdfs:label "ExampleSceneGenericBehavior" ;
+	dct:requires "{ Task: '', MMUs: {'idle','reach','carry','walk','move','release'}}" ;
+	ajan:trigger :ExecuteEvent ;
+	ajan:bt behaviors:ExampleSceneGenericBehavior .
+
+:ExampleSceneBehavior
+	a ajan:Behavior, mosim:Breakdown ;
+	rdfs:label "ExampleSceneBehavior" ;
+	dct:requires "{ Task: '', MMUs: {'idle','reach','carry','walk','move','release'}}" ;
+	ajan:trigger :ExecuteEvent ;
+	ajan:bt behaviors:ExampleSceneBehavior .
+
+:ExamplePositionBehavior
+	a ajan:Behavior, mosim:Breakdown ;
+	rdfs:label "ExamplePositionBehavior" ;
+	dct:requires "{ Task: 'Position', MMUs: {'idle','reach','carry','walk','move','release'}}" ;
+	ajan:trigger :ExecuteEvent ;
+	ajan:bt behaviors:ExamplePositionBehavior .
+
+:MOSIMBehavior
+	a ajan:Behavior ;
+	rdfs:label "MOSIM Behavior" ;
+	ajan:trigger :ExecuteEvent ;
+	ajan:bt behaviors:MOSIMBehavior .
+
+:PositionBehavior
+	a ajan:Behavior, mosim:Breakdown ;
+	rdfs:label "Position Behavior" ;
+	dct:requires "MMUs: {'idle','reach','carry','walk','move','release'}" ;
+	ajan:trigger :PositionGoal ;
+	ajan:bt behaviors:PositionBehavior .
+
+:WalkBehavior
+	a ajan:Behavior, mosim:Breakdown ;
+	rdfs:label "Walk Behavior" ;
+	dct:requires "MMUs: {'walk'}" ;
+	ajan:trigger :WalkGoal ;
+	ajan:bt behaviors:WalkBehavior .
+
+#:TightenBehavior
+#	a ajan:Behavior, mosim:Breakdown ;
+#	rdfs:label "Tighten Behavior" ;
+#	dct:requires "MMUs: {'idle','reach','carry','walk','move','release'}" ;
+#	ajan:trigger :TightenGoal ;
+#	ajan:bt behaviors:TightenBehavior .
+
+#:CheckBehavior
+#	a ajan:Behavior, mosim:Breakdown ;
+#	rdfs:label "Check Behavior" ;
+#	dct:requires "MMUs: {'idle','reach','carry','walk','move','release'}" ;
+#	ajan:trigger :CheckGoal ;
+#	ajan:bt behaviors:CheckBehavior .
+
+# ----------- Endpoints -----------
+
+:ExecuteEndpoint
+	a ajan:Endpoint ;
+	rdfs:label "Execute Endpoint" ;
+	ajan:capability "execute";
+	ajan:event :ExecuteEvent .
+
+# ----------- Events -----------
+
+:ExecuteEvent
+	a ajan:ModelEvent ;
+	rdfs:label "ExecuteEvent" .
+
+# ----------- Goals ------------
+
+:PositionGoal
+	a ajan:Goal ;
+	rdfs:label "Position Goal" ;
+	ajan:variables (
+		[ a ajan:Variable ;
+		  sp:varName "part" ;
+		  ajan:dataType rdfs:Resource ]
+		[ a ajan:Variable ;
+		  sp:varName "tool" ;
+		  ajan:dataType rdfs:Resource ]
+		[ a ajan:Variable ;
+		  sp:varName "operation" ;
+		  ajan:dataType xsd:string ]
+	) ;
+	ajan:condition """
+		ASK
+		WHERE {
+			?s ?p ?o .
+		}"""^^xsd:string .
+
+:WalkGoal
+	a ajan:Goal ;
+	rdfs:label "Walk Goal" ;
+	ajan:variables (
+		[ a ajan:Variable ;
+		  sp:varName "target" ;
+		  ajan:dataType rdfs:Resource ]
+	) ;
+	ajan:condition """
+		ASK
+		WHERE {
+			?s ?p ?o .
+		}"""^^xsd:string .
+
+#:TightenGoal
+#	a ajan:Goal ;
+#	rdfs:label "g_tightenGoal" ;
+#	ajan:variables (
+#		[ a ajan:Variable ;
+#		  sp:varName "part" ;
+#		  ajan:dataType rdfs:Resource ]
+#		[ a ajan:Variable ;
+#		  sp:varName "tool" ;
+#		  ajan:dataType rdfs:Resource ]
+#		[ a ajan:Variable ;
+#		  sp:varName "operation" ;
+#		  ajan:dataType xsd:string ]
+#	) ;
+#	ajan:condition """
+#		ASK
+#		WHERE {
+#			?s ?p ?o .
+#		}"""^^xsd:string .
+
+#:CheckGoal
+#	a ajan:Goal ;
+#	rdfs:label "g_checkGoal" ;
+#	ajan:variables (
+#		[ a ajan:Variable ;
+#		  sp:varName "part" ;
+#		  ajan:dataType rdfs:Resource ]
+#		[ a ajan:Variable ;
+#		  sp:varName "tool" ;
+#		  ajan:dataType rdfs:Resource ]
+#		[ a ajan:Variable ;
+#		  sp:varName "operation" ;
+#		  ajan:dataType xsd:string ]
+#	) ;
+#	ajan:condition """
+#		ASK
+#		WHERE {
+#			?s ?p ?o .
+#		}"""^^xsd:string .

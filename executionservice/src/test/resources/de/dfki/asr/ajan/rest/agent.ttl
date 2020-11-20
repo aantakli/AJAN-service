@@ -1,0 +1,13 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix inv: <http://www.dfki.de/inversiv#> .
+@prefix : <http://www.dfki.de/inversiv#> .
+
+:a rdf:type ajan:AgentInitialisation .
+:a ajan:agentName "Merkel"^^xsd:string .
+:a ajan:agentTemplate <http://localhost:8090/rdf4j/repositories/agents#LoggingAgent> .
+:a ajan:agentInitKnowledge <http://localhost:3030/inversiv/Message> .
+
+<http://localhost:3030/inversiv/Message> <http://www.dfki.de/inversiv-ns#loggingMessage> "Ich führe eine Aktion aus!" .

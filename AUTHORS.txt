@@ -1,0 +1,6 @@
+The mentioned persons have worked on AJAN-Service files where the license header refers to AUTHORS.txt
+
+André Antakli
+Wolfgang Herget
+Johannes Ebersold
+Daniel Spieldenner

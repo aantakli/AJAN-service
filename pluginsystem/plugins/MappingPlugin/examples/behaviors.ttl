@@ -1,0 +1,1601 @@
+# @base <http://localhost:8090/rdf4j/repositories/behaviors#> .
+
+@prefix agents: <http://localhost:8090/rdf4j/repositories/agents#> .
+@prefix : <http://localhost:8090/rdf4j/repositories/behaviors#> .
+@prefix domain: <http://localhost:8090/rdf4j/repositories/domain#> .
+@prefix services: <http://localhost:8090/rdf4j/repositories/services#> .
+@prefix actn: <http://bla/actn#> .
+
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+@prefix strips: <http://www.ajan.de/behavior/strips-ns#> .
+@prefix hyb: <http://www.dfki.de/hybrit-ns#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+@prefix http-core: <http://www.w3.org/2006/http#> .
+@prefix http-headers: <http://www.w3.org/2008/http-headers#> .
+@prefix http-methods: <http://www.w3.org/2008/http-methods#> .
+@prefix ws: <http://bla/ws#> .
+@prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
+@prefix clingo: <http://www.ajan.de/behavior/clingo-ns#> .
+
+# --------------------------------------------
+# -------------- :MotsyBehavior --------------
+# --------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Angela?capability=update | POST | text/turtle
+# Body: _:blankNode <http://www.w3.org/2006/http#requestURI> <http://localhost:12345/world/> .
+
+# ----------- Behavior ------------
+
+:MotsyBehavior
+		a bt:BehaviorTree ;
+		a bt:Root ;
+		rdfs:label "MotsyBehavior" ;
+		bt:hasChild
+			[ a bt:Sequence ;
+			  bt:hasChildren (
+			    [ a bt:Priority ;
+				  bt:hasChildren (
+					:InitDone
+					[ a bt:Sequence ;
+					  bt:hasChildren (
+						:SetVariables
+						:ReadECA2LD
+					  )
+					]
+				  )
+				]
+				[ a bt:UntilSuccess ;
+					bt:hasChild
+					[ a bt:Sequence ; 
+						bt:hasChildren (
+							:MotsyMoveToWorkdeskAction
+							[ a bt:Priority ; 
+								bt:hasChildren (
+									:RobotInDeliveryState
+									:MotsyMoveToSecondTableAction
+								)
+							]
+							:RobotInDeliveryState
+						)
+					]
+				]
+				:MotsyMoveToPickAction
+				:DeleteDrillArea
+				:UpdateDrillPosition
+				[ a bt:Priority ;
+					bt:hasChildren (
+						:DrillAtRobo
+						:MotsyMoveToTableAction
+					)
+				]
+				:MotsyGrabAction
+				:MotsyMoveToScrewAction
+				:MotsyFixScrewsAction
+				:MotsyMoveToPlaceAction
+				:MotsyPlaceTargetAction
+				)
+			] .
+
+:MessageBehavior
+		a bt:BehaviorTree ;
+		a bt:Root ;
+		rdfs:label "MessageBehavior" ;
+		bt:hasChild
+			[ a bt:Sequence ;
+			  bt:hasChildren (
+			    :ScenarioMessageValidate
+				)
+			] .
+
+# ----------- Primitives -----------
+
+:RobotInDeliveryState
+	a bt:Condition;
+		rdfs:label "RobotInDeliveryState?" ;
+		bt:constraints ( [
+				a bt:Constraint ;
+				a bt:AskQuery ;
+				bt:originBase ajan:AgentKnowledge ;
+				bt:sparql """
+				ASK
+				WHERE { <http://localhost:8080/ajan/agents/Robo> <http://www.dfki.de/hybrit-ns#state> <http://www.dfki.de/hybrit-ns#Delivery> . }
+				"""^^xsd:string ;
+			]
+		 ) .
+
+:ScenarioMessageValidate
+	a bt:ValidateEvent;
+	rdfs:label "ScenarioMessageValidate" ;
+	bt:validate [
+		a bt:ConstructQuery ;
+		bt:targetBase ajan:AgentKnowledge ;
+		bt:sparql """
+			CONSTRUCT {<http://localhost:8080/ajan/agents/Robo> <http://www.dfki.de/hybrit-ns#state> <http://www.dfki.de/hybrit-ns#Delivery> . }
+			WHERE { GRAPH <http://localhost:8090/rdf4j/repositories/agents#MessageEvent> {
+				<http://localhost:8080/ajan/agents/Robo> <http://www.dfki.de/hybrit-ns#state> <http://www.dfki.de/hybrit-ns#Delivery> .
+			} }"""^^xsd:string ;
+		] .
+
+:DeleteDrillArea
+	a bt:Update;
+	rdfs:label "DeleteDrillArea?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+			DELETE {
+				?drill hyb:inArea ?area .
+			}
+			WHERE {
+				?drill rdf:type <http://www.dfki.de/hybrit-ns#Powerdrill> . 
+				?drill hyb:inArea ?area .
+			}"""^^xsd:string ;
+		]
+	 ) .
+
+:UpdateDrillPosition
+	a bt:QueryDomain ;
+	rdfs:label "UpdateDrillPosition" ;
+	bt:targetBase ajan:AgentKnowledge ;
+	bt:queryUri [
+		a bt:QueryUri ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX http: <http://www.w3.org/2006/http#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX dct: <http://purl.org/dc/terms/>
+
+			CONSTRUCT { ?drill http:requestURI ?uri . }
+			WHERE {
+				?drill rdf:type <http://www.dfki.de/hybrit-ns#Powerdrill> .
+				?drill dct:hasPart ?part .
+				?part dct:identifier "Assets.Scripts.eca2ld_unity.ld_components.LDSemantics"^^<xsd:string> .
+				?part dct:hasPart ?semantics .
+				?semantics dct:identifier "Semantics"^^<xsd:string> .
+				?semantics rdf:value ?uri .
+			}"""^^xsd:string ;
+	] .
+
+:DrillAtRobo
+	a bt:Condition;
+	rdfs:label "DrillAtRobo?" ;
+	bt:constraints ( [
+			a bt:Constraint ;
+			a bt:AskQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX http: <http://www.w3.org/2006/http#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+			ASK
+			WHERE {
+			    ?drill rdf:type <http://www.dfki.de/hybrit-ns#Powerdrill> .
+			    ?drill hyb:inArea ?area .
+				?area rdf:type <http://www.dfki.de/hybrit-ns#RoboArmArea> .
+			}
+			"""^^xsd:string ;
+		]
+	 ) .
+
+:MotsyMoveToTableAction
+		a bt:Action ;
+		rdfs:label "MoveToTable" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				DESCRIBE ?target ?avatar ?start
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?start rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .
+					?target hyb:position "PlaceTarget" .
+					FILTER (?target != ?start)
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:MotsyMoveAction.
+
+:MotsyMoveToPickAction
+		a bt:Action ;
+		rdfs:label "MoveToPickTarget" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				DESCRIBE ?target ?avatar ?start
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?start rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .
+					?target hyb:position "PickWalkTarget" .
+					FILTER (?target != ?start)
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:MotsyMoveAction.
+
+:MotsyMoveToScrewAction
+		a bt:Action ;
+		rdfs:label "MoveToScrewLocation" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				DESCRIBE ?target ?avatar ?start
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?start rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .
+					?target hyb:position "FixScrewsWithToolTarget" .
+					FILTER (?target != ?start)
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:MotsyMoveAction.
+
+:MotsyMoveToPlaceAction
+		a bt:Action ;
+		rdfs:label "MoveToTable" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				DESCRIBE ?target ?avatar ?start
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?start rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .
+					?target hyb:position "PlaceTarget" .
+					FILTER (?target != ?start)
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:MotsyMoveAction.
+	
+:MotsyMoveToLockerAction
+		a bt:Action ;
+		rdfs:label "MoveToLocker" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				DESCRIBE ?target ?avatar ?start
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?start rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .
+					?target hyb:position "LockerTarget" .
+					FILTER (?target != ?start)
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:MotsyMoveAction.
+
+:MotsyMoveToShelfAction
+		a bt:Action ;
+		rdfs:label "MoveToShelf" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				DESCRIBE ?target ?avatar ?start
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?start rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .
+					?target hyb:position "ShelfWithBoxesTarget" .
+					FILTER (?target != ?start)
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:MotsyMoveAction.
+
+:MotsyMoveToSecondTableAction
+		a bt:Action ;
+		rdfs:label "MoveToTrolley" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				DESCRIBE ?target ?avatar ?start
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?start rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .
+					?target hyb:position "SecondTableTarget" .
+					FILTER (?target != ?start)
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:MotsyMoveAction.
+
+:MotsyMoveToWorkdeskAction
+		a bt:Action ;
+		rdfs:label "MoveToWorkdesk" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				DESCRIBE ?target ?avatar ?start
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?start rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .
+					?target hyb:position "OptionalWorkdeskTarget" .
+					FILTER (?target != ?start)
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:MotsyMoveAction.
+
+:MotsyGrabAction
+		a bt:Action ;
+		rdfs:label "GrabObject" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				DESCRIBE ?target ?avatar ?position
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?position .
+					?position rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:Object .
+					?target hyb:position "Powerdrill" .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:MotsyGrabAction.
+
+:MotsyFixScrewsAction
+		a bt:Action ;
+		rdfs:label "FixScrewsWithTool" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				DESCRIBE ?target ?avatar ?position ?requiredObject
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?position .
+					?position rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:Object .
+					?avatar hyb:hasObject ?requiredObject .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:MotsyInteraction.
+
+:MotsyPlaceTargetAction
+		a bt:Action ;
+		rdfs:label "PlaceDrill" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				DESCRIBE ?target ?avatar ?position ?requiredObject
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?position .
+					?position rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:Object .
+					?target hyb:position "place_destination" .
+					?avatar hyb:hasObject ?requiredObject .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:MotsyPlaceAction.
+
+# --------------------------------------------
+# -------------- :AirbusBehavior -------------
+# --------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Angela?capability=update | POST | text/turtle
+# Body: _:blankNode <http://www.w3.org/2006/http#requestURI> <http://localhost:12345/world/> .
+
+# ----------- Behavior ------------
+:AirbusBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "AirbusBehavior" ;
+	bt:hasChild
+		[ a bt:Sequence;
+			bt:hasChildren (
+				:AirbusMoveToShelfAction
+				:PlaceRacewayAction
+				:FixRacewayAction
+				[	a bt:UntilFail ;
+					bt:hasChild
+						[ a bt:Sequence ;
+							bt:hasChildren (
+								:AirbusMoveToLockerAction
+								:AirbusMoveToShelfAction
+							)
+						]
+				]
+			) 
+		] .
+# -------- Primitives --------------
+
+:PlaceRacewayAction
+		a bt:Action ;
+		rdfs:label "PlaceRaceway" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				DESCRIBE ?target ?avatar ?position
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?position .
+					?position rdf:type hyb:LocationPosition .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:AirbusPlaceRacewayAction .
+
+:FixRacewayAction
+	a bt:Action ;
+	rdfs:label "FixRaceway" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			DESCRIBE ?target ?avatar ?position
+			WHERE {
+				?avatar rdf:type hyb:Avatar .
+				?avatar hyb:locatedNextTo ?position .
+				?position rdf:type hyb:LocationPosition .
+			}"""^^xsd:string ;
+		]
+	) ;
+	bt:serviceAction services:AirbusFixRacewayAction .
+
+:AirbusMoveToShelfAction
+		a bt:Action ;
+		rdfs:label "MoveToShelf" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				DESCRIBE ?target ?avatar ?start
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?start rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .
+					?target hyb:position "ShelfWithBoxesTarget" .
+					FILTER (?target != ?start)
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:AirbusMoveAction.
+
+:AirbusMoveToSecondTableAction
+		a bt:Action ;
+		rdfs:label "MoveToDesk" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				DESCRIBE ?target ?avatar ?start
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?start rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .
+					?target hyb:position "SecondTableTarget" .
+					FILTER (?target != ?start)
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:AirbusMoveAction.
+
+:AirbusMoveToWorkdeskAction
+		a bt:Action ;
+		rdfs:label "MoveToWorkdesk" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				DESCRIBE ?target ?avatar ?start
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?start rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .
+					?target hyb:position "OptionalWorkdeskTarget" .
+					FILTER (?target != ?start)
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:AirbusMoveAction.
+
+:AirbusMoveToLockerAction
+		a bt:Action ;
+		rdfs:label "MoveToLocker" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				DESCRIBE ?target ?avatar ?start
+				WHERE {
+					?avatar rdf:type hyb:Avatar .
+					?avatar hyb:locatedNextTo ?start .
+					?start rdf:type hyb:LocationPosition .
+					?target rdf:type hyb:LocationPosition .
+					?target hyb:position "LockerTarget" .
+					FILTER (?target != ?start)
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:AirbusMoveAction.
+
+# --------------------------------------------
+# -------------- :RoboBehavior ---------------
+# --------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Angela?capability=update | POST | text/turtle
+# Body: _:blankNode <http://www.w3.org/2006/http#requestURI> <http://localhost:12345/world/> .
+
+# ----------- Behavior ------------
+
+:RoboBehavior
+		a bt:BehaviorTree ;
+		a bt:Root ;
+		rdfs:label "RoboBehavior" ;
+		bt:hasChild
+			[ a bt:Sequence ;
+				bt:hasChildren (
+					[ a bt:Priority ;
+					  bt:hasChildren (
+						[ a bt:Sequence ;
+						  bt:hasChildren (
+							:ValidateECA2LDUri
+							:UpdateECA2LDUri
+							)
+						]
+						:ECA2LDUriAvailable
+					  )
+					]
+					:RoboInit
+					:RoboTargetBehavior
+					:StateMessage
+				)
+			] .
+
+:RoboInit
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "RoboInit" ;
+	bt:hasChild
+		[ a bt:Priority ;
+		  bt:hasChildren (
+			:InitDone
+			[ a bt:Sequence ;
+			  bt:hasChildren (
+				:SetVariables
+				:ReadECA2LD
+				:RoboInitAction
+			  )
+			]
+		  )
+		] .
+
+:RoboMoveBase
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "RoboMoveBase" ;
+	bt:hasChild
+		[ a bt:Sequence ;
+		  bt:hasChildren (
+			:QueryRoboPos
+			:QueryRoboOri
+			:RoboMoveTo
+			:ClearCoords
+		  )
+		] .
+
+:RoboTargetBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "RoboTargetBehavior" ;
+	bt:hasChild
+		[ a bt:Sequence ;
+		  bt:hasChildren (
+			:SetPickPOI
+			:RoboMoveBase
+			:RoboObserveAction
+			:RoboDetectAction
+			:RoboPickAction
+			:RoboHomeAction
+			:SetDeliveryPOI
+			:RoboMoveBase
+			:RoboDeliveryAction
+		  )
+		] .
+
+# ----------- Primitives -----------
+
+:ValidateECA2LDUri
+	a bt:ValidateEvent;
+	rdfs:label "ValidateECA2LDUri" ;
+	bt:validate [
+		a bt:ConstructQuery ;
+		bt:targetBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX http: <http://www.w3.org/2006/http#>
+
+			CONSTRUCT { <http://localhost/updateUri> http:requestURI ?uri . }
+			WHERE { GRAPH <http://localhost:8090/rdf4j/repositories/agents#UpdateEvent> {
+				?a http:requestURI ?uri .
+			} }"""^^xsd:string ;
+		] .
+
+:UpdateECA2LDUri
+	a bt:Update;
+	rdfs:label "UpdateECA2LDUri?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX http: <http://www.w3.org/2006/http#>
+
+			DELETE {
+				?a http:requestURI ?olduri .
+				<http://localhost/updateUri> http:requestURI ?uri .
+			}
+			INSERT { ?a http:requestURI ?uri . }
+			WHERE {
+				?a http:requestURI ?olduri .
+				<http://localhost/updateUri> http:requestURI ?uri .
+				FILTER (<http://localhost/updateUri> != ?a)
+			}
+			"""^^xsd:string ;
+		]
+	 ) .
+
+:ECA2LDUriAvailable
+		a bt:Condition ;
+		rdfs:label "ECA2LDUriAvailable?" ;
+		bt:constraints ( [
+			a bt:Constraint ;
+			a bt:AskQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX http: <http://www.w3.org/2006/http#>
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+
+				ASK
+				WHERE {
+					?a http:requestURI ?uri .
+				}"""^^xsd:string ;
+			]
+		) .
+
+:RoboInitAction
+		a bt:Action ;
+		rdfs:label "RoboInitAction!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX rosf: <http://ros.org/rosfield#>
+
+				CONSTRUCT { <http://localhost/test> rosf:command "init" . }
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:WsCommandAction.
+
+:RoboObserveAction
+		a bt:Action ;
+		rdfs:label "RoboObserveAction!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX rosf: <http://ros.org/rosfield#>
+
+				CONSTRUCT { <http://localhost/test> rosf:command "observe" . }
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:WsCommandAction.
+
+:RoboDetectAction
+		a bt:Action ;
+		rdfs:label "RoboDetectAction!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX rosf: <http://ros.org/rosfield#>
+
+				CONSTRUCT { <http://localhost/test> rosf:command "detect" . }
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:WsCommandAction.
+
+:RoboPickAction
+		a bt:Action ;
+		rdfs:label "RoboPickAction!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX rosf: <http://ros.org/rosfield#>
+
+				CONSTRUCT { <http://localhost/test> rosf:command "pick" . }
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:WsCommandAction.
+
+:RoboHomeAction
+		a bt:Action ;
+		rdfs:label "RoboHomeAction!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX rosf: <http://ros.org/rosfield#>
+
+				CONSTRUCT { <http://localhost/test> rosf:command "home" . }
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:WsCommandAction.
+
+:RoboDeliveryAction
+		a bt:Action ;
+		rdfs:label "RoboDeliveryAction!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX rosf: <http://ros.org/rosfield#>
+
+				CONSTRUCT { <http://localhost/test> rosf:command "delivery_mode" . }
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:WsCommandAction.
+
+:RoboOpenGripperAction
+		a bt:Action ;
+		rdfs:label "RoboOpenGripperAction!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX rosf: <http://ros.org/rosfield#>
+
+				CONSTRUCT { <http://localhost/test> rosf:command "open_gripper" . }
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:WsCommandAction.
+
+:RoboMoveArmAction
+		a bt:Action ;
+		rdfs:label "MoveArmAction!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+
+				CONSTRUCT {
+					<http://localhost/test> hyb:posx 0.353714141308 .
+					<http://localhost/test> hyb:posy 0.0673815170979 .
+					<http://localhost/test> hyb:posz 1.31437237873 .
+					<http://localhost/test> hyb:orix 0.0264030722201 .
+					<http://localhost/test> hyb:oriy 0.443960787632 .
+					<http://localhost/test> hyb:oriz -0.0535122089694 .
+					<http://localhost/test> hyb:oriw 0.89405712363 .
+				}
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:WsMoveAction.
+
+:RoboMoveToTable
+		a bt:Action ;
+		rdfs:label "MoveToTable!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+
+				CONSTRUCT {
+					<http://localhost/test> hyb:posx 9.07101726532 .
+					<http://localhost/test> hyb:posy 11.2936840057 .
+					<http://localhost/test> hyb:posz 0.0 .
+					<http://localhost/test> hyb:orix 0.0 .
+					<http://localhost/test> hyb:oriy 0.0 .
+					<http://localhost/test> hyb:oriz 0.716112294315 .
+					<http://localhost/test> hyb:oriw 0.697985087184 .
+				}
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:WsMoveBaseAction.
+
+:RoboMoveToDelivery
+		a bt:Action ;
+		rdfs:label "MoveToDelivery!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+
+				CONSTRUCT {
+					<http://localhost/test> hyb:posx 8.17077445984 .
+					<http://localhost/test> hyb:posy 14.1396131516 .
+					<http://localhost/test> hyb:posz 0.0 .
+					<http://localhost/test> hyb:orix 0.0 .
+					<http://localhost/test> hyb:oriy 0.0 .
+					<http://localhost/test> hyb:oriz 1.0 .
+					<http://localhost/test> hyb:oriw 6.12323399574e-17 .
+				}
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:WsMoveBaseAction.
+
+:InitDone
+		a bt:Condition ;
+		rdfs:label "InitDone?" ;
+		bt:constraints ( [
+			a bt:Constraint ;
+			a bt:AskQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+
+				ASK
+				WHERE {
+					<http://www.dfki.de/hybrit-ns#PoiUri> hyb:poiUri ?o .
+					<http://www.dfki.de/hybrit-ns#ECA2LD> hyb:init "done" .
+				}"""^^xsd:string ;
+			]
+		) .
+
+:SetVariables
+	a bt:Update;
+	rdfs:label "SetVariables?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX http: <http://www.w3.org/2006/http#>
+
+			INSERT {
+				<http://www.dfki.de/hybrit-ns#PoiUri> hyb:poiUri <http://www.dfki.de/hybrit-ns#NULL> .
+				<http://www.dfki.de/hybrit-ns#ECA2LD> hyb:init "done" .
+			}
+			WHERE {
+				?a ?b ?c .
+			}
+			"""^^xsd:string ;
+		]
+	 ) .
+
+:SetPickPOI
+	a bt:Update;
+	rdfs:label "SetPickPos?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX http: <http://www.w3.org/2006/http#>
+
+			DELETE { ?a hyb:poiUri ?old . }
+			INSERT { ?a hyb:poiUri ?poi . }
+			WHERE {
+			    ?drill rdf:type <http://www.dfki.de/hybrit-ns#Powerdrill> .
+			    ?drill hyb:inArea ?area .
+			    ?poi hyb:inArea ?area .
+				?poi rdf:type <http://www.dfki.de/hybrit-ns#RoboPOI> .
+				?a hyb:poiUri ?old .
+			}
+			"""^^xsd:string ;
+		]
+	 ) .
+
+:SetDeliveryPOI
+	a bt:Update;
+	rdfs:label "SetDeliveryPos?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX http: <http://www.w3.org/2006/http#>
+
+			DELETE { ?a hyb:poiUri ?old . }
+			INSERT { ?a hyb:poiUri ?poi . }
+			WHERE {
+				?area rdf:type <http://www.dfki.de/hybrit-ns#WorkingArea> .
+			    ?poi hyb:inArea ?area .
+				?poi rdf:type <http://www.dfki.de/hybrit-ns#RoboPOI> .
+				?a hyb:poiUri ?old .
+			}
+			"""^^xsd:string ;
+		]
+	 ) .
+
+:QueryRoboPos
+	a bt:QueryJsonDomain ;
+	rdfs:label "QueryRoboPos" ;
+	bt:mapping domain:PositionMapping ;
+	bt:targetBase ajan:AgentKnowledge ;
+	bt:queryUri [
+		a bt:QueryUri ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX dct: <http://purl.org/dc/terms/>
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+
+			CONSTRUCT { _:blankNode <http://www.w3.org/2006/http#requestURI> ?uri . }
+			WHERE {
+				?a hyb:poiUri ?poi .
+				?poi dct:hasPart ?transform .
+				?transform dct:identifier "Assets.Scripts.eca2ld_unity.ld_components.LDPose"^^<xsd:string> .
+				?transform dct:hasPart ?pos .
+				?pos dct:identifier "Position"^^<xsd:string> .
+				?pos rdf:value ?uri .
+			}"""^^xsd:string ;
+	] .
+
+:QueryRoboOri
+	a bt:QueryJsonDomain ;
+	rdfs:label "QueryRoboOri" ;
+	bt:mapping domain:OrientationMapping ;
+	bt:targetBase ajan:AgentKnowledge ;
+	bt:queryUri [
+		a bt:QueryUri ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX dct: <http://purl.org/dc/terms/>
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+
+			CONSTRUCT { _:blankNode <http://www.w3.org/2006/http#requestURI> ?uri . }
+			WHERE {
+				?a hyb:poiUri ?poi .
+				?poi dct:hasPart ?transform .
+				?transform dct:identifier "Assets.Scripts.eca2ld_unity.ld_components.LDPose"^^<xsd:string> .
+				?transform dct:hasPart ?ori .
+				?ori dct:identifier "Orientation"^^<xsd:string> .
+				?ori rdf:value ?uri .
+			}"""^^xsd:string ;
+	] .
+
+:RoboMoveTo
+		a bt:Action ;
+		rdfs:label "MoveToPos!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+
+				CONSTRUCT {
+					<http://localhost/test> hyb:posx ?posZ .
+					<http://localhost/test> hyb:posy ?invPosX .
+					<http://localhost/test> hyb:posz ?posY .
+					<http://localhost/test> hyb:orix ?quatX .
+					<http://localhost/test> hyb:oriy ?quatZ .
+					<http://localhost/test> hyb:oriz ?invQuaY .
+					<http://localhost/test> hyb:oriw ?quatW .
+				}
+				WHERE {
+					<http://www.ajan.de/ajan-mapping-ns#Position> <http://www.ajan.de/ajan-mapping-ns#posX> ?posX .
+					<http://www.ajan.de/ajan-mapping-ns#Position> <http://www.ajan.de/ajan-mapping-ns#posY> ?posY .
+					<http://www.ajan.de/ajan-mapping-ns#Position> <http://www.ajan.de/ajan-mapping-ns#posZ> ?posZ .
+					<http://www.ajan.de/ajan-mapping-ns#Orientation> <http://www.ajan.de/ajan-mapping-ns#quatW> ?quatW .
+					<http://www.ajan.de/ajan-mapping-ns#Orientation> <http://www.ajan.de/ajan-mapping-ns#quatX> ?quatX .
+					<http://www.ajan.de/ajan-mapping-ns#Orientation> <http://www.ajan.de/ajan-mapping-ns#quatY> ?quatY .
+					<http://www.ajan.de/ajan-mapping-ns#Orientation> <http://www.ajan.de/ajan-mapping-ns#quatZ> ?quatZ .
+					BIND(?posX * (-1.0) AS ?invPosX) .
+					BIND(?quatY * (-1.0) AS ?invQuaY) .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:WsMoveBaseAction.
+
+:ClearCoords
+	a bt:Update;
+	rdfs:label "ClearCoords?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX http: <http://www.w3.org/2006/http#>
+
+			DELETE {
+				<http://www.ajan.de/ajan-mapping-ns#Position> ?a ?b .
+				<http://www.ajan.de/ajan-mapping-ns#Orientation> ?c ?d .
+			}
+			WHERE {
+				<http://www.ajan.de/ajan-mapping-ns#Position> ?a ?b .
+				<http://www.ajan.de/ajan-mapping-ns#Orientation> ?c ?d .
+			}
+			"""^^xsd:string ;
+		]
+	 ) .
+
+:StateMessage
+	a bt:Message ;
+	bt:queryUri [
+		a bt:QueryUri ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			CONSTRUCT { _:blankNode <http://www.w3.org/2006/http#requestURI> "http://localhost:8080/ajan/agents/Scenario?capability=update"^^xsd:anyURI }
+			WHERE { ?s ?p ?o }"""^^xsd:string ;
+	] ;
+	bt:binding [
+		a http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:headers ([
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		]) ;
+		http-core:body [
+			a actn:Payload ;
+			bt:query [
+				a bt:ConstructQuery ;
+				bt:originBase ajan:AgentKnowledge ;
+				bt:sparql """
+					CONSTRUCT { <http://localhost:8080/ajan/agents/Robo> <http://www.dfki.de/hybrit-ns#state> <http://www.dfki.de/hybrit-ns#Delivery> . }
+					WHERE { ?s ?p ?o }"""^^xsd:string ;
+			]
+		]
+	] .
+
+# --------------------------------------------
+# ----------- :WsBehavior ----------
+# --------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Angela?capability=update | POST | text/turtle
+# Body: _:blankNode <http://www.w3.org/2006/http#requestURI> <http://localhost:12345/world/> .
+
+# 127.0.0.1:12345/world/tisch/spatial/position/value/ | POST | application/json
+# Body: { "x": 1, "y": 2, "z": 3 }
+
+# ----------- Behavior ------------
+
+:WsBehavior
+		a bt:BehaviorTree ;
+		a bt:Root ;
+		rdfs:label "WsBehavior" ;
+		bt:hasChild
+			[ a bt:Sequence ;
+			  bt:hasChildren (
+			  	[ a bt:Priority ;
+					bt:hasChildren (
+						:WsUpdateValidate
+						:WsValidate
+					)
+				]
+			  	[ a bt:Priority ;
+					bt:hasChildren (
+						[ a bt:Sequence ;
+			  				bt:hasChildren (
+			  					:ReadECA2LD
+								:QueryPowerdrillPos
+								:ResetUri
+			  				)
+			  			]
+			  			:ResetUri
+					)
+				]
+			)
+		] .
+
+:ReadECA2LD
+		a bt:BehaviorTree ;
+		a bt:Root ;
+		rdfs:label "ReadECA2LD" ;
+		bt:hasChild
+			[ a bt:UntilFail ;
+			    bt:hasChild
+					[ a bt:Sequence ;
+						bt:hasChildren (
+							:QueryDomain
+							:ResetUri
+							[ a bt:Priority ;
+								bt:hasChildren (
+									[ a bt:Sequence ;
+										bt:hasChildren (
+											:NewContainsUri
+											:UriAvailable
+											)
+									]
+									[ a bt:Sequence ;
+										bt:hasChildren (
+											:NewKnowsUri
+											:UriAvailable
+											)
+									]
+									[ a bt:Sequence ;
+										bt:hasChildren (
+											:NewHasPartUri
+											:UriAvailable
+										)
+									]
+									[ a bt:Sequence ;
+										bt:hasChildren (
+											:NewSemanticsUri
+											:UriAvailable
+										)
+									]
+								)
+							]
+						)
+					]
+				] .
+
+# ----------- Primitives -----------
+
+:WsUpdateValidate
+	a bt:ValidateEvent;
+	rdfs:label "UpdateValidate" ;
+	bt:validate [
+		a bt:ConstructQuery ;
+		bt:targetBase ajan:AgentKnowledge ;
+		bt:sparql """
+			CONSTRUCT { _:blankNode <http://www.w3.org/2006/http#requestURI> ?uri . }
+			WHERE { GRAPH <http://localhost:8090/rdf4j/repositories/agents#UpdateEvent> {
+				?s <http://www.w3.org/2006/http#requestURI> ?uri .
+			} }"""^^xsd:string ;
+		] .
+
+:WsValidate
+	a bt:ValidateJ3VectorEvent;
+	rdfs:label "VectorValidate" ;
+	bt:validate [
+		a bt:ConstructQuery ;
+		bt:targetBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX ajan-mapping: <http://www.ajan.de/ajan-mapping-ns#>
+
+			CONSTRUCT {
+				<http://127.0.0.1:12346/world/tisch/spatial/Position/> <http://127.0.0.1:12346/world/tisch/spatial/Position/x> ?x .
+				<http://127.0.0.1:12346/world/tisch/spatial/Position/> <http://127.0.0.1:12346/world/tisch/spatial/Position/y> ?y .
+				<http://127.0.0.1:12346/world/tisch/spatial/Position/> <http://127.0.0.1:12346/world/tisch/spatial/Position/z> ?z .
+			}
+			WHERE { GRAPH <http://localhost:8090/rdf4j/repositories/agents#WebsocketEvent> {
+				ajan-mapping:3Vector ajan-mapping:x ?x .
+				ajan-mapping:3Vector ajan-mapping:y ?y .
+				ajan-mapping:3Vector ajan-mapping:z ?z .
+			} }"""^^xsd:string ;
+		] .
+
+:QueryDomain
+	a bt:QueryDomain ;
+	rdfs:label "QueryDomain" ;
+	bt:targetBase ajan:AgentKnowledge ;
+	bt:queryUri [
+		a bt:QueryUri ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX http: <http://www.w3.org/2006/http#>
+
+			CONSTRUCT { ?a http:requestURI ?uri . }
+			WHERE { ?a http:requestURI ?uri . }"""^^xsd:string ;
+	] .
+
+:ResetUri
+	a bt:Update;
+	rdfs:label "ResetUri?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX http: <http://www.w3.org/2006/http#>
+
+			DELETE { ?a http:requestURI ?old . }
+			INSERT { ?a hyb:visited ?old . }
+			WHERE { ?a http:requestURI ?old . }
+			"""^^xsd:string ;
+		]
+	 ) .
+
+:NewContainsUri
+	a bt:Update;
+	rdfs:label "NewContainsUri?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX http: <http://www.w3.org/2006/http#>
+			PREFIX ldp: <http://www.w3.org/ns/ldp#>
+
+			INSERT { _:blank http:requestURI ?vis . }
+				WHERE {
+					SELECT ?vis
+					WHERE {
+					  ?d ldp:contains ?vis .
+					  MINUS {
+						?a hyb:visited ?vis .
+						?b ldp:contains ?vis .
+					  }
+					} LIMIT 1
+				}
+			"""^^xsd:string ;
+		]
+	 ) .
+
+:NewKnowsUri
+	a bt:Update;
+	rdfs:label "NewContainsUri?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX http: <http://www.w3.org/2006/http#>
+			PREFIX ldp: <http://www.w3.org/ns/ldp#>
+			PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+			INSERT { _:blank http:requestURI ?vis . }
+			WHERE {
+				SELECT ?vis
+				WHERE {
+					 ?d foaf:knows ?vis .
+					 MINUS {
+						?a hyb:visited ?vis .
+						?b foaf:knows ?vis .
+					 }
+				} LIMIT 1
+			}
+			"""^^xsd:string ;
+		]
+	 ) .
+
+:NewHasPartUri
+	a bt:Update;
+	rdfs:label "NewHasPartUri?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX dct: <http://purl.org/dc/terms/>
+			PREFIX http: <http://www.w3.org/2006/http#>
+
+			INSERT { _:blank http:requestURI ?vis . }
+			WHERE {
+				SELECT ?vis
+				WHERE {
+					?d dct:hasPart ?vis .
+					MINUS {
+						?a hyb:visited ?vis .
+						?b dct:hasPart ?vis .
+					}
+				} LIMIT 1
+			}
+			"""^^xsd:string ;
+		]
+	 ) .
+
+:NewSemanticsUri
+	a bt:Update;
+	rdfs:label "NewSemanticsUri?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX hyb: <http://www.dfki.de/hybrit-ns#>
+			PREFIX dct: <http://purl.org/dc/terms/>
+			PREFIX http: <http://www.w3.org/2006/http#>
+
+			INSERT { _:blank http:requestURI ?vis . }
+			WHERE {
+				SELECT ?vis
+				WHERE {
+					?d rdf:value ?vis .
+					?d dct:identifier "Semantics"^^<xsd:string> .
+					MINUS {
+						?a hyb:visited ?vis .
+						?b rdf:value ?vis .
+						?b dct:identifier "Semantics"^^<xsd:string> .
+					}
+				} LIMIT 1
+			}
+			"""^^xsd:string ;
+		]
+	 ) .
+
+:QueryPowerdrillPos
+	a bt:QueryJsonDomain ;
+	rdfs:label "QueryPowerdrillPos" ;
+	bt:mapping domain:PositionMapping ;
+	bt:targetBase ajan:AgentKnowledge ;
+	bt:queryUri [
+		a bt:QueryUri ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX dct: <http://purl.org/dc/terms/>
+
+			CONSTRUCT { _:blankNode <http://www.w3.org/2006/http#requestURI> ?uri . }
+			WHERE {
+				?drill rdf:type <http://www.dfki.de/hybrit-ns#Powerdrill> .
+				?drill dct:hasPart ?part .
+				?part dct:identifier "Assets.Scripts.eca2ld_unity.ld_components.LDPose"^^<xsd:string> .
+				?part dct:hasPart ?transform .
+				?transform dct:identifier "Position"^^<xsd:string> .
+				?transform rdf:value ?uri .
+			}"""^^xsd:string ;
+	] .
+
+:SubscribeToPowerdrill
+	a bt:Websocket ;
+	ajan:event agents:WebsocketEvent ;
+	bt:wsBinding [
+		a actn:Binding ;
+		a ws:Connection;
+		ws:parameters ( [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "application/json"
+		] ) ;
+	] ;
+	bt:queryUri [
+		a bt:QueryUri ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			CONSTRUCT { _:blankNode <http://www.w3.org/2006/http#requestURI> <ws://127.0.0.1:12346/world/tisch/spatial/position/ws/> . }
+			WHERE { ?s ?p ?o . }"""^^xsd:string ;
+	] .
+
+:UriAvailable
+		a bt:Condition ;
+		rdfs:label "UriAvailable?" ;
+		bt:constraints ( [
+			a bt:Constraint ;
+			a bt:AskQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX http: <http://www.w3.org/2006/http#>
+
+				ASK
+				WHERE {
+					FILTER ( EXISTS {
+						?a http:requestURI ?uri .
+					} )
+				}"""^^xsd:string ;
+			]
+		) .
+
+# --------------------------------------------
+# --------------- :ScenarioBehavior --------------
+# --------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Hybrit?capability=update | POST | text/turtle
+# Body: <http://localhost:3030/inversiv/avatars/Natalie> <http://www.dfki.de/inversiv-ns#locatedNextTo> <http://localhost:3030/inversiv/locations/Start> .
+
+# ----------- Behavior ------------
+
+:ScenarioBehavior
+		a bt:BehaviorTree ;
+		a bt:Root ;
+		rdfs:label "ScenarioBehavior" ;
+		bt:hasChild
+			[ a bt:Sequence ;
+			  bt:hasChildren (
+				:RoboMessageValidate
+				:ToggleSyncAction
+				:SyncModeAction
+				:MotsyMessage
+			)
+		] .
+
+# ----------- Primitives -----------
+
+:RoboMessageValidate
+	a bt:ValidateEvent;
+	rdfs:label "RoboMessageValidate" ;
+	bt:validate [
+		a bt:ConstructQuery ;
+		bt:targetBase ajan:AgentKnowledge ;
+		bt:sparql """
+			CONSTRUCT { <http://localhost:8080/ajan/agents/Robo> <http://www.dfki.de/hybrit-ns#state> ?state . }
+			WHERE { GRAPH <http://localhost:8090/rdf4j/repositories/agents#UpdateEvent> {
+				<http://localhost:8080/ajan/agents/Robo> <http://www.dfki.de/hybrit-ns#state> ?state .
+			} }"""^^xsd:string ;
+		] .
+
+:SyncModeAction
+		a bt:Action ;
+		rdfs:label "SyncModeAction!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				CONSTRUCT { <http://localhost/test> <http://www.dfki.de/hybrit-ns#syncMode> "2" . }
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:SyncModeAction .
+
+:ToggleSyncAction
+		a bt:Action ;
+		rdfs:label "ToggleSyncAction!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				CONSTRUCT { <http://localhost/test> <http://www.dfki.de/hybrit-ns#toggleSync> "0" . }
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+			]
+		) ;
+        bt:serviceAction services:ToggleSyncAction .
+
+:MotsyMessage
+	a bt:Message ;
+	bt:queryUri [
+		a bt:QueryUri ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			CONSTRUCT { _:blankNode <http://www.w3.org/2006/http#requestURI> "http://localhost:8080/ajan/agents/Motsy?capability=message"^^xsd:anyURI }
+			WHERE { ?s ?p ?o }"""^^xsd:string ;
+	] ;
+	bt:binding [
+		a http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:headers ([
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		]) ;
+		http-core:body [
+			a actn:Payload ;
+			bt:query [
+				a bt:ConstructQuery ;
+				bt:originBase ajan:AgentKnowledge ;
+				bt:sparql """
+					CONSTRUCT { <http://localhost:8080/ajan/agents/Robo> <http://www.dfki.de/hybrit-ns#state> ?state . }
+					WHERE { <http://localhost:8080/ajan/agents/Robo> <http://www.dfki.de/hybrit-ns#state> ?state . }"""^^xsd:string ;
+			]
+		]
+	] .

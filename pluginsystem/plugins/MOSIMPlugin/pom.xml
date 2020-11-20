@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2020 Andre Antakli (German Research Center for Artificial Intelligence, DFKI).
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301  USA
+-->
+
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
+        <artifactId>plugins</artifactId>
+        <version>0.1</version>
+    </parent>
+    <artifactId>MOSIMPlugin</artifactId>
+    <name>MOSIMPlugin</name>
+    <packaging>jar</packaging>
+    <build>
+	  <plugins>
+		<plugin>
+		  <artifactId>maven-dependency-plugin</artifactId>
+                  <version>3.0.0</version>
+		  <executions>
+			<execution>
+			  <phase>install</phase>
+			  <goals>
+				<goal>copy-dependencies</goal>
+			  </goals>
+			  <configuration>
+				<excludeArtifactIds>
+                                    rdfbeans,
+                                    gdx-ai,
+                                    behaviour,
+                                    executionservice,
+                                    loader,
+                                    common,
+                                    lombok,
+                                    jackson-databind,
+                                    pf4j,
+                                    rdf4j-model,
+                                    rdf4j-repository-api
+                                </excludeArtifactIds>
+				<outputDirectory>${project.build.directory}/lib</outputDirectory>
+				<overWriteReleases>false</overWriteReleases>
+				<overWriteSnapshots>true</overWriteSnapshots>
+				<excludeTransitive>true</excludeTransitive>
+			  </configuration>
+			</execution>
+		  </executions>
+		</plugin>
+	  </plugins>
+	</build>
+
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.thrift</groupId>
+                <artifactId>libthrift</artifactId>
+                <version>0.12.0</version>
+                  <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>de.dfki.asr.ajan</groupId>
+                <artifactId>executionservice</artifactId>
+                <version>0.1</version>
+                <type>jar</type>
+            </dependency>
+                <dependency>
+                        <groupId>org.apache.commons</groupId>
+                        <artifactId>commons-math3</artifactId>
+                        <version>3.6.1</version>
+                        <type>jar</type>
+                </dependency>
+        </dependencies>
+    <properties>
+        <netbeans.hint.license>licenseheader</netbeans.hint.license>
+    </properties>
+</project>

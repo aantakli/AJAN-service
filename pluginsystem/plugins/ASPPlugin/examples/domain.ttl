@@ -1,0 +1,255 @@
+# @base <http://localhost:8090/rdf4j/repositories/domain#> .
+
+@prefix agents: <http://localhost:8090/rdf4j/repositories/agents#> .
+@prefix behaviors: <http://localhost:8090/rdf4j/repositories/behaviors#> .
+@prefix : <http://localhost:8090/rdf4j/repositories/domain#> .
+@prefix services: <http://localhost:8090/rdf4j/repositories/services#> .
+
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+@prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
+@prefix hyb: <http://www.dfki.de/hybrit-ns#> .
+
+@prefix rr: <http://www.w3.org/ns/r2rml#>.
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix ex:     <http://www.example.com/>.
+
+# --------------------------------------------
+# --------------- RML Mappings ---------------
+# --------------------------------------------
+
+# Input: { "Distance": { "distance": 10.0 } }
+# Event: agents:JsonEvent
+# Output: <http://www.ajan.de/ajan-mapping-ns#Distance> rdf:type <http://www.dfki.de/hybrit-ns#Distance> ;					[agents:JsonEvent]
+#														<http://www.ajan.de/ajan-mapping-ns#value> "10.0"^^xsd:double . 	[agents:JsonEvent]
+
+:DistanceMapping
+	rml:logicalSource [
+		rml:referenceFormulation ql:JSONInput;
+	    rml:iterator "$"
+	] ;
+
+	rr:subjectMap [
+		rr:template "http://www.ajan.de/ajan-mapping-ns#Distance" ;
+		rr:class hyb:Distance ;
+	] ;
+
+	rr:predicateObjectMap [
+		rr:predicate <http://www.ajan.de/ajan-mapping-ns#value> ;
+		rr:objectMap [
+			rml:reference "Distance.distance" ;
+			rr:datatype xsd:double
+		]
+	] .
+
+# Input: { "x": 1.0, "y": 1.0, "z": 1.0 }
+# Event: agents:JsonEvent
+# Output: <http://www.ajan.de/ajan-mapping-ns#Position> rdf:type <http://www.dfki.de/hybrit-ns#Orientation> ;	[agents:JsonEvent]
+#														<http://www.ajan.de/ajan-mapping-ns#posX> 1.0 ;			[agents:JsonEvent]
+#		  												<http://www.ajan.de/ajan-mapping-ns#posY> 1.0 ;			[agents:JsonEvent]
+#		  												<http://www.ajan.de/ajan-mapping-ns#posZ> 1.0 .			[agents:JsonEvent]
+
+:PositionMapping
+	rml:logicalSource [
+		rml:referenceFormulation ql:JSONInput;
+	    rml:iterator "$"
+	] ;
+
+	rr:subjectMap [
+		rr:template "http://www.ajan.de/ajan-mapping-ns#Position" ;
+		rr:class hyb:Position ;
+	] ;
+
+	rr:predicateObjectMap [
+		rr:predicate <http://www.ajan.de/ajan-mapping-ns#posX> ;
+		rr:objectMap [
+			rml:reference "x" ;
+			rr:datatype xsd:float
+		]
+	] ;
+
+	rr:predicateObjectMap [
+		rr:predicate <http://www.ajan.de/ajan-mapping-ns#posY> ;
+		rr:objectMap [
+			rml:reference "y" ;
+			rr:datatype xsd:float
+		]
+	] ;
+
+	rr:predicateObjectMap [
+		rr:predicate <http://www.ajan.de/ajan-mapping-ns#posZ> ;
+		rr:objectMap [
+			rml:reference "z" ;
+			rr:datatype xsd:float
+		]
+	].
+
+# Input: { "w": 1.0, "x": 1.0, "y": 1.0, "z": 1.0 }
+# Event: agents:JsonEvent
+# Output: <http://www.ajan.de/ajan-mapping-ns#Orientation> rdf:type <http://www.dfki.de/hybrit-ns#Orientation> ;	[agents:JsonEvent]
+#														   <http://www.ajan.de/ajan-mapping-ns#quatW> 1.0 ;			[agents:JsonEvent]
+#		  												   <http://www.ajan.de/ajan-mapping-ns#quatX> 1.0 ;			[agents:JsonEvent]
+#		  												   <http://www.ajan.de/ajan-mapping-ns#quatY> 1.0 ;			[agents:JsonEvent]
+#		  												   <http://www.ajan.de/ajan-mapping-ns#quatZ> 1.0 .			[agents:JsonEvent]
+
+:OrientationMapping
+	rml:logicalSource [
+		rml:referenceFormulation ql:JSONInput;
+	    rml:iterator "$"
+	] ;
+
+	rr:subjectMap [
+		rr:template "http://www.ajan.de/ajan-mapping-ns#Orientation" ;
+		rr:class hyb:Orientation ;
+	] ;
+
+	rr:predicateObjectMap [
+		rr:predicate <http://www.ajan.de/ajan-mapping-ns#quatW> ;
+		rr:objectMap [
+			rml:reference "w" ;
+			rr:datatype xsd:float
+		]
+	] ;
+
+	rr:predicateObjectMap [
+		rr:predicate <http://www.ajan.de/ajan-mapping-ns#quatX> ;
+		rr:objectMap [
+			rml:reference "x" ;
+			rr:datatype xsd:float
+		]
+	] ;
+
+	rr:predicateObjectMap [
+		rr:predicate <http://www.ajan.de/ajan-mapping-ns#quatY> ;
+		rr:objectMap [
+			rml:reference "y" ;
+			rr:datatype xsd:float
+		]
+	] ;
+
+	rr:predicateObjectMap [
+		rr:predicate <http://www.ajan.de/ajan-mapping-ns#quatZ> ;
+		rr:objectMap [
+			rml:reference "z" ;
+			rr:datatype xsd:float
+		]
+	].
+
+
+# --------------------------------------------
+# ----------------- ASP Rules ----------------
+# --------------------------------------------
+
+:Domain_Rules
+	a asp:RuleSet ;
+	asp:asRules """
+		_p("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#") .
+		_p("xsd", "http://www.w3.org/2001/XMLSchema#") .
+		_p("react", "http://www.dfki.de/react-ns#") .
+
+		_t(S,"init_cost",1) :- _t(S,"react:cost",_l("1","xsd:string")).
+		_t(S,"init_cost",2) :- _t(S,"react:cost",_l("2","xsd:string")).
+		_t(S,"init_cost",3) :- _t(S,"react:cost",_l("3","xsd:string")).
+		_t(S,"init_cost",4) :- _t(S,"react:cost",_l("4","xsd:string")).
+		_t(S,"init_cost",5) :- _t(S,"react:cost",_l("5","xsd:string")).
+
+		_t(S,"cost",C1+2) :- _t(S,"init_cost",C1), _t(S,"react:isIn",A), _t(A,"rdf:type","react:ZebraCrossing").
+		_t(S,"cost",C1+5) :- _t(S,"init_cost",C1), _t(S,"react:isIn",A), _t(A,"rdf:type","react:Street").
+		_t(S,"cost",C1+5) :- _t(S,"init_cost",C1), _t(S,"react:isIn",A), _t(A,"rdf:type","react:PedestrianCrossing").
+		_t(S,"cost",C1+1) :- _t(S,"init_cost",C1), _t(S,"react:isIn",A), _t(A,"rdf:type","react:ShoppingWalk").
+		_t(S,"cost",C1+1) :- _t(S,"init_cost",C1), _t(S,"react:isIn",A), _t(A,"rdf:type","react:BusStop").
+		_t(S,"cost",C1+1) :- _t(S,"init_cost",C1), _t(S,"react:isIn",A), _t(A,"rdf:type","react:PedestrianWalk").
+		_t(S,"cost",C1-1) :- _t(S,"init_cost",C1), _t(S,"react:isIn",A), _t(A,"rdf:type","react:YogaStand").
+
+		node(N) :- 		_t(S,"react:position",N),
+						_t(S,"rdf:type","react:POI").
+		edge(I,O,C) :- 	_t(E,"rdf:type","react:Edge"),
+						_t(E,"react:in",I),
+						_t(E,"react:out",O),
+						_t(E,"cost",C), not _t(I,"react:notReachable",O).
+		at(X,0) :- 		_t(A,"react:locatedNextTo",X),
+						_t(A,"rdf:type","react:Avatar").
+
+		goal(_l("Ende_ASP","xsd:string")).
+
+		_t(_b(X),"react:move",X) :- move(X,_).
+		_t(_b(X),"react:time",T) :- move(X,T).
+		_t(_b("Cost"),"react:totalCost",C) :- cost(C).
+	"""^^xsd:string .
+
+:MoveTo_Rules
+	a asp:RuleSet ;
+	asp:asRules """
+		cost(0,0).
+		time(1..steps).
+		number(C) :- C = #count{N : node(N)}.
+
+		1 { move(G,T) : node(G) } 1 :- time(T).
+
+		at(G,T) :- move(G,T), at(A,T-1), edge(A,G,_).
+		cost(T,C1+C2) :- move(X,T), at(Y,T-1), edge(Y,X,C1), cost(T-1,C2), Y!=X.
+		cost(Max) :- Max = #max{C : cost(T,C)}.
+
+		:- move(G,T), not edge(A,G,_), at(A,T-1).
+		:- not at(X,T), T = steps, goal(X).
+	"""^^xsd:string .
+
+# ASP: RDF_EntailmentRules
+
+:RDF_EntailmentRules
+	a asp:RuleSet ;
+	asp:asRules """
+		_p("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#") .
+		_p("rdfs", "http://www.w3.org/2000/01/rdf-schema#") .
+		_p("xsd", "http://www.w3.org/2001/XMLSchema#") .
+
+		xsd(_l(L,T)) :- _t(_,_,_l(L,T)), T=="xsd:string" .
+		xsd(_l(L,T)) :- _t(_,_,_l(L,T)), T=="xsd:boolean" .
+		xsd(_l(L,T)) :- _t(_,_,_l(L,T)), T=="xsd:decimal" .
+		xsd(_l(L,T)) :- _t(_,_,_l(L,T)), T=="xsd:float" .
+		xsd(_l(L,T)) :- _t(_,_,_l(L,T)), T=="xsd:double" .
+		xsd(_l(L,T)) :- _t(_,_,_l(L,T)), T=="xsd:short" .
+		xsd(_l(L,T)) :- _t(_,_,_l(L,T)), T=="xsd:integer" .
+		xsd(_l(L,T)) :- _t(_,_,_l(L,T)), T=="xsd:long" .
+
+		_t(P,"rdf:type","rdf:Property") :- _t(S,P,O) .
+		_t(_l(L,T),"rdf:type","rdfs:XMLLiteral") :- _t(S,P,_l(L,T)), xsd(_l(L,T)) .
+		:- _t(_l(L,T),"rdf:type","rdfs:XMLLiteral"), not xsd(_l(L,T)) .
+	"""^^xsd:string .
+
+# ASP: RDFS_EntailmentRules
+
+:RDFS_EntailmentRules
+	a asp:RuleSet ;
+	asp:asRules """
+		_p("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#") .
+		_p("rdfs", "http://www.w3.org/2000/01/rdf-schema#") .
+		_p("xsd", "http://www.w3.org/2001/XMLSchema#") .
+
+		literal(_l(L,T)) :- _t(_,_,_l(L,T)) .
+		literal(_l(L,T)) :- xsd(_l(L,T)) .
+
+		_t(_l(L,T),"rdf:type","rdfs:Literal") :- _t(S,P,_l(L,T)), literal(_l(L,T)) .
+		:- _t(_l(L,T),"rdf:type","rdfs:Literal"), not literal(_l(L,T)) .
+
+		_t(U,"rdf:type",X) :- _t(A,"rdfs:domain",X), _t(U,A,V) .
+		_t(V,"rdf:type",X) :- _t(A,"rdfs:range",X), _t(U,A,V) .
+		_t(X,"rdf:type",B) :- _t(A,"rdfs:domain",B), _t(X,C,Y), _t(C,"rdfs:subPropertyOf",B) .
+		_t(Y,"rdf:type",B) :- _t(A,"rdfs:range",B), _t(X,C,Y), _t(C,"rdfs:subPropertyOf",B) .
+		_t(U,"rdf:type","rdfs:Resource") :- _t(U,A,X) .
+		_t(V,"rdf:type","rdfs:Resource") :- _t(U,A,V) .
+		_t(U,"rdfs:subPropertyOf",X) :- _t(U,"rdfs:subPropertyOf",V), _t(V,"rdfs:subPropertyOf",X) .
+		_t(U,"rdfs:subPropertyOf",U) :- _t(U,"rdf:type","rdf:Property") .
+		_t(U,B,Y) :- _t(A,"rdfs:subPropertyOf",B), _t(U,A,Y) .
+		_t(U,"rdfs:subClassOf","rdfs:Resource") :- _t(U,"rdf:type","rdfs:Class") .
+		_t(V,"rdf:type",X) :- _t(U,"rdfs:subClassOf",X), _t(V,"rdf:type",U) .
+		_t(U,"rdfs:subClassOf",U) :- _t(U,"rdf:type","rdfs:Class") .
+		_t(U,"rdfs:subClassOf",X) :- _t(U,"rdfs:subClassOf",V), _t(V,"rdfs:subClassOf",X) .
+		_t(U,"rdfs:subPropertyOf","rdfs:member") :- _t(U,"rdf:type","rdfs:cmp") .
+		_t(U,"rdfs:subPropertyOf","rdfs:Literal") :- _t(U,"rdf:type","rdfs:Datatype") .
+	"""^^xsd:string .

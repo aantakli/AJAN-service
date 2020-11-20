@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
+    <artifactId>plugins</artifactId>
+    <packaging>pom</packaging>
+    <name>plugins</name>
+
+    <parent>
+        <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
+        <artifactId>pluginsystem</artifactId>
+        <version>0.1</version>
+    </parent>
+
+    <modules>
+        <module>StandardBTNodes</module>
+        <module>MappingPlugin</module>
+        <module>ASPPlugin</module>
+        <module>STRIPSPlugin</module>
+        <module>MOSIMPlugin</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>de.dfki.asr.ajan</groupId>
+            <artifactId>behaviour</artifactId>
+            <version>0.1</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
+            <artifactId>loader</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.dfki.asr.ajan</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.cyberborean</groupId>
+            <artifactId>rdfbeans</artifactId>
+            <version>2.2-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,3 @@
+[submodule "rdfbeans"]
+	path = rdfbeans
+	url = https://github.com/cyberborean/rdfbeans.git

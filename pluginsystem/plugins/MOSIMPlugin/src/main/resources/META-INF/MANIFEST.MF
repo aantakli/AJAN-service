@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: andre
+Build-Jdk: 1.8.0_91
+Plugin-Class: de.dfki.asr.ajan.pluginsystem.mosimplugin.MOSIMPlugin
+Plugin-Id: MOSIMPlugin
+Plugin-Provider: Andre Antakli
+Plugin-Version: 0.0.1

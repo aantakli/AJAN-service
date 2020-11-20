@@ -1,0 +1,3054 @@
+# @base <http://localhost:8090/rdf4j/repositories/behaviors#> .
+
+@prefix agents: <http://localhost:8090/rdf4j/repositories/agents#> .
+@prefix : <http://localhost:8090/rdf4j/repositories/behaviors#> .
+@prefix domain: <http://localhost:8090/rdf4j/repositories/domain#> .
+@prefix services: <http://localhost:8090/rdf4j/repositories/services#> .
+@prefix actn: <http://www.ajan.de/actn#> .
+
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+@prefix mosim: <http://www.dfki.de/mosim-ns#> .
+@prefix bt-mosim: <http://www.ajan.de/behavior/mosim-ns#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+@prefix http-core: <http://www.w3.org/2006/http#> .
+@prefix http-headers: <http://www.w3.org/2008/http-headers#> .
+@prefix http-methods: <http://www.w3.org/2008/http-methods#> .
+@prefix thrift: <http://www.ajan.de/behavior/thrift-ns#> .
+@prefix steer: <http://www.ajan.de/behavior/steer-ns#>.
+# --------------------------------------------
+# --------------- TestBehavior ---------------
+# --------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Agento?capability=execute | POST | text/turtle
+# Body: ""
+
+# ----------- Behavior ------------
+
+:TestBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "TestBehavior" ;
+	bt:hasChild
+		[ a bt:Sequence ;
+		  bt:hasChildren (
+			:CreateEndCallbackServer
+			:CreatePositioningCallbackServer
+			:RegisterEndListener
+			:RegisterPositioningListener
+			:GetScene
+			#[ a bt:Parallel ;
+				#bt:orchestration bt:Join ;
+			#	bt:hasChildren (
+			#		:GenericIdleTest
+			#		[ a bt:Sequence ;
+			#			bt:hasChildren (
+							#:GetWalkPoints
+							#:GenericReachTest
+							#:GenericCarryTest
+							#:GenericWalkTest
+							#[ a bt:Parallel ;
+							#	bt:hasChildren (
+							#		:GenericIdleTest2
+							#		[ a bt:Sequence ;
+							#			bt:hasChildren (
+							#				:GenericMoveTest
+							#				:GenericReleaseTest
+							#			)
+							#		]
+							#	)
+							#]
+			#			)
+			#		]
+			#	)
+			#]
+			#:MatchingReachAction
+			#:CarryTest
+			#:MatchingWalkAction
+			:IdleTest
+			:ReachTest
+			:CarryTest
+			:AbortIdle
+			:WalkTest
+			:IdleTest
+			:AbortCarry
+			:MoveTest
+			:ReleaseTest
+		  )
+		] .
+
+# ----------- Behavior ------------
+
+:InitialBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "InitialBehavior" ;
+	bt:hasChild
+		[ a bt:Sequence ;
+		  bt:hasChildren (
+			:CreateEndCallbackServer
+			:CreatePositioningCallbackServer
+			:RegisterEndListener
+			:RegisterPositioningListener
+			:GetAvailableMMUs
+		  )
+		] .
+
+# ----------- Behavior ------------
+
+:FinalBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "FinalBehavior" ;
+	bt:hasChild
+		[ a bt:Sequence ;
+		  bt:hasChildren (
+			:DeleteEndCallbackServer
+			:DeletePositioningCallbackServer
+			:UnregisterEndListener
+			:UnregisterPositioningListener
+		  )
+		] .
+
+# -------
+
+:GetAvailableMMUs
+	a bt-mosim:GetAvailableMMUs ;
+	rdfs:label "GetAvailableMMUs" ;
+	bt-mosim:host [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:AgentKnowledge ;
+		  bt:sparql """
+			PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			SELECT ?host ?port 
+			WHERE {
+				?cosim rdf:type mosim:Registry .
+				?cosim mosim:host ?host .
+				?cosim mosim:port ?port .
+			}"""^^xsd:string ;
+	] ;
+	bt-mosim:sessionID "AJAN-123"^^xsd:string ;
+	bt:targetBase ajan:AgentKnowledge .
+
+# -------
+
+:CreateEndCallbackServer
+	a bt-mosim:CreateCallbackServer ;
+	rdfs:label "CreateEndCallbackServer" ;
+	bt-mosim:callback "8083"^^xsd:int .
+
+# -------
+
+:CreatePositioningCallbackServer
+	a bt-mosim:CreateCallbackServer ;
+	rdfs:label "CreatePositioningCallbackServer" ;
+	bt-mosim:callback "8084"^^xsd:int .
+
+# -------
+
+:RegisterEndListener
+	a bt-mosim:RegisterListener ;
+	rdfs:label "RegisterEndListener" ;
+	bt-mosim:eventType "end" ;
+	bt-mosim:host [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:AgentKnowledge ;
+		  bt:sparql """
+			PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			SELECT ?host ?port 
+			WHERE {
+				?cosim rdf:type mosim:CoSimulator .
+				?cosim mosim:host ?host .
+				?cosim mosim:port ?port .
+			}"""^^xsd:string ;
+	] ;
+	bt-mosim:callback "8083"^^xsd:int ;
+	bt:targetBase ajan:AgentKnowledge .
+
+# -------
+
+:RegisterPositioningListener
+	a bt-mosim:RegisterListener ;
+	rdfs:label "RegisterPositioningListener" ;
+	bt-mosim:eventType "PositioningFinished" ;
+	bt-mosim:host [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:AgentKnowledge ;
+		  bt:sparql """
+			PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			SELECT ?host ?port 
+			WHERE {
+				?cosim rdf:type mosim:CoSimulator .
+				?cosim mosim:host ?host .
+				?cosim mosim:port ?port .
+			}"""^^xsd:string ;
+	] ;
+	bt-mosim:callback "8084"^^xsd:int ;
+	bt:targetBase ajan:AgentKnowledge .
+
+# -------
+
+:DeleteEndCallbackServer
+	a bt-mosim:DeleteCallbackServer ;
+	rdfs:label "DeleteEndCallbackServer" ;
+	bt-mosim:callback "8083"^^xsd:int .
+
+# -------
+
+:DeletePositioningCallbackServer
+	a bt-mosim:DeleteCallbackServer ;
+	rdfs:label "DeletePositioningCallbackServer" ;
+	bt-mosim:callback "8084"^^xsd:int .
+
+# -------
+
+:UnregisterEndListener
+	a bt-mosim:UnregisterListener ;
+	rdfs:label "UnregisterEndListener" ;
+	bt-mosim:eventType "end" ;
+	bt-mosim:host [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:AgentKnowledge ;
+		  bt:sparql """
+			PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			SELECT ?host ?port 
+			WHERE {
+				?cosim rdf:type mosim:CoSimulator .
+				?cosim mosim:host ?host .
+				?cosim mosim:port ?port .
+			}"""^^xsd:string ;
+	] ;
+	bt-mosim:callback "8083"^^xsd:int ;
+	bt:targetBase ajan:AgentKnowledge .
+
+# -------
+
+:UnregisterPositioningListener
+	a bt-mosim:UnregisterListener ;
+	rdfs:label "UnregisterPositioningListener" ;
+	bt-mosim:eventType "PositioningFinished" ;
+	bt-mosim:host [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:AgentKnowledge ;
+		  bt:sparql """
+			PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			SELECT ?host ?port 
+			WHERE {
+				?cosim rdf:type mosim:CoSimulator .
+				?cosim mosim:host ?host .
+				?cosim mosim:port ?port .
+			}"""^^xsd:string ;
+	] ;
+	bt-mosim:callback "8084"^^xsd:int ;
+	bt:targetBase ajan:AgentKnowledge .
+
+# -------
+
+:GetWalkPoints
+	a bt-mosim:GetWalkPoints ;
+	rdfs:label "GetWalkPoints" ;
+	bt-mosim:host [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:AgentKnowledge ;
+		  bt:sparql """
+			PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			SELECT ?host ?port 
+			WHERE {
+				VALUES ?host { "127.0.0.1" }
+				VALUES ?port { 8905 }
+			}"""^^xsd:string ;
+	] ;
+	bt-mosim:sceneObjects [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:AgentKnowledge ;
+		  bt:sparql """
+			PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			SELECT ?id
+			WHERE {
+				?objcet rdf:type mosim:MSceneObject .
+				?objcet mosim:id ?id .
+			}"""^^xsd:string ;
+	] ;
+	bt-mosim:walkTarget [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:AgentKnowledge ;
+		  bt:sparql """
+			PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			SELECT ?targetID
+			WHERE {
+				?target rdf:type mosim:MSceneObject .
+				?target mosim:id ?targetID .
+				?target rdfs:label "PositioningTargetRight" .
+			}"""^^xsd:string ;
+	] ;
+	bt:targetBase ajan:AgentKnowledge .
+
+# -------
+
+:MatchingReachAction
+	a bt:MatchingAction ;
+	bt:evaluate false ;
+	rdfs:label "reach(MMU,Object,Hand)" ;
+	bt:getOptions [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:ServiceKnowledge ;
+		  bt:sparql """
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			SELECT ?option
+			WHERE {
+				 ?option rdf:type <http://www.ajan.de/behavior/mosim-ns#Reach> .
+			}"""^^xsd:string ;
+	] ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand "Right" .
+	?avatar mosim:mmu "reach" .
+	?target rdf:type mosim:MSceneObject .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label "GraspObject" .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string ;
+		]
+	) .
+
+# -------
+
+:MatchingWalkAction
+	a bt:MatchingAction ;
+	bt:evaluate false ;
+	rdfs:label "walk(MMU,Object,Hand)" ;
+	ajan:variables (
+		[ a ajan:Variable ;
+		  sp:varName "type" ;
+		  ajan:dataType rdfs:Resource ]
+	) ;
+	bt:getOptions [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:AgentKnowledge ;
+		  bt:sparql """
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			SELECT ?type
+			WHERE {
+				 ?mmu rdf:type <http://www.dfki.de/mosim-ns#MMUDescription> .
+				 ?mmu <http://www.dfki.de/mosim-ns#motionType> ?type .
+			}"""^^xsd:string ;
+	] ;
+	bt:getActions """
+		PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		SELECT ?option
+		WHERE {
+			 ?option rdf:type ?type .
+		}"""^^xsd:string ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:isLocatedAt ?position .
+	?target rdf:type mosim:MSceneObject .
+	?avatar mosim:mmu "walk" .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:locatedNextTo ?position .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label "Final_WalkTarget" .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string ;
+		]
+	) .
+
+# -------
+
+:GenericIdleTest
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "idle" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu "idle" .
+	_:instruction mosim:objects "" .
+	_:instruction mosim:mmuProperties "" .
+	_:instruction mosim:actionName "IdleID" .
+	_:instruction mosim:startCondition "" .
+	_:instruction mosim:endCondition "" .
+	_:instruction mosim:host ?host .
+	_:instruction mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:GenericAsyncInstruction .
+
+# -------
+
+:GenericReachTest
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "reach" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu "reach" .
+	_:instruction mosim:objects "GraspObject" .
+	_:instruction mosim:mmuProperties "TargetID, <id@GraspObject>; Hand, Right" .
+	_:instruction mosim:actionName "" .
+	_:instruction mosim:startCondition "" .
+	_:instruction mosim:endCondition "" .
+	_:instruction mosim:host ?host .
+	_:instruction mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:GenericAsyncInstruction .
+
+# -------
+
+:GenericCarryTest
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "carry" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu "carry" .
+	_:instruction mosim:objects "GraspObject" .
+	_:instruction mosim:mmuProperties "TargetID, <id@GraspObject>; Hand, Right; AddOffset, false" .
+	_:instruction mosim:actionName "CarryID" .
+	_:instruction mosim:startCondition "" .
+	_:instruction mosim:endCondition "" .
+	_:instruction mosim:host ?host .
+	_:instruction mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:GenericAsyncInstruction .
+
+# -------
+
+:GenericWalkTest
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "walk" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu "walk" .
+	_:instruction mosim:objects "WalkTarget2" .
+	_:instruction mosim:mmuProperties "TargetID, <id@WalkTarget2>; OnStart, <actionId@IdleID>:EndInstruction" .
+	_:instruction mosim:actionName "WalkID" .
+	_:instruction mosim:startCondition "" .
+	_:instruction mosim:endCondition "" .
+	_:instruction mosim:host ?host .
+	_:instruction mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:GenericAsyncInstruction .
+
+# -------
+
+:GenericIdleTest2
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "idle" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu "idle" .
+	_:instruction mosim:objects "" .
+	_:instruction mosim:mmuProperties "" .
+	_:instruction mosim:actionName "IdleID2" .
+	_:instruction mosim:startCondition "" .
+	_:instruction mosim:endCondition "" .
+	_:instruction mosim:host ?host .
+	_:instruction mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:GenericAsyncInstruction .
+
+# -------
+
+:GenericMoveTest
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "move" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu "move" .
+	_:instruction mosim:objects "GraspObject; PositioningTargetRight" .
+	_:instruction mosim:mmuProperties "SubjectID, <id@GraspObject>; TargetID, <id@PositioningTargetRight>; OnStart, <actionId@CarryID>:EndInstruction" .
+	_:instruction mosim:actionName "" .
+	_:instruction mosim:startCondition "" .
+	_:instruction mosim:endCondition "" .
+	_:instruction mosim:host ?host .
+	_:instruction mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:GenericAsyncInstruction .
+
+# -------
+
+:GenericReleaseTest
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "release" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu "release" .
+	_:instruction mosim:objects "" .
+	_:instruction mosim:mmuProperties "Hand, Right" .
+	_:instruction mosim:actionName "" .
+	_:instruction mosim:startCondition "" .
+	_:instruction mosim:endCondition "" .
+	_:instruction mosim:host ?host .
+	_:instruction mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:GenericAsyncInstruction .
+
+# -------
+
+# -------
+
+:IdleTest
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "idle()" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:IdleInstruction .
+
+# -------
+
+:AbortIdle
+	a bt-mosim:AbortInstruction ;
+	rdfs:label "AbortInstruction" ;
+	bt-mosim:host [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:AgentKnowledge ;
+		  bt:sparql """
+			PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			SELECT ?host ?port 
+			WHERE {
+				?cosim rdf:type mosim:CoSimulator .
+				?cosim mosim:host ?host .
+				?cosim mosim:port ?port .
+			}"""^^xsd:string ;
+	] ;
+	bt-mosim:instructionID [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:AgentKnowledge ;
+		  bt:sparql """
+			PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			SELECT ?id 
+			WHERE {
+				?avatar rdf:type mosim:Avatar .
+				?avatar mosim:instruction ?instruction .
+				?instruction mosim:mmu "idle" .
+				?instruction mosim:actionID ?id .
+			}"""^^xsd:string ;
+	] .
+
+# -------
+
+:ReachTest
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "reach(MMU,Object,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand "Right" .
+	?target rdf:type mosim:MSceneObject .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label "GraspObject" .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:ReachInstruction .
+
+# -------
+
+:CarryTest
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "carry(Object,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand "Right" .
+	?target rdf:type mosim:MSceneObject .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label "GraspObject" .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:CarryInstruction .
+
+# -------
+
+:WalkTest
+	a bt:Action ;
+	rdfs:label "walk(MMU,Object)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:isLocatedAt ?position .
+	?target rdf:type mosim:MSceneObject .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:isLocatedAt ?position .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label "WalkTarget2" .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:WalkInstruction .
+
+# -------
+
+:AbortCarry
+	a bt-mosim:AbortInstruction ;
+	rdfs:label "AbortCarry" ;
+	bt-mosim:host [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:AgentKnowledge ;
+		  bt:sparql """
+			PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			SELECT ?host ?port 
+			WHERE {
+				?cosim rdf:type mosim:CoSimulator .
+				?cosim mosim:host ?host .
+				?cosim mosim:port ?port .
+			}"""^^xsd:string ;
+	] ;
+	bt-mosim:instructionID [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:AgentKnowledge ;
+		  bt:sparql """
+			PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			SELECT ?id 
+			WHERE {
+				?avatar rdf:type mosim:Avatar .
+				?avatar mosim:instruction ?instruction .
+				?instruction mosim:mmu "carry" .
+				?instruction mosim:actionID ?id .
+			}"""^^xsd:string ;
+	] .
+
+# -------
+
+:MoveTest
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "move(Object,Subject,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand "Right" .
+	?subject rdf:type mosim:FinalLocation .
+	?subject mosim:id ?subID .
+	?object rdf:type mosim:MSceneObject .
+	?object mosim:id ?partID .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?object rdf:type mosim:MSceneObject .
+  	?object rdfs:label "GraspObject" .
+	?object mosim:id ?partID .
+	?subject rdf:type mosim:MSceneObject .
+	?subject rdfs:label "PositioningTargetRight" .
+	?subject mosim:id ?subID .
+	
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:MoveInstruction .
+
+# -------
+
+:ReleaseTest
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "release(Object,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand "Right" .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:ReleaseInstruction .
+
+# --------------------------------------------
+# ------------- ExampleBehavior --------------
+# --------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Agento?capability=execute | POST | text/turtle
+# Body: ""
+
+# ----------- Behavior ------------
+
+:ExampleBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "ExampleBehavior" ;
+	bt:hasChild
+		[ a bt:Sequence ;
+		  bt:hasChildren (
+		  	  :LoadDynamicBehavior
+		  )
+		] .
+
+# ----------- Standard Primitives -----------
+
+:LoadDynamicBehavior
+	a bt:LoadBehavior ;
+	rdfs:label "load(DynamicBehavior)" ;
+	bt:resetBehavior true ;
+	bt:behaviorUri ( [
+		a bt:ConstructQuery ;
+		bt:originBase ajan:BehaviorKnowledge ;
+		bt:sparql """
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX bt: <http://www.ajan.de/behavior/bt-ns#>
+
+CONSTRUCT {
+	<http://ajan/some> <http://www.ajan.de/ajan-ns#bt> ?behavior .
+}
+WHERE {
+	?behavior rdf:type bt:BehaviorTree .
+	?behavior rdfs:label "DynamicBehavior" .
+}"""^^xsd:string ;
+		]
+	) .
+
+# --------------------------------------------
+# ------------- DynamicBehavior --------------
+# --------------------------------------------
+
+# ----------- Behavior ------------
+
+:DynamicBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "DynamicBehavior" ;
+	bt:hasChild
+		[ a bt:Sequence ;
+	  	  bt:hasChildren (
+	  	    :SampleUpdateQuery
+	  	  )
+	  	] .
+
+:SampleUpdateQuery
+	a bt:Update ;
+	rdfs:label "SampleUpdateQuery?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+			PREFIX test: <http://test/>
+
+			INSERT {
+				test:Task mosim:runningTask test:InitTask .
+				
+			}
+			WHERE { 
+				?s ?o ?p.
+				
+			}"""^^xsd:string ;
+		]
+	) .
+
+# --------------------------------------------
+# ------------- MOSIMBehavior --------------
+# --------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Agento?capability=example | POST | text/turtle
+# Body: "<http://test/Subject> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://test/Object> .
+#		 <http://test/Subject> <http://test/predicate> "Hallo!" ."
+
+# ----------- Behavior ------------
+
+:MOSIMBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "MOSIMBehavior" ;
+	bt:hasChild
+		[ a bt:Sequence ;
+	  	  bt:hasChildren (
+	  	    :InitUpdate
+	  	    :GetTaskList
+			:GetScene
+	  	    [ a bt:Repeater ;
+	  	      bt:setTimes [
+			    a bt:IntValue ;
+				bt:query [
+					a bt:SelectQuery ;
+					bt:originBase ajan:AgentKnowledge ;
+					bt:sparql """
+	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+	PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+
+	SELECT (count(?task) as ?intValue)
+	WHERE {
+		?task rdf:type mosim:Task .
+		?some mosim:runningTask ?running .
+		FILTER (?task != ?running)
+	}"""^^xsd:string ;
+				  ]
+			  ] ;
+	  	      bt:hasChild [
+	  	      	a bt:Sequence ;
+			  	bt:hasChildren (
+			  	  	:SetFocus
+			  	  	[ a bt:Executor ;
+			  	  	  bt:selectChild [
+			  	  	  	a bt:IntValue ;
+			  	  	  	bt:query [
+			  	  	  		a bt:SelectQuery ;
+							bt:originBase ajan:AgentKnowledge ;
+							bt:sparql """
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+
+SELECT ?intValue
+WHERE {
+	?task rdf:type mosim:Task .
+	?task mosim:operation ?operation .
+	BIND (
+		  IF ( CONTAINS(?operation,"Position"), 1,
+		  IF ( CONTAINS(?operation,"Rough"), 1,
+		  IF ( CONTAINS(?operation,"Exact"), 1, 
+		  IF ( CONTAINS(?operation,"Stick"), 1,
+		  IF ( CONTAINS(?operation,"Remove"), 1,
+		  IF ( CONTAINS(?operation,"Tighten"), 2,
+		  IF ( CONTAINS(?operation,"Loose"), 2,
+		  IF ( CONTAINS(?operation,"Fully"), 2,
+		  IF ( CONTAINS(?operation,"Torque"), 2,
+		  IF ( CONTAINS(?operation,"Untighten"), 2,
+		  IF ( CONTAINS(?operation,"Check"), 3,
+		  IF ( CONTAINS(?operation,"Visual"), 3,
+		  IF ( CONTAINS(?operation,"Manual"), 3,
+		  IF ( CONTAINS(?operation,"Adapt"), 3,
+		  0)))))))))))))) as ?intValue)
+	{ SELECT ?task
+	WHERE {
+		?running mosim:runningTask ?task .
+	}}
+}"""^^xsd:string ;
+	  	      				]
+			  	  	  	] ;
+			  	  	  bt:hasChildren (
+			  	  	  	:DefaultBehavior
+			  	  	  	:ProducePositionGoal
+			  	  	  	:ProduceTightenGoal
+						:ProduceCheckGoal
+			  	  	  )
+			  	  	]
+			  	)
+
+	  	      ]
+	  	    ]
+			:FinalWalk
+			:DisplayFinishedText
+	  	  )
+	  	] .
+
+:DefaultBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "DefaultBehavior" ;
+	bt:hasChild
+		[ a bt:Sequence ;
+		  bt:hasChildren (
+		  	:DisplayDefaultText
+		 )
+	] .
+
+:CheckBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "CheckBehavior" ;
+	bt:hasChild
+		[ a bt:Sequence ;
+		  bt:hasChildren (
+		  	:HandleCheckGoal
+		  	:DisplayCheckText
+			:Evaluate
+			:DisplayEvaluationText
+			:ReachCheckObject
+			:ReleaseCheckObject
+		  	:RemoveGoalInput
+		 )
+	] .
+
+# ----------- Standard Primitives -----------
+
+:HandleJson
+	a bt:HandleJsonEvent ;
+	rdfs:label "HandleJson" ;
+	bt:mapping (
+		domain:TaskMapping
+		domain:PartMapping
+		domain:ToolMapping
+		domain:PositionMapping
+	);
+	bt:validate [
+		a bt:ConstructQuery ;
+		bt:targetBase ajan:AgentKnowledge ;
+		bt:sparql """
+CONSTRUCT {
+	?s ?p ?o .
+}
+WHERE { GRAPH <http://localhost:8090/rdf4j/repositories/agents#JsonEvent> {
+	?s ?p ?o .
+} }"""^^xsd:string ;
+		] .
+
+# -------
+
+:InitUpdate
+	a bt:Update ;
+	rdfs:label "InitUpdate?!" ;
+	bt:query [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX test: <http://test/>
+
+INSERT {
+    test:Task mosim:runningTask test:InitTask .
+	test:InitTask rdf:type mosim:Task .
+	test:InitTask mosim:step -1 .
+	?avatar mosim:hand "Right" .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	FILTER NOT EXISTS { test:InitTask rdf:type mosim:Task }
+}"""^^xsd:string ;
+	] .
+
+# "http://localhost:8092/api?action=getTaskList&token=abc" -------
+
+:GetTaskList
+	a bt:QueryJsonDomain ;
+	rdfs:label "GetTaskList" ;
+	bt:mapping mosim:Mapping ;
+	bt:targetBase ajan:AgentKnowledge ;
+	bt:queryUri [
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT { _:blankNode <http://www.w3.org/2006/http#requestURI> ?station . }
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:worksOn ?station .
+}"""^^xsd:string ;
+		] .
+
+# -------
+
+:GetScene
+	a bt-mosim:GetScene ;
+	rdfs:label "GetScene" ;
+	bt-mosim:host [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:AgentKnowledge ;
+		  bt:sparql """
+			PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			SELECT ?host ?port 
+			WHERE {
+				?scene rdf:type mosim:Scene .
+				?scene mosim:host ?host .
+				?scene mosim:port ?port .
+			}"""^^xsd:string ;
+	] ;
+	bt:targetBase ajan:AgentKnowledge .
+
+# -------
+
+:SetFocus
+	a bt:Update ;
+	rdfs:label "SetFocus?!" ;
+	bt:query [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+
+DELETE {
+	?running mosim:runningTask ?task .
+}
+INSERT {
+    ?running mosim:runningTask ?newTask .
+}
+WHERE {
+	?running mosim:runningTask ?task .
+	?task mosim:step ?step .
+	?newTask a mosim:Task .
+	?newTask mosim:step ?newStep .
+
+	FILTER (?newStep = ?step+1)
+	FILTER (?newTask != ?task)
+}"""^^xsd:string ;
+	] .
+
+# -------
+
+:ProducePositionGoal
+	a bt:GoalProducer ;
+	rdfs:label "ProducePositionGoal" ;
+	ajan:goal agents:PositionGoal ;
+	ajan:bindings [
+		a ajan:Bindings ;
+		ajan:bindingQuery [
+			a bt:SelectQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+	PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+	SELECT ?part ?tool ?operation
+	WHERE {
+		?focus mosim:runningTask ?task .
+		?task rdf:type mosim:Task .
+	    ?task mosim:part ?part .
+	    ?task mosim:tool ?tool .
+	    ?task mosim:operation ?operation .
+	    #?task mosim:position ?position .
+	} LIMIT 1"""^^xsd:string ;
+	] ] .
+
+:ProduceTightenGoal
+	a bt:GoalProducer ;
+	rdfs:label "ProduceTightenGoal" ;
+	ajan:goal agents:TightenGoal ;
+	ajan:bindings [
+		a ajan:Bindings ;
+		ajan:bindingQuery [
+			a bt:SelectQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+	PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+	SELECT ?part ?tool ?operation
+	WHERE {
+		?focus mosim:runningTask ?task .
+		?task rdf:type mosim:Task .
+	    ?task mosim:part ?part .
+	    ?task mosim:tool ?tool .
+	    ?task mosim:operation ?operation .
+	    #?task mosim:position ?position .
+	} LIMIT 1"""^^xsd:string ;
+	] ] .
+
+:ProduceCheckGoal
+	a bt:GoalProducer ;
+	rdfs:label "ProduceCheckGoal" ;
+	ajan:goal agents:CheckGoal ;
+	ajan:bindings [
+		a ajan:Bindings ;
+		ajan:bindingQuery [
+			a bt:SelectQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+	PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+	SELECT ?part ?tool ?operation
+	WHERE {
+		?focus mosim:runningTask ?task .
+		?task rdf:type mosim:Task .
+	    ?task mosim:part ?part .
+	    ?task mosim:tool ?tool .
+	    ?task mosim:operation ?operation .
+	    #?task mosim:position ?position .
+	} LIMIT 1"""^^xsd:string ;
+	] ] .
+
+# -------
+
+:HandleCheckGoal
+	a bt:HandleEvent;
+	rdfs:label "HandleCheckGoal" ;
+	bt:validate [
+		a bt:ConstructQuery ;
+		bt:targetBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX sp: <http://spinrdf.org/sp#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:GoalPart rdf:value ?partValue .
+	test:GoalTool rdf:value ?toolValue .
+	test:GoalOperation rdf:value ?operationValue .
+}
+WHERE { GRAPH <http://localhost:8090/rdf4j/repositories/agents#CheckGoal> {
+	?part sp:varName "part".
+	?part rdf:value ?partValue .
+
+	?tool sp:varName "tool".
+	?tool rdf:value ?toolValue .
+
+	?operation sp:varName "operation".
+	?operation rdf:value ?operationValue .
+} }"""^^xsd:string ;
+		] .
+
+# -------
+
+:DisplayCheckText
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "display(Check,Time)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX sp: <http://spinrdf.org/sp#>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:Display mosim:type "Header" .
+	test:Display mosim:color "Blue" .
+	test:Display mosim:text ?text .
+}
+WHERE {
+	test:GoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	test:GoalTool rdf:value ?tool .
+	?tool mosim:type ?toolName .
+
+	test:GoalOperation rdf:value ?operationValue .
+
+	BIND (CONCAT(?operationValue," with ",STR(?toolName),": ",STR(?partName)) as ?text)
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:TextAction .
+
+# -------
+
+:ReachCheckObject
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "reach(MMU,CheckObject,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+	?avatar mosim:mmu "reach" .
+	?target mosim:id ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:GoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?area mosim:contains ?target .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+	?target mosim:id ?id .
+	
+	test:GoalTool rdf:value ?tool .
+	?tool mosim:type ?toolName .
+	BIND (IF (?toolName="RightHand", "Right", IF (?toolName="LeftHand", "Left", IF (?toolName="BothHands", "BothHands", "NULL"))) as ?hand)
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:ReachAction .
+
+# -------
+
+:ReleaseCheckObject
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "release(CheckObject,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	
+	test:GoalTool rdf:value ?tool .
+	?tool mosim:type ?toolName .
+	BIND (IF (?toolName="RightHand", "Right", IF (?toolName="LeftHand", "Left", IF (?toolName="BothHands", "BothHands", "NULL"))) as ?hand)
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:ReleaseAction .
+
+# -------
+
+:DisplayDefaultText
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "display(Text,Time)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:Display mosim:type "Header" .
+	test:Display mosim:color "Blue" .
+	test:Display mosim:text "Default Task ;-) " .
+}
+WHERE {
+	?s ?p ?o .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:TextAction .
+
+# -------
+
+:FinalWalk
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "walk(MMU,Object)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:isLocatedAt ?position .
+	?avatar mosim:mmu "walk" .
+	?target rdf:type mosim:MSceneObject .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:locatedNextTo ?position .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label "Final_WalkTarget" .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:WalkInstruction .
+
+# ------- Example Primitives -------
+
+:ExampleUpdate
+	a bt:Update ;
+	rdfs:label "ExampleUpdate?!" ;
+	bt:query [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX test: <http://test/>
+
+DELETE {
+	test:Subject test:predicate "Bonschorno!" .
+}
+INSERT {
+    test:Subject test:predicate "Salute!" .
+}
+WHERE {
+	test:Subject test:predicate "Bonschorno!" .
+}"""^^xsd:string ;
+	] .
+
+# -------
+
+:ExampleSync
+    a bt:Action ;
+	bt:evaluate false ;
+    rdfs:label "ExampleSync!" ;
+    bt:inputs ( [
+		a bt:Input ;
+        a bt:ConstructQuery ;
+        bt:originBase ajan:AgentKnowledge ;
+        bt:sparql """
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+    test:Subject test:predicate ?gruss .
+}
+WHERE {
+ 	test:Subject test:predicate ?gruss .
+}"""^^xsd:string ;
+        ]
+    ) ;
+    bt:definition services:ExampleSyncAction .
+
+# -------
+
+:ExampleWrite
+	a bt:Write ;
+	rdfs:label "ExampleWrite!" ;
+	bt:query [
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:targetBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+    test:Subject test:predicate ?gruss .
+}
+WHERE {
+ 	test:Subject test:predicate ?gruss .
+}"""^^xsd:string ;
+	] .
+
+# -------
+
+:ExampleCondition
+	a bt:Condition;
+	rdfs:label "ExampleCondition?" ;
+	bt:query [
+		a bt:Constraint ;
+		a bt:AskQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX test: <http://test/>
+
+ASK
+WHERE {
+	 test:Subject test:predicate "Gruess Gott!" .
+}"""^^xsd:string ;
+	] .
+
+# -------
+
+:ExampleAsync
+    a bt:Action ;
+	bt:evaluate false ;
+    rdfs:label "ExampleAsync!" ;
+    bt:inputs ( [
+		a bt:Input ;
+        a bt:ConstructQuery ;
+        bt:originBase ajan:AgentKnowledge ;
+        bt:sparql """
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+    test:Subject test:predicate ?gruss .
+}
+WHERE {
+ 	test:Subject test:predicate ?gruss .
+}"""^^xsd:string ;
+        ]
+    ) ;
+    bt:definition services:ExampleAsyncAction .
+
+# --------------------------------------------
+# ------------- TightenBehavior --------------
+# --------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Agento?capability=example | POST | text/turtle
+# Body: "<http://test/Subject> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://test/Object> .
+#		 <http://test/Subject> <http://test/predicate> "Hallo!" ."
+
+# ----------- Behavior ------------
+
+:TightenBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "TightenBehavior" ;
+	bt:hasChild
+		[ a bt:Sequence ;
+		  bt:hasChildren (
+		  	:HandleTightenGoal
+			[ a bt:Sequence ;
+				bt:hasChildren (
+					[ a bt:Priority ;
+					  bt:hasChildren (
+						:CheckAuxObjectPlaced
+						[ a bt:Sequence ;
+						  bt:hasChildren (
+							:CreateGoalValues
+							:ProducePositionAuxObjectGoal
+						  )
+						]
+					  )
+					]
+					:DisplayTightenText
+					:Evaluate
+					:DisplayEvaluationText
+					[ a bt:Priority ;
+					  bt:hasChildren (
+						[ a bt:Sequence ;
+						  bt:hasChildren (
+							[ a bt:Invert ;
+							  bt:hasChild :CheckHandNeeded
+							]
+							:WalkToTool
+							:ReachTool
+							:CarryTool
+							:WalkToTightenObject
+							:MoveTightenObject
+							:CarryTool
+							:WalkToReleaseTool
+							:MoveToolRelease
+							:ReleaseTheTool
+						  )
+						]
+						[ a bt:Sequence ;
+						  bt:hasChildren (
+							[ a bt:Priority ;
+							  bt:hasChildren (
+								:AtTightenTarget
+								:WalkToTightenObject
+							  )
+							]
+							:ReachTightenObject
+							:ReleaseTightenObject
+						  )
+						]
+					  )
+					]
+				)
+			]
+			:FinishSimulation
+			:RemoveEvaluateResult
+		  	:RemoveTightenGoalInput
+		 )
+	] .
+
+# ----------- Standard Primitives -----------
+
+:HandleTightenGoal
+	a bt:HandleEvent;
+	rdfs:label "HandleTightenGoal" ;
+	bt:validate [
+		a bt:ConstructQuery ;
+		bt:targetBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX sp: <http://spinrdf.org/sp#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:TightenGoalPart rdf:value ?partValue .
+	test:TightenGoalTool rdf:value ?toolValue .
+	test:TightenGoalOperation rdf:value ?operationValue .
+}
+WHERE { GRAPH <http://localhost:8090/rdf4j/repositories/agents#TightenGoal> {
+	?part sp:varName "part".
+	?part rdf:value ?partValue .
+
+	?tool sp:varName "tool".
+	?tool rdf:value ?toolValue .
+
+	?operation sp:varName "operation".
+	?operation rdf:value ?operationValue .
+} }"""^^xsd:string ;
+		] .
+
+:HandleDebug
+	a bt:HandleEvent;
+	rdfs:label "HandleDebug" ;
+	bt:validate [
+		a bt:ConstructQuery ;
+		bt:targetBase ajan:AgentKnowledge ;
+		bt:sparql """
+			CONSTRUCT {
+				?s ?p ?o .
+			}
+			WHERE { GRAPH <http://localhost:8090/rdf4j/repositories/agents#ExecuteEvent> {
+				?s ?p ?o .
+			} }"""^^xsd:string ;
+		] .
+
+# -------
+
+:DisplayTightenText
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "display(Text,Time)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX sp: <http://spinrdf.org/sp#>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:Display mosim:type "Header" .
+	test:Display mosim:color "Blue" .
+	test:Display mosim:text ?text .
+}
+WHERE {
+	test:TightenGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	test:TightenGoalTool rdf:value ?tool .
+	?tool mosim:type ?toolName .
+
+	test:TightenGoalOperation rdf:value ?operationValue .
+
+	BIND (CONCAT(?operationValue," with ",STR(?toolName),": ",STR(?partName)) as ?text)
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:TextAction .
+
+# -------
+
+:CheckAuxObjectPlaced
+	a bt:Condition;
+	rdfs:label "CheckAuxObjectPlaced" ;
+	bt:query [
+		a bt:Constraint ;
+		a bt:AskQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX test: <http://test/>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ASK
+WHERE {
+	test:TightenGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+	?target mosim:isLocatedAt ?finalPos .
+	?target mosim:finalLocation ?finalPos .
+	
+	?finalPos rdf:type mosim:FinalLocation .
+}"""^^xsd:string ;
+	] .
+
+# -------
+
+:CreateGoalValues
+	a bt:Update ;
+	rdfs:label "CreateGoalValues?!" ;
+	bt:query [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX test: <http://test/>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+
+INSERT {
+	?tool mosim:type "RightHand" .
+	?operation mosim:type "PositionLoose" .
+}
+WHERE {
+	VALUES ?tool { test:TestTool }
+	VALUES ?operation { test:TestOperation }
+}"""^^xsd:string ;
+	] .
+
+# -------
+
+:ProducePositionAuxObjectGoal
+	a bt:GoalProducer ;
+	rdfs:label "ProducePositionGoal" ;
+	ajan:goal agents:PositionGoal ;
+	ajan:bindings [
+		a ajan:Bindings ;
+		ajan:bindingQuery [
+			a bt:SelectQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+	PREFIX test: <http://test/>
+	PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+	
+	SELECT ?part ?tool ?operation
+	WHERE {
+		test:TightenGoalPart rdf:value ?part .
+		
+		?tool mosim:type "RightHand" .
+		VALUES ?operation { "PositionLoose" } .
+	} LIMIT 1"""^^xsd:string ;
+	] ] .
+
+# -------
+
+:CheckHandNeeded
+	a bt:Condition;
+	rdfs:label "CheckHandNeeded" ;
+	bt:query [
+		a bt:Constraint ;
+		a bt:AskQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX test: <http://test/>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+ASK
+WHERE {
+	test:TightenGoalTool rdf:value ?tool .
+	?tool mosim:type ?toolName .
+	FILTER CONTAINS(STR(?toolName), "Hand" )
+}"""^^xsd:string ;
+	] .
+
+# -------
+
+:WalkToTool
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "walk(MMU,Tool)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:locatedNextTo ?position .
+	?avatar mosim:mmu "walk" .
+	?targetPOI mosim:id ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:locatedNextTo ?position .
+	test:TightenGoalTool rdf:value ?tool .
+	?tool mosim:type ?toolName .
+
+	?area mosim:contains ?target .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?toolName .
+
+	?area mosim:contains ?targetPOI .
+	?targetPOI rdf:type mosim:WalkTarget .
+	?targetPOI mosim:id ?id .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:WalkAction .
+
+# -------
+
+:ReachTool
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "reach(MMU,Tool,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand "Right" .
+	?avatar mosim:mmu "reach" .
+	?target mosim:id ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:TightenGoalTool rdf:value ?tool .
+	?tool mosim:type ?toolName .
+
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?toolName .
+	?target mosim:id ?id .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:ReachAction .
+
+# -------
+
+:CarryTool
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "carry(Object,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand "Right" .
+	?target mosim:id ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:TightenGoalTool rdf:value ?tool .
+	?tool mosim:type ?toolName .
+
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?toolName .
+	?target mosim:id ?id .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:CarryAction .
+
+# -------
+
+:MoveTightenObject
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "move(Object,Subject,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand "Right" .
+	?subject rdf:type mosim:FinalLocation .
+	?subject mosim:id ?subID .
+	?toolObj rdf:type mosim:MSceneObject .
+	?toolObj mosim:id ?toolID .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:TightenGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+	test:TightenGoalTool rdf:value ?tool .
+	?tool mosim:type ?toolName .
+	?toolObj rdf:type mosim:MSceneObject .
+	?toolObj rdfs:label ?toolName .
+	?toolObj mosim:id ?toolID .
+
+	?object rdf:type mosim:MSceneObject .
+  	?object rdfs:label ?partName .
+	?object mosim:finalLocation ?subject . 
+
+	?subject rdf:type mosim:FinalLocation .
+  	?subject mosim:id ?subID .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:MoveAction .
+
+# -------
+
+:WalkToReleaseTool
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "walk(MMU,ToolRelease)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:locatedNextTo ?position .
+	?avatar mosim:mmu "walk" .
+	?targetPOI mosim:id ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:locatedNextTo ?position .
+	test:TightenGoalTool rdf:value ?goaTool .
+	?goaTool mosim:type ?toolName .
+	?tool rdf:type mosim:MSceneObject .
+	?tool rdfs:label ?toolName .
+	?tool mosim:initialLocation ?target .
+
+	?area mosim:contains ?target .
+	?target rdf:type mosim:InitialLocation .
+  	?target mosim:id ?toolID .
+  
+  	?area mosim:contains ?targetPOI .
+    ?targetPOI rdf:type mosim:WalkTarget .
+	?targetPOI mosim:id ?id .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:WalkAction .
+
+# -------
+
+:MoveToolRelease
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "move(Object,Subject,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand "Right" .
+	?subject rdf:type mosim:FinalLocation .
+	?subject mosim:id ?subID .
+	?toolObj rdf:type mosim:MSceneObject .
+	?toolObj mosim:id ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:TightenGoalTool rdf:value ?tool .
+	?tool mosim:type ?toolName .
+	?toolObj rdf:type mosim:MSceneObject .
+	?toolObj rdfs:label ?toolName .
+	?toolObj mosim:id ?id .
+	?toolObj mosim:initialLocation ?subject .
+
+	?subject rdf:type mosim:InitialLocation .
+  	?subject mosim:id ?subID .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:MoveAction .
+
+# -------
+
+:ReleaseTheTool
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "release(Tool,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand "Right" .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:ReleaseAction .
+
+# -------
+
+:AtTightenTarget
+	a bt:Condition;
+	rdfs:label "AtTightenTarget" ;
+	bt:query [
+		a bt:Constraint ;
+		a bt:AskQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX test: <http://test/>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+ASK
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:TightenGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?object rdf:type mosim:MSceneObject .
+  	?object rdfs:label ?partName .
+	?object mosim:finalLocation ?target .
+
+	?area mosim:contains ?target .
+	?target rdf:type mosim:FinalLocation .
+	
+	?area mosim:contains ?targetPOI .
+	?targetPOI rdf:type mosim:WalkTarget .
+	
+	?avatar mosim:locatedNextTo ?targetPOI .
+}"""^^xsd:string ;
+	] .
+
+# -------
+
+:WalkToTightenObject
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "walk(TightenObject)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:locatedNextTo ?position .
+	?avatar mosim:mmu "walk" .
+	?targetPOI mosim:id ?finalID .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:locatedNextTo ?position .
+	test:TightenGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?object rdf:type mosim:MSceneObject .
+  	?object rdfs:label ?partName .
+	?object mosim:finalLocation ?target .
+
+	?area mosim:contains ?target .
+	?target rdf:type mosim:FinalLocation .
+
+	?area mosim:contains ?targetPOI .
+	?targetPOI rdf:type mosim:WalkTarget .
+	?targetPOI mosim:id ?finalID .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:WalkAction .
+
+# -------
+
+:ReachTightenObject
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "reach(MMU,TightenObject,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+	?avatar mosim:mmu "reach" .
+	?target mosim:id ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:TightenGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?area mosim:contains ?target .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+	?target mosim:id ?id .
+	
+	test:TightenGoalTool rdf:value ?tool .
+	?tool mosim:type ?toolName .
+	BIND (IF (?toolName="RightHand", "Right", IF (?toolName="LeftHand", "Left", IF (?toolName="BothHands", "BothHands", "NULL"))) as ?hand)
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:ReachAction .
+
+# -------
+
+:ReleaseTightenObject
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "release(TightenObject,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	
+	test:TightenGoalTool rdf:value ?tool .
+	?tool mosim:type ?toolName .
+	BIND (IF (?toolName="RightHand", "Right", IF (?toolName="LeftHand", "Left", IF (?toolName="BothHands", "BothHands", "NULL"))) as ?hand)
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:ReleaseAction .
+
+# -------
+
+:FinishSimulation
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "abort(Avatar)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:AbortAction .
+
+# -------
+
+:DisplayFinishedText
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "display(Text,Time)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:Display mosim:type "Header" .
+	test:Display mosim:color "Black" .
+	test:Display mosim:text "Station 1 of pedal car assembly: FINISHED!" .
+}
+WHERE {
+	?s ?p ?o .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:TextAction .
+
+# --------------------------------------------
+# ------------- PositionBehavior -------------
+# --------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Agento?capability=example | POST | text/turtle
+# Body: "<http://test/Subject> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://test/Object> .
+#		 <http://test/Subject> <http://test/predicate> "Hallo!" ."
+
+# ----------- Behavior ------------
+
+:PositionBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "PositionBehavior" ;
+	bt:hasChild
+		[ a bt:Sequence ;
+		  bt:hasChildren (
+		  	  :HandlePositionGoal
+		  	  :DisplayPositionText
+			  :Evaluate
+			  :DisplayEvaluationText
+			  [ a bt:Priority ;
+				  bt:hasChildren (
+					:AtObject
+					:WalkToObject
+				  )
+			  ]
+			  :SetHands
+			  [ a bt:Priority ;
+				bt:hasChildren (
+					[ a bt:Sequence ;
+					  bt:hasChildren (
+						:CheckBothHands
+						:ReachBothObject
+						:CarryBothObject
+					  )
+					]
+					[ a bt:Sequence ;
+					  bt:hasChildren (
+						:ReachObject
+						:CarryObject
+					  )
+					]
+				)
+			  ]
+		  	  :WalkToTarget
+			  [ a bt:Priority ;
+				 bt:hasChildren (
+					[ a bt:Sequence ;
+					  bt:hasChildren (
+					    :CheckBothHands
+						:MoveBothObject
+						:ReleaseBothObject
+						:SetNewPosition
+					  )
+					]
+					[ a bt:Sequence ;
+					  bt:hasChildren (
+						:MoveObject
+						:ReleaseObject
+						:SetNewPosition
+					  )
+					]
+				)
+			  ]
+			  :FinishSimulation
+			  :RemoveEvaluateResult
+		  	  :RemovePositionGoalInput
+		  )
+		] .
+
+# ----------- Standard Primitives -----------
+
+:HandlePositionGoal
+	a bt:HandleEvent;
+	rdfs:label "HandlePositionGoal" ;
+	bt:eventContext <http://test/PositionGoal> ;
+	bt:validate [
+		a bt:ConstructQuery ;
+		bt:targetBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX sp: <http://spinrdf.org/sp#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:PositionGoalPart rdf:value ?partValue .
+	test:PositionGoalTool rdf:value ?toolValue .
+	test:PositionGoalOperation rdf:value ?operationValue .
+}
+WHERE { GRAPH <http://localhost:8090/rdf4j/repositories/agents#PositionGoal> {
+	?part sp:varName "part".
+	?part rdf:value ?partValue .
+
+	?tool sp:varName "tool".
+	?tool rdf:value ?toolValue .
+
+	?operation sp:varName "operation".
+	?operation rdf:value ?operationValue .
+} }"""^^xsd:string ;
+		] .
+
+# -------
+
+:DisplayPositionText
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "display(Text,Time)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX sp: <http://spinrdf.org/sp#>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:Display mosim:type "Header" .
+	test:Display mosim:color "Blue" .
+	test:Display mosim:text ?text .
+}
+WHERE {
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	test:PositionGoalTool rdf:value ?tool .
+	?tool mosim:type ?toolName .
+
+	test:PositionGoalOperation rdf:value ?operationValue .
+
+	BIND (CONCAT(?operationValue," with ",STR(?toolName),": ",STR(?partName)) as ?text)
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:TextAction .
+
+# -------
+
+:DisplayEvaluationText
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "display(Text,Time)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX bt: <http://www.ajan.de/behavior/bt-ns#>
+PREFIX sp: <http://spinrdf.org/sp#>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+CONSTRUCT {
+	test:Display mosim:type "Breakdown" .
+	test:Display mosim:color "Black" .
+	test:Display mosim:text ?final .
+}
+WHERE {
+  { SELECT (GROUP_CONCAT(?text;SEPARATOR=";") AS ?final)
+    WHERE {
+      { SELECT ?node (CONCAT("(",GROUP_CONCAT(?value;SEPARATOR=","),")") AS ?vars) ?state
+        WHERE {
+          { SELECT ?item ?node ?value
+            WHERE {
+                ?eval rdf:type bt:BTEvaluationResult .
+                ?eval bt:steps/rdf:rest*/rdf:first ?item .
+                ?item bt:btNode ?node .
+                ?item bt:binding ?binding .
+                ?binding sp:varName ?name .
+                ?binding bt:value ?value .
+            } 
+		  } 
+        } GROUP BY ?item ?node ?state ORDER BY ?item 
+      } 
+	BIND(CONCAT(STR(?node),?vars) AS ?text) 
+    } 
+  }
+}  """^^xsd:string ;
+		]
+	) ;
+	bt:definition services:TextAction .
+
+# -------
+
+:Evaluate
+	a bt:Evaluate ;
+	rdfs:label "Evaluate" ;
+	bt:initialKnowledge ([
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+CONSTRUCT
+WHERE {
+	?s ?p ?o .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:context <http://evaluate/1> ;
+	bt:targetBase ajan:AgentKnowledge .
+
+# -------
+
+:WalkToObject
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "walk(MMU,Object)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:locatedNextTo ?position .
+	?avatar mosim:mmu "walk" .
+	?targetPOI mosim:id ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:locatedNextTo ?position .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?area mosim:contains ?target .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+
+	?area mosim:contains ?targetPOI .
+	?targetPOI rdf:type mosim:WalkTarget .
+	?targetPOI mosim:id ?id .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:WalkAction .
+
+# -------
+
+:AtObject
+	a bt:Condition;
+	rdfs:label "AtObject" ;
+	bt:query [
+		a bt:Constraint ;
+		a bt:AskQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX test: <http://test/>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+ASK
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:locatedNextTo ?location .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?area mosim:contains ?target .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+
+	?area mosim:contains ?targetPOI .
+	?targetPOI rdf:type mosim:WalkTarget .
+	?targetPOI mosim:id ?id .
+
+	FILTER(?targetPOI = ?location)
+}"""^^xsd:string ;
+	] .
+
+# -------
+
+:SetHands
+	a bt:Update ;
+	rdfs:label "SetHands?!" ;
+	bt:query [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX test: <http://test/>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+DELETE {
+	?avatar mosim:hand ?oldhand .
+}
+INSERT {
+	?avatar mosim:hand ?hand .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?oldhand .
+
+	test:PositionGoalTool rdf:value ?tool .
+	?tool mosim:type ?toolName .
+	BIND (IF (?toolName="RightHand", "Right", IF (?toolName="LeftHand", "Left", IF (?toolName="BothHands", "BothHands", "NULL"))) as ?hand)
+}"""^^xsd:string ;
+	] .
+
+# -------
+
+:CheckBothHands
+	a bt:Condition;
+	rdfs:label "CheckBothHands" ;
+	bt:query [
+		a bt:Constraint ;
+		a bt:AskQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+ASK
+WHERE {
+	 ?avatar mosim:hand "BothHands" .
+}"""^^xsd:string ;
+	] .
+
+# -------
+
+:ReachObject
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "reach(MMU,Object,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+	?avatar mosim:mmu "reach" .
+	?target mosim:id ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?avatar mosim:hand ?hand .
+
+	?area mosim:contains ?target .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+	?target mosim:id ?id .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:ReachAction .
+
+:ReachBothObject
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "reach(Object)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?target mosim:id ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?area mosim:contains ?target .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+	?target mosim:id ?id .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:ReachBothAction .
+
+# -------
+
+:CarryObject
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "carry(Object,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+	?target mosim:id ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?avatar mosim:hand ?hand .
+
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+	?target mosim:id ?id .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:CarryAction .
+
+:CarryBothObject
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "carry(Object,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?target mosim:id ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+	?target mosim:id ?id .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:CarryBothAction .
+
+# -------
+
+:WalkToTarget
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "walk(MMU,Target)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:locatedNextTo ?position .
+	?avatar mosim:mmu "walk" .
+	?targetPOI mosim:id ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:locatedNextTo ?position .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?object rdf:type mosim:MSceneObject .
+  	?object rdfs:label ?partName .
+	?object mosim:finalLocation ?target .
+
+	?area mosim:contains ?target .
+	?target rdf:type mosim:FinalLocation .
+
+	?area mosim:contains ?targetPOI .
+	?targetPOI rdf:type mosim:WalkTarget .
+	?targetPOI mosim:id ?id .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:WalkAction .
+
+# -------
+
+:MoveObject
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "move(Object,Subject,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+	?subject rdf:type mosim:FinalLocation .
+	?subject mosim:id ?subID .
+	?object rdf:type mosim:MSceneObject .
+	?object mosim:id ?partID .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?object rdf:type mosim:MSceneObject .
+  	?object rdfs:label ?partName .
+	?object mosim:id ?partID .
+	?object mosim:finalLocation ?subject .
+
+	?subject rdf:type mosim:FinalLocation .
+	?subject mosim:id ?subID .
+
+  	?avatar mosim:hand ?hand .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:MoveAction .
+
+:MoveBothObject
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "move(Object,Subject)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?subject rdf:type mosim:FinalLocation .
+	?subject mosim:id ?subID .
+	?object rdf:type mosim:MSceneObject .
+	?object mosim:id ?partID .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?object rdf:type mosim:MSceneObject .
+  	?object rdfs:label ?partName .
+	?object mosim:id ?partID .
+	?object mosim:finalLocation ?subject.
+
+	?subject rdf:type mosim:FinalLocation .
+	?subject mosim:id ?subID .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:MoveBothAction .
+
+# -------
+
+:ReleaseObject
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "release(Object,Hand)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:ReleaseAction .
+
+:ReleaseBothObject
+	a bt:Action ;
+	bt:evaluate false ;
+	rdfs:label "release(Object)" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:ReleaseBothAction .
+
+# -------
+
+:SetNewPosition
+	a bt:Update ;
+	rdfs:label "SetNewPosition?!" ;
+	bt:query [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX test: <http://test/>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+
+DELETE {
+	?target mosim:isLocatedAt ?old .
+}
+INSERT {
+	?target mosim:isLocatedAt ?finalPos .
+}
+WHERE {
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+	?target mosim:finalLocation ?finalPos .
+	?target mosim:isLocatedAt ?old .
+	
+	?finalPos rdf:type mosim:FinalLocation .
+}"""^^xsd:string ;
+	] .
+
+# -------
+
+:RemoveEvaluateResult
+	a bt:Update ;
+	rdfs:label "RemoveEvaluateResult?!" ;
+	bt:query [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+CLEAR GRAPH <http://evaluate/1>
+"""^^xsd:string ;
+	] .
+
+:RemoveGoalInput
+	a bt:Update ;
+	rdfs:label "RemoveGoalInput?!" ;
+	bt:query [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX test: <http://test/>
+
+DELETE {
+	test:GoalTool ?p ?o .
+	test:GoalPart ?x ?y .
+	test:GoalOperation ?w ?z .
+}
+WHERE {
+	test:GoalTool ?p ?o .
+	test:GoalPart ?x ?y .
+	test:GoalOperation ?w ?z .
+}"""^^xsd:string ;
+	] .
+
+:RemovePositionGoalInput
+	a bt:Update ;
+	rdfs:label "RemoveGoalInput?!" ;
+	bt:query [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX test: <http://test/>
+
+DELETE {
+	test:PositionGoalTool ?p ?o .
+	test:PositionGoalPart ?x ?y .
+	test:PositionGoalOperation ?w ?z .
+}
+WHERE {
+	test:PositionGoalTool ?p ?o .
+	test:PositionGoalPart ?x ?y .
+	test:PositionGoalOperation ?w ?z .
+}"""^^xsd:string ;
+	] .
+
+:RemoveTightenGoalInput
+	a bt:Update ;
+	rdfs:label "TightenGoalInput?!" ;
+	bt:query [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX test: <http://test/>
+
+DELETE {
+	test:TightenGoalTool ?p ?o .
+	test:TightenGoalPart ?x ?y .
+	test:TightenGoalOperation ?w ?z .
+}
+WHERE {
+	test:TightenGoalTool ?p ?o .
+	test:TightenGoalPart ?x ?y .
+	test:TightenGoalOperation ?w ?z .
+}"""^^xsd:string ;
+	] .

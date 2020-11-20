@@ -1,0 +1,124 @@
+# @base <http://localhost/rdf4j/repositories/behaviors> .
+
+@prefix agents: <http://localhost:8090/rdf4j/repositories/agents#> .
+@prefix : <http://localhost:8090/rdf4j/repositories/behaviors#> .
+@prefix services: <http://localhost:8090/rdf4j/repositories/services#> .
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+@prefix inv: <http://www.dfki.de/inversiv-ns#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+
+_:dispenser sp:varName "dispenser"^^xsd:string .
+_:currentLevel sp:varName "currentLevel"^^xsd:string .
+_:message sp:varName "message"^^xsd:string .
+_:content sp:varName "content"^^xsd:string .
+_:agent sp:varName "agent"^^xsd:string .
+_:name sp:varName "name"^^xsd:string .
+
+:LoggingBehavior
+		a bt:BehaviorTree ;
+		a bt:Root ;
+		bt:hasChild
+			[ a bt:Sequence ;
+			  bt:hasChildren (
+				:LoggingAction
+			)
+		] .
+
+:ConditionalLoggingBehavior
+		a bt:BehaviorTree ;
+		a bt:Root ;
+		bt:hasChild
+			[ a bt:Executor ;
+			  bt:selectChild [
+				a bt:IntValue ;
+				bt:intValue 1
+			  ] ;
+			  bt:hasChildren (
+				:DispenserEmpty
+				:LoggingAction
+			)
+		] .
+
+:TestRepeater
+	a bt:Repeater;
+	bt:maxLoop [
+		a bt:IntValue ;
+		bt:intValue 1234
+	] ;
+	bt:hasChild :DispenserEmpty .
+
+:TestIntRepeater
+	a bt:Repeater;
+	bt:maxLoop [
+		a bt:IntValue ;
+		bt:intValue "1024"^^xsd:int
+	] ;
+	bt:hasChild :DispenserEmpty .
+
+:DispenserEmpty
+		a bt:Condition ;
+		bt:constraints ( [
+			a bt:Constraint ;
+			a bt:AskQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX inv: <http://www.dfki.de/inversiv-ns#>
+				ASK
+				WHERE {
+					?dispenser rdf:type inv:Dispenser .
+					?dispenser inv:contains ?currentLevel .
+					Filter ( ?currentLevel = 1 ) .
+				}"""^^xsd:string ;
+			bt:spin [
+				a sp:Ask ;
+				sp:where (
+					[ sp:subject _:dispenser ;
+					  sp:predicate rdf:type ;
+					  sp:object inv:Dispenser ]
+					[ sp:subject _:dispenser ;
+					  sp:predicate inv:contains ;
+					  sp:object _:currentLevel ]
+					[ a sp:Filter;
+					  sp:expression [
+						a sp:eq ;
+						sp:arg1 _:currentLevel ;
+						sp:arg2 1 ]
+					] )
+				]
+			]
+		) .
+
+:LoggingAction
+		a bt:Action ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+					PREFIX inv: <http://www.dfki.de/inversiv-ns#>
+					PREFIX ajan: <http://www.ajan.de/ajan-ns#>
+					DESCRIBE ?message ?agent
+					WHERE {
+						?message inv:loggingMessage ?content .
+						?agent ajan:agentName ?name .
+					}"""^^xsd:string ;
+			bt:spin [
+				a sp:Describe ;
+				sp:resultNodes ( _:message _:agent ) ;
+				sp:where (
+					[ sp:subject _:message ;
+					  sp:predicate inv:loggingMessage ;
+					  sp:object _:content ]
+					[ sp:subject _:agent ;
+					  sp:predicate ajan:agentName ;
+					  sp:object _:name ] )
+				]
+			]
+		) ;
+		bt:description services:LoggingAction .

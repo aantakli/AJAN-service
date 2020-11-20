@@ -1,0 +1,732 @@
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix http-core: <http://www.w3.org/2006/http#> .
+@prefix http-headers: <http://www.w3.org/2008/http-headers#> .
+@prefix http-methods: <http://www.w3.org/2008/http-methods#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+@prefix actn: <http://www.ajan.de/actn#> .
+@prefix hyb: <http://www.dfki.de/hybrit-ns#> .
+@prefix react: <http://www.dfki.de/react-ns#> .
+@prefix ws: <http://bla/ws#> .
+@prefix : <http://localhost:8090/rdf4j/repositories/services#> .
+@prefix steer: <http://www.ajan.de/behavior/steer-ns#> .
+
+
+# --------------------------------------------
+# --------------- :PluginAction --------------
+# --------------------------------------------
+
+# --------------------------------------------
+# --------------- :DummyService --------------
+# --------------------------------------------
+
+:DummyService
+		rdf:type react:Service ;
+		rdf:type actn:Resource ;
+		dct:description "Dummy Service" ;
+		actn:action :SyncAction ;
+		actn:action :AsyncAction .
+
+:SyncAction
+		rdf:type actn:ServiceAction ;
+		rdf:type actn:Safe ;
+		rdf:type actn:Idempotent ;
+		actn:communication actn:Synchronous ;
+		rdfs:label "SyncAction";
+		dct:description "Sync action" ;
+		actn:runBinding :RunSyncAction ;
+		actn:variables (
+			[ a actn:ActionVariable;
+				sp:varName "s" ]
+			[ a actn:ActionVariable;
+				sp:varName "p" ]
+			[ a actn:ActionVariable;
+				sp:varName "o" ]
+		);
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				ASK
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				ASK
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+		] .
+
+:RunSyncAction
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8092/sync"^^xsd:anyURI ;
+		http-core:headers (
+			[	a http-core:Header ;
+				http-core:hdrName http-headers:accept ;
+				http-core:fieldValue "application/ld+json" ]
+			[	a http-core:Header ;
+				http-core:hdrName http-headers:content-type ;
+				http-core:fieldValue "application/ld+json" ]
+		) ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				CONSTRUCT {
+					?s ?p ?o .
+				}
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+		] .
+
+:AsyncAction
+		rdf:type actn:ServiceAction ;
+		rdf:type actn:Safe ;
+		rdf:type actn:Idempotent ;
+		actn:communication actn:Asynchronous ;
+		rdfs:label "AsyncAction";
+		dct:description "Async action" ;
+		actn:runBinding :RunAsyncAction ;
+		actn:abortBinding :AbortAsyncAction ;
+		actn:variables (
+			[ a actn:ActionVariable;
+				sp:varName "s" ]
+			[ a actn:ActionVariable;
+				sp:varName "p" ]
+			[ a actn:ActionVariable;
+				sp:varName "o" ]
+		);
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				PREFIX actn: <http://bla/actn#>
+				ASK
+				WHERE {
+					?s ?p ?o .
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				ASK
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+		] .
+
+:RunAsyncAction
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8092/async"^^xsd:anyURI ;
+		http-core:headers (
+			[	a http-core:Header ;
+				http-core:hdrName http-headers:accept ;
+				http-core:fieldValue "text/turtle" ]
+			[	a http-core:Header ;
+				http-core:hdrName http-headers:content-type ;
+				http-core:fieldValue "text/turtle" ]
+		) ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					?s ?p ?o .
+					<http://www.dfki.de/hybrit-ns#AsyncServiceRequest> actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?s ?p ?o .
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+
+:AbortAsyncAction
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8092/async/abort"^^xsd:anyURI ;
+		http-core:headers (
+			[	a http-core:Header ;
+				http-core:hdrName http-headers:accept ;
+				http-core:fieldValue "text/turtle" ]
+			[	a http-core:Header ;
+				http-core:hdrName http-headers:content-type ;
+				http-core:fieldValue "text/turtle" ]
+		) ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					?s ?p ?o .
+					?c actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?s ?p ?o .
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+
+# --------------------------------------------
+# ------------ :PedestrianService ------------
+# --------------------------------------------
+
+:PedestrianService
+		rdf:type react:Service ;
+		rdf:type actn:Resource ;
+		dct:description "Pedestrian Service" ;
+		actn:action :GetPathAction ;
+		actn:action :MoveToAction ;
+		actn:action :IdleAction .
+
+:GetPathAction
+		rdf:type actn:ServiceAction ;
+		rdf:type actn:Safe ;
+		rdf:type actn:Idempotent ;
+		actn:communication actn:Asynchronous ;
+		rdfs:label "GetPathAction";
+		dct:description "GetPath action" ;
+		actn:runBinding :RunGetPathAction ;
+		actn:abortBinding :AbortGetPathAction ;
+		actn:variables (
+			[ a actn:ActionVariable;
+				sp:varName "avatar" ]
+			[ a actn:ActionVariable;
+				sp:varName "oldPath" ]
+			[ a actn:ActionVariable;
+				sp:varName "path" ]
+		);
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX actn: <http://bla/actn#>
+				ASK
+				WHERE {
+					?avatar rdf:type react:Avatar .
+					?avatar react:path ?oldPath .
+					?y react:avatarBehavior ?behavior .
+					?target react:position ?targetPosition .
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX actn: <http://bla/actn#>
+				PREFIX dct: <http://purl.org/dc/terms/>
+				ASK
+				WHERE {
+					?avatar react:path ?path .
+					FILTER NOT EXISTS {
+						?avatar react:path ?oldPath .
+						FILTER ( ?oldPath != ?path )
+					}
+					OPTIONAL {
+						?response rdf:type actn:FAULT .
+						?response dct:description ?message }
+				}"""^^xsd:string ;
+		] .
+
+:RunGetPathAction
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8098/actions/path"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					react:PathServiceRequest react:avatar ?avatar .
+					react:PathServiceRequest react:targetPosition ?target .
+					react:PathServiceRequest react:avatarBehavior ?behavior .
+					react:PathServiceRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?avatar rdf:type react:Avatar .
+					?y react:avatarBehavior ?behavior .
+					?target react:position ?targetPosition .
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+
+:AbortGetPathAction
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8098/actions/path/abort"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					react:PathAbortServiceRequest react:avatar ?avatar .
+					react:PathAbortServiceRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?avatar rdf:type react:Avatar .
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+
+:MoveToAction
+		rdf:type actn:ServiceAction ;
+		rdf:type actn:Safe ;
+		rdf:type actn:Idempotent ;
+		actn:communication actn:Asynchronous ;
+		rdfs:label "MoveToAction";
+		dct:description "MoveTo action" ;
+		actn:runBinding :RunMoveToAction ;
+		actn:abortBinding :AbortMoveToAction ;
+		actn:variables (
+			[ a actn:ActionVariable;
+				sp:varName "avatar" ]
+			[ a actn:ActionVariable;
+				sp:varName "startPosition" ]
+			[ a actn:ActionVariable;
+				sp:varName "animation" ]
+			[ a actn:ActionVariable;
+				sp:varName "behavior" ]
+			[ a actn:ActionVariable;
+				sp:varName "targetPosition" ]
+		);
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX actn: <http://bla/actn#>
+				ASK
+				WHERE {
+					?avatar rdf:type react:Avatar .
+					?avatar react:locatedNextTo ?startPosition .
+					?x react:avatarAnimation ?animation .
+					?y react:avatarBehavior ?behavior .
+					?target react:position ?targetPosition .
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX actn: <http://bla/actn#>
+				PREFIX dct: <http://purl.org/dc/terms/>
+				ASK
+				WHERE {
+					?avatar react:locatedNextTo ?targetPosition .
+					?avatar react:avatarAnimation "idle" .
+					?avatar react:avatarBehavior "normal" .
+					FILTER NOT EXISTS {
+						?avatar react:locatedNextTo ?startPosition .
+						FILTER ( ?targetPosition != ?startPosition )
+					}
+					OPTIONAL {
+						?response rdf:type actn:FAULT .
+						?response dct:description ?message }
+				}"""^^xsd:string ;
+		] .
+
+:RunMoveToAction
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8098/actions/moveTo"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					react:MoveToServiceRequest react:avatar ?avatar .
+					react:MoveToServiceRequest react:targetPosition ?target .
+					react:MoveToServiceRequest react:avatarAnimation ?animation .
+					react:MoveToServiceRequest react:avatarBehavior ?behavior .
+					react:MoveToServiceRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?avatar rdf:type react:Avatar .
+					?x react:avatarAnimation ?animation .
+					?y react:avatarBehavior ?behavior .
+					?target react:position ?targetPosition .
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+
+:AbortMoveToAction
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8098/actions/moveTo/abort"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					react:MoveToAbortServiceRequest react:avatar ?avatar .
+					react:MoveToAbortServiceRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?avatar rdf:type react:Avatar .
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+
+:IdleAction
+		rdf:type actn:ServiceAction ;
+		rdf:type actn:Safe ;
+		rdf:type actn:Idempotent ;
+		actn:communication actn:Asynchronous ;
+		rdfs:label "IdleAction";
+		dct:description "Idle action" ;
+		actn:runBinding :RunIdleAction ;
+		actn:abortBinding :AbortIdleAction ;
+		actn:variables (
+			[ a actn:ActionVariable;
+				sp:varName "avatar" ]
+			[ a actn:ActionVariable;
+				sp:varName "time" ]
+		);
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX actn: <http://bla/actn#>
+				ASK
+				WHERE {
+					?avatar rdf:type react:Avatar .
+					?x react:avatarAnimation ?animation .
+					?y react:idleTime ?time .
+					?c actn:asyncRequestURI ?requestURI .
+					FILTER (?avatar != ?x)
+				}"""^^xsd:string ;
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX actn: <http://bla/actn#>
+				PREFIX dct: <http://purl.org/dc/terms/>
+				ASK
+				WHERE {
+					OPTIONAL {
+						?response rdf:type actn:FAULT .
+						?response dct:description ?message }
+				}"""^^xsd:string ;
+		] .
+
+:RunIdleAction
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8097/actions/idle"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					react:IdleServiceRequest react:avatar ?avatar .
+					react:IdleServiceRequest react:avatarAnimation ?animation .
+					react:IdleServiceRequest react:idleTime ?time .
+					react:IdleServiceRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?avatar rdf:type react:Avatar .
+					?x react:avatarAnimation ?animation .
+					?y react:idleTime ?time .
+					?c actn:asyncRequestURI ?requestURI .
+					FILTER (?avatar != ?x)
+				}"""^^xsd:string ;
+		] .
+
+:AbortIdleAction
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8097/actions/idle/abort"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					react:IdleAbortServiceRequest react:avatar ?avatar .
+					react:IdleAbortServiceRequest actn:asyncRequestURI ?requestURI .
+				}
+				WHERE {
+					?avatar rdf:type react:Avatar .
+					?c actn:asyncRequestURI ?requestURI .
+				}"""^^xsd:string ;
+		] .
+
+:SteerAction
+		rdf:type actn:ServiceAction ;
+		rdf:type actn:Safe ;
+		rdf:type actn:Idempotent ;
+		actn:communication actn:Synchronous ;
+		rdfs:label "SteerAction";
+		dct:description "Steer action" ;
+		actn:runBinding :RunSteerAction ;
+		actn:variables (
+			[ a actn:ActionVariable;
+				sp:varName "avatar" ]
+		);
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+				ASK
+				WHERE {
+				    ?s steer:behavior ?behavior .
+					?s steer:steering ?vector .
+				}"""^^xsd:string ;
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				ASK
+				WHERE {
+					?s ?p ?o .
+				}"""^^xsd:string ;
+		] .
+
+:RunSteerAction
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8098/actions/steer"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+				CONSTRUCT {
+					react:SteerServiceRequest react:avatar ?avatar .
+					react:SteerServiceRequest react:behavior ?behavior .
+					react:SteerServiceRequest react:steeringVec ?vector .
+				}
+				WHERE {
+					?avatar rdf:type react:Avatar .
+					?s steer:behavior ?behavior .
+					?s steer:steering ?vector .
+				}"""^^xsd:string ;
+		] .
+
+# --------------------------------------------
+# --------------- :CarService --------------
+# --------------------------------------------
+
+:CarService
+		rdf:type react:Service ;
+		rdf:type actn:Resource ;
+		dct:description "Car Service" ;
+		actn:action :MoveAction ;
+		actn:action :StopAction .
+
+:MoveAction
+		rdf:type actn:ServiceAction ;
+		rdf:type actn:Safe ;
+		rdf:type actn:Idempotent ;
+		actn:communication actn:Synchronous ;
+		rdfs:label "MoveAction";
+		dct:description "Move action" ;
+		actn:runBinding :RunMoveAction ;
+		actn:variables (
+			[ a actn:ActionVariable;
+				sp:varName "avatar" ]
+		);
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				ASK
+				WHERE {
+					?avatar rdf:type react:Avatar .
+					?avatar react:movement "standing" .
+				}"""^^xsd:string ;
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX actn: <http://bla/actn#>
+				PREFIX dct: <http://purl.org/dc/terms/>
+				ASK
+				WHERE {
+					?avatar rdf:type react:Avatar .
+					?avatar react:movement "moving" .
+					OPTIONAL {
+						?response rdf:type actn:FAULT .
+						?response dct:description ?message }
+				}"""^^xsd:string ;
+		] .
+
+:RunMoveAction
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8099/actions/move"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					react:StopServiceRequest react:avatar ?avatar .
+					react:StopServiceRequest react:movement ?movement .
+				}
+				WHERE {
+					?avatar rdf:type react:Avatar .
+					?avatar react:movement ?movement .
+				}"""^^xsd:string ;
+		] .
+
+:StopAction
+		rdf:type actn:ServiceAction ;
+		rdf:type actn:Safe ;
+		rdf:type actn:Idempotent ;
+		actn:communication actn:Synchronous ;
+		rdfs:label "StopAction";
+		dct:description "Stop action" ;
+		actn:runBinding :RunStopAction ;
+		actn:variables (
+			[ a actn:ActionVariable;
+				sp:varName "avatar" ]
+		);
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX actn: <http://bla/actn#>
+				ASK
+				WHERE {
+					?avatar rdf:type react:Avatar .
+					?avatar react:movement "moving" .
+				}"""^^xsd:string ;
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX actn: <http://bla/actn#>
+				PREFIX dct: <http://purl.org/dc/terms/>
+				ASK
+				WHERE {
+					?avatar rdf:type react:Avatar .
+					?avatar react:movement "standing" .
+					OPTIONAL {
+						?response rdf:type actn:FAULT .
+						?response dct:description ?message }
+				}"""^^xsd:string ;
+		] .
+
+:RunStopAction
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost:8099/actions/stop"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+				PREFIX react: <http://www.dfki.de/react-ns#>
+				PREFIX actn: <http://bla/actn#>
+				CONSTRUCT {
+					react:StopServiceRequest react:avatar ?avatar .
+					react:StopServiceRequest react:movement ?movement .
+				}
+				WHERE {
+					?avatar rdf:type react:Avatar .
+					?avatar react:movement ?movement .
+				}"""^^xsd:string ;
+		] .

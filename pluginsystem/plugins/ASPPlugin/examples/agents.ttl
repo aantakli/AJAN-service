@@ -1,0 +1,193 @@
+# @base <http://localhost/rdf4j/repositories/agents> .
+
+@prefix : <http://localhost:8090/rdf4j/repositories/agents#> .
+@prefix behaviors: <http://localhost:8090/rdf4j/repositories/behaviors#> .
+@prefix beliefs: <http://localhost:8090/rdf4j/repositories/beliefs#> .
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix http: <http://www.w3.org/2011/http#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/ | POST | text/turtle
+
+# ------------- Body --------------
+
+# @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+# @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+# @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+# @prefix ajan: <http://www.ajan.de/ajan-ns#> .
+# @prefix react: <http://www.dfki.de/react#> .
+# @prefix : <http://www.dfki.de/inversiv#> .
+# @prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+#
+# :initialization rdf:type ajan:AgentInitialisation .
+# :initialization ajan:agentName "Angela"^^xsd:string .
+# :initialization ajan:agentTemplate <http://localhost:8090/rdf4j/repositories/agents#TestAgent> .
+# :initialization ajan:agentInitKnowledge <http://localhost:3030/inversiv/avatars/Natalie> .
+#
+# <http://localhost:3030/inversiv/avatars/Natalie> a <http://www.dfki.de/react-ns#Avatar> .
+
+
+# ----------- Templates -----------
+
+:TestAgent
+	rdfs:label "TestAgent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :UpdateEvent ;
+	ajan:endpoint :UpdateEndpoint ;
+	ajan:event :JsonEvent ;
+	ajan:endpoint :JsonEndpoint ;
+	ajan:behavior :TestBehavior .
+
+:LarryAgent
+	rdfs:label "LarryAgent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :ExecuteEvent ;
+	ajan:event :UpdateEvent ;
+	ajan:endpoint :ExecuteEndpoint ;
+	ajan:endpoint :UpdateEndpoint ;
+	ajan:behavior :LarryBehavior ;
+	ajan:behavior :BeliefUpdateBehavior .
+
+:LucAgent
+	rdfs:label "LucAgent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :UpdateEvent ;
+	ajan:endpoint :UpdateEndpoint ;
+	ajan:behavior :LucBehavior .
+
+:ASPAgent
+	rdfs:label "ASPAgent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :UpdateEvent ;
+	ajan:endpoint :UpdateEndpoint ;
+	ajan:behavior :ASPBehavior .
+
+:DoneAgent
+	rdfs:label "DoneAgent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :UpdateEvent ;
+	ajan:endpoint :UpdateEndpoint ;
+	ajan:behavior :DoneBehavior .
+
+:SchromAgent
+	rdfs:label "SchromAgent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :UpdateEvent ;
+	ajan:endpoint :UpdateEndpoint ;
+	ajan:behavior :SchromBehavior .
+
+:BusAgent
+	rdfs:label "BusAgent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :UpdateEvent ;
+	ajan:event :ExecuteEvent ;
+	ajan:endpoint :UpdateEndpoint ;
+	ajan:endpoint :ExecuteEndpoint ;
+	ajan:behavior :BusBehavior .
+
+:RandomWalkAgent
+	rdfs:label "RandomWalkAgent" ;
+	a ajan:AgentTemplate ;
+	ajan:event :UpdateEvent ;
+	ajan:event :ExecuteEvent ;
+	ajan:endpoint :UpdateEndpoint ;
+	ajan:endpoint :ExecuteEndpoint ;
+	ajan:behavior :RandomWalkBehavior .
+
+# ----------- Behaviors -----------
+
+:TestBehavior
+	a ajan:Behavior ;
+	rdfs:label "TestBehavior" ;
+	ajan:trigger :UpdateEvent ;
+	ajan:trigger :JsonEvent ;
+	ajan:bt behaviors:TestBehavior .
+
+:LarryBehavior
+	a ajan:Behavior ;
+	rdfs:label "LarryBehavior" ;
+	ajan:trigger :ExecuteEvent ;
+	ajan:bt behaviors:LarryBehavior .
+
+:LucBehavior
+	a ajan:Behavior ;
+	rdfs:label "LucBehavior" ;
+	ajan:trigger :UpdateEvent ;
+	ajan:bt behaviors:LucBehavior .
+
+:ASPBehavior
+	a ajan:Behavior ;
+	rdfs:label "ASPBehavior" ;
+	ajan:trigger :UpdateEvent ;
+	ajan:bt behaviors:ASPBehavior .
+
+:DoneBehavior
+	a ajan:Behavior ;
+	rdfs:label "DoneBehavior" ;
+	ajan:trigger :UpdateEvent ;
+	ajan:bt behaviors:DoneBehavior .
+
+:SchromBehavior
+	a ajan:Behavior ;
+	rdfs:label "SchromBehavior" ;
+	ajan:trigger :UpdateEvent ;
+	ajan:bt behaviors:SchromBehavior .
+
+:BeliefUpdateBehavior
+	a ajan:Behavior ;
+	rdfs:label "BeliefUpdateBehavior" ;
+	ajan:trigger :UpdateEvent ;
+	ajan:bt behaviors:BeliefUpdateBehavior .
+
+:BusBehavior
+	a ajan:Behavior ;
+	rdfs:label "BusBehavior" ;
+	ajan:trigger :UpdateEvent ;
+	ajan:trigger :ExecuteEvent ;
+	ajan:bt behaviors:BusBehavior .
+
+:RandomWalkBehavior
+	a ajan:Behavior ;
+	rdfs:label "RandomWalkBehavior" ;
+	ajan:trigger :UpdateEvent ;
+	ajan:trigger :ExecuteEvent ;
+	ajan:bt behaviors:RandomWalkBehavior .
+
+
+# ----------- Endpoints -----------
+
+:ExecuteEndpoint
+	a ajan:Endpoint ;
+	rdfs:label "execute" ;
+	http:paramValue "execute";
+	ajan:event :ExecuteEvent .
+
+:UpdateEndpoint
+	a ajan:Endpoint ;
+	rdfs:label "update" ;
+	http:paramValue "update";
+	ajan:event :UpdateEvent .
+
+:JsonEndpoint
+	a ajan:Endpoint ;
+	rdfs:label "json" ;
+	http:paramValue "json";
+	ajan:event :JsonEvent .
+
+# ----------- Events -----------
+
+:ExecuteEvent
+	a ajan:ModelEvent ;
+	rdfs:label "e_execute" .
+
+:UpdateEvent
+	a ajan:ModelEvent ;
+	rdfs:label "e_update" .
+
+:JsonEvent
+	a ajan:JsonEvent ;
+	rdfs:label "e_json" .

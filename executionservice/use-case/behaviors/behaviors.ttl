@@ -1,0 +1,2719 @@
+@prefix fn: <http://www.w3.org/2005/xpath-functions#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sesame: <http://www.openrdf.org/schema/sesame#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#RegisterPositioningListener> a
+    <http://www.ajan.de/behavior/mosim-ns#RegisterListener>;
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/mosim-ns#callback> "8085"^^xsd:int;
+  <http://www.ajan.de/behavior/mosim-ns#eventType> "PositioningFinished";
+  rdfs:label "RegisterPositioningListener" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#DeleteEndCallbackServer> a <http://www.ajan.de/behavior/mosim-ns#DeleteCallbackServer>;
+  <http://www.ajan.de/behavior/mosim-ns#callback> "8083"^^xsd:int;
+  rdfs:label "DeleteEndCallbackServer" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#DeleteErrorCallbackServer> a <http://www.ajan.de/behavior/mosim-ns#DeleteCallbackServer>;
+  <http://www.ajan.de/behavior/mosim-ns#callback> "8084"^^xsd:int;
+  rdfs:label "DeleteErrorCallbackServer" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#DeletePositioningCallbackServer>
+  a <http://www.ajan.de/behavior/mosim-ns#DeleteCallbackServer>;
+  <http://www.ajan.de/behavior/mosim-ns#callback> "8085"^^xsd:int;
+  rdfs:label "DeletePositioningCallbackServer" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#UnregisterEndListener> a <http://www.ajan.de/behavior/mosim-ns#UnregisterListener>;
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/mosim-ns#callback> "8083"^^xsd:int;
+  <http://www.ajan.de/behavior/mosim-ns#eventType> "end";
+  rdfs:label "UnregisterEndListener" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#UnregisterErrorListener> a <http://www.ajan.de/behavior/mosim-ns#UnregisterListener>;
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/mosim-ns#callback> "8084"^^xsd:int;
+  <http://www.ajan.de/behavior/mosim-ns#eventType> "initError";
+  rdfs:label "UnregisterErrorListener" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#UnregisterPositioningListener>
+  a <http://www.ajan.de/behavior/mosim-ns#UnregisterListener>;
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/mosim-ns#callback> "8085"^^xsd:int;
+  <http://www.ajan.de/behavior/mosim-ns#eventType> "PositioningFinished";
+  rdfs:label "UnregisterPositioningListener" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#TemplateTest> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#TemplateAction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:label "TemplateTest" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericIdleTest> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#GenericAsyncInstruction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:label "idle" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericReachTest> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#GenericAsyncInstruction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:label "reach" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericCarryTest> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#GenericAsyncInstruction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:label "carry" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericWalkTest> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#GenericAsyncInstruction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:label "walk" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericIdleTest2> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#GenericAsyncInstruction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:label "idle" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericMoveTest> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#GenericAsyncInstruction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:label "move" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericReleaseTest> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#GenericAsyncInstruction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:label "release" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ExampleSceneBehavior> a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>,
+    <http://www.ajan.de/behavior/bt-ns#Root>;
+  rdfs:label "ExampleSceneBehavior" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#WalkBehavior> a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>,
+    <http://www.ajan.de/behavior/bt-ns#Root>;
+  rdfs:label "WalkBehavior" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ReachBothObject> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#ReachBothAction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:label "reach(Object)" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Idle> rdfs:comment "" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#CarryObject> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#CarryInstruction>;
+  rdfs:label "carry(Object,Hand)" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#CarryBothObject> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#CarryBothAction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:label "carry(Object,Hand)" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ProduceWalkToTargetGoal> a <http://www.ajan.de/behavior/bt-ns#GoalProducer>;
+  <http://www.ajan.de/ajan-ns#goal> <http://localhost:8090/rdf4j/repositories/agents#WalkGoal>;
+  rdfs:label "ProduceWalkToTargetGoal" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#MoveObject> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#MoveInstruction>;
+  rdfs:label "move(Object,Subject,Hand)" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#IdleTest> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#IdleInstruction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:comment "";
+  rdfs:label "idle()" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#MoveBothObject> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#MoveBothAction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:label "move(Object,Subject)" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ReleaseObject> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#ReleaseInstruction>;
+  rdfs:label "release(Object,Hand)" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#MoveTest> rdfs:comment "" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#HandleWalkGoal> a <http://www.ajan.de/behavior/bt-ns#HandleEvent>;
+  <http://www.ajan.de/behavior/bt-ns#eventContext> <http://test/WalkGoal>;
+  rdfs:label "HandleWalkGoal" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GetWalkPoints> a <http://www.ajan.de/behavior/mosim-ns#GetWalkPoints>;
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  rdfs:label "GetWalkPoints" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ReleaseBothObject> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#ReleaseBothAction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:label "release(Object)" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#SetNewPosition> a <http://www.ajan.de/behavior/bt-ns#Update>;
+  rdfs:label "SetNewPosition?!" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ReachTest> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#ReachInstruction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:comment "";
+  rdfs:label "reach(MMU,Object,Hand)" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#FinishSimulation> a <http://www.ajan.de/behavior/mosim-ns#AbortInstruction>;
+  rdfs:label "AbortInstruction" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#WalkTest> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#WalkInstruction>;
+  rdfs:comment "";
+  rdfs:label "walk(MMU,Object)" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#RemoveEvaluateResult> a <http://www.ajan.de/behavior/bt-ns#Update>;
+  rdfs:label "RemoveEvaluateResult?!" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#RemoveGoalInput> a <http://www.ajan.de/behavior/bt-ns#Update>;
+  rdfs:label "RemoveGoalInput?!" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#CarryTest> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#CarryInstruction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:comment "";
+  rdfs:label "carry(Object,Hand)" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ReleaseTest> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#ReleaseInstruction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:comment "";
+  rdfs:label "release(Object,Hand)" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#RemovePositionGoalInput> a <http://www.ajan.de/behavior/bt-ns#Update>;
+  rdfs:label "RemovePositionGoalInput?!" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#RemoveInstructionOutputs> a <http://www.ajan.de/behavior/bt-ns#Update>;
+  rdfs:label "RemoveInstructionOutputs?!" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ExampleSceneGenericBehavior> a
+    <http://www.ajan.de/behavior/bt-ns#BehaviorTree>, <http://www.ajan.de/behavior/bt-ns#Root>;
+  rdfs:label "ExampleSceneGenericBehavior" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#InitialBehavior> a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>,
+    <http://www.ajan.de/behavior/bt-ns#Root>;
+  rdfs:label "InitialBehavior" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#FinalBehavior> a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>,
+    <http://www.ajan.de/behavior/bt-ns#Root>;
+  rdfs:label "FinalBehavior" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GetAvailableMMUs> a <http://www.ajan.de/behavior/mosim-ns#GetAvailableMMUs>;
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/mosim-ns#sessionID> "AJAN-123";
+  rdfs:label "GetAvailableMMUs" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GetScene> a <http://www.ajan.de/behavior/mosim-ns#GetScene>;
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  rdfs:label "GetScene" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#CreateEndCallbackServer> a <http://www.ajan.de/behavior/mosim-ns#CreateCallbackServer>;
+  <http://www.ajan.de/behavior/mosim-ns#callback> "8083"^^xsd:int;
+  rdfs:label "CreateEndCallbackServer" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#CreateErrorCallbackServer> a <http://www.ajan.de/behavior/mosim-ns#CreateCallbackServer>;
+  <http://www.ajan.de/behavior/mosim-ns#callback> "8084"^^xsd:int;
+  rdfs:label "CreateErrorCallbackServer" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#CreatePositioningCallbackServer>
+  a <http://www.ajan.de/behavior/mosim-ns#CreateCallbackServer>;
+  <http://www.ajan.de/behavior/mosim-ns#callback> "8085"^^xsd:int;
+  rdfs:label "CreatePositioningCallbackServer" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#RegisterEndListener> a <http://www.ajan.de/behavior/mosim-ns#RegisterListener>;
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/mosim-ns#callback> "8083"^^xsd:int;
+  <http://www.ajan.de/behavior/mosim-ns#eventType> "end";
+  rdfs:label "RegisterEndListener" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#RegisterErrorListener> a <http://www.ajan.de/behavior/mosim-ns#RegisterListener>;
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/mosim-ns#callback> "8084"^^xsd:int;
+  <http://www.ajan.de/behavior/mosim-ns#eventType> "initError";
+  rdfs:label "RegisterErrorListener" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#WalkToWalkpoint> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#WalkInstruction>;
+  rdfs:label "walk(MMU,Object)" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#WaypointLeft> a <http://www.ajan.de/behavior/bt-ns#Condition>;
+  rdfs:label "WaypointLeft?" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#SetFocusWaypoint> a <http://www.ajan.de/behavior/bt-ns#Update>;
+  rdfs:label "SetFocusWaypoint?!" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#DeleteInFocusWaypoint> a <http://www.ajan.de/behavior/bt-ns#Update>;
+  rdfs:label "DeleteInFocusWaypoint?!" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#DeleteWalkpoints> a <http://www.ajan.de/behavior/bt-ns#Update>;
+  rdfs:label "DeleteWalkpoints?!" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#RemoveWalkGoalInput> a <http://www.ajan.de/behavior/bt-ns#Update>;
+  rdfs:label "RemoveWalkGoalInput?!" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#AbortCarry> a <http://www.ajan.de/behavior/mosim-ns#AbortInstruction>;
+  rdfs:label "AbortCarry" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#MoveTest> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#MoveInstruction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:label "move(Object,Subject,Hand)" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ExamplePositionBehavior> a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>,
+    <http://www.ajan.de/behavior/bt-ns#Root>;
+  rdfs:label "ExamplePositionBehavior" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#AddTestInfos> a <http://www.ajan.de/behavior/bt-ns#Update>;
+  rdfs:label "AddTestInfos?!" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#MOSIMBehavior> a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>,
+    <http://www.ajan.de/behavior/bt-ns#Root>;
+  rdfs:label "MOSIMBehavior" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#DefaultBehavior> a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>,
+    <http://www.ajan.de/behavior/bt-ns#Root>;
+  rdfs:label "DefaultBehavior" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#InitUpdate> a <http://www.ajan.de/behavior/bt-ns#Update>;
+  rdfs:label "InitUpdate?!" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GetTaskList> a <http://www.ajan.de/behavior/bt-ns#QueryJsonDomain>;
+  <http://www.ajan.de/behavior/bt-ns#mapping> <http://www.dfki.de/mosim-ns#Mapping>;
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  rdfs:label "GetTaskList" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#SetFocus> a <http://www.ajan.de/behavior/bt-ns#Update>;
+  rdfs:label "SetFocus?!" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ProducePositionGoal> a <http://www.ajan.de/behavior/bt-ns#GoalProducer>;
+  <http://www.ajan.de/ajan-ns#goal> <http://localhost:8090/rdf4j/repositories/agents#PositionGoal>;
+  rdfs:label "ProducePositionGoal" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#PositionBehavior> a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>,
+    <http://www.ajan.de/behavior/bt-ns#Root>;
+  rdfs:label "PositionBehavior" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b201 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#defaultAction6>;
+  rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b202 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?host ?port 
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b203 a <http://www.ajan.de/behavior/bt-ns#UntilSuccess>;
+  <http://www.ajan.de/behavior/bt-ns#hasChild> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b204 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b204 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b216 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b216 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b217 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b217 a <http://www.ajan.de/behavior/bt-ns#Priority>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b224 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b224 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b225 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b225 a <http://www.ajan.de/behavior/bt-ns#Invert>;
+  <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#WaypointLeft> .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b224 rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b226 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b226 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#SetFocusWaypoint>;
+  rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b216 rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b218 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b218 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b219 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b219 a <http://www.ajan.de/behavior/bt-ns#Priority>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b227 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b227 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#WalkToWalkpoint>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b228 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b228 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b229 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b229 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b230 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b230 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#DeleteInFocusWaypoint>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b231 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b231 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b232 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b232 a <http://www.ajan.de/behavior/bt-ns#Invert>;
+  <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#WaypointLeft> .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b231 rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b228 rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b218 rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#HandlePositionGoal> a <http://www.ajan.de/behavior/bt-ns#HandleEvent>;
+  <http://www.ajan.de/behavior/bt-ns#eventContext> <http://test/PositionGoal>;
+  rdfs:label "HandlePositionGoal" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b205 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"Idle Instruction\",\"title\":\"Idle Instruction\",\"description\":\"\",\"nodes\":[\"Action\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"avatar,cosim,host,port\",\"parameters\":[]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b206 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+		PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+	?target rdf:type mosim:MSceneObject .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?avatar mosim:hand ?hand .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+	?target mosim:id ?id .
+	
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b207 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?host ?port 
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b208 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?host ?port 
+WHERE {
+	?cosim rdf:type mosim:Registry .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b209 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b210 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"Generic Instruction\",\"title\":\"Generic Instruction\",\"description\":\"\",\"nodes\":[\"All\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"mmu,objects,properties,name,startCond,endCond,cosim,host,port\",\"parameters\":[{\"label\":\"MMU ID\",\"variable\":\"mmu\",\"variableBinding\":\"'Locomotion/Walk'\",\"title\":\"MMU ID\",\"mode\":\"Input\",\"note\":\"String -> 'idle'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Objects\",\"variable\":\"objects\",\"variableBinding\":\"'WalkTarget2'\",\"title\":\"Objects\",\"mode\":\"Input\",\"note\":\"String -> 'UnityObjectName1;UnityObjectName2'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Properties\",\"variable\":\"properties\",\"variableBinding\":\"'TargetID, <id@WalkTarget2>; OnStart, <actionId@IdleID>:EndInstruction'\",\"title\":\"Properties\",\"mode\":\"Input\",\"note\":\"String -> 'TargetID, <id@GraspObject>; Hand, Right'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Instruction Name\",\"variable\":\"name\",\"variableBinding\":\"'WalkID'\",\"title\":\"Instruction Name\",\"mode\":\"Input\",\"note\":\"String -> 'Idle'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Start Conditions\",\"variable\":\"startCond\",\"variableBinding\":\"''\",\"title\":\"Start Conditions\",\"mode\":\"Input\",\"note\":\"String -> ''\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"End Condition\",\"variable\":\"endCond\",\"variableBinding\":\"''\",\"title\":\"End Condition\",\"mode\":\"Input\",\"note\":\"String -> ''\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]}]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu ?mmu .
+	_:instruction mosim:objects ?objects .
+	_:instruction mosim:mmuProperties ?properties .
+	_:instruction mosim:actionName ?name .
+	_:instruction mosim:startCondition ?startCond .
+	_:instruction mosim:endCondition ?endCond .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu 'Locomotion/Walk' .
+	_:instruction mosim:objects 'WalkTarget2' .
+	_:instruction mosim:mmuProperties 'TargetID, <id@WalkTarget2>; OnStart, <actionId@IdleID>:EndInstruction' .
+	_:instruction mosim:actionName 'WalkID' .
+	_:instruction mosim:startCondition '' .
+	_:instruction mosim:endCondition '' .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ProduceWalkToObjectGoal> a <http://www.ajan.de/behavior/bt-ns#GoalProducer>;
+  <http://www.ajan.de/ajan-ns#goal> <http://localhost:8090/rdf4j/repositories/agents#WalkGoal>;
+  rdfs:label "ProduceWalkToObjectGoal" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Idle> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#IdleInstruction>;
+  <http://www.ajan.de/behavior/bt-ns#evaluate> false;
+  rdfs:label "idle()" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b211 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT { _:blankNode <http://www.w3.org/2006/http#requestURI> ?station . }
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:worksOn ?station .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b212 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"AbortMMUInstruction\",\"title\":\"AbortMMUInstruction\",\"description\":\"\",\"nodes\":[\"All\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"id,avatar,instruction,mmu\",\"parameters\":[{\"label\":\"MMU Type\",\"variable\":\"mmu\",\"variableBinding\":\"'all'\",\"title\":\"MMU Type\",\"mode\":\"Dropdown\",\"note\":null,\"sparql\":{\"repo\":\"http://localhost:8090/rdf4j/repositories/test_knowledge\",\"query\":\"SELECT%20?label%20?dataValue%20?dataType%20WHERE%20%7B%20...%20%7D\"},\"possibleValues\":[{\"label\":\"Idle\",\"dataValue\":\"'idle'\"},{\"label\":\"Carry\",\"dataValue\":\"'Object/Carry'\"},{\"label\":\"Release\",\"dataValue\":\"'Object/Release'\"},{\"label\":\"Move\",\"dataValue\":\"'Object/Move'\"},{\"label\":\"Reach\",\"dataValue\":\"'Pose/Reach'\"},{\"label\":\"Walk\",\"dataValue\":\"'walk'\"},{\"label\":\"All\",\"dataValue\":\"'all'\"}]}]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?id 
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:instruction ?instruction .
+	?instruction mosim:mmu ?mmu .
+	?instruction mosim:actionID ?id .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?id 
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:instruction ?instruction .
+	?instruction mosim:mmu \"all\" .
+	?instruction mosim:actionID ?id .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b213 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b214 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b214 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#IdleTest>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b215 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b215 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#ReachTest>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b220 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b220 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#CarryTest>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b221 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b221 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#WalkTest>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b222 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b222 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#MoveTest>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b223 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b223 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#ReleaseTest>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b236 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b236 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#defaultAbortInstruction>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b254 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b233 a <http://www.ajan.de/behavior/bt-ns#UpdateQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+INSERT {
+	?walkpoint rdf:type mosim:InFocus .
+}
+WHERE {
+	?walkpoint rdf:type mosim:MWalkPoint .
+	{ 
+		SELECT ?walkpoint
+		WHERE { ?walkpoint rdf:type mosim:MWalkPoint . }
+		LIMIT 1 
+	}
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b234 a <http://www.ajan.de/behavior/bt-ns#UpdateQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX test: <http://test/>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+
+DELETE {
+	?target mosim:isLocatedAt ?old .
+}
+INSERT {
+	?target mosim:isLocatedAt ?finalPos .
+}
+WHERE {
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+	?target mosim:finalLocation ?finalPos .
+	?target mosim:isLocatedAt ?old .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b235 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"Release Instruction\",\"title\":\"Release Instruction\",\"description\":\"\",\"nodes\":[\"Action\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"avatar,hand,cosim,host,port\",\"parameters\":[{\"label\":\"Hand\",\"variable\":\"hand\",\"variableBinding\":\"'Right'\",\"title\":\"Hand\",\"mode\":\"Dropdown\",\"note\":null,\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[{\"label\":\"Right\",\"dataValue\":\"'Right'\"},{\"label\":\"Left\",\"dataValue\":\"'Left'\"},{\"label\":\"Both\",\"dataValue\":\"'Both'\"}]}]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand \"Right\" .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b237 a <http://www.ajan.de/behavior/bt-ns#UpdateQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX test: <http://test/>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+INSERT {
+	?avatar mosim:runningTask test:Task .
+	test:Task mosim:step -1 .
+	test:Task a mosim:Task .
+	?avatar mosim:hand \"Right\" .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b238 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+		
+	#?instruction rdf:type mosim:Instruction .
+	#?instruction mosim:actionID ?instID . 
+	
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+	
+	#?instruction rdf:type mosim:Instruction .
+	#?instruction mosim:actionID ?instID .
+	#?instruction mosim:mmu \"Object/Carry\" .
+	
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b239 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"Generic Instruction\",\"title\":\"Generic Instruction\",\"description\":\"\",\"nodes\":[\"All\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"mmu,objects,properties,name,startCond,endCond,cosim,host,port\",\"parameters\":[{\"label\":\"MMU ID\",\"variable\":\"mmu\",\"variableBinding\":\"'Pose/Idle'\",\"title\":\"MMU ID\",\"mode\":\"Input\",\"note\":\"String -> 'idle'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Objects\",\"variable\":\"objects\",\"variableBinding\":\"''\",\"title\":\"Objects\",\"mode\":\"Input\",\"note\":\"String -> 'UnityObjectName1;UnityObjectName2'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Properties\",\"variable\":\"properties\",\"variableBinding\":\"''\",\"title\":\"Properties\",\"mode\":\"Input\",\"note\":\"String -> 'TargetID, <id@GraspObject>; Hand, Right'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Instruction Name\",\"variable\":\"name\",\"variableBinding\":\"'IdleID2'\",\"title\":\"Instruction Name\",\"mode\":\"Input\",\"note\":\"String -> 'Idle'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Start Conditions\",\"variable\":\"startCond\",\"variableBinding\":\"''\",\"title\":\"Start Conditions\",\"mode\":\"Input\",\"note\":\"String -> ''\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"End Condition\",\"variable\":\"endCond\",\"variableBinding\":\"''\",\"title\":\"End Condition\",\"mode\":\"Input\",\"note\":\"String -> ''\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]}]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu ?mmu .
+	_:instruction mosim:objects ?objects .
+	_:instruction mosim:mmuProperties ?properties .
+	_:instruction mosim:actionName ?name .
+	_:instruction mosim:startCondition ?startCond .
+	_:instruction mosim:endCondition ?endCond .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu 'Pose/Idle' .
+	_:instruction mosim:objects '' .
+	_:instruction mosim:mmuProperties '' .
+	_:instruction mosim:actionName 'IdleID2' .
+	_:instruction mosim:startCondition '' .
+	_:instruction mosim:endCondition '' .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b240 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?target mosim:id ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+	?target mosim:id ?id .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b241 a <http://www.ajan.de/behavior/bt-ns#UpdateQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX test: <http://test/>
+
+DELETE {
+	test:PositionGoalTool ?p ?o .
+	test:PositionGoalPart ?x ?y .
+	test:PositionGoalOperation ?w ?z .
+}
+WHERE {
+	test:PositionGoalTool ?p ?o .
+	test:PositionGoalPart ?x ?y .
+	test:PositionGoalOperation ?w ?z .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b242 a <http://www.ajan.de/behavior/bt-ns#UpdateQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+INSERT {
+	?avatar mosim:hand \"Right\" .
+
+	<http://test/> mosim:runningTask <http://www.ajan.de/ajan-mapping-ns#Task/0> .
+
+	<http://www.ajan.de/ajan-mapping-ns#Task/0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.dfki.de/mosim-ns#Task> .
+	<http://www.ajan.de/ajan-mapping-ns#Task/0> mosim:step \"0\"^^<http://www.w3.org/2001/XMLSchema#int> .
+	<http://www.ajan.de/ajan-mapping-ns#Task/0> mosim:operation \"Position\" .
+    <http://www.ajan.de/ajan-mapping-ns#Task/0> mosim:part <http://www.ajan.de/ajan-mapping-ns#Part/GraspObject/NULL> .
+	<http://www.ajan.de/ajan-mapping-ns#Task/0> mosim:tool <http://www.ajan.de/ajan-mapping-ns#Tool/RightHand/NULL> .
+	
+	<http://www.ajan.de/ajan-mapping-ns#Part/GraspObject/NULL> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> mosim:Part .
+	<http://www.ajan.de/ajan-mapping-ns#Part/GraspObject/NULL> mosim:type \"GraspObject\" .
+	<http://www.ajan.de/ajan-mapping-ns#Part/GraspObject/NULL> mosim:id \"NULL\" .
+
+	<http://www.ajan.de/ajan-mapping-ns#Tool/RightHand/NULL> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> mosim:Tool .
+	<http://www.ajan.de/ajan-mapping-ns#Tool/RightHand/NULL> mosim:type \"RightHand\" .
+	<http://www.ajan.de/ajan-mapping-ns#Tool/RightHand/NULL> mosim:id \"NULL\" .
+}
+WHERE {
+	?avatar <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> mosim:Avatar .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b243 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b244 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b244 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#CreateEndCallbackServer>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b245 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b245 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#CreateErrorCallbackServer>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b246 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b246 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#CreatePositioningCallbackServer>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b247 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b247 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#RegisterEndListener>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b248 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b248 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#RegisterErrorListener>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b249 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b249 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#RegisterPositioningListener>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b250 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b250 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#GetScene>;
+  rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b251 a <http://www.ajan.de/behavior/bt-ns#UpdateQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+DELETE {
+	?avatar mosim:instruction ?instruction .
+    ?instruction rdf:type mosim:Instruction .
+    ?instruction mosim:mmu ?mmu .
+    ?instruction mosim:actionID ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:instruction ?instruction .
+    ?instruction rdf:type mosim:Instruction .
+    ?instruction mosim:mmu ?mmu .
+    ?instruction mosim:actionID ?id .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b252 a <http://www.ajan.de/behavior/bt-ns#UpdateQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"RemoveAllInstructions(KB)\",\"title\":\"RemoveAllInstructions(KB)\",\"description\":\"\",\"nodes\":[\"Update\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"avatar,instruction,mmu,id\",\"parameters\":[]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+DELETE {
+	?avatar mosim:instruction ?instruction .
+    ?instruction rdf:type mosim:Instruction .
+    ?instruction mosim:mmu ?mmu .
+    ?instruction mosim:actionID ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:instruction ?instruction .
+    ?instruction rdf:type mosim:Instruction .
+    ?instruction mosim:mmu ?mmu .
+    ?instruction mosim:actionID ?id .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+DELETE {
+	?avatar mosim:instruction ?instruction .
+    ?instruction rdf:type mosim:Instruction .
+    ?instruction mosim:mmu ?mmu .
+    ?instruction mosim:actionID ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:instruction ?instruction .
+    ?instruction rdf:type mosim:Instruction .
+    ?instruction mosim:mmu ?mmu .
+    ?instruction mosim:actionID ?id .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b253 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?id
+WHERE {
+	VALUES ?label {\"Obstacle\" \"PositioningTargetLeft\"}
+	?object rdf:type mosim:MSceneObject .
+	?object rdfs:label  ?label .
+	?object mosim:id ?id .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b255 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"Move Instruction\",\"title\":\"Move Instruction\",\"description\":\"\",\"nodes\":[\"Action\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"avatar,hand,subject,subID,object,partID,instruction,instID,cosim,host,port,objName,targetName\",\"parameters\":[{\"label\":\"Object\",\"variable\":\"objName\",\"variableBinding\":\"'GraspObject'^^xsd:string\",\"title\":\"Object\",\"mode\":\"SPARQL-Dropdown\",\"note\":null,\"sparql\":{\"repo\":\"http://localhost:8090/rdf4j/repositories/test_knowledge\",\"query\":\"PREFIX%20mosim:%20%3Chttp://www.dfki.de/mosim-ns#%3E%0APREFIX%20rdf:%20%3Chttp://www.w3.org/1999/02/22-rdf-syntax-ns#%3E%0APREFIX%20rdfs:%20%3Chttp://www.w3.org/2000/01/rdf-schema#%3E%0ASELECT%20?label%20?dataValue%20?dataType%0AWHERE%20%7B%0A%09?target%20rdf:type%20mosim:MSceneObject%20.%0A%20%20%20%20%20%20%20%20?target%20rdfs:label%20?label%20.%0A%20%20%20%20%20%20%20%20?target%20rdfs:label%20?dataValue%20.%0A%09VALUES%20?dataType%20%7B%20%22http://www.w3.org/2001/XMLSchema#string%22%20%7D%0A%7D\"},\"possibleValues\":[{\"label\":\"GraspTargetL (1)\",\"dataValue\":\"'GraspTargetL (1)'^^xsd:string\"},{\"label\":\"GraspTargetL\",\"dataValue\":\"'GraspTargetL'^^xsd:string\"},{\"label\":\"GraspTarget2R\",\"dataValue\":\"'GraspTarget2R'^^xsd:string\"},{\"label\":\"RightHand\",\"dataValue\":\"'RightHand'^^xsd:string\"},{\"label\":\"LeftHandPose\",\"dataValue\":\"'LeftHandPose'^^xsd:string\"},{\"label\":\"GraspTargetR\",\"dataValue\":\"'GraspTargetR'^^xsd:string\"},{\"label\":\"LargeObject\",\"dataValue\":\"'LargeObject'^^xsd:string\"},{\"label\":\"WalkTarget\",\"dataValue\":\"'WalkTarget'^^xsd:string\"},{\"label\":\"WalkTarget2\",\"dataValue\":\"'WalkTarget2'^^xsd:string\"},{\"label\":\"TurningAxis\",\"dataValue\":\"'TurningAxis'^^xsd:string\"},{\"label\":\"GraspTarget3L\",\"dataValue\":\"'GraspTarget3L'^^xsd:string\"},{\"label\":\"Table (1)\",\"dataValue\":\"'Table (1)'^^xsd:string\"},{\"label\":\"GraspObject3\",\"dataValue\":\"'GraspObject3'^^xsd:string\"},{\"label\":\"PositioningTargetLeft\",\"dataValue\":\"'PositioningTargetLeft'^^xsd:string\"},{\"label\":\"WalkTargetLargeObject\",\"dataValue\":\"'WalkTargetLargeObject'^^xsd:string\"},{\"label\":\"LargeObjectPositioningTarget\",\"dataValue\":\"'LargeObjectPositioningTarget'^^xsd:string\"},{\"label\":\"GraspTargetROld\",\"dataValue\":\"'GraspTargetROld'^^xsd:string\"},{\"label\":\"GraspObject2\",\"dataValue\":\"'GraspObject2'^^xsd:string\"},{\"label\":\"PositioningTargetRight\",\"dataValue\":\"'PositioningTargetRight'^^xsd:string\"},{\"label\":\"GraspObject\",\"dataValue\":\"'GraspObject'^^xsd:string\"},{\"label\":\"GazeTarget\",\"dataValue\":\"'GazeTarget'^^xsd:string\"},{\"label\":\"WristTargetRight\",\"dataValue\":\"'WristTargetRight'^^xsd:string\"},{\"label\":\"Table\",\"dataValue\":\"'Table'^^xsd:string\"},{\"label\":\"GraspTarget2L\",\"dataValue\":\"'GraspTarget2L'^^xsd:string\"},{\"label\":\"PositioningTarget2\",\"dataValue\":\"'PositioningTarget2'^^xsd:string\"},{\"label\":\"WristLocation\",\"dataValue\":\"'WristLocation'^^xsd:string\"},{\"label\":\"TableCollider\",\"dataValue\":\"'TableCollider'^^xsd:string\"},{\"label\":\"WalkTargetGrasp\",\"dataValue\":\"'WalkTargetGrasp'^^xsd:string\"},{\"label\":\"GraspTarget3R\",\"dataValue\":\"'GraspTarget3R'^^xsd:string\"},{\"label\":\"TableCollider\",\"dataValue\":\"'TableCollider'^^xsd:string\"},{\"label\":\"PositioningTarget\",\"dataValue\":\"'PositioningTarget'^^xsd:string\"},{\"label\":\"CarryTarget\",\"dataValue\":\"'CarryTarget'^^xsd:string\"},{\"label\":\"LargeObjectGraspL\",\"dataValue\":\"'LargeObjectGraspL'^^xsd:string\"},{\"label\":\"LargeObjectGraspR\",\"dataValue\":\"'LargeObjectGraspR'^^xsd:string\"},{\"label\":\"Obstacle\",\"dataValue\":\"'Obstacle'^^xsd:string\"},{\"label\":\"wrench\",\"dataValue\":\"'wrench'^^xsd:string\"},{\"label\":\"WalkTargetConcurrent\",\"dataValue\":\"'WalkTargetConcurrent'^^xsd:string\"},{\"label\":\"\",\"dataValue\":\"'undefined'^^xsd:string\"}]},{\"label\":\"Target\",\"variable\":\"targetName\",\"variableBinding\":\"'PositioningTargetRight'^^xsd:string\",\"title\":\"Target\",\"mode\":\"SPARQL-Dropdown\",\"note\":null,\"sparql\":{\"repo\":\"http://localhost:8090/rdf4j/repositories/test_knowledge\",\"query\":\"PREFIX%20mosim:%20%3Chttp://www.dfki.de/mosim-ns#%3E%0APREFIX%20rdf:%20%3Chttp://www.w3.org/1999/02/22-rdf-syntax-ns#%3E%0APREFIX%20rdfs:%20%3Chttp://www.w3.org/2000/01/rdf-schema#%3E%0ASELECT%20?label%20?dataValue%20?dataType%0AWHERE%20%7B%0A%09?target%20rdf:type%20mosim:MSceneObject%20.%0A%20%20%20%20%20%20%20%20?target%20rdfs:label%20?label%20.%0A%20%20%20%20%20%20%20%20?target%20rdfs:label%20?dataValue%20.%0A%09VALUES%20?dataType%20%7B%20%22http://www.w3.org/2001/XMLSchema#string%22%20%7D%0A%7D\"},\"possibleValues\":[{\"label\":\"GraspTargetL (1)\",\"dataValue\":\"'GraspTargetL (1)'^^xsd:string\"},{\"label\":\"GraspTargetL\",\"dataValue\":\"'GraspTargetL'^^xsd:string\"},{\"label\":\"GraspTarget2R\",\"dataValue\":\"'GraspTarget2R'^^xsd:string\"},{\"label\":\"RightHand\",\"dataValue\":\"'RightHand'^^xsd:string\"},{\"label\":\"LeftHandPose\",\"dataValue\":\"'LeftHandPose'^^xsd:string\"},{\"label\":\"GraspTargetR\",\"dataValue\":\"'GraspTargetR'^^xsd:string\"},{\"label\":\"LargeObject\",\"dataValue\":\"'LargeObject'^^xsd:string\"},{\"label\":\"WalkTarget\",\"dataValue\":\"'WalkTarget'^^xsd:string\"},{\"label\":\"WalkTarget2\",\"dataValue\":\"'WalkTarget2'^^xsd:string\"},{\"label\":\"TurningAxis\",\"dataValue\":\"'TurningAxis'^^xsd:string\"},{\"label\":\"GraspTarget3L\",\"dataValue\":\"'GraspTarget3L'^^xsd:string\"},{\"label\":\"Table (1)\",\"dataValue\":\"'Table (1)'^^xsd:string\"},{\"label\":\"GraspObject3\",\"dataValue\":\"'GraspObject3'^^xsd:string\"},{\"label\":\"PositioningTargetLeft\",\"dataValue\":\"'PositioningTargetLeft'^^xsd:string\"},{\"label\":\"WalkTargetLargeObject\",\"dataValue\":\"'WalkTargetLargeObject'^^xsd:string\"},{\"label\":\"LargeObjectPositioningTarget\",\"dataValue\":\"'LargeObjectPositioningTarget'^^xsd:string\"},{\"label\":\"GraspTargetROld\",\"dataValue\":\"'GraspTargetROld'^^xsd:string\"},{\"label\":\"GraspObject2\",\"dataValue\":\"'GraspObject2'^^xsd:string\"},{\"label\":\"PositioningTargetRight\",\"dataValue\":\"'PositioningTargetRight'^^xsd:string\"},{\"label\":\"GraspObject\",\"dataValue\":\"'GraspObject'^^xsd:string\"},{\"label\":\"GazeTarget\",\"dataValue\":\"'GazeTarget'^^xsd:string\"},{\"label\":\"WristTargetRight\",\"dataValue\":\"'WristTargetRight'^^xsd:string\"},{\"label\":\"Table\",\"dataValue\":\"'Table'^^xsd:string\"},{\"label\":\"GraspTarget2L\",\"dataValue\":\"'GraspTarget2L'^^xsd:string\"},{\"label\":\"PositioningTarget2\",\"dataValue\":\"'PositioningTarget2'^^xsd:string\"},{\"label\":\"WristLocation\",\"dataValue\":\"'WristLocation'^^xsd:string\"},{\"label\":\"TableCollider\",\"dataValue\":\"'TableCollider'^^xsd:string\"},{\"label\":\"WalkTargetGrasp\",\"dataValue\":\"'WalkTargetGrasp'^^xsd:string\"},{\"label\":\"GraspTarget3R\",\"dataValue\":\"'GraspTarget3R'^^xsd:string\"},{\"label\":\"TableCollider\",\"dataValue\":\"'TableCollider'^^xsd:string\"},{\"label\":\"PositioningTarget\",\"dataValue\":\"'PositioningTarget'^^xsd:string\"},{\"label\":\"CarryTarget\",\"dataValue\":\"'CarryTarget'^^xsd:string\"},{\"label\":\"LargeObjectGraspL\",\"dataValue\":\"'LargeObjectGraspL'^^xsd:string\"},{\"label\":\"LargeObjectGraspR\",\"dataValue\":\"'LargeObjectGraspR'^^xsd:string\"},{\"label\":\"Obstacle\",\"dataValue\":\"'Obstacle'^^xsd:string\"},{\"label\":\"wrench\",\"dataValue\":\"'wrench'^^xsd:string\"},{\"label\":\"WalkTargetConcurrent\",\"dataValue\":\"'WalkTargetConcurrent'^^xsd:string\"},{\"label\":\"\",\"dataValue\":\"'undefined'^^xsd:string\"}]},{\"label\":\"Hand\",\"variable\":\"hand\",\"variableBinding\":\"'Right'\",\"title\":\"Hand\",\"mode\":\"Dropdown\",\"note\":\"\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[{\"label\":\"Right\",\"dataValue\":\"'Right'\"},{\"label\":\"Left\",\"dataValue\":\"'Left'\"},{\"label\":\"Both\",\"dataValue\":\"'Both'\"}]}]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+	?subject rdf:type mosim:FinalLocation .
+	?subject mosim:id ?subID .
+	?object rdf:type mosim:MSceneObject .
+	?object mosim:id ?partID .
+	
+	?instruction rdf:type mosim:Instruction .
+	?instruction mosim:actionID ?instID . 
+	
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?object rdf:type mosim:MSceneObject .
+  	?object rdfs:label ?objName .
+	?object mosim:id ?partID .
+	?subject rdf:type mosim:MSceneObject .
+	?subject rdfs:label ?targetName .
+	?subject mosim:id ?subID .
+	
+	?instruction rdf:type mosim:Instruction .
+	?instruction mosim:actionID ?instID .
+	?instruction mosim:mmu \"Object/Carry\" .
+	
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand 'Right' .
+	?subject rdf:type mosim:FinalLocation .
+	?subject mosim:id ?subID .
+	?object rdf:type mosim:MSceneObject .
+	?object mosim:id ?partID .
+	
+	?instruction rdf:type mosim:Instruction .
+	?instruction mosim:actionID ?instID . 
+	
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?object rdf:type mosim:MSceneObject .
+  	?object rdfs:label \"GraspObject\"^^xsd:string .
+	?object mosim:id ?partID .
+	?subject rdf:type mosim:MSceneObject .
+	?subject rdfs:label \"PositioningTargetRight\"^^xsd:string .
+	?subject mosim:id ?subID .
+	
+	?instruction rdf:type mosim:Instruction .
+	?instruction mosim:actionID ?instID .
+	?instruction mosim:mmu \"Object/Carry\" .
+	
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b256 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b257 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b257 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b258 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b258 a <http://www.ajan.de/behavior/bt-ns#Parallel>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b259 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b259 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#GenericIdleTest>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b260 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b260 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b261 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b261 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b262 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b262 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#GenericReachTest>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b263 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b263 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#GenericCarryTest>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b264 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b264 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#GenericWalkTest>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b265 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b265 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b266;
+  rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b260 rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b257 rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#AtObject> a <http://www.ajan.de/behavior/bt-ns#Condition>;
+  rdfs:label "AtObject" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#SetHands> a <http://www.ajan.de/behavior/bt-ns#Update>;
+  rdfs:label "SetHands?!" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#CheckBothHands> a <http://www.ajan.de/behavior/bt-ns#Condition>;
+  rdfs:label "CheckBothHands" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ReachObject> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#ReachInstruction>;
+  rdfs:label "reach(MMU,Object,Hand)" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b267 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"Generic Instruction\",\"title\":\"Generic Instruction\",\"description\":\"\",\"nodes\":[\"All\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"mmu,objects,properties,name,startCond,endCond,cosim,host,port\",\"parameters\":[{\"label\":\"MMU ID\",\"variable\":\"mmu\",\"variableBinding\":\"'Object/Move'\",\"title\":\"MMU ID\",\"mode\":\"Input\",\"note\":\"String -> 'idle'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Objects\",\"variable\":\"objects\",\"variableBinding\":\"'GraspObject; PositioningTargetRight'\",\"title\":\"Objects\",\"mode\":\"Input\",\"note\":\"String -> 'UnityObjectName1;UnityObjectName2'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Properties\",\"variable\":\"properties\",\"variableBinding\":\"'SubjectID, <id@GraspObject>; TargetID, <id@PositioningTargetRight>; OnStart, <actionId@CarryID>:EndInstruction'\",\"title\":\"Properties\",\"mode\":\"Input\",\"note\":\"String -> 'TargetID, <id@GraspObject>; Hand, Right'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Instruction Name\",\"variable\":\"name\",\"variableBinding\":\"''\",\"title\":\"Instruction Name\",\"mode\":\"Input\",\"note\":\"String -> 'Idle'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Start Conditions\",\"variable\":\"startCond\",\"variableBinding\":\"''\",\"title\":\"Start Conditions\",\"mode\":\"Input\",\"note\":\"String -> ''\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"End Condition\",\"variable\":\"endCond\",\"variableBinding\":\"''\",\"title\":\"End Condition\",\"mode\":\"Input\",\"note\":\"String -> ''\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]}]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu ?mmu .
+	_:instruction mosim:objects ?objects .
+	_:instruction mosim:mmuProperties ?properties .
+	_:instruction mosim:actionName ?name .
+	_:instruction mosim:startCondition ?startCond .
+	_:instruction mosim:endCondition ?endCond .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu \"Object/Move\" .
+	_:instruction mosim:objects \"GraspObject; PositioningTargetRight\" .
+	_:instruction mosim:mmuProperties \"SubjectID, <id@GraspObject>; TargetID, <id@PositioningTargetRight>; OnStart, <actionId@CarryID>:EndInstruction\" .
+	_:instruction mosim:actionName \"\" .
+	_:instruction mosim:startCondition \"\" .
+	_:instruction mosim:endCondition \"\" .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b268 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX test: <http://test/>
+SELECT ?targetID
+WHERE {
+	test:WalkTarget rdf:value ?target .
+	?target rdf:type mosim:MSceneObject .
+	?target mosim:id ?targetID .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b269 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:isLocatedAt ?position .
+	?transform rdf:type mosim:MTransform .
+	?transform mosim:id ?id .
+	?transform mosim:posX ?posX .
+	?transform mosim:posY ?posY .
+	?transform mosim:posZ ?posZ .
+	?transform mosim:rotX ?rotX .
+	?transform mosim:rotY ?rotY .
+	?transform mosim:rotZ ?rotZ .
+	?transform mosim:rotW ?rotW .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:isLocatedAt ?position .
+	?walkpoint rdf:type mosim:MWalkPoint .
+	?walkpoint rdf:type mosim:InFocus .
+	?walkpoint mosim:transform ?transform .
+	?transform mosim:id ?id .
+	?transform mosim:posX ?posX .
+	?transform mosim:posY ?posY .
+	?transform mosim:posZ ?posZ .
+	?transform mosim:rotX ?rotX .
+	?transform mosim:rotY ?rotY .
+	?transform mosim:rotZ ?rotZ .
+	?transform mosim:rotW ?rotW .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b270 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b271 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b271 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#AddTestInfos>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b272 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b272 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#ProducePositionGoal>;
+  rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b273 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b274 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b274 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#CheckBothHands>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b275 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b275 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#ReachBothObject>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b276 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b276 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#CarryBothObject>;
+  rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b277 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?host ?port 
+WHERE {
+	?scene rdf:type mosim:Scene .
+	?scene mosim:host ?host .
+	?scene mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b254 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#defaultUpdate> .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b278 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?host ?port 
+WHERE {
+	VALUES ?host { \"127.0.0.1\" }
+	VALUES ?port { 8905 }
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b279 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?host ?port 
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b280 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"Generic Instruction\",\"title\":\"Generic Instruction\",\"description\":\"\",\"nodes\":[\"All\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"mmu,objects,properties,name,startCond,endCond,cosim,host,port\",\"parameters\":[{\"label\":\"MMU ID\",\"variable\":\"mmu\",\"variableBinding\":\"'Object/Carry'\",\"title\":\"MMU ID\",\"mode\":\"Input\",\"note\":\"String -> 'idle'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Objects\",\"variable\":\"objects\",\"variableBinding\":\"'GraspObject'\",\"title\":\"Objects\",\"mode\":\"Input\",\"note\":\"String -> 'UnityObjectName1;UnityObjectName2'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Properties\",\"variable\":\"properties\",\"variableBinding\":\"'TargetID, <id@GraspObject>; Hand, Right; AddOffset, false'\",\"title\":\"Properties\",\"mode\":\"Input\",\"note\":\"String -> 'TargetID, <id@GraspObject>; Hand, Right'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Instruction Name\",\"variable\":\"name\",\"variableBinding\":\"'CarryID'\",\"title\":\"Instruction Name\",\"mode\":\"Input\",\"note\":\"String -> 'Idle'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Start Conditions\",\"variable\":\"startCond\",\"variableBinding\":\"''\",\"title\":\"Start Conditions\",\"mode\":\"Input\",\"note\":\"String -> ''\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"End Condition\",\"variable\":\"endCond\",\"variableBinding\":\"''\",\"title\":\"End Condition\",\"mode\":\"Input\",\"note\":\"String -> ''\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]}]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu ?mmu .
+	_:instruction mosim:objects ?objects .
+	_:instruction mosim:mmuProperties ?properties .
+	_:instruction mosim:actionName ?name .
+	_:instruction mosim:startCondition ?startCond .
+	_:instruction mosim:endCondition ?endCond .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu \"Object/Carry\" .
+	_:instruction mosim:objects \"GraspObject\" .
+	_:instruction mosim:mmuProperties \"TargetID, <id@GraspObject>; Hand, Right; AddOffset, false\" .
+	_:instruction mosim:actionName \"CarryID\" .
+	_:instruction mosim:startCondition \"\" .
+	_:instruction mosim:endCondition \"\" .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b281 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b282 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b282 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#HandlePositionGoal>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b283 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b283 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#Idle>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b284 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b284 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b285 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b285 a <http://www.ajan.de/behavior/bt-ns#Priority>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b295 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b295 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#AtObject>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b296 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b296 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#ProduceWalkToObjectGoal>;
+  rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b284 rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b286 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b286 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#SetHands>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b287 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b287 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b288 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b288 a <http://www.ajan.de/behavior/bt-ns#Priority>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b297 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b297 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b273;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b298 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b298 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b299 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b299 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b304 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b304 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#ReachObject>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b305 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b305 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#CarryObject>;
+  rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b298 rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b287 rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b289 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b289 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#ProduceWalkToTargetGoal>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b290 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b290 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b291 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b291 a <http://www.ajan.de/behavior/bt-ns#Priority>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b300 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b300 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b301 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b301 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b306 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b306 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#CheckBothHands>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b307 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b307 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#MoveBothObject>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b308 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b308 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#ReleaseBothObject>;
+  rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b300 rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b302 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b302 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b303 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b303 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b309 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b309 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#MoveObject>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b310 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b310 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#ReleaseObject>;
+  rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b302 rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b290 rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b292 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b292 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#FinishSimulation>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b293 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b293 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#RemovePositionGoalInput>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b294 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b294 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#RemoveInstructionOutputs>;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericCarryTest> rdfs:comment
+    "" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericIdleTest> rdfs:comment
+    "" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericIdleTest2> rdfs:comment
+    "" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericMoveTest> rdfs:comment
+    "" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericReachTest> rdfs:comment
+    "" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericReleaseTest> rdfs:comment
+    "" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericWalkTest> rdfs:comment
+    "" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b311 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"Release Instruction\",\"title\":\"Release Instruction\",\"description\":\"\",\"nodes\":[\"Action\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"avatar,hand,cosim,host,port\",\"parameters\":[{\"label\":\"Hand\",\"variable\":\"hand\",\"variableBinding\":\"'Right'\",\"title\":\"Hand\",\"mode\":\"Dropdown\",\"note\":null,\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[{\"label\":\"Right\",\"dataValue\":\"'Right'\"},{\"label\":\"Left\",\"dataValue\":\"'Left'\"},{\"label\":\"Both\",\"dataValue\":\"'Both'\"}]}]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand \"Right\" .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b266 a <http://www.ajan.de/behavior/bt-ns#Parallel>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b312 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b312 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#GenericIdleTest2>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b313 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b313 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b314 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b314 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b331 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b331 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#GenericMoveTest>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b332 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b332 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#GenericReleaseTest>;
+  rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b313 rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#defaultUpdate> a <http://www.ajan.de/behavior/bt-ns#Update>;
+  rdfs:comment "";
+  rdfs:label "removeAll" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b315 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX sp: <http://spinrdf.org/sp#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:PositionGoalPart rdf:value ?partValue .
+	test:PositionGoalTool rdf:value ?toolValue .
+	test:PositionGoalOperation rdf:value ?operationValue .
+}
+WHERE { GRAPH <http://localhost:8090/rdf4j/repositories/agents#PositionGoal> {
+	?part sp:varName \"part\".
+	?part rdf:value ?partValue .
+
+	?tool sp:varName \"tool\".
+	?tool rdf:value ?toolValue .
+
+	?operation sp:varName \"operation\".
+	?operation rdf:value ?operationValue .
+} }""";
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge> .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b316 a <http://www.ajan.de/behavior/bt-ns#UpdateQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX test: <http://test/>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+DELETE {
+	?avatar mosim:hand ?oldhand .
+}
+INSERT {
+	?avatar mosim:hand ?hand .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?oldhand .
+
+	test:PositionGoalTool rdf:value ?tool .
+	?tool mosim:type ?toolName .
+	BIND (IF (?toolName=\"RightHand\", \"Right\", IF (?toolName=\"LeftHand\", \"Left\", IF (?toolName=\"BothHands\", \"BothHands\", \"NULL\"))) as ?hand)
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b317 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b318 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b318 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#InitUpdate>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b319 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b319 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#GetTaskList>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b320 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b320 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b321 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b321 a <http://www.ajan.de/behavior/bt-ns#Repeater>;
+  <http://www.ajan.de/behavior/bt-ns#hasChild> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b322 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b322 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b324 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b324 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#SetFocus>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b325 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b325 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b326 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b326 a <http://www.ajan.de/behavior/bt-ns#Executor>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b328 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b328 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#DefaultBehavior>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b329 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b329 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#ProducePositionGoal>;
+  rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b326 <http://www.ajan.de/behavior/bt-ns#selectChild>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b330 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b330 a <http://www.ajan.de/behavior/bt-ns#IntValue>;
+  <http://www.ajan.de/behavior/bt-ns#query> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b334 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b334 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+
+SELECT ?intValue
+WHERE {
+	?task rdf:type mosim:Task .
+	?task mosim:operation ?operation .
+	BIND (
+		  IF ( CONTAINS(?operation,\"Position\"), 1,
+		  IF ( CONTAINS(?operation,\"Rough\"), 1,
+		  IF ( CONTAINS(?operation,\"Exact\"), 1, 
+		  IF ( CONTAINS(?operation,\"Stick\"), 1,
+		  IF ( CONTAINS(?operation,\"Remove\"), 1,
+		  IF ( CONTAINS(?operation,\"Tighten\"), 2,
+		  IF ( CONTAINS(?operation,\"Loose\"), 2,
+		  IF ( CONTAINS(?operation,\"Fully\"), 2,
+		  IF ( CONTAINS(?operation,\"Torque\"), 2,
+		  IF ( CONTAINS(?operation,\"Untighten\"), 2,
+		  IF ( CONTAINS(?operation,\"Check\"), 3,
+		  IF ( CONTAINS(?operation,\"Visual\"), 3,
+		  IF ( CONTAINS(?operation,\"Manual\"), 3,
+		  IF ( CONTAINS(?operation,\"Adapt\"), 3,
+		  0)))))))))))))) as ?intValue)
+	{ SELECT ?task
+	WHERE {
+		?running mosim:runningTask ?task .
+	}}
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b325 rdf:rest rdf:nil .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b321 <http://www.ajan.de/behavior/bt-ns#setTimes>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b323 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b323 a <http://www.ajan.de/behavior/bt-ns#IntValue>;
+  <http://www.ajan.de/behavior/bt-ns#query> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b327 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b327 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+
+SELECT (count(?task) as ?intValue)
+WHERE {
+	?task rdf:type mosim:Task .
+	?some mosim:runningTask ?running .
+	FILTER (?task != ?running)
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b320 rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#defaultAbortInstruction> a <http://www.ajan.de/behavior/mosim-ns#AbortInstruction>;
+  rdfs:comment "";
+  rdfs:label "abortAll" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b333 a <http://www.ajan.de/behavior/bt-ns#UpdateQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX test: <http://test/>
+
+DELETE {
+	test:GoalTool ?p ?o .
+	test:GoalPart ?x ?y .
+	test:GoalOperation ?w ?z .
+}
+WHERE {
+	test:GoalTool ?p ?o .
+	test:GoalPart ?x ?y .
+	test:GoalOperation ?w ?z .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b335 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?host ?port 
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b336 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b337 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX sp: <http://spinrdf.org/sp#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:WalkTarget rdf:value ?walkTarget .
+}
+WHERE { GRAPH <http://localhost:8090/rdf4j/repositories/agents#WalkGoal> {
+	?target sp:varName \"target\".
+	?target rdf:value ?walkTarget .
+} }""";
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge> .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b338 a <http://www.ajan.de/behavior/bt-ns#UpdateQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+
+DELETE {
+	?running mosim:runningTask ?task .
+}
+INSERT {
+    ?running mosim:runningTask ?newTask .
+}
+WHERE {
+	?running mosim:runningTask ?task .
+	?task mosim:step ?step .
+	?newTask a mosim:Task .
+	?newTask mosim:step ?newStep .
+
+	FILTER (?newStep = ?step+1)
+	FILTER (?newTask != ?task)
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b339 a <http://www.ajan.de/behavior/bt-ns#UpdateQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+DELETE {
+	?walkpoint rdf:type mosim:MWalkPoint .
+	?walkpoint rdf:type mosim:InFocus .
+	?walkpoint mosim:transform ?transform .
+	?transform mosim:id ?id .
+	?transform mosim:posX ?posX .
+	?transform mosim:posY ?posY .
+	?transform mosim:posZ ?posZ .
+	?transform mosim:rotX ?rotX .
+	?transform mosim:rotY ?rotY .
+	?transform mosim:rotZ ?rotZ .
+	?transform mosim:rotW ?rotW .
+}
+WHERE {
+	?walkpoint rdf:type mosim:MWalkPoint .
+	?walkpoint rdf:type mosim:InFocus .
+	?walkpoint mosim:transform ?transform .
+	?transform mosim:id ?id .
+	?transform mosim:posX ?posX .
+	?transform mosim:posY ?posY .
+	?transform mosim:posZ ?posZ .
+	?transform mosim:rotX ?rotX .
+	?transform mosim:rotY ?rotY .
+	?transform mosim:rotZ ?rotZ .
+	?transform mosim:rotW ?rotW .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b340 a <http://www.ajan.de/behavior/bt-ns#UpdateQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+DELETE {
+	?walkpoint rdf:type mosim:MWalkPoint .
+	?walkpoint mosim:transform ?transform .
+	?transform mosim:id ?id .
+	?transform mosim:posX ?posX .
+	?transform mosim:posY ?posY .
+	?transform mosim:posZ ?posZ .
+	?transform mosim:rotX ?rotX .
+	?transform mosim:rotY ?rotY .
+	?transform mosim:rotZ ?rotZ .
+	?transform mosim:rotW ?rotW .
+}
+WHERE {
+	?walkpoint rdf:type mosim:MWalkPoint .
+	?walkpoint mosim:transform ?transform .
+	?transform mosim:id ?id .
+	?transform mosim:posX ?posX .
+	?transform mosim:posY ?posY .
+	?transform mosim:posZ ?posZ .
+	?transform mosim:rotX ?rotX .
+	?transform mosim:rotY ?rotY .
+	?transform mosim:rotZ ?rotZ .
+	?transform mosim:rotW ?rotW .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b341 a <http://www.ajan.de/behavior/bt-ns#UpdateQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX test: <http://test/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+DELETE {
+	test:WalkTarget rdf:value ?walkTarget .
+}
+WHERE {
+	test:WalkTarget rdf:value ?walkTarget .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b342 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+	?subject rdf:type mosim:FinalLocation .
+	?subject mosim:id ?subID .
+	?object rdf:type mosim:MSceneObject .
+	?object mosim:id ?partID .
+	
+	?instruction rdf:type mosim:Instruction .
+	?instruction mosim:actionID ?instID . 
+	
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?object rdf:type mosim:MSceneObject .
+  	?object rdfs:label ?partName .
+	?object mosim:id ?partID .
+	?object mosim:finalLocation ?subject .
+
+	?subject rdf:type mosim:MSceneObject .
+	?subject mosim:id ?subID .
+
+  	?avatar mosim:hand ?hand .
+	
+	?instruction rdf:type mosim:Instruction .
+	?instruction mosim:actionID ?instID .
+	?instruction mosim:mmu \"Object/Carry\" .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b343 a <http://www.ajan.de/behavior/bt-ns#AskQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Constraint>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX test: <http://test/>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+ASK
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:locatedNextTo ?location .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?area mosim:contains ?target .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+
+	?area mosim:contains ?targetPOI .
+	?targetPOI rdf:type mosim:WalkTarget .
+	?targetPOI mosim:id ?id .
+
+	FILTER(?targetPOI = ?location)
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b344 a <http://www.ajan.de/behavior/bt-ns#AskQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Constraint>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ASK
+WHERE {
+	?walkpoint rdf:type mosim:MWalkPoint .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b345 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"Generic Instruction\",\"title\":\"Generic Instruction\",\"description\":\"\",\"nodes\":[\"All\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"mmu,objects,properties,name,startCond,endCond,cosim,host,port\",\"parameters\":[{\"label\":\"MMU ID\",\"variable\":\"mmu\",\"variableBinding\":\"'Object/Release'\",\"title\":\"MMU ID\",\"mode\":\"Input\",\"note\":\"String -> 'idle'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Objects\",\"variable\":\"objects\",\"variableBinding\":\"''\",\"title\":\"Objects\",\"mode\":\"Input\",\"note\":\"String -> 'UnityObjectName1;UnityObjectName2'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Properties\",\"variable\":\"properties\",\"variableBinding\":\"'Hand, Right'\",\"title\":\"Properties\",\"mode\":\"Input\",\"note\":\"String -> 'TargetID, <id@GraspObject>; Hand, Right'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Instruction Name\",\"variable\":\"name\",\"variableBinding\":\"''\",\"title\":\"Instruction Name\",\"mode\":\"Input\",\"note\":\"String -> 'Idle'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Start Conditions\",\"variable\":\"startCond\",\"variableBinding\":\"''\",\"title\":\"Start Conditions\",\"mode\":\"Input\",\"note\":\"String -> ''\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"End Condition\",\"variable\":\"endCond\",\"variableBinding\":\"''\",\"title\":\"End Condition\",\"mode\":\"Input\",\"note\":\"String -> ''\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]}]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu ?mmu .
+	_:instruction mosim:objects ?objects .
+	_:instruction mosim:mmuProperties ?properties .
+	_:instruction mosim:actionName ?name .
+	_:instruction mosim:startCondition ?startCond .
+	_:instruction mosim:endCondition ?endCond .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu \"Object/Release\" .
+	_:instruction mosim:objects \"\" .
+	_:instruction mosim:mmuProperties \"Hand, Right\" .
+	_:instruction mosim:actionName \"\" .
+	_:instruction mosim:startCondition \"\" .
+	_:instruction mosim:endCondition \"\" .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b346 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?subject rdf:type mosim:FinalLocation .
+	?subject mosim:id ?subID .
+	?object rdf:type mosim:MSceneObject .
+	?object mosim:id ?partID .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?object rdf:type mosim:MSceneObject .
+  	?object rdfs:label ?partName .
+	?object mosim:id ?partID .
+	?object mosim:finalLocation ?subject.
+
+	?subject rdf:type mosim:FinalLocation .
+	?subject mosim:id ?subID .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b347 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?host ?port 
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b348 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?host ?port 
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b349 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b350 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?host ?port 
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b351 a <http://www.ajan.de/ajan-ns#Bindings>;
+  <http://www.ajan.de/ajan-ns#bindingQuery> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b352 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b352 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+SELECT ?target
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:isLocatedAt ?position .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?object rdf:type mosim:MSceneObject .
+  	?object rdfs:label ?partName .
+	?object mosim:finalLocation ?target .
+} LIMIT 1""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b353 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b354 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b354 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b355 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b355 a <http://www.ajan.de/behavior/bt-ns#Condition>;
+  <http://www.ajan.de/behavior/bt-ns#query> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b357 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b357 a <http://www.ajan.de/behavior/bt-ns#AskQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Constraint>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+ASK
+WHERE {
+	?s ?p ?o .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b355 rdfs:label "CheckKB" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b354 rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#AbortCarry> <http://www.ajan.de/behavior/mosim-ns#host>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b207;
+  <http://www.ajan.de/behavior/mosim-ns#instructionID> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b385 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b385 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?id 
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:instruction ?instruction .
+	?instruction mosim:mmu \"Object/Carry\" .
+	?instruction mosim:actionID ?id .
+}""" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#AddTestInfos> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b242 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#AtObject> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b343 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#CarryBothObject> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b388 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b388 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b240;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#CarryObject> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b389 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b389 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b356 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b356 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+	?target rdf:type mosim:MSceneObject .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?avatar mosim:hand ?hand .
+
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+	?target mosim:id ?id .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b389 rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#CarryTest> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b390 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b390 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b370 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b370 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"Reach/Carry Instruction\",\"title\":\"Reach/Carry Instruction\",\"description\":\"\",\"nodes\":[\"Action\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"avatar,hand,target,id,cosim,host,port,object\",\"parameters\":[{\"label\":\"MSceneObject\",\"variable\":\"object\",\"variableBinding\":\"'GraspObject'^^xsd:string\",\"title\":\"MSceneObject\",\"mode\":\"SPARQL-Dropdown\",\"note\":null,\"sparql\":{\"repo\":\"http://localhost:8090/rdf4j/repositories/test_knowledge\",\"query\":\"PREFIX%20mosim:%20%3Chttp://www.dfki.de/mosim-ns#%3E%0APREFIX%20rdf:%20%3Chttp://www.w3.org/1999/02/22-rdf-syntax-ns#%3E%0APREFIX%20rdfs:%20%3Chttp://www.w3.org/2000/01/rdf-schema#%3E%0ASELECT%20?label%20?dataValue%20?dataType%0AWHERE%20%7B%0A%09?target%20rdf:type%20mosim:MSceneObject%20.%0A%20%20%20%20%20%20%20%20?target%20rdfs:label%20?label%20.%0A%20%20%20%20%20%20%20%20?target%20rdfs:label%20?dataValue%20.%0A%09VALUES%20?dataType%20%7B%20%22http://www.w3.org/2001/XMLSchema#string%22%20%7D%0A%7D\"},\"possibleValues\":[{\"label\":\"GraspTargetL (1)\",\"dataValue\":\"'GraspTargetL (1)'^^xsd:string\"},{\"label\":\"GraspTargetL\",\"dataValue\":\"'GraspTargetL'^^xsd:string\"},{\"label\":\"GraspTarget2R\",\"dataValue\":\"'GraspTarget2R'^^xsd:string\"},{\"label\":\"RightHand\",\"dataValue\":\"'RightHand'^^xsd:string\"},{\"label\":\"LeftHandPose\",\"dataValue\":\"'LeftHandPose'^^xsd:string\"},{\"label\":\"GraspTargetR\",\"dataValue\":\"'GraspTargetR'^^xsd:string\"},{\"label\":\"LargeObject\",\"dataValue\":\"'LargeObject'^^xsd:string\"},{\"label\":\"WalkTarget\",\"dataValue\":\"'WalkTarget'^^xsd:string\"},{\"label\":\"WalkTarget2\",\"dataValue\":\"'WalkTarget2'^^xsd:string\"},{\"label\":\"TurningAxis\",\"dataValue\":\"'TurningAxis'^^xsd:string\"},{\"label\":\"GraspTarget3L\",\"dataValue\":\"'GraspTarget3L'^^xsd:string\"},{\"label\":\"Table (1)\",\"dataValue\":\"'Table (1)'^^xsd:string\"},{\"label\":\"GraspObject3\",\"dataValue\":\"'GraspObject3'^^xsd:string\"},{\"label\":\"PositioningTargetLeft\",\"dataValue\":\"'PositioningTargetLeft'^^xsd:string\"},{\"label\":\"WalkTargetLargeObject\",\"dataValue\":\"'WalkTargetLargeObject'^^xsd:string\"},{\"label\":\"LargeObjectPositioningTarget\",\"dataValue\":\"'LargeObjectPositioningTarget'^^xsd:string\"},{\"label\":\"GraspTargetROld\",\"dataValue\":\"'GraspTargetROld'^^xsd:string\"},{\"label\":\"GraspObject2\",\"dataValue\":\"'GraspObject2'^^xsd:string\"},{\"label\":\"PositioningTargetRight\",\"dataValue\":\"'PositioningTargetRight'^^xsd:string\"},{\"label\":\"GraspObject\",\"dataValue\":\"'GraspObject'^^xsd:string\"},{\"label\":\"GazeTarget\",\"dataValue\":\"'GazeTarget'^^xsd:string\"},{\"label\":\"WristTargetRight\",\"dataValue\":\"'WristTargetRight'^^xsd:string\"},{\"label\":\"Table\",\"dataValue\":\"'Table'^^xsd:string\"},{\"label\":\"GraspTarget2L\",\"dataValue\":\"'GraspTarget2L'^^xsd:string\"},{\"label\":\"PositioningTarget2\",\"dataValue\":\"'PositioningTarget2'^^xsd:string\"},{\"label\":\"WristLocation\",\"dataValue\":\"'WristLocation'^^xsd:string\"},{\"label\":\"TableCollider\",\"dataValue\":\"'TableCollider'^^xsd:string\"},{\"label\":\"WalkTargetGrasp\",\"dataValue\":\"'WalkTargetGrasp'^^xsd:string\"},{\"label\":\"GraspTarget3R\",\"dataValue\":\"'GraspTarget3R'^^xsd:string\"},{\"label\":\"TableCollider\",\"dataValue\":\"'TableCollider'^^xsd:string\"},{\"label\":\"PositioningTarget\",\"dataValue\":\"'PositioningTarget'^^xsd:string\"},{\"label\":\"CarryTarget\",\"dataValue\":\"'CarryTarget'^^xsd:string\"},{\"label\":\"LargeObjectGraspL\",\"dataValue\":\"'LargeObjectGraspL'^^xsd:string\"},{\"label\":\"LargeObjectGraspR\",\"dataValue\":\"'LargeObjectGraspR'^^xsd:string\"},{\"label\":\"Obstacle\",\"dataValue\":\"'Obstacle'^^xsd:string\"},{\"label\":\"wrench\",\"dataValue\":\"'wrench'^^xsd:string\"},{\"label\":\"WalkTargetConcurrent\",\"dataValue\":\"'WalkTargetConcurrent'^^xsd:string\"},{\"label\":\"\",\"dataValue\":\"'undefined'^^xsd:string\"}]},{\"label\":\"Hand\",\"variable\":\"hand\",\"variableBinding\":\"'Right'\",\"title\":\"Hand\",\"mode\":\"Dropdown\",\"note\":null,\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[{\"label\":\"Right\",\"dataValue\":\"'Right'\"},{\"label\":\"Left\",\"dataValue\":\"'Left'\"},{\"label\":\"Both\",\"dataValue\":\"'Both'\"}]}]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+	?target rdf:type mosim:MSceneObject .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?object .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand \"Right\" .
+	?target rdf:type mosim:MSceneObject .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label \"GraspObject\"^^xsd:string .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b390 rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#CheckBothHands> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b371 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b371 a <http://www.ajan.de/behavior/bt-ns#AskQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Constraint>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+ASK
+WHERE {
+	 ?avatar mosim:hand \"BothHands\" .
+}""" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#DefaultBehavior> <http://www.ajan.de/behavior/bt-ns#hasChild>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b353 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#DeleteInFocusWaypoint> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b339 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#DeleteWalkpoints> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b340 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ExamplePositionBehavior> <http://www.ajan.de/behavior/bt-ns#hasChild>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b270 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ExampleSceneBehavior> <http://www.ajan.de/behavior/bt-ns#hasChild>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b213 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ExampleSceneGenericBehavior> <http://www.ajan.de/behavior/bt-ns#hasChild>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b256 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#FinalBehavior> <http://www.ajan.de/behavior/bt-ns#hasChild>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b360 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b360 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b361 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b361 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#DeleteEndCallbackServer>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b362 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b362 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#DeleteErrorCallbackServer>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b363 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b363 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#DeletePositioningCallbackServer>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b364 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b364 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#UnregisterEndListener>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b365 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b365 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#UnregisterErrorListener>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b366 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b366 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#UnregisterPositioningListener>;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#FinishSimulation> <http://www.ajan.de/behavior/mosim-ns#host>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b279;
+  <http://www.ajan.de/behavior/mosim-ns#instructionID> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b368 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b368 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?id 
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:instruction ?instruction .
+	?instruction mosim:mmu \"test\" .
+	?instruction mosim:actionID ?id .
+}""" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericCarryTest> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b391 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b391 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b280;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericIdleTest> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b392 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b392 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b367 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b367 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"Generic Instruction\",\"title\":\"Generic Instruction\",\"description\":\"\",\"nodes\":[\"All\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"mmu,objects,properties,name,startCond,endCond,cosim,host,port\",\"parameters\":[{\"label\":\"MMU ID\",\"variable\":\"mmu\",\"variableBinding\":\"'Pose/Idle'\",\"title\":\"MMU ID\",\"mode\":\"Input\",\"note\":\"String -> 'idle'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Objects\",\"variable\":\"objects\",\"variableBinding\":\"''\",\"title\":\"Objects\",\"mode\":\"Input\",\"note\":\"String -> 'UnityObjectName1;UnityObjectName2'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Properties\",\"variable\":\"properties\",\"variableBinding\":\"''\",\"title\":\"Properties\",\"mode\":\"Input\",\"note\":\"String -> 'TargetID, <id@GraspObject>; Hand, Right'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Instruction Name\",\"variable\":\"name\",\"variableBinding\":\"'IdleID'\",\"title\":\"Instruction Name\",\"mode\":\"Input\",\"note\":\"String -> 'Idle'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Start Conditions\",\"variable\":\"startCond\",\"variableBinding\":\"''\",\"title\":\"Start Conditions\",\"mode\":\"Input\",\"note\":\"String -> ''\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"End Condition\",\"variable\":\"endCond\",\"variableBinding\":\"''\",\"title\":\"End Condition\",\"mode\":\"Input\",\"note\":\"String -> ''\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]}]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu ?mmu .
+	_:instruction mosim:objects ?objects .
+	_:instruction mosim:mmuProperties ?properties .
+	_:instruction mosim:actionName ?name .
+	_:instruction mosim:startCondition ?startCond .
+	_:instruction mosim:endCondition ?endCond .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu 'Pose/Idle' .
+	_:instruction mosim:objects '' .
+	_:instruction mosim:mmuProperties '' .
+	_:instruction mosim:actionName 'IdleID' .
+	_:instruction mosim:startCondition '' .
+	_:instruction mosim:endCondition '' .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b392 rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericIdleTest2> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b393 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b393 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b239;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericMoveTest> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b394 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b394 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b267;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericReachTest> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b395 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b395 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b384 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b384 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"Generic Instruction\",\"title\":\"Generic Instruction\",\"description\":\"\",\"nodes\":[\"All\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"mmu,objects,properties,name,startCond,endCond,cosim,host,port\",\"parameters\":[{\"label\":\"MMU ID\",\"variable\":\"mmu\",\"variableBinding\":\"'Pose/Reach'\",\"title\":\"MMU ID\",\"mode\":\"Input\",\"note\":\"String -> 'idle'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Objects\",\"variable\":\"objects\",\"variableBinding\":\"'GraspObject'\",\"title\":\"Objects\",\"mode\":\"Input\",\"note\":\"String -> 'UnityObjectName1;UnityObjectName2'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Properties\",\"variable\":\"properties\",\"variableBinding\":\"'TargetID, <id@GraspObject>; Hand, Right'\",\"title\":\"Properties\",\"mode\":\"Input\",\"note\":\"String -> 'TargetID, <id@GraspObject>; Hand, Right'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Instruction Name\",\"variable\":\"name\",\"variableBinding\":\"''\",\"title\":\"Instruction Name\",\"mode\":\"Input\",\"note\":\"String -> 'Idle'\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"Start Conditions\",\"variable\":\"startCond\",\"variableBinding\":\"''\",\"title\":\"Start Conditions\",\"mode\":\"Input\",\"note\":\"String -> ''\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]},{\"label\":\"End Condition\",\"variable\":\"endCond\",\"variableBinding\":\"''\",\"title\":\"End Condition\",\"mode\":\"Input\",\"note\":\"String -> ''\",\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[]}]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu ?mmu .
+	_:instruction mosim:objects ?objects .
+	_:instruction mosim:mmuProperties ?properties .
+	_:instruction mosim:actionName ?name .
+	_:instruction mosim:startCondition ?startCond .
+	_:instruction mosim:endCondition ?endCond .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+CONSTRUCT {
+	_:instruction mosim:mmu \"Pose/Reach\" .
+	_:instruction mosim:objects \"GraspObject\" .
+	_:instruction mosim:mmuProperties \"TargetID, <id@GraspObject>; Hand, Right\" .
+	_:instruction mosim:actionName \"\" .
+	_:instruction mosim:startCondition \"\" .
+	_:instruction mosim:endCondition \"\" .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b395 rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericReleaseTest> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b396 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b396 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b345;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GenericWalkTest> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b397 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b397 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b210;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GetAvailableMMUs> <http://www.ajan.de/behavior/mosim-ns#host>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b208 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GetScene> <http://www.ajan.de/behavior/mosim-ns#host>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b369 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b369 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?host ?port 
+WHERE {
+	?scene rdf:type mosim:Scene .
+	?scene mosim:host ?host .
+	?scene mosim:port ?port .
+}""" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GetTaskList> <http://www.ajan.de/behavior/bt-ns#queryUri>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b211 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GetWalkPoints> <http://www.ajan.de/behavior/mosim-ns#host>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b278;
+  <http://www.ajan.de/behavior/mosim-ns#scene> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b277;
+  <http://www.ajan.de/behavior/mosim-ns#sceneObjects> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b253;
+  <http://www.ajan.de/behavior/mosim-ns#walkTarget> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b268 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#HandlePositionGoal> <http://www.ajan.de/behavior/bt-ns#validate>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b315 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#HandleWalkGoal> <http://www.ajan.de/behavior/bt-ns#validate>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b337 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Idle> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b398 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b398 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b336;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#IdleTest> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b399 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b399 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b205;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#InitUpdate> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b237 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#InitialBehavior> <http://www.ajan.de/behavior/bt-ns#hasChild>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b243 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#MOSIMBehavior> <http://www.ajan.de/behavior/bt-ns#hasChild>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b317 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#MoveBothObject> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b400 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b400 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b346;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#MoveObject> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b401 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b401 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b342;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#MoveTest> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b402 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b402 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b255;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#PositionBehavior> <http://www.ajan.de/behavior/bt-ns#hasChild>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b281 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ProducePositionGoal> <http://www.ajan.de/ajan-ns#bindings>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b378 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b378 a <http://www.ajan.de/ajan-ns#Bindings>;
+  <http://www.ajan.de/ajan-ns#bindingQuery> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b379 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b379 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?part ?tool ?operation
+WHERE {
+	?focus mosim:runningTask ?task .
+	?task rdf:type mosim:Task .
+	?task mosim:part ?part .
+	?task mosim:tool ?tool .
+	?task mosim:operation ?operation .
+	#?task mosim:position ?position .
+} LIMIT 1""" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ProduceWalkToObjectGoal> <http://www.ajan.de/ajan-ns#bindings>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b381 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b381 a <http://www.ajan.de/ajan-ns#Bindings>;
+  <http://www.ajan.de/ajan-ns#bindingQuery> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b382 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b382 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+SELECT ?target
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:isLocatedAt ?position .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+} LIMIT 1""" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ProduceWalkToTargetGoal> <http://www.ajan.de/ajan-ns#bindings>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b351 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ReachBothObject> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b403 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b403 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b359 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b359 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?target mosim:id ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	test:PositionGoalPart rdf:value ?part .
+	?part mosim:type ?partName .
+
+	?area mosim:contains ?target .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?partName .
+	?target mosim:id ?id .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b403 rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ReachObject> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b404 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b404 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b206;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ReachTest> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b405 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b405 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b383 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b383 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"Reach/Carry Instruction\",\"title\":\"Reach/Carry Instruction\",\"description\":\"\",\"nodes\":[\"Action\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"avatar,hand,target,id,cosim,host,port,object\",\"parameters\":[{\"label\":\"MSceneObject\",\"variable\":\"object\",\"variableBinding\":\"'GraspObject'^^xsd:string\",\"title\":\"MSceneObject\",\"mode\":\"SPARQL-Dropdown\",\"note\":null,\"sparql\":{\"repo\":\"http://localhost:8090/rdf4j/repositories/test_knowledge\",\"query\":\"PREFIX%20mosim:%20%3Chttp://www.dfki.de/mosim-ns#%3E%0APREFIX%20rdf:%20%3Chttp://www.w3.org/1999/02/22-rdf-syntax-ns#%3E%0APREFIX%20rdfs:%20%3Chttp://www.w3.org/2000/01/rdf-schema#%3E%0ASELECT%20?label%20?dataValue%20?dataType%0AWHERE%20%7B%0A%09?target%20rdf:type%20mosim:MSceneObject%20.%0A%20%20%20%20%20%20%20%20?target%20rdfs:label%20?label%20.%0A%20%20%20%20%20%20%20%20?target%20rdfs:label%20?dataValue%20.%0A%09VALUES%20?dataType%20%7B%20%22http://www.w3.org/2001/XMLSchema#string%22%20%7D%0A%7D\"},\"possibleValues\":[{\"label\":\"GraspTargetL (1)\",\"dataValue\":\"'GraspTargetL (1)'^^xsd:string\"},{\"label\":\"GraspTargetL\",\"dataValue\":\"'GraspTargetL'^^xsd:string\"},{\"label\":\"GraspTarget2R\",\"dataValue\":\"'GraspTarget2R'^^xsd:string\"},{\"label\":\"RightHand\",\"dataValue\":\"'RightHand'^^xsd:string\"},{\"label\":\"LeftHandPose\",\"dataValue\":\"'LeftHandPose'^^xsd:string\"},{\"label\":\"GraspTargetR\",\"dataValue\":\"'GraspTargetR'^^xsd:string\"},{\"label\":\"LargeObject\",\"dataValue\":\"'LargeObject'^^xsd:string\"},{\"label\":\"WalkTarget\",\"dataValue\":\"'WalkTarget'^^xsd:string\"},{\"label\":\"WalkTarget2\",\"dataValue\":\"'WalkTarget2'^^xsd:string\"},{\"label\":\"TurningAxis\",\"dataValue\":\"'TurningAxis'^^xsd:string\"},{\"label\":\"GraspTarget3L\",\"dataValue\":\"'GraspTarget3L'^^xsd:string\"},{\"label\":\"Table (1)\",\"dataValue\":\"'Table (1)'^^xsd:string\"},{\"label\":\"GraspObject3\",\"dataValue\":\"'GraspObject3'^^xsd:string\"},{\"label\":\"PositioningTargetLeft\",\"dataValue\":\"'PositioningTargetLeft'^^xsd:string\"},{\"label\":\"WalkTargetLargeObject\",\"dataValue\":\"'WalkTargetLargeObject'^^xsd:string\"},{\"label\":\"LargeObjectPositioningTarget\",\"dataValue\":\"'LargeObjectPositioningTarget'^^xsd:string\"},{\"label\":\"GraspTargetROld\",\"dataValue\":\"'GraspTargetROld'^^xsd:string\"},{\"label\":\"GraspObject2\",\"dataValue\":\"'GraspObject2'^^xsd:string\"},{\"label\":\"PositioningTargetRight\",\"dataValue\":\"'PositioningTargetRight'^^xsd:string\"},{\"label\":\"GraspObject\",\"dataValue\":\"'GraspObject'^^xsd:string\"},{\"label\":\"GazeTarget\",\"dataValue\":\"'GazeTarget'^^xsd:string\"},{\"label\":\"WristTargetRight\",\"dataValue\":\"'WristTargetRight'^^xsd:string\"},{\"label\":\"Table\",\"dataValue\":\"'Table'^^xsd:string\"},{\"label\":\"GraspTarget2L\",\"dataValue\":\"'GraspTarget2L'^^xsd:string\"},{\"label\":\"PositioningTarget2\",\"dataValue\":\"'PositioningTarget2'^^xsd:string\"},{\"label\":\"WristLocation\",\"dataValue\":\"'WristLocation'^^xsd:string\"},{\"label\":\"TableCollider\",\"dataValue\":\"'TableCollider'^^xsd:string\"},{\"label\":\"WalkTargetGrasp\",\"dataValue\":\"'WalkTargetGrasp'^^xsd:string\"},{\"label\":\"GraspTarget3R\",\"dataValue\":\"'GraspTarget3R'^^xsd:string\"},{\"label\":\"TableCollider\",\"dataValue\":\"'TableCollider'^^xsd:string\"},{\"label\":\"PositioningTarget\",\"dataValue\":\"'PositioningTarget'^^xsd:string\"},{\"label\":\"CarryTarget\",\"dataValue\":\"'CarryTarget'^^xsd:string\"},{\"label\":\"LargeObjectGraspL\",\"dataValue\":\"'LargeObjectGraspL'^^xsd:string\"},{\"label\":\"LargeObjectGraspR\",\"dataValue\":\"'LargeObjectGraspR'^^xsd:string\"},{\"label\":\"Obstacle\",\"dataValue\":\"'Obstacle'^^xsd:string\"},{\"label\":\"wrench\",\"dataValue\":\"'wrench'^^xsd:string\"},{\"label\":\"WalkTargetConcurrent\",\"dataValue\":\"'WalkTargetConcurrent'^^xsd:string\"},{\"label\":\"\",\"dataValue\":\"'undefined'^^xsd:string\"}]},{\"label\":\"Hand\",\"variable\":\"hand\",\"variableBinding\":\"'Right'\",\"title\":\"Hand\",\"mode\":\"Dropdown\",\"note\":null,\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[{\"label\":\"Right\",\"dataValue\":\"'Right'\"},{\"label\":\"Left\",\"dataValue\":\"'Left'\"},{\"label\":\"Both\",\"dataValue\":\"'Both'\"}]}]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand ?hand .
+	?target rdf:type mosim:MSceneObject .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?object .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:hand \"Right\" .
+	?target rdf:type mosim:MSceneObject .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label \"GraspObject\"^^xsd:string .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b405 rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#RegisterEndListener> <http://www.ajan.de/behavior/mosim-ns#host>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b335 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#RegisterErrorListener> <http://www.ajan.de/behavior/mosim-ns#host>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b386 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b386 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?host ?port 
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#RegisterPositioningListener> <http://www.ajan.de/behavior/mosim-ns#host>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b347 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ReleaseBothObject> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b406 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b406 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b209;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ReleaseObject> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b407 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b407 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b238;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ReleaseTest> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b408 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b408 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b235;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#defaultAction6> a <http://www.ajan.de/behavior/bt-ns#Action>;
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#ReleaseInstruction>;
+  <http://www.ajan.de/behavior/bt-ns#inputs> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b412 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b412 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b311;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#defaultAction6> rdfs:comment "";
+  rdfs:label "release2" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#RemoveEvaluateResult> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b358 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b358 a <http://www.ajan.de/behavior/bt-ns#UpdateQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+CLEAR GRAPH <http://evaluate/1>
+""" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#RemoveGoalInput> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b333 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#RemoveInstructionOutputs> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b251 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#RemovePositionGoalInput> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b241 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#RemoveWalkGoalInput> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b341 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#SetFocus> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b338 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#SetFocusWaypoint> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b233 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#SetHands> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b316 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#SetNewPosition> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b234 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#TemplateTest> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b409 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b409 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b349;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#UnregisterEndListener> <http://www.ajan.de/behavior/mosim-ns#host>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b202 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#UnregisterErrorListener> <http://www.ajan.de/behavior/mosim-ns#host>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b350 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#UnregisterPositioningListener>
+  <http://www.ajan.de/behavior/mosim-ns#host> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b348 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#WalkBehavior> <http://www.ajan.de/behavior/bt-ns#hasChild>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b372 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b372 a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2ca5e5cebf104f1b88283a3d129d6610-b373 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b373 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#HandleWalkGoal>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b374 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b374 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#GetWalkPoints>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b375 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b375 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b203;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b376 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b376 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#DeleteWalkpoints>;
+  rdf:rest _:genid-2ca5e5cebf104f1b88283a3d129d6610-b377 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b377 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#RemoveWalkGoalInput>;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#WalkTest> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b410 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b410 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b380 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b380 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#Input>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"Walk Instruction\",\"title\":\"Walk Instruction\",\"description\":\"\",\"nodes\":[\"Action\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"avatar,position,target,id,cosim,host,port,name\",\"parameters\":[{\"label\":\"MSceneObject\",\"variable\":\"name\",\"variableBinding\":\"'WalkTarget2'^^xsd:string\",\"title\":\"MSceneObject\",\"mode\":\"SPARQL-Dropdown\",\"note\":null,\"sparql\":{\"repo\":\"http://localhost:8090/rdf4j/repositories/test_knowledge\",\"query\":\"PREFIX%20mosim:%20%3Chttp://www.dfki.de/mosim-ns#%3E%0APREFIX%20rdf:%20%3Chttp://www.w3.org/1999/02/22-rdf-syntax-ns#%3E%0APREFIX%20rdfs:%20%3Chttp://www.w3.org/2000/01/rdf-schema#%3E%0ASELECT%20?label%20?dataValue%20?dataType%0AWHERE%20%7B%0A%09?target%20rdf:type%20mosim:MSceneObject%20.%0A%20%20%20%20%20%20%20%20?target%20rdfs:label%20?label%20.%0A%20%20%20%20%20%20%20%20?target%20rdfs:label%20?dataValue%20.%0A%09VALUES%20?dataType%20%7B%20%22http://www.w3.org/2001/XMLSchema#string%22%20%7D%0A%7D\"},\"possibleValues\":[{\"label\":\"GraspTargetL (1)\",\"dataValue\":\"'GraspTargetL (1)'^^xsd:string\"},{\"label\":\"GraspTargetL\",\"dataValue\":\"'GraspTargetL'^^xsd:string\"},{\"label\":\"GraspTarget2R\",\"dataValue\":\"'GraspTarget2R'^^xsd:string\"},{\"label\":\"RightHand\",\"dataValue\":\"'RightHand'^^xsd:string\"},{\"label\":\"LeftHandPose\",\"dataValue\":\"'LeftHandPose'^^xsd:string\"},{\"label\":\"GraspTargetR\",\"dataValue\":\"'GraspTargetR'^^xsd:string\"},{\"label\":\"LargeObject\",\"dataValue\":\"'LargeObject'^^xsd:string\"},{\"label\":\"WalkTarget\",\"dataValue\":\"'WalkTarget'^^xsd:string\"},{\"label\":\"WalkTarget2\",\"dataValue\":\"'WalkTarget2'^^xsd:string\"},{\"label\":\"TurningAxis\",\"dataValue\":\"'TurningAxis'^^xsd:string\"},{\"label\":\"GraspTarget3L\",\"dataValue\":\"'GraspTarget3L'^^xsd:string\"},{\"label\":\"Table (1)\",\"dataValue\":\"'Table (1)'^^xsd:string\"},{\"label\":\"GraspObject3\",\"dataValue\":\"'GraspObject3'^^xsd:string\"},{\"label\":\"PositioningTargetLeft\",\"dataValue\":\"'PositioningTargetLeft'^^xsd:string\"},{\"label\":\"WalkTargetLargeObject\",\"dataValue\":\"'WalkTargetLargeObject'^^xsd:string\"},{\"label\":\"LargeObjectPositioningTarget\",\"dataValue\":\"'LargeObjectPositioningTarget'^^xsd:string\"},{\"label\":\"GraspTargetROld\",\"dataValue\":\"'GraspTargetROld'^^xsd:string\"},{\"label\":\"GraspObject2\",\"dataValue\":\"'GraspObject2'^^xsd:string\"},{\"label\":\"PositioningTargetRight\",\"dataValue\":\"'PositioningTargetRight'^^xsd:string\"},{\"label\":\"GraspObject\",\"dataValue\":\"'GraspObject'^^xsd:string\"},{\"label\":\"GazeTarget\",\"dataValue\":\"'GazeTarget'^^xsd:string\"},{\"label\":\"WristTargetRight\",\"dataValue\":\"'WristTargetRight'^^xsd:string\"},{\"label\":\"Table\",\"dataValue\":\"'Table'^^xsd:string\"},{\"label\":\"GraspTarget2L\",\"dataValue\":\"'GraspTarget2L'^^xsd:string\"},{\"label\":\"PositioningTarget2\",\"dataValue\":\"'PositioningTarget2'^^xsd:string\"},{\"label\":\"WristLocation\",\"dataValue\":\"'WristLocation'^^xsd:string\"},{\"label\":\"TableCollider\",\"dataValue\":\"'TableCollider'^^xsd:string\"},{\"label\":\"WalkTargetGrasp\",\"dataValue\":\"'WalkTargetGrasp'^^xsd:string\"},{\"label\":\"GraspTarget3R\",\"dataValue\":\"'GraspTarget3R'^^xsd:string\"},{\"label\":\"TableCollider\",\"dataValue\":\"'TableCollider'^^xsd:string\"},{\"label\":\"PositioningTarget\",\"dataValue\":\"'PositioningTarget'^^xsd:string\"},{\"label\":\"CarryTarget\",\"dataValue\":\"'CarryTarget'^^xsd:string\"},{\"label\":\"LargeObjectGraspL\",\"dataValue\":\"'LargeObjectGraspL'^^xsd:string\"},{\"label\":\"LargeObjectGraspR\",\"dataValue\":\"'LargeObjectGraspR'^^xsd:string\"},{\"label\":\"Obstacle\",\"dataValue\":\"'Obstacle'^^xsd:string\"},{\"label\":\"wrench\",\"dataValue\":\"'wrench'^^xsd:string\"},{\"label\":\"WalkTargetConcurrent\",\"dataValue\":\"'WalkTargetConcurrent'^^xsd:string\"},{\"label\":\"\",\"dataValue\":\"'undefined'^^xsd:string\"}]}]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:isLocatedAt ?position .
+	?target rdf:type mosim:MSceneObject .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:isLocatedAt ?position .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label ?name .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:isLocatedAt ?position .
+	?target rdf:type mosim:MSceneObject .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:isLocatedAt ?position .
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label \"WalkTarget2\"^^xsd:string .
+	?target mosim:id ?id .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b410 rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#WalkToWalkpoint> <http://www.ajan.de/behavior/bt-ns#inputs>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b411 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b411 rdf:first _:genid-2ca5e5cebf104f1b88283a3d129d6610-b269;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#WaypointLeft> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b344 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#defaultAbortInstruction> <http://www.ajan.de/behavior/mosim-ns#host>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b387 .
+
+_:genid-2ca5e5cebf104f1b88283a3d129d6610-b387 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#queryTemplate> "{\"id\":\"Query Host\",\"title\":\"Query Host\",\"description\":\"\",\"nodes\":[\"All\"],\"targetBase\":\"http://www.ajan.de/ajan-ns#AgentKnowledge\",\"query\":\"\",\"queryVariables\":\"host,port,cosim,type\",\"parameters\":[{\"label\":\"Host Type\",\"variable\":\"type\",\"variableBinding\":\"mosim:CoSimulator\",\"title\":\"Host Type\",\"mode\":\"Dropdown\",\"note\":null,\"sparql\":{\"query\":\"undefined\"},\"possibleValues\":[{\"label\":\"CoSimulator\",\"dataValue\":\"mosim:CoSimulator\"},{\"label\":\"Registry\",\"dataValue\":\"mosim:Registry\"},{\"label\":\"Scene\",\"dataValue\":\"mosim:Scene\"}]}]}";
+  <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?host ?port 
+WHERE {
+	?cosim rdf:type ?type .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""";
+  <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?host ?port 
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}""" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#defaultAbortInstruction> <http://www.ajan.de/behavior/mosim-ns#instructionID>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b212 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#defaultUpdate> <http://www.ajan.de/behavior/bt-ns#query>
+    _:genid-2ca5e5cebf104f1b88283a3d129d6610-b252 .

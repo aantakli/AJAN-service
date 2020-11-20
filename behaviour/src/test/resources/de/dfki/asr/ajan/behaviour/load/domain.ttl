@@ -1,0 +1,21 @@
+# @base <http://localhost:8090/rdf4j/repositories/domain#> .
+
+@prefix agents: <http://localhost:8090/rdf4j/repositories/agents#> .
+@prefix behaviors: <http://localhost:8090/rdf4j/repositories/behaviors#> .
+@prefix : <http://localhost:8090/rdf4j/repositories/domain#> .
+@prefix services: <http://localhost:8090/rdf4j/repositories/services#> .
+
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+@prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
+
+:isDoof 
+	a asp:RuleSet ;
+	asp:asRules """
+		hallo(S) :- _t(S,"http://www.dfki.de/inversiv-ns#sagt","http://www.dfki.de/inversiv-ns#Hallo") .
+		_t(S,"http://www.dfki.de/inversiv-ns#ist","http://www.dfki.de/inversiv-ns#doof") :- hallo(S).
+	"""^^xsd:string .

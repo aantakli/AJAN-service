@@ -1,0 +1,68 @@
+@prefix test: <http://www.ajan.de/ajan-test#> .
+@prefix http-core: <http://www.w3.org/2006/http#> .
+@prefix http-headers: <http://www.w3.org/2008/http-headers#> .
+@prefix http-methods: <http://www.w3.org/2008/http-methods#> .
+@prefix actn: <http://www.ajan.de/actn#> .
+
+
+test:POSTAcceptTurtle
+		a actn:ServiceAction ;
+		actn:runBinding test:POSTAcceptTurtleBinding .
+
+test:POSTAcceptTurtleBinding
+		a actn:Binding ;
+		a http-core:Request ;
+		http-core:mthd http-methods:POST ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX ex: <http://example.com/#>
+				CONSTRUCT {
+					ex:subject ex:predicate ex:object.
+				} WHERE { }
+				"""^^xsd:string ;
+			] .
+
+test:GETviaHTTP10
+		a actn:ServiceAction ;
+		actn:runBinding test:GETviaHTTP10Binding .
+
+test:GETviaHTTP10Binding
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.0" ;
+		http-core:mthd http-methods:GET ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX ex: <http://example.com/#>
+				CONSTRUCT {
+					ex:subject ex:predicate ex:object.
+				} WHERE { }
+				"""^^xsd:string ;
+			] .
+
+test:POSTviaHTTP11AcceptTurtle
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX ex: <http://example.com/#>
+				CONSTRUCT {
+					ex:subject ex:predicate ex:object.
+				}
+				"""^^xsd:string ;
+			] .

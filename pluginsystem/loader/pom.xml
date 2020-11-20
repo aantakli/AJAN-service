@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2020 Andre Antakli (German Research Center for Artificial Intelligence, DFKI).
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301  USA
+-->
+
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>loader</artifactId>
+	<name>loader</name>
+	<packaging>jar</packaging>
+
+	<parent>
+        <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
+        <artifactId>pluginsystem</artifactId>
+        <version>0.1</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.cyberborean</groupId>
+            <artifactId>rdfbeans</artifactId>
+            <version>2.2-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>4.3.4.RELEASE</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>4.3.4.RELEASE</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.badlogicgames.gdx</groupId>
+            <artifactId>gdx-ai</artifactId>
+            <version>1.8.2</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+    <properties>
+        <netbeans.hint.license>lgpl21</netbeans.hint.license>
+    </properties>
+</project>

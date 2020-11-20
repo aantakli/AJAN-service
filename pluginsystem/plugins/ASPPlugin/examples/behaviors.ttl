@@ -1,0 +1,2184 @@
+# @base <http://localhost:8090/rdf4j/repositories/behaviors#> .
+
+@prefix agents: <http://localhost:8090/rdf4j/repositories/agents#> .
+@prefix : <http://localhost:8090/rdf4j/repositories/behaviors#> .
+@prefix domain: <http://localhost:8090/rdf4j/repositories/domain#> .
+@prefix services: <http://localhost:8090/rdf4j/repositories/services#> .
+@prefix actn: <http://bla/actn#> .
+
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+@prefix steer: <http://www.ajan.de/behavior/steer-ns#> .
+@prefix strips: <http://www.ajan.de/behavior/strips-ns#> .
+@prefix hyb: <http://www.dfki.de/hybrit-ns#> .
+@prefix react: <http://www.dfki.de/react-ns#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+@prefix http-core: <http://www.w3.org/2006/http#> .
+@prefix http-headers: <http://www.w3.org/2008/http-headers#> .
+@prefix http-methods: <http://www.w3.org/2008/http-methods#> .
+@prefix ws: <http://bla/ws#> .
+@prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
+@prefix clingo: <http://www.ajan.de/behavior/clingo-ns#> .
+@prefix ml: <http://www.ajan.de/behavior/ml-ns#> .
+@prefix tcp: <http://www.ajan.de/behavior/tcp-ns#> .
+
+# --------------------------------------------
+# -------------- :TestBehavior ---------------
+# --------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Angela?capability=update | POST | application/ld+json
+# Body: "[{
+#		  "@context": {
+#		    "Person": "http://xmlns.com/foaf/0.1/Person",
+#		    "xsd": "http://www.w3.org/2001/XMLSchema#",
+#		    "born": {
+#		       "@id": "http://schema.org/birthDate",
+#		       "@type": "xsd:date"
+#		    }
+#		  },
+#		  "@id": "http://dbpedia.org/resource/Albert_Einstein",
+#		  "@type": "Person",
+#		  "born": "1879-03-14"
+#		}]"
+
+# localhost:8080/ajan/agents/Angela?capability=json | POST | application/json
+# Body: "{ "Distance": { "distance": 10.0 } }"
+
+# ----------- Behavior ------------
+
+:TestBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "TestBehavior" ;
+	bt:hasChild
+		[ a bt:Priority;
+		  bt:hasChildren (
+			[ a bt:Sequence;
+			  bt:hasChildren (
+				:TestValidate
+				:ConditionTest
+				:UpdateTest
+				:SyncTest
+			  )
+			]
+			[ a bt:Sequence;
+		  	  bt:hasChildren (
+				:DistanceValidate
+				[ a bt:Parallel;
+				  bt:policy bt:PriorityPolicy ;
+		  	  	  bt:hasChildren (
+					:BlaTest
+					:SyncTest
+					:BlaTest2
+				  )
+				]
+		 	  )
+			]
+		  )
+		].
+
+# ----------- Primitives -----------
+
+:TestValidate
+	a bt:ValidateEvent ;
+	rdfs:label "TestValidate" ;
+	bt:validate [
+		a bt:ConstructQuery ;
+		bt:targetBase ajan:AgentKnowledge ;
+		bt:sparql """
+CONSTRUCT { <http://dbpedia.org/resource/Albert_Einstein> ?p ?o . }
+WHERE { GRAPH <http://localhost:8090/rdf4j/repositories/agents#UpdateEvent> {
+	<http://dbpedia.org/resource/Albert_Einstein> ?p ?o .
+	} }"""^^xsd:string ;
+	] .
+
+:ConditionTest
+	a bt:Condition ;
+		rdfs:label "ConditionTest?" ;
+		bt:constraints ( [
+			a bt:Constraint ;
+			a bt:AskQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ASK
+WHERE {
+	<http://dbpedia.org/resource/Albert_Einstein> ?p ?o .
+}"""^^xsd:string ;
+			]
+		) .
+
+:UpdateTest
+		a bt:Update ;
+		rdfs:label "UpdateTest?!" ;
+		bt:queries ( [
+			a bt:UpdateQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+DELETE { <http://dbpedia.org/resource/Albert_Einstein> ?p ?o . }
+INSERT { <http://dbpedia.org/resource/Albert_Einstein> ?p "hmm..." . }
+WHERE {
+	<http://dbpedia.org/resource/Albert_Einstein> ?p ?o .
+}"""^^xsd:string ;
+			]
+		) .
+
+:SyncTest
+	a bt:Action ;
+	rdfs:label "SyncTest!" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX ajan: <http://www.dfki.de/ajan-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT {
+	ajan:Test rdf:type ajan:Message .
+	ajan:Test ajan:text "Hallo" .
+}
+WHERE {
+	?s ?p ?o .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:SyncAction .
+
+:DistanceValidate
+	a bt:ValidateJMappingEvent;
+	rdfs:label "DistanceValidate" ;
+	bt:mapping <http://localhost:8090/rdf4j/repositories/domain#DistanceMapping> ;
+	bt:validate [
+		a bt:ConstructQuery ;
+		bt:targetBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX ajan-mapping: <http://www.ajan.de/ajan-mapping-ns#>
+CONSTRUCT { <http://localhost:3030/Test> <http://localhost:3030/num> ?x . }
+WHERE { GRAPH <http://localhost:8090/rdf4j/repositories/agents#JsonEvent> {
+	ajan-mapping:Distance ajan-mapping:value ?x .
+} }"""^^xsd:string ;
+		] .
+
+:BlaTest
+	a bt:Action ;
+	rdfs:label "BlaTest!" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX ajan: <http://www.dfki.de/ajan-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT {
+	ajan:Test rdf:type ajan:Message .
+	ajan:Test ajan:text "Tschüss" .
+}
+WHERE {
+	?s ?p ?o .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:AsyncAction .
+
+:BlaTest2
+	a bt:Action ;
+	rdfs:label "BlaTest!" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX ajan: <http://www.dfki.de/ajan-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT {
+	ajan:Test rdf:type ajan:Message .
+	ajan:Test ajan:text "Tschüss" .
+}
+WHERE {
+	?s ?p ?o .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:AsyncAction .
+
+# --------------------------------------------
+# -------------- :LarryBehavior --------------
+# --------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Larry?capability=update | POST | text/turtle
+# Body: _:blankNode <http://www.w3.org/2006/http#requestURI> <http://localhost:12345/world/> .
+
+# ----------- Behavior ------------
+
+:LarryBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "LarryBehavior" ;
+	bt:hasChild
+		[ a bt:Sequence;
+		  bt:hasChildren (
+		    :IdleWait
+			[ a bt:UntilFail ;
+			  bt:hasChild
+				[ a bt:Priority ;
+				  bt:hasChildren (
+					[ a bt:Sequence;
+					  bt:hasChildren (
+					    :NotAtBusStation
+						[ a bt:Parallel ;
+						  bt:policy bt:PriorityPolicy ;
+						  bt:hasChildren (
+							:WalkToBusStation
+							:BusIsAvailable
+							)
+						]
+						[ a bt:Priority;
+						  bt:hasChildren (
+						    :AtBusStation
+							:RunToBusStation
+						  )
+						]
+					  )
+					]
+					[ a bt:Sequence ;
+					  bt:hasChildren (
+						:RandomMoveTo
+						:IdleWait
+						:WantTheBus
+						)
+					]
+				)
+			]
+		] ) ] .
+
+:BeliefUpdateBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "BeliefUpdateBehavior" ;
+	bt:hasChild
+		[ a bt:Sequence;
+		  bt:hasChildren (
+		  	:BeliefValidate
+		  	:SetExecuteEvent
+		  )
+		] .
+
+# ----------- Primitives -----------
+
+:IdleWait
+		a bt:Action ;
+		rdfs:label "IdleWait!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT {
+	?avatar rdf:type react:Avatar .
+	react:Var react:avatarAnimation "idle" .
+	react:Var react:idleTime 8 .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+}"""^^xsd:string ;
+			]
+		) ;
+		bt:definition services:IdleAction .
+
+:NotAtBusStation
+		a bt:Condition ;
+		rdfs:label "NotAtBusStation?" ;
+		bt:constraints ( [
+			a bt:Constraint ;
+			a bt:AskQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ASK
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:locatedNextTo ?target .
+	?bus react:position "Bushaltestation" .
+	FILTER (?target != ?bus)
+}"""^^xsd:string ;
+			]
+		) .
+
+:WalkToBusStation
+		a bt:Action ;
+		rdfs:label "WalkToBusStation!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT {
+	?avatar rdf:type react:Avatar .
+	?avatar react:locatedNextTo ?startPosition .
+	?target react:position "Bushaltestation" .
+	react:Var react:avatarAnimation "walk" .
+	react:Var react:avatarBehavior "normal" .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:locatedNextTo ?startPosition .
+	?target react:position "Bushaltestation" .
+}"""^^xsd:string ;
+			]
+		) ;
+		bt:definition services:MoveToAction .
+
+:BusIsAvailable
+		a bt:Condition ;
+		rdfs:label "BusIsAvailable?" ;
+		bt:constraints ( [
+			a bt:Constraint ;
+			a bt:AskQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ASK
+WHERE {
+	?bus rdf:type react:Bus .
+	?bus react:availability "true" .
+}"""^^xsd:string ;
+			]
+		) .
+
+:AtBusStation
+		a bt:Condition ;
+		rdfs:label "AtBusStation?" ;
+		bt:constraints ( [
+			a bt:Constraint ;
+			a bt:AskQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ASK
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:locatedNextTo ?target .
+	?target react:position "Bushaltestation" .
+}"""^^xsd:string ;
+			]
+		) .
+
+:RunToBusStation
+		a bt:Action ;
+		rdfs:label "RunToBusStation!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT {
+	?avatar rdf:type react:Avatar .
+	?avatar react:locatedNextTo ?startPosition .
+	?target react:position "Bushaltestation" .
+	react:Var react:avatarAnimation "run" .
+	react:Var react:avatarBehavior "risky" .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:locatedNextTo ?startPosition .
+	?target react:position "Bushaltestation" .
+}"""^^xsd:string ;
+			]
+		) ;
+		bt:definition services:MoveToAction .
+
+:RandomMoveTo
+		a bt:Action ;
+		rdfs:label "RandomMoveTo!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT {
+	?avatar rdf:type react:Avatar .
+	?avatar react:locatedNextTo ?startPosition .
+	?target react:position ?targetPosition .
+	react:Var react:avatarAnimation "walk" .
+	react:Var react:avatarBehavior "normal" .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:locatedNextTo ?startPosition .
+	?target react:position ?targetPosition .
+    {
+      SELECT ?target
+      WHERE {
+      	  ?avatar react:locatedNextTo ?startPosition .
+		  ?target rdf:type react:POI .
+          ?target react:position ?position .
+          FILTER (?target != ?startPosition)
+          BIND(RAND() as ?r)
+      }
+      ORDER BY ?r
+      LIMIT 1
+    }
+}"""^^xsd:string ;
+			]
+		) ;
+		bt:definition services:MoveToAction .
+
+:WantTheBus
+		a bt:Update ;
+		rdfs:label "WantTheBus?!" ;
+		bt:queries ( [
+			a bt:UpdateQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+DELETE { ?bus react:availability "true" }
+INSERT { ?bus react:availability "false" }
+WHERE {
+	?bus rdf:type react:Bus .
+}"""^^xsd:string ;
+			]
+		) .
+
+:BeliefValidate
+	a bt:ValidateEvent ;
+	rdfs:label "BeliefValidate" ;
+	bt:validate [
+		a bt:ConstructQuery ;
+		bt:targetBase ajan:AgentKnowledge ;
+		bt:sparql """
+CONSTRUCT { ?s ?p ?o . }
+WHERE { GRAPH <http://localhost:8090/rdf4j/repositories/agents#UpdateEvent> {
+	?s ?p ?o . } }"""^^xsd:string ;
+		] .
+
+:SetExecuteEvent
+	a bt:SetModelEvent ;
+	rdfs:label "SetExecuteEvent" ;
+	ajan:event agents:ExecuteEvent ;
+	bt:content  [
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT { ?avatar <http://www.dfki.de/react-ns#reason> <http://www.dfki.de/react-ns#BeliefUpdate> . }
+WHERE { ?avatar rdf:type react:Avatar . }"""^^xsd:string ;
+	] .
+
+# ------------------------------------------
+# -------------- :ASPLucBehavior --------------
+# ------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Mr_Luc?capability=update | POST | text/turtle
+# Body: _:blankNode <http://www.w3.org/2006/http#requestURI> <http://localhost:12345/world/> .
+
+# ----------- Behavior ------------
+
+:ASPBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "ASPBehavior" ;
+	bt:hasChild
+		[ a bt:Sequence ;
+			bt:hasChildren (
+				:AskBestWay
+				:WalkToWaypoint
+				:RmoveStableModels
+			)
+		] .
+
+
+# ----------- Primitives -----------
+
+# ----- :AskBestWay  ------
+
+:AskBestWay 
+	a asp:Problem ;
+	rdfs:label "AskBestWay " ;
+	asp:config [
+		a clingo:Config ;
+		clingo:time-limit "10"^^xsd:int ;
+		clingo:execution-limit "1"^^xsd:int ;
+		clingo:models "3"^^xsd:int ;
+		clingo:parallel-mode "2"^^xsd:int ;
+		clingo:const (
+			[ a clingo:Constant ;
+			  clingo:name "steps" ;
+			  clingo:value "4"^^xsd:string ;
+			]
+		)
+	] ;
+	asp:domain [
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT { 
+	?avatar rdf:type react:Avatar .
+	?avatar react:locatedNextTo ?start .
+	
+	?poi rdf:type react:POI .
+	?poi react:position ?position .
+	
+	?edge rdf:type react:Edge .
+	?edge react:in ?in .
+	?edge react:out ?out .
+	?edge react:cost ?cost .
+	?edge react:isIn ?area .
+	
+	?area rdf:type react:Area .
+	?area rdf:type ?type .
+	?a react:notReachable ?o .
+}
+WHERE { 
+	?avatar rdf:type react:Avatar .
+	?avatar react:locatedNextTo ?pos .
+	?pos react:position ?start .
+	
+	?poi rdf:type react:POI .
+	?poi react:position ?position .
+	
+	?edge rdf:type react:Edge .
+	?edge react:in ?in .
+	?edge react:out ?out .
+	?edge react:cost ?cost .
+	?edge react:isIn ?area .
+	
+	?area rdf:type react:Area .
+	?area rdf:type ?type .
+	OPTIONAL {
+		?a react:notReachable ?o .
+	}
+}"""^^xsd:string ;
+	] ;
+		asp:ruleSets (
+		domain:MoveTo_Rules
+		domain:Domain_Rules
+	) ;
+	asp:write [
+		a asp:Write ;
+		asp:random "false"^^xsd:boolean ;
+		asp:contextBase "http://www.ajan.de/asp/MoveToASP/stableModel/"^^xsd:anyURI ;
+		bt:targetBase ajan:AgentKnowledge ;
+	] .
+
+# ----- :WalkToWaypoint ------
+
+:WalkToWaypoint
+	a bt:Action ;
+	rdfs:label "WalkToWaypoint!" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT {
+	?avatar rdf:type react:Avatar .
+	?avatar react:locatedNextTo ?startPosition .
+	?target react:position ?targetPosition .
+	react:Var react:avatarAnimation "walk" .
+	react:Var react:avatarBehavior "normal" .
+}
+WHERE {
+	GRAPH ?g {
+		?avatar rdf:type react:Avatar .
+		?avatar react:locatedNextTo ?startPosition .
+		?blank react:move ?targetPosition .
+		?blank react:time "1"^^<http://www.w3.org/2001/XMLSchema#short> .
+		?target react:position ?targetPosition .
+	}
+  {
+  	SELECT ?g
+    WHERE {
+      GRAPH ?g {
+      	?some react:totalCost ?cost .
+      }
+    }
+    ORDER BY ASC(?cost) LIMIT 1
+  }
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:MoveToAction .
+
+# ----- :RmoveStableModel ------
+
+:RmoveStableModels
+	a bt:Update ;
+	rdfs:label "RmoveStableModels?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+DELETE {
+	GRAPH ?g {
+		?s ?p ?o .
+	}
+}
+WHERE {
+	GRAPH ?g {
+     ?s ?p ?o .
+  	}
+    {
+      SELECT ?g
+      WHERE {
+        GRAPH ?g {
+          ?some react:totalCost ?cost .
+        }
+      }
+  	}
+}	"""^^xsd:string ;
+		]
+	) .
+
+# ------------------------------------------
+# -------------- :DoneBehavior --------------
+# ------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Mr_Luc?capability=update | POST | text/turtle
+# Body: _:blankNode <http://www.w3.org/2006/http#requestURI> <http://localhost:12345/world/> .
+
+# ----------- Behavior ------------
+
+:DoneBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "DoneBehavior" ;
+	bt:hasChild
+		[ a bt:Parallel ;
+			bt:hasChildren (
+			    :UpdateValidate
+		  	    [ a bt:Priority ;
+				  bt:hasChildren (
+			  	    [ a bt:Sequence ;
+					  bt:hasChildren (
+						[ a bt:Priority ;
+						  bt:hasChildren (
+						  	[ a bt:Sequence ;
+						  	  bt:hasChildren (
+						  	  	:PathAvailable
+						  	  	:GetDistance
+						  	  	:DestinationNotReached
+						  	  )
+						  	]
+						  	[ a bt:Sequence ;
+						  	  bt:hasChildren (
+						  	    :SetLocatedNextTo
+						  	    :SetDestination
+						  	    :GetPathToDestination
+						  	  	:WritePath
+						  	  )
+						  	]
+						  )
+						]
+						:SetTarget
+						:GetSteering
+						[ a bt:Succeed ;
+						  bt:hasChild
+						  	[ a bt:UntilFail ;
+						  	  bt:hasChild [ 
+						  	  	a bt:Sequence ;
+						  	  	bt:hasChildren (
+						  	  		:GetFleeSteering
+						  	  		)
+						  	  	]
+						    ]
+						]
+						:GetCombinedSteering
+						:GetWanderSteering
+						:SetSteeringSlow
+						:RemoveObstacles
+						)
+					]
+					)
+				]
+			)
+		] .
+
+# ------------------------------------------
+# -------------- :DoneBehavior --------------
+# ------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Mr_Luc?capability=update | POST | text/turtle
+# Body: _:blankNode <http://www.w3.org/2006/http#requestURI> <http://localhost:12345/world/> .
+
+# ----------- Behavior ------------
+
+:SchromBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "SchromBehavior" ;
+	bt:hasChild
+		[ a bt:Parallel ;
+			bt:hasChildren (
+			 	[ a bt:Sequence ;
+			  	  bt:hasChildren (
+			  	  	:WriteAvatar
+					:UpdateValidate
+			  	  )
+			  	]
+		  	    [ a bt:Priority ;
+				  bt:hasChildren (
+			  	    [ a bt:Sequence ;
+					  bt:hasChildren (
+						:GetDynSteering
+						[ a bt:Succeed ;
+						  bt:hasChild
+						  	[ a bt:UntilFail ;
+						  	  bt:hasChild [ 
+						  	  	a bt:Sequence ;
+						  	  	bt:hasChildren (
+						  	  		:GetFleeSteering
+						  	  		)
+						  	  	]
+						    ]
+						]
+						:GetCombinedDynSteering
+						:SetSteeringWalk
+						:RemoveAll
+						)
+					]
+					)
+				]
+			)
+		] .
+
+# ------------------------------------------
+# -------------- :LucBehavior --------------
+# ------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Mr_Luc?capability=update | POST | text/turtle
+# Body: _:blankNode <http://www.w3.org/2006/http#requestURI> <http://localhost:12345/world/> .
+
+# ----------- Behavior ------------
+
+:LucBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "LucBehavior" ;
+	bt:hasChild
+		[ a bt:Parallel ;
+			bt:hasChildren (
+			    [ a bt:Sequence ;
+			  	  bt:hasChildren (
+			  	  	[ a bt:Succeed ;
+			  	  	  bt:hasChild :RemoveObsCars
+			  	  	]
+					:UpdateValidate
+			  	  )
+			  	]
+				[ a bt:Sequence ;
+			  	  bt:hasChildren (
+					[ a bt:Priority ;
+					  bt:hasChildren (
+					  	:VariablesSet
+					  	[ a bt:Sequence ;
+			  	  		  bt:hasChildren (
+			  	  		  	:SetVariables
+			  	  		  )
+			  	  		]
+					  )
+					]
+			  	  	[ a bt:Succeed ;
+					  bt:hasChild :SetCollisionReward
+					]
+			  	    [ a bt:Priority ;
+					  bt:hasChildren (
+				  	    [ a bt:Sequence ;
+						  bt:hasChildren (
+							[ a bt:Priority ;
+							  bt:hasChildren (
+							  	[ a bt:Sequence ;
+							  	  bt:hasChildren (
+							  	  	:PathAvailable
+							  	  	:GetDistance
+							  	  	:DestinationNotReached
+							  	  )
+							  	]
+							  	[ a bt:Sequence ;
+							  	  bt:hasChildren (
+							  	    :SetLocatedNextTo
+							  	    :SetDestination
+							  	    :GetPathToDestination
+							  	  	:WritePath
+							  	  	:MLSetReachedReward
+							  	  	:StreetWait
+							  	  	:MLCalcAction
+							  	  	:UpdateReward
+							  	  )
+							  	]
+							  )
+							]
+							:SetTarget
+							:GetSteering
+							[ a bt:Succeed ;
+							  bt:hasChild
+							  	[ a bt:UntilFail ;
+							  	  bt:hasChild :GetFleeSteering
+							    ]
+							]
+							:GetCombinedSteering
+							[ a bt:Executor ;
+					  	      bt:selectChild [
+					  	        a bt:IntValue ;
+					  	        bt:query [
+									a bt:SelectQuery ;
+									bt:originBase ajan:ExecutionKnowledge ;
+									bt:sparql """
+										SELECT ?intValue
+										WHERE { <http://qlearning/test> <http://www.ajan.de/behavior/python-ns#result> ?intValue . }"""^^xsd:string ;
+									] ;
+								] ;
+							    bt:hasChildren (
+							    	[ a bt:Sequence ;
+							  	      bt:hasChildren (
+							    		:SetSteeringWalk
+							    		:SetWalkReward
+							    		)
+							    	]
+							    	[ a bt:Sequence ;
+							  	      bt:hasChildren (
+							    		:SetSteeringRun
+							    		:SetRunReward
+							    		)
+							    	]
+							    	[ a bt:Sequence ;
+							  	      bt:hasChildren (
+							  	      	:StreetWait
+							  	      	:MLSetWaitReward
+							  	      	:MLCalcAction
+							  	      )
+							  	    ]
+								)
+					  	    ]
+							:RemoveObstacles
+							)
+						]
+						)
+					]
+				  )
+				] 
+			)
+		] .
+
+# ----------- Primitives -----------
+
+# ----- :UpdateValidate ------
+
+:UpdateValidate
+	a bt:ValidateEvent ;
+	rdfs:label "UpdateValidate" ;
+	bt:validate [
+		a bt:ConstructQuery ;
+		bt:targetBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+CONSTRUCT { ?s ?p ?o . }
+WHERE { GRAPH <http://localhost:8090/rdf4j/repositories/agents#UpdateEvent> {
+	?s ?p ?o . } }"""^^xsd:string ;
+		] .
+
+# ----- :NoObstacles ------
+
+:NoObstacles
+		a bt:Condition ;
+		rdfs:label "NoObstacles" ;
+		bt:constraints ( [
+			a bt:Constraint ;
+			a bt:AskQuery ;
+			bt:originBase ajan:ExecutionKnowledge ;
+			bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ASK
+WHERE {
+	FILTER NOT EXISTS {
+    	?obstacle rdf:type react:Obstacle .
+		?obstacle react:transform ?target .
+	}
+}"""^^xsd:string ;
+			]
+		) .
+
+# ----- :VariablesSet ------
+
+:VariablesSet
+		a bt:Condition ;
+		rdfs:label "VariablesSet?" ;
+		bt:constraints ( [
+			a bt:Constraint ;
+			a bt:AskQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ASK
+WHERE {
+	?reward react:reward ?number .
+}"""^^xsd:string ;
+			]
+		) .
+
+# ----- :SetVariables ------
+
+:SetVariables
+	a bt:Update ;
+	rdfs:label "SetCollisionReward?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+INSERT {
+	<http://some/reward> react:reward "25" .
+	}
+WHERE {
+	?s ?p ?o .
+}	"""^^xsd:string ;
+		]
+	) .
+
+# ----- :SetCollisionReward ------
+
+:SetCollisionReward
+	a bt:Update ;
+	rdfs:label "SetCollisionReward?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+DELETE {
+	?reward react:reward ?some .
+	}
+INSERT {
+	?reward react:reward "-300" .
+	}
+WHERE {
+    ?reward react:reward ?some .
+	?avatar react:collision ?collision .
+	FILTER (?collision = "true")
+	}"""^^xsd:string ;
+		]
+	) .
+
+# ----- :SetWalkReward ------
+
+:SetWalkReward
+	a bt:Update ;
+	rdfs:label "SetWalkReward?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+DELETE {
+	?reward react:reward ?collision .
+	}
+INSERT {
+	?reward react:reward "25" .
+	}
+WHERE {
+	?reward react:reward ?collision .
+	FILTER (?collision = "0")
+	}"""^^xsd:string ;
+		]
+	) .
+
+# ----- :SetRunReward ------
+
+:SetRunReward
+	a bt:Update ;
+	rdfs:label "SetRunReward?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+DELETE {
+	?reward react:reward ?collision .
+	}
+INSERT {
+	?reward react:reward "15" .
+	}
+WHERE {
+	?reward react:reward ?collision .
+	FILTER (?collision = "0")
+	}"""^^xsd:string ;
+		]
+	) .
+
+# ----- :UpdateReward ------
+
+:UpdateReward
+	a bt:Update ;
+	rdfs:label "UpdateReward?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+DELETE {
+	?reward react:reward ?collision .
+	}
+INSERT {
+	?reward react:reward "0" .
+	}
+WHERE {
+	?reward react:reward ?collision .
+	}"""^^xsd:string ;
+		]
+	) .
+
+# ----- :TestPluginAction ------
+
+:TestPluginAction
+	a bt:Action ;
+	rdfs:label "TestAction!" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT {
+	?avatar rdf:type react:Avatar .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:TestAction .
+
+# ----- :PathAvailable ------
+
+:PathAvailable
+	a bt:Condition ;
+	rdfs:label "PathAvailable?" ;
+	bt:constraints ( [
+		a bt:Constraint ;
+		a bt:AskQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+ASK
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar steer:trajectory ?path .
+}"""^^xsd:string ;
+		]
+	) .
+
+# ----- :GetPathToDestination ------
+
+:GetPathToDestination
+	a bt:Action ;
+	rdfs:label "GetPathToDestination!" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT {
+	?avatar rdf:type react:Avatar .
+	?avatar react:path ?path .
+	react:Var react:avatarBehavior "normal" .
+	?target react:position ?targetPosition .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:destination ?targetPosition .
+	?avatar react:path ?path .
+	?target react:position ?targetPosition .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:GetPathAction .
+
+# ----- :WriteAvatar ------
+
+:WriteAvatar
+	a bt:Write ;
+	rdfs:label "WriteAvatar!" ;
+	bt:query [
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:targetBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+CONSTRUCT {
+	?avatar rdf:type react:Avatar .
+	?avatar react:steering ?steering .
+	?avatar react:transform ?transform .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:transform ?transform .
+	?avatar react:steering ?steering .
+}"""^^xsd:string ;
+	] .
+
+# ----- :WritePath ------
+
+:WritePath
+	a bt:Write ;
+	rdfs:label "WritePath!" ;
+	bt:query [
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:targetBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+CONSTRUCT {
+	?avatar rdf:type react:Avatar .
+	?avatar steer:trajectory ?path .
+	?avatar react:destination ?targetPosition .
+	?target rdf:type react:POI .
+	?target react:position ?targetPosition .
+	?target react:transform ?transform .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:path ?path .
+	?avatar react:destination ?targetPosition .
+	?target rdf:type react:POI .
+	?target react:position ?targetPosition .
+	?target react:transform ?transform .
+}"""^^xsd:string ;
+	] .
+
+# ----- :SetLocatedNextTo ------
+
+:SetLocatedNextTo
+	a bt:Update ;
+	rdfs:label "SetLocatedNextTo?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+DELETE { 
+	?avatar react:locatedNextTo ?startPosition .
+	}
+INSERT {
+	?avatar react:locatedNextTo ?targetPosition .
+	}
+WHERE {
+	?avatar react:locatedNextTo ?startPosition .
+	?avatar react:destination ?targetPosition .
+	}"""^^xsd:string ;
+		]
+	) .
+
+# ----- :GetDistance ------
+
+:GetDistance
+	a steer:Distance ;
+	rdfs:label "GetDistance!" ;
+	steer:origin [
+		a bt:ConstructQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+CONSTRUCT {
+	?avatar steer:position ?vector .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:transform ?vector .
+}"""^^xsd:string ;
+	] ;
+	steer:target [
+		a bt:ConstructQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+CONSTRUCT {
+	?avatar steer:target ?transform .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:destination ?targetPosition .
+	?target react:position ?targetPosition .
+	?target react:transform ?transform .
+}"""^^xsd:string ;
+	] ;
+	steer:subject "http://bla.test/Destination"^^xsd:anyURI ;
+	bt:targetBase ajan:ExecutionKnowledge .
+
+# ----- :TargetNotReached ------
+
+:DestinationNotReached
+	a bt:Condition ;
+	rdfs:label "DestinationNotReached?" ;
+	bt:constraints ( [
+		a bt:Constraint ;
+		a bt:AskQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+ASK
+WHERE {
+	<http://bla.test/Destination> steer:distance ?distance .
+	FILTER (?distance > 1)
+}"""^^xsd:string ;
+		]
+	) .
+
+# ----- :SetTarget ------
+
+:SetTarget
+	a steer:TargetManager ;
+	rdfs:label "SetTarget!" ;
+	steer:distance "1"^^xsd:float ;
+	steer:path [
+		a bt:ConstructQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+CONSTRUCT {
+	?avatar steer:trajectory ?path .
+}
+WHERE {
+	?avatar steer:trajectory ?path .
+}"""^^xsd:string ;
+	] ;
+	steer:origin [
+		a bt:ConstructQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+CONSTRUCT {
+	?avatar steer:position ?vector .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:transform ?vector .
+}"""^^xsd:string ;
+	] ;
+	steer:subject "http://bla.test/NewTarget"^^xsd:anyURI ;
+	bt:targetBase ajan:ExecutionKnowledge .
+
+# ----- :GetSteering ------
+
+:GetSteering
+	a steer:Seek ;
+	rdfs:label "GetSteering!" ;
+	steer:input [
+		a bt:SelectQuery ;
+		  bt:originBase ajan:ExecutionKnowledge ;
+		  bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+SELECT ?origin ?velocity ?target
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:transform ?origin .
+	?avatar react:steering ?velocity .
+	<http://bla.test/NewTarget> steer:target ?target .
+}"""^^xsd:string ;
+	] ;
+	steer:subject [
+		a steer:Subject ;
+		steer:anyURI "http://bla.test/NewSteering"^^xsd:anyURI ;
+	] ;
+	bt:targetBase ajan:ExecutionKnowledge .
+
+# ----- :GetDynSteering ------
+
+:GetDynSteering
+	a steer:Follow ;
+	rdfs:label "GetDynSteering!" ;
+	steer:displacement "0.5"^^xsd:float ;
+	steer:side "right"^^xsd:string ;
+	steer:input [
+		a bt:SelectQuery ;
+		  bt:originBase ajan:ExecutionKnowledge ;
+		  bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+SELECT ?origin ?velocity ?target
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:transform ?origin .
+	?avatar react:steering ?velocity .
+	?poi rdf:type react:DynamicPOI .
+	?poi react:transform ?target .
+}"""^^xsd:string ;
+	] ;
+	steer:subject [
+		a steer:Subject ;
+		steer:anyURI "http://bla.test/NewSteering"^^xsd:anyURI ;
+	] ;
+	bt:targetBase ajan:ExecutionKnowledge .
+
+# ----- :GetFleeSteering ------
+
+:GetFleeSteering
+	a steer:Flee ;
+	rdfs:label "GetFleeSteering!" ;
+	steer:radius "3"^^xsd:float ;
+	steer:input [
+		a bt:SelectQuery ;
+		  bt:originBase ajan:ExecutionKnowledge ;
+		  bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+SELECT ?origin ?velocity ?target ?influence
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:transform ?origin .
+	<http://bla.test/NewSteering> steer:steering ?velocity .
+	?obstacle rdf:type react:Obstacle .
+	?obstacle react:transform ?target .
+	?obstacle react:name ?name .
+	FILTER NOT EXISTS  {
+		?obstacle steer:steering ?steer .
+	}
+	BIND ( IF (?name = "BadMan", "0.5", 
+			IF (?name = "SchorleKua", "10.0", "0.2")) AS ?influence )
+}"""^^xsd:string ;
+	] ;
+	steer:subject [
+		a steer:Subject ;
+		bt:variable "obstacle" ;
+		bt:selectQuery [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:ExecutionKnowledge ;
+		  bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+SELECT ?obstacle
+WHERE {
+	?obstacle rdf:type react:Obstacle .
+	?obstacle react:transform ?target .
+	FILTER NOT EXISTS { 
+		?obstacle steer:steering ?steer .
+	}
+}"""^^xsd:string ;
+	  ]
+	] ;
+	bt:targetBase ajan:ExecutionKnowledge .
+
+# ----- :GetWanderSteering ------
+
+:GetWanderSteering
+	a steer:Wander ;
+	rdfs:label "GetWanderSteering!" ;
+	steer:distance "2"^^xsd:float ;
+	steer:radius "3"^^xsd:float ;
+	steer:angleChange "1"^^xsd:float ;
+	steer:steering [
+		a steer:Vector ;
+		bt:variable "steering" ;
+		bt:selectQuery [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:ExecutionKnowledge ;
+		  bt:sparql """
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+SELECT ?steering
+WHERE {
+	<http://bla.test/CombinedSteering> steer:steering ?steering .
+}"""^^xsd:string ;
+	  ]
+	] ;
+	steer:input [
+		a bt:SelectQuery ;
+		  bt:originBase ajan:ExecutionKnowledge ;
+		  bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+SELECT ?influence
+WHERE {
+	VALUES ?influence {"1.0"^^xsd:float}
+}"""^^xsd:string ;
+	] ;
+	steer:subject [
+		a steer:Subject ;
+		steer:anyURI "http://bla.test/WanderSteering"^^xsd:anyURI ;
+	] ;
+	bt:targetBase ajan:ExecutionKnowledge .
+
+# ----- :GetCombinedSteering ------
+
+:GetCombinedSteering
+	a steer:SteeringManager ;
+	rdfs:label "GetCombinedSteering!" ;
+	steer:mass "1"^^xsd:float;
+	steer:maxSpeed "3"^^xsd:float;
+	steer:minSpeed "2"^^xsd:float;
+	steer:maxVelocity "1"^^xsd:float;
+	steer:maxForce "1"^^xsd:float;
+	steer:steering [
+		a steer:Vector ;
+		bt:variable "steering" ;
+		bt:selectQuery [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:ExecutionKnowledge ;
+		  bt:sparql """
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+SELECT ?steering
+WHERE {
+	<http://bla.test/NewSteering> steer:steering ?steering .
+}"""^^xsd:string ;
+	  ]
+	] ;
+	steer:input [
+		a bt:SelectQuery ;
+		  bt:originBase ajan:ExecutionKnowledge ;
+		  bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+SELECT DISTINCT ?steering ?distance
+WHERE {
+	?obstacle rdf:type react:Obstacle .
+	?obstacle steer:steering ?steering .
+	?obstacle steer:distance ?distance .
+}"""^^xsd:string ;
+	] ;
+	steer:subject [
+		a steer:Subject ;
+		steer:anyURI "http://bla.test/CombinedSteering"^^xsd:anyURI ;
+	] ;
+	bt:targetBase ajan:ExecutionKnowledge .
+
+# ----- :GetCombinedSteering ------
+
+:GetCombinedDynSteering
+	a steer:SteeringManager ;
+	rdfs:label "GetDynCombinedSteering!" ;
+	steer:mass "1.5"^^xsd:float;
+	steer:maxSpeed "3.5"^^xsd:float;
+	steer:minSpeed "2"^^xsd:float;
+	steer:maxVelocity "1"^^xsd:float;
+	steer:maxForce "3"^^xsd:float;
+	steer:steering [
+		a steer:Vector ;
+		bt:variable "steering" ;
+		bt:selectQuery [
+		  a bt:SelectQuery ;
+		  bt:originBase ajan:ExecutionKnowledge ;
+		  bt:sparql """
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+SELECT ?steering
+WHERE {
+	<http://bla.test/NewSteering> steer:steering ?steering .
+}"""^^xsd:string ;
+	  ]
+	] ;
+	steer:input [
+		a bt:SelectQuery ;
+		  bt:originBase ajan:ExecutionKnowledge ;
+		  bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+SELECT DISTINCT ?steering ?distance
+WHERE {
+	?obstacle rdf:type react:Obstacle .
+	?obstacle steer:steering ?steering .
+	?obstacle steer:distance ?distance .
+}"""^^xsd:string ;
+	] ;
+	steer:subject [
+		a steer:Subject ;
+		steer:anyURI "http://bla.test/CombinedSteering"^^xsd:anyURI ;
+	] ;
+	bt:targetBase ajan:ExecutionKnowledge .
+
+# ----- :SetSteering<X> ------
+
+:SetSteeringWalk
+	a bt:Action ;
+	rdfs:label "SetSteeringWalk!" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+CONSTRUCT {
+	?avatar rdf:type react:Avatar .
+	<http://bla.test/NewSteering> steer:behavior "walk" .
+	<http://bla.test/NewSteering> steer:steering ?vector .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+	<http://bla.test/CombinedSteering> steer:steering ?vector .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:SteerAction .
+
+:SetSteeringRun
+	a bt:Action ;
+	rdfs:label "SetSteeringRun!" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+CONSTRUCT {
+	?avatar rdf:type react:Avatar .
+	<http://bla.test/NewSteering> steer:behavior "run" .
+	<http://bla.test/NewSteering> steer:steering ?vector .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+	<http://bla.test/CombinedSteering> steer:steering ?vector .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:SteerAction .
+
+:SetSteeringSlow
+	a bt:Action ;
+	rdfs:label "SetSteeringSlow!" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+CONSTRUCT {
+	?avatar rdf:type react:Avatar .
+	<http://bla.test/NewSteering> steer:behavior "slow" .
+	<http://bla.test/NewSteering> steer:steering ?vector .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+	<http://bla.test/WanderSteering> steer:steering ?vector .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:SteerAction .
+
+:SetSteeringSchrom
+	a bt:Action ;
+	rdfs:label "SetSteeringWalk!" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+CONSTRUCT {
+	?avatar rdf:type react:Avatar .
+	<http://bla.test/NewSteering> steer:behavior "walk" .
+	<http://bla.test/NewSteering> steer:steering ?vector .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+	<http://bla.test/NewSteering> steer:steering ?vector .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:SteerAction .
+
+# ----- :RemoveAll ------
+
+:RemoveAll
+	a bt:Update ;
+	rdfs:label "RemoveAll?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+DELETE { 
+	?s ?p ?o .
+	}
+WHERE {
+	?s ?p ?o .
+	}"""^^xsd:string ;
+		]
+	) .
+
+# ----- :RemoveObstacles ------
+
+:RemoveObstacles
+	a bt:Update ;
+	rdfs:label "RemoveObstacles?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+DELETE { 
+	?obstacle rdf:type react:Obstacle .
+	?obstacle react:name ?name .
+	?obstacle react:transform ?target .
+	?obstacle steer:steering ?steering .
+	?obstacle steer:distance ?distance .
+	}
+WHERE {
+	?obstacle rdf:type react:Obstacle .
+	?obstacle react:name ?name .
+	?obstacle react:transform ?target .
+	?obstacle steer:steering ?steering .
+	?obstacle steer:distance ?distance .
+	}"""^^xsd:string ;
+		]
+	) .
+
+# --------- :MLCalcAction ---------
+
+:MLCalcAction 
+	a ml:QLearning ;
+	rdfs:label "MLCalcAction" ;
+	tcp:hostname "localhost" ;
+	tcp:port "10000"^^xsd:integer ;
+	ml:observations (
+		[ a bt:SelectQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+			SELECT DISTINCT ?lanes
+			WHERE {
+				VALUES ?lanes {"3"}
+			} """^^xsd:string ;
+		]
+		[ a bt:SelectQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+			PREFIX react: <http://www.dfki.de/react-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+			SELECT DISTINCT ?i1 ?i2 ?i3
+			WHERE {
+				?avatar rdf:type react:Avatar .
+				?avatar react:destination ?dest .
+				OPTIONAL {
+					?car rdf:type react:ObsCar .
+					?car react:lane ?carlane .
+					?car react:distance ?i2 .
+					?car react:speed ?i3 .
+					BIND ( 
+						IF ((?dest = "Start_ML" && ?carlane = "1") || (?dest = "Ende_ML" && ?carlane = "3"), "1",
+						IF ((?dest = "Start_ML" && ?carlane = "2") || (?dest = "Ende_ML" && ?carlane = "2"), "2",
+						IF ((?dest = "Start_ML" && ?carlane = "3") || (?dest = "Ende_ML" && ?carlane = "1"), "3", "0" )))
+					AS ?i1 ) .
+				}
+			}
+			LIMIT 3 """^^xsd:string ;
+		]
+	) ;
+	bt:subject "http://qlearning/test"^^xsd:anyURI ;
+	bt:targetBase ajan:ExecutionKnowledge .
+
+# --------- :MLSetReachedReward ---------
+
+:MLSetReachedReward
+	a ml:QLearningReward ;
+	rdfs:label "MLSetReachedReward" ;
+	tcp:hostname "localhost" ;
+	tcp:port "10000"^^xsd:integer ;
+	ml:observations (
+		[ a bt:SelectQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+			SELECT DISTINCT ?lanes
+			WHERE {
+				VALUES ?lanes {"3"}
+			} """^^xsd:string ;
+		]
+		[ a bt:SelectQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+SELECT DISTINCT ?i1 ?i2 ?i3
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:destination ?dest .
+	OPTIONAL {
+		?car rdf:type react:ObsCar .
+		?car react:lane ?carlane .
+		?car react:distance ?i2 .
+		?car react:speed ?i3 .
+		BIND ( 
+			IF ((?dest = "Start_ML" && ?carlane = "1") || (?dest = "Ende_ML" && ?carlane = "3"), "1",
+			IF ((?dest = "Start_ML" && ?carlane = "2") || (?dest = "Ende_ML" && ?carlane = "2"), "2",
+			IF ((?dest = "Start_ML" && ?carlane = "3") || (?dest = "Ende_ML" && ?carlane = "1"), "3", "0" )))
+		AS ?i1 ) .
+	}
+}
+LIMIT 3 """^^xsd:string ;
+		] 
+	) ;
+	ml:reward [
+		a bt:SelectQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+SELECT ?reward
+WHERE {
+	?some react:reward ?reward .
+} """^^xsd:string ;
+	] .
+
+# --------- :MLSetShortWaitReward ---------
+
+:MLSetWaitReward
+	a ml:QLearningReward ;
+	rdfs:label "MLSetWaitReward" ;
+	tcp:hostname "localhost" ;
+	tcp:port "10000"^^xsd:integer ;
+	ml:observations (
+		[ a bt:SelectQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+			SELECT DISTINCT ?lanes
+			WHERE {
+				VALUES ?lanes {"3"}
+			} """^^xsd:string ;
+		]
+		[ a bt:SelectQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+			PREFIX react: <http://www.dfki.de/react-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+			SELECT DISTINCT ?i1 ?i2 ?i3
+			WHERE {
+				?avatar rdf:type react:Avatar .
+				?avatar react:destination ?dest .
+				OPTIONAL {
+					?car rdf:type react:ObsCar .
+					?car react:lane ?carlane .
+					?car react:distance ?i2 .
+					?car react:speed ?i3 .
+					BIND (
+						IF ((?dest = "Start_ML" && ?carlane = "1") || (?dest = "Ende_ML" && ?carlane = "3"), "1",
+						IF ((?dest = "Start_ML" && ?carlane = "2") || (?dest = "Ende_ML" && ?carlane = "2"), "2",
+						IF ((?dest = "Start_ML" && ?carlane = "3") || (?dest = "Ende_ML" && ?carlane = "1"), "3", "0" )))
+					AS ?i1 ) .
+				}
+			}
+			LIMIT 3 """^^xsd:string ;
+		]
+	) ;
+	ml:reward [
+		a bt:SelectQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+			PREFIX react: <http://www.dfki.de/react-ns#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			SELECT ?reward
+			WHERE {
+				OPTIONAL {
+					SELECT (MIN(?distance) AS ?dist)
+					WHERE {
+						?car rdf:type react:ObsCar .
+						?car react:distance ?distance .
+						?car react:speed ?speed .
+						FILTER (?speed != "0") .
+					}
+				}
+				BIND (
+					IF (BOUND(?dist) && (?dist = "1" || ?dist = "2"), "-1", (
+					IF (BOUND(?dist) && (?dist = "3" || ?dist = "4"), "-2", (
+					IF (BOUND(?dist) && (?dist = "5" || ?dist = "6"), "-3", (
+                	IF (BOUND(?dist) && (?dist = "7" || ?dist = "8"), "-4", "-5")))))))
+				AS ?reward ) .
+			}"""^^xsd:string ;
+	] .
+
+# --------- :RemoveObsCars ---------
+
+:RemoveObsCars
+	a bt:Update ;
+	rdfs:label "RemoveObsCars?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:ExecutionKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX steer: <http://www.ajan.de/behavior/steer-ns#>
+DELETE { 
+	?car rdf:type react:ObsCar .
+	?car react:lane ?lane .
+	?car react:distance ?distance .
+	?car react:speed ?speed .
+	}
+WHERE {
+	?car rdf:type react:ObsCar .
+	?car react:lane ?lane .
+	?car react:distance ?distance .
+	?car react:speed ?speed .
+	}"""^^xsd:string ;
+		]
+	) .
+
+# --------- :StreetWait ---------
+
+:StreetWait
+		a bt:Action ;
+		rdfs:label "StreetWait!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT {
+	?avatar rdf:type react:Avatar .
+	react:Var react:avatarAnimation "idle" .
+	react:Var react:idleTime 1 .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+}"""^^xsd:string ;
+			]
+		) ;
+		bt:definition services:IdleAction .
+
+# --------------------------------------------
+# -------------- :BusBehavior --------------
+# --------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/Bus?capability=update | POST | text/turtle
+# Body: _:blankNode <http://www.w3.org/2006/http#requestURI> <http://localhost:12345/world/> .
+
+# ----------- Behavior ------------
+
+:BusBehavior
+		a bt:BehaviorTree ;
+		a bt:Root ;
+		rdfs:label "BusBehavior" ;
+		bt:hasChild
+			[ a bt:Parallel ;
+			  bt:hasChildren (
+			  	:BeliefValidate
+				[ a bt:Priority ;
+				  bt:hasChildren (
+					[ a bt:Sequence;
+					  bt:hasChildren (
+						:NoFreeView
+						:StopMovement
+					  )
+					]
+					[ a bt:Sequence;
+					  bt:hasChildren (
+						:FreeView
+						:StartMovement
+					  )
+					]
+				 )
+				]
+			)
+		] .
+
+# ----------- Primitives -----------
+
+:NoFreeView
+		a bt:Condition ;
+		rdfs:label "NoFreeView?" ;
+		bt:constraints ( [
+			a bt:Constraint ;
+			a bt:AskQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ASK
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:freeView "false" .
+	?avatar react:movement "moving" .
+}"""^^xsd:string ;
+			]
+		) .
+
+:FreeView
+		a bt:Condition ;
+		rdfs:label "FreeView?" ;
+		bt:constraints ( [
+			a bt:Constraint ;
+			a bt:AskQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ASK
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:freeView "true" .
+	?avatar react:movement "standing" .
+}"""^^xsd:string ;
+			]
+		) .
+
+:StopMovement
+		a bt:Action ;
+		rdfs:label "StopMovement!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+DESCRIBE ?avatar
+WHERE {
+	?avatar rdf:type react:Avatar .
+}"""^^xsd:string ;
+			]
+		) ;
+		bt:definition services:StopAction .
+
+:StartMovement
+		a bt:Action ;
+		rdfs:label "StartMovement!" ;
+		bt:inputs ( [
+			a bt:Input ;
+			a bt:ConstructQuery ;
+			bt:originBase ajan:AgentKnowledge ;
+			bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+DESCRIBE ?avatar
+WHERE {
+	?avatar rdf:type react:Avatar .
+}"""^^xsd:string ;
+			]
+		) ;
+		bt:definition services:MoveAction .
+
+# --------------------------------------------
+# -------------- :RandomWalkBehavior --------------
+# --------------------------------------------
+
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/<AgentName>?capability=update | POST | text/turtle
+# Body: _:blankNode <http://www.w3.org/2006/http#requestURI> <http://localhost:12345/world/> .
+
+# ----------- Behavior ------------
+
+:RandomWalkBehavior
+	a bt:BehaviorTree ;
+	a bt:Root ;
+	rdfs:label "RandomWalkBehavior" ;
+	bt:hasChild
+		[ a bt:Parallel ;
+		  bt:policy bt:PriorityPolicy ;
+		  bt:hasChildren (
+			[ a bt:Fail ;
+			  bt:hasChild :BeliefValidate
+			]
+			[ a bt:UntilFail ;
+			  bt:hasChild
+				[ a bt:Sequence;
+				  bt:hasChildren (
+					:SetDestination
+					[ a bt:UntilSuccess ;
+					  bt:hasChild
+						[ a bt:Priority;
+						  bt:hasChildren (
+							:AtDestination
+							[ a bt:Sequence;
+							  bt:hasChildren (
+								[ a bt:Parallel ;
+								  bt:policy bt:PriorityPolicy ;
+									bt:hasChildren (
+										:MoveToDestination
+										:CarInFront
+									)
+								]
+								:ShortIdleWait
+								:AtDestination
+							  )
+							]
+						  )
+						]
+					]
+				  )
+				]
+			  ]
+			)
+		] .
+
+# ----------- Primitives -----------
+
+:SetDestination
+	a bt:Update ;
+	rdfs:label "SetDestination?!" ;
+	bt:queries ( [
+		a bt:UpdateQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+DELETE { ?avatar react:destination ?old }
+INSERT { ?avatar react:destination ?targetPosition }
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:destination ?old .
+	?target react:position ?targetPosition .
+    {
+      SELECT ?target
+      WHERE {
+          ?avatar react:locatedNextTo ?startPosition .
+          ?target react:position ?position .
+          FILTER (?position != ?startPosition)
+          BIND(RAND() as ?r)
+      }
+      ORDER BY ?r
+      LIMIT 1
+    }
+}"""^^xsd:string ;
+		]
+	) .
+
+:AtDestination
+	a bt:Condition ;
+	rdfs:label "AtDestination?" ;
+	bt:constraints ( [
+		a bt:Constraint ;
+		a bt:AskQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ASK
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:locatedNextTo ?target .
+	?avatar react:destination ?targetPosition .
+	?target react:position ?targetPosition .
+}"""^^xsd:string ;
+		]
+	) .
+
+:MoveToDestination
+	a bt:Action ;
+	rdfs:label "MoveToDestination!" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT {
+	?avatar rdf:type react:Avatar .
+	?avatar react:locatedNextTo ?startPosition .
+	?target react:position ?targetPosition .
+	react:Var react:avatarAnimation "walk" .
+	react:Var react:avatarBehavior "normal" .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:locatedNextTo ?startPosition .
+	?avatar react:destination ?targetPosition .
+	?target react:position ?targetPosition .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:MoveToAction .
+
+:CarInFront
+	a bt:Condition ;
+	rdfs:label "CarInFront?" ;
+	bt:constraints ( [
+		a bt:Constraint ;
+		a bt:AskQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ASK
+WHERE {
+	?avatar rdf:type react:Avatar .
+	?avatar react:carInFront "true" .
+}"""^^xsd:string ;
+		]
+	) .
+
+:ShortIdleWait
+	a bt:Action ;
+	rdfs:label "ShortIdleWait!" ;
+	bt:inputs ( [
+		a bt:Input ;
+		a bt:ConstructQuery ;
+		bt:originBase ajan:AgentKnowledge ;
+		bt:sparql """
+PREFIX react: <http://www.dfki.de/react-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+CONSTRUCT {
+	?avatar rdf:type react:Avatar .
+	react:Var react:avatarAnimation "idle" .
+	react:Var react:idleTime 1 .
+}
+WHERE {
+	?avatar rdf:type react:Avatar .
+}"""^^xsd:string ;
+		]
+	) ;
+	bt:definition services:IdleAction .

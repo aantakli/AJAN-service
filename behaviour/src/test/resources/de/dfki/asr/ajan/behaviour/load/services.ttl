@@ -1,0 +1,128 @@
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix http-core: <http://www.w3.org/2006/http#> .
+@prefix http-headers: <http://www.w3.org/2008/http-headers#> .
+@prefix http-methods: <http://www.w3.org/2008/http-methods#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+@prefix actn: <http://www.ajan.de/actn#> .
+@prefix inv: <http://www.dfki.de/inversiv/> .
+@prefix : <http://localhost:8090/rdf4j/repositories/services#> .
+
+_:content sp:varName "content"^^xsd:string .
+_:name sp:varName "name"^^xsd:string .
+_:message sp:varName "name"^^xsd:string .
+_:a sp:varName "a"^^xsd:string .
+_:b sp:varName "b"^^xsd:string .
+
+:LoggingService
+		rdf:type inv:Service ;
+		rdf:type actn:Resource ;
+		dct:description "Logging Service" ;
+		actn:action :LoggingAction .
+
+:LoggingAction
+		rdf:type actn:ServiceAction ;
+		rdf:type actn:Safe ;
+		rdf:type actn:Idempotent ;
+		actn:communication actn:Synchronous ;
+		dct:description "Logging action" ;
+		actn:runBinding :LoggingByPOST ;
+		actn:consumes [
+			a actn:Consumable ;
+			actn:sparql """
+				PREFIX ajan: <http://www.ajan.de/ajan-ns#>
+				PREFIX inv: <http://www.dfki.de/inversiv/>
+				ASK
+				WHERE {
+					?a inv:loggingMessage ?content .
+					?b ajan:agentName ?name .
+				}"""^^xsd:string ;
+			actn:spin [
+				a sp:Ask ;
+				sp:where (
+					[ sp:subject _:a ;
+				      sp:predicate inv:loggingMessage ;
+					  sp:object _:content ]
+					[ sp:subject _:b ;
+				      sp:predicate ajan:agentName ;
+					  sp:object _:name ]
+				)
+			]
+		] ;
+		actn:produces [
+			a actn:Producible ;
+			actn:sparql """
+				PREFIX inv: <http://www.dfki.de/inversiv/>
+				PREFIX ajan: <http://www.ajan.de/ajan-ns#>
+				ASK
+				WHERE {
+					inv:LoggingServiceResponse inv:loggedMessage ?content .
+					inv:LoggingServiceResponse inv:loggedName ?name .
+					OPTIONAL { actn:FAULT dct:description ?message }
+				}"""^^xsd:string ;
+			actn:spin [
+				a sp:Ask ;
+				sp:where (
+					[ sp:subject inv:LoggingServiceResponse ;
+					  sp:predicate inv:loggedMessage ;
+					  sp:object _:content ]
+					[ sp:subject inv:LoggingServiceResponse ;
+					  sp:predicate inv:loggedName ;
+					  sp:object _:name ]
+					[ a sp:Optional ;
+					  sp:elements (
+						[ sp:subject actn:FAULT ;
+						  sp:predicate dct:description ;
+						  sp:object _:message ]
+					)
+				]
+				)
+			]
+		] .
+
+:LoggingByPOST
+		rdf:type actn:Binding ;
+		rdf:type http-core:Request ;
+		http-core:httpVersion "1.1" ;
+		http-core:mthd http-methods:POST ;
+		http-core:requestURI "http://localhost/action/logging"^^xsd:anyURI ;
+		http-core:headers [
+			a http-core:Header ;
+			http-core:hdrName http-headers:accept ;
+			http-core:fieldValue "text/turtle"
+		] ;
+		http-core:body [
+			a actn:Payload ;
+			actn:sparql """
+				PREFIX inv: <http://www.dfki.de/inversiv/>
+				PREFIX ajan: <http://www.ajan.de/ajan-ns#>
+				CONSTRUCT {
+					inv:LoggingServiceRequest inv:loggingMessage ?content .
+					inv:LoggingServiceRequest inv:loggingName ?name .
+				}
+				WHERE {
+					?a inv:loggingMessage ?content .
+					?b ajan:agentName ?name .
+				}"""^^xsd:string ;
+			actn:spin [
+				a sp:Construct ;
+				 sp:templates (
+					[ sp:subject inv:LoggingServiceRequest ;
+                      sp:predicate inv:loggingMessage ;
+                      sp:object _:content ]
+					[ sp:subject inv:LoggingServiceRequest ;
+                      sp:predicate inv:loggingName ;
+                      sp:object _:name ]
+                ) ;
+				sp:where (
+					[ sp:subject _:a ;
+				      sp:predicate inv:loggingMessage ;
+					  sp:object _:content ]
+					[ sp:subject _:b ;
+				      sp:predicate ajan:agentName ;
+					  sp:object _:name ]
+				)
+			]
+		] .
