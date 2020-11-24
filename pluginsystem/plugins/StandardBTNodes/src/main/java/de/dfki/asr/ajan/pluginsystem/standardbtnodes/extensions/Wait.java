@@ -123,7 +123,7 @@ public class Wait extends AbstractTDBLeafTask implements NodeExtension {
 	@Override
 	public void resetTask() {
 		running = Status.FRESH;
-		if (thread.isAlive())
+		if (thread != null && thread.isAlive())
 			thread.interrupt();
 		super.resetTask();
 	}
@@ -133,7 +133,7 @@ public class Wait extends AbstractTDBLeafTask implements NodeExtension {
 		if (getStatus() == Status.CANCELLED) {
 			BTUtil.sendReport(this.getObject(), toString() + " CANCELLED");
 			running = Status.CANCELLED;
-			if (thread.isAlive())
+			if (thread != null && thread.isAlive())
 				thread.interrupt();
 		}
 	}
