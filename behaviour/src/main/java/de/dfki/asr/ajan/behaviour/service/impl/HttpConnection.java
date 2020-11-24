@@ -63,7 +63,7 @@ public class HttpConnection implements IConnection {
 	private final RequestConfig requestConfig = RequestConfig.custom()
 					.setConnectTimeout(timeout * 500)
 					.setConnectionRequestTimeout(timeout * 500)
-					.setSocketTimeout(timeout * 500).build();
+					.setSocketTimeout(timeout * 5000).build();
 
 	public HttpConnection(final HttpBinding binding) {
 		this.binding = binding;

@@ -29,6 +29,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
 import de.dfki.asr.ajan.behaviour.service.impl.SelectQueryTemplate;
 import de.dfki.asr.ajan.behaviour.nodes.action.common.ACTNUtil;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpHeader;
+import de.dfki.asr.ajan.common.AgentUtil;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -69,6 +70,10 @@ public class Message extends AbstractTDBLeafTask {
 	@Setter @Getter
 	private HttpBinding binding;
 
+	@RDF("bt:targetBase")
+	@Getter @Setter
+	private URI targetBase;
+
 	protected String requestURI;
 	protected HttpConnection request;
 	protected static final Logger LOG = LoggerFactory.getLogger(Message.class);
@@ -102,8 +107,27 @@ public class Message extends AbstractTDBLeafTask {
 		}
 	}
 
-	protected boolean checkResponse(final Object response) {
-		return true;
+	protected boolean checkResponse(final Object response) throws URISyntaxException {
+		if (response instanceof Model) {
+			Model model = (Model) response;
+			if (model.isEmpty()) {
+				return false;
+			}
+			return updateBeliefs(AgentUtil.setNamedGraph(model, new URI(requestURI)), targetBase);
+		}
+		return false;
+	}
+
+	protected boolean updateBeliefs(final Model model, final URI targetBase) {
+		if (targetBase.toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
+			this.getObject().getExecutionBeliefs().update(model);
+			return true;
+		} else if (targetBase.toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
+			this.getObject().getAgentBeliefs().update(model);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	@Override

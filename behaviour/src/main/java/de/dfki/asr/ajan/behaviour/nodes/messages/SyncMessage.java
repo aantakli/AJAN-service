@@ -24,7 +24,6 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpBinding;
-import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.common.AgentUtil;
 import java.net.URI;
 import lombok.Getter;
@@ -75,18 +74,6 @@ public class SyncMessage extends Message {
 			return updateBeliefs(modifyResponse(model), validate.getTargetBase());
 		}
 		return false;
-	}
-
-	protected boolean updateBeliefs(final Model model, final URI targetBase) {
-		if (targetBase.toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
-			this.getObject().getExecutionBeliefs().update(model);
-			return true;
-		} else if (targetBase.toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
-			this.getObject().getAgentBeliefs().update(model);
-			return true;
-		} else {
-			return false;
-		}
 	}
 
 	protected Model modifyResponse(final Model response) {
