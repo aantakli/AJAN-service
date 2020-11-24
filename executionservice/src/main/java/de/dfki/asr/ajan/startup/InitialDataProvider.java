@@ -29,6 +29,8 @@ import de.dfki.asr.ajan.pluginsystem.extensionpoints.EndpointExtension;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,6 +52,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
+@SuppressWarnings({"PMD.TooManyFields", "PMD.ExcessiveImports"})
 public class InitialDataProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(InitialDataProvider.class);
@@ -75,6 +78,12 @@ public class InitialDataProvider {
     @AJANDataBase(ACTION_SERVICE)
     private TripleDataBase services;
 
+    @Value("${publicHostName:localhost}")
+    private String publicHostName;
+    
+    @Value("${usePort:true}")
+    private boolean usePort;
+    
     @Value("${loadTTLFiles:true}")
     private boolean loadFiles;
 
@@ -93,7 +102,7 @@ public class InitialDataProvider {
     private List<EndpointExtension> endpoints;
 
     @PostConstruct
-    public void init() throws RDFBeanValidationException {
+    public void init() throws RDFBeanValidationException, URISyntaxException, UnknownHostException {
         LOG.info(" init()");
         if (loadFiles) {
             loadTTLFromFolders();
@@ -101,6 +110,7 @@ public class InitialDataProvider {
         pluginLoader.init();
         pushPluginsToStore(pluginLoader, services);
         loadEndpoints(pluginLoader);
+        agentManager.setBaseURI(publicHostName, usePort);
     }
 
     private void loadTTLFromFolders() {
@@ -130,11 +140,9 @@ public class InitialDataProvider {
         List<String> result = new ArrayList<>();
         try (Stream<Path> walk = Files.walk(Paths.get(folderPath))) {
             result = walk.filter(Files::isRegularFile).map(x -> x.toString()).collect(Collectors.toList());
-
         }
         catch (IOException e) {
             LOG.info("Error " + e.toString());
-
         }
         return result;
     }

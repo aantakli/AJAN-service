@@ -108,10 +108,9 @@ public class AgentManager {
 		tdbManager.setBehaviorTDB(behaviors);
 		tdbManager.setDomainTDB(domain);
 		tdbManager.setServiceTDB(services);
-                setBaseURI();
 	}
 
-        private void setBaseURI() throws URISyntaxException, UnknownHostException {
+        public void setBaseURI(final String publicHostName, final boolean usePort) throws URISyntaxException, UnknownHostException {
             String port = environment.getProperty("server.port");
             String host = InetAddress.getLoopbackAddress().getHostName();
 
@@ -122,9 +121,13 @@ public class AgentManager {
 
             LOG.info("HostLoopbackAddress: " + InetAddress.getLoopbackAddress().getHostAddress());
             LOG.info("HostLoopbackName: " + host);
-
             URIBuilder builder = new URIBuilder();
-            baseURI = builder.setScheme("http").setHost(host).setPort(Integer.parseInt(port)).setPath(PATH).build();
+            if (usePort) {
+                baseURI = builder.setScheme("http").setHost(publicHostName).setPort(Integer.parseInt(port)).setPath(PATH).build();
+            } else {
+                baseURI = builder.setScheme("http").setHost(publicHostName).setPath(PATH).build();
+            }
+            LOG.info("AJAN Base URI: " + baseURI);
         }
 
 	public Agent createAgent(final Model initAgentRDF) throws URISyntaxException {
