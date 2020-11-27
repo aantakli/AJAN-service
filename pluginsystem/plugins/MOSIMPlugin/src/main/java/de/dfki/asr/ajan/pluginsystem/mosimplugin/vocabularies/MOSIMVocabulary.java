@@ -31,6 +31,7 @@ public class MOSIMVocabulary {
 	public final static IRI M_TRANSFORM = FACTORY.createIRI("http://www.dfki.de/mosim-ns#MTransform");
 	public final static IRI M_COLLIDER = FACTORY.createIRI("http://www.dfki.de/mosim-ns#MCollider");
 	public final static IRI M_WALKPOINT = FACTORY.createIRI("http://www.dfki.de/mosim-ns#MWalkPoint");
+	public final static IRI M_PART = FACTORY.createIRI("http://www.dfki.de/mosim-ns#Part");
 	public final static IRI M_FINAL_LOCATION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#FinalLocation");
 	public final static IRI CO_SIMULATOR = FACTORY.createIRI("http://www.dfki.de/mosim-ns#CoSimulator");
 	public final static IRI INSTRUCTION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#Instruction");
@@ -40,6 +41,7 @@ public class MOSIMVocabulary {
 	public final static IRI HAS_ID = FACTORY.createIRI("http://www.dfki.de/mosim-ns#id");
 	public final static IRI HAS_TRANSFORM = FACTORY.createIRI("http://www.dfki.de/mosim-ns#transform");
 	public final static IRI HAS_COLLIDER = FACTORY.createIRI("http://www.dfki.de/mosim-ns#collider");
+	public final static IRI HAS_PATH_COUNT = FACTORY.createIRI("http://www.dfki.de/mosim-ns#pathCount");
 	public final static IRI HAS_POS_X = FACTORY.createIRI("http://www.dfki.de/mosim-ns#posX");
 	public final static IRI HAS_POS_Y = FACTORY.createIRI("http://www.dfki.de/mosim-ns#posY");
 	public final static IRI HAS_POS_Z = FACTORY.createIRI("http://www.dfki.de/mosim-ns#posZ");
