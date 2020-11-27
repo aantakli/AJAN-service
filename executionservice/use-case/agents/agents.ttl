@@ -120,7 +120,7 @@
 :ExamplePositionBehavior
 	a ajan:Behavior, mosim:Breakdown ;
 	rdfs:label "ExamplePositionBehavior" ;
-	dct:requires "{ Task: 'Position', MMUs: {'idle','reach','carry','walk','move','release'}}" ;
+	dct:requires "{ Task: '', MMUs: {'idle','reach','carry','walk','move','release'}}" ;
 	ajan:trigger :ExecuteEvent ;
 	ajan:bt behaviors:ExamplePositionBehavior .
 
@@ -133,7 +133,7 @@
 :PositionBehavior
 	a ajan:Behavior, mosim:Breakdown ;
 	rdfs:label "Position Behavior" ;
-	dct:requires "MMUs: {'idle','reach','carry','walk','move','release'}" ;
+	dct:requires "{ Task: 'Position', MMUs: {'idle','reach','carry','walk','move','release'}}" ;
 	ajan:trigger :PositionGoal ;
 	ajan:bt behaviors:PositionBehavior .
 
