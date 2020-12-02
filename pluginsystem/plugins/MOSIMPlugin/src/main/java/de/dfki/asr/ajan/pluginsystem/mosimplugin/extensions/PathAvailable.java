@@ -214,13 +214,13 @@ public class PathAvailable extends AbstractTDBLeafTask implements NodeExtension 
 	
 	private Model getInputModel(final Resource subject, final MPathConstraint path) {
 		Model model = new LinkedHashModel();
-		double length = 0;
+		double length = 999;
 		for (int i = 1; i < path.getPolygonPointsSize(); i++) {
 			MInterval3 first = path.getPolygonPoints().get(i-1).TranslationConstraint.Limits;
 			MInterval3 next = path.getPolygonPoints().get(i).TranslationConstraint.Limits;
 			length += Math.sqrt(Math.pow(first.X.Max - next.X.Max, 2) + Math.pow(first.Z.Max - next.Z.Max, 2));
 		}
-		model.add(subject, MOSIMVocabulary.HAS_PATH_COUNT, vf.createLiteral(length));
+		model.add(subject, MOSIMVocabulary.HAS_PATH_LENGTH, vf.createLiteral(length));
 		return model;
 	}
 

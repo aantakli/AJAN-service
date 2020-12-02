@@ -41,7 +41,7 @@ public class MOSIMVocabulary {
 	public final static IRI HAS_ID = FACTORY.createIRI("http://www.dfki.de/mosim-ns#id");
 	public final static IRI HAS_TRANSFORM = FACTORY.createIRI("http://www.dfki.de/mosim-ns#transform");
 	public final static IRI HAS_COLLIDER = FACTORY.createIRI("http://www.dfki.de/mosim-ns#collider");
-	public final static IRI HAS_PATH_COUNT = FACTORY.createIRI("http://www.dfki.de/mosim-ns#pathCount");
+	public final static IRI HAS_PATH_LENGTH = FACTORY.createIRI("http://www.dfki.de/mosim-ns#pathLength");
 	public final static IRI HAS_POS_X = FACTORY.createIRI("http://www.dfki.de/mosim-ns#posX");
 	public final static IRI HAS_POS_Y = FACTORY.createIRI("http://www.dfki.de/mosim-ns#posY");
 	public final static IRI HAS_POS_Z = FACTORY.createIRI("http://www.dfki.de/mosim-ns#posZ");
