@@ -29,8 +29,10 @@ import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
+import de.mosim.mmi.constraints.MInterval3;
 import de.mosim.mmi.constraints.MPathConstraint;
 import de.mosim.mmi.math.MVector;
+import de.mosim.mmi.math.MVector3;
 import de.mosim.mmi.scene.MSceneObject;
 import de.mosim.mmi.services.MPathPlanningService;
 import de.mosim.mmi.services.MSceneAccess;
@@ -148,7 +150,7 @@ public class PathAvailable extends AbstractTDBLeafTask implements NodeExtension 
 				MPathPlanningService.Client client = new MPathPlanningService.Client(protocol);
 				Input targetInp = getInput(target);
 				MPathConstraint path = client.ComputePath(getInput(avatar).vector, targetInp.vector, getMSceneObjects(), getProperties());
-				Model inputModel = getInputModel(targetInp.iri, path.PolygonPoints.size());
+				Model inputModel = getInputModel(targetInp.iri, path);
 				MOSIMUtil.writeInput(inputModel, repository.toString(), this.getObject());
 				return !path.getPolygonPoints().isEmpty();
 			}
@@ -210,9 +212,15 @@ public class PathAvailable extends AbstractTDBLeafTask implements NodeExtension 
 		return properties;
 	}
 	
-	private Model getInputModel(final Resource subject, final int size) {
+	private Model getInputModel(final Resource subject, final MPathConstraint path) {
 		Model model = new LinkedHashModel();
-		model.add(subject, MOSIMVocabulary.HAS_PATH_COUNT, vf.createLiteral(size));
+		double length = 0;
+		for (int i = 1; i < path.getPolygonPointsSize(); i++) {
+			MInterval3 first = path.getPolygonPoints().get(i-1).TranslationConstraint.Limits;
+			MInterval3 next = path.getPolygonPoints().get(i).TranslationConstraint.Limits;
+			length += Math.sqrt(Math.pow(first.X.Max - next.X.Max, 2) + Math.pow(first.Z.Max - next.Z.Max, 2));
+		}
+		model.add(subject, MOSIMVocabulary.HAS_PATH_COUNT, vf.createLiteral(length));
 		return model;
 	}
 
