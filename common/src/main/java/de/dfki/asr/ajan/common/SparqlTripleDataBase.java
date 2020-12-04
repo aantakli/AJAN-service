@@ -25,6 +25,7 @@ import java.net.URL;
 import lombok.Data;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.eclipse.rdf4j.repository.util.Repositories;
@@ -60,6 +61,14 @@ public class SparqlTripleDataBase implements TripleDataBase {
 				LOG.debug("No known RDFFormat is used!", ex);
 			}
 		});
+	}
+
+	@Override
+	public void clear() {
+		Repository repo = getInitializedRepository();
+		try (RepositoryConnection conn = repo.getConnection()) {
+			conn.clear();
+		}
 	}
 
 	@Override

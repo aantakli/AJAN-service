@@ -150,6 +150,7 @@ public class InitialDataProvider {
     private void pushFileToStore(final String inputFile, final TripleDataBase tripleDataBase) {
         String extension = FilenameUtils.getExtension(inputFile).toLowerCase();
         try (InputStream input = new FileInputStream(inputFile)) {
+            tripleDataBase.clear();
             switch (extension) {
                 case "ttl":
                     tripleDataBase.add(input, RDFFormat.TURTLE);

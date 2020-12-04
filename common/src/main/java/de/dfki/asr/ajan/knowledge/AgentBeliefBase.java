@@ -51,6 +51,11 @@ public class AgentBeliefBase extends AbstractBeliefBase implements TripleDataBas
 	}
 
 	@Override
+	public void clear() {
+		beliefTripleDataBase.clear();
+	}
+
+	@Override
 	public Repository getInitializedRepository() {
 		return beliefTripleDataBase.getInitializedRepository();
 	}

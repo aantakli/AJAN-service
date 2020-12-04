@@ -39,4 +39,6 @@ public interface TripleDataBase {
 	URL getSparqlUpdateEndpoint();
 
 	String getId();
+
+	void clear();
 }
