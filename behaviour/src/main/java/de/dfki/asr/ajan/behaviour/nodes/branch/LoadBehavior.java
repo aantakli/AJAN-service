@@ -25,14 +25,13 @@ import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.exception.LoadBehaviorException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
-import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
-import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.TreeNode;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.rdfbeans.BehaviorBeanManager;
 import java.net.URISyntaxException;
-import java.util.Optional;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.RDFBeanManager;
@@ -41,10 +40,10 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.eclipse.rdf4j.RDF4JException;
-import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.util.Models;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.slf4j.LoggerFactory;
@@ -68,7 +67,7 @@ public class LoadBehavior extends AbstractTDBBranchTask {
 
 	@RDF("bt:behaviorUri")
 	@Setter @Getter
-	private BehaviorConstructQuery behaviorURI;
+	private BehaviorSelectQuery behaviorURI;
 
 	@Override
 	public Resource getType() {
@@ -115,7 +114,7 @@ public class LoadBehavior extends AbstractTDBBranchTask {
 					LOG.info(toString() + " SUCCEEDED");
 					LOG.info("Status (SUCCEEDED)");
 					success();
-					return false;
+					return true;
 				}
 			} catch (LoadBehaviorException | URISyntaxException ex) {
 				LOG.error(toString() + " FAILED due to evaluation error", ex);
@@ -141,15 +140,16 @@ public class LoadBehavior extends AbstractTDBBranchTask {
 	}
 
 	private Resource getBehaviorResource(final Repository repo) throws URISyntaxException, LoadBehaviorException {
-		Model result = behaviorURI.getResult(repo);
-		if (result.contains(null, AJANVocabulary.BEHAVIOR_HAS_BT, null)) {
-			Optional<IRI> rsc = Models.objectIRI(result.filter(null, AJANVocabulary.BEHAVIOR_HAS_BT, null));
-			if (!rsc.isPresent()) {
-				throw new LoadBehaviorException("BehaviorURI not defined as Resource");
-			}
-			return rsc.get();
+		List<BindingSet> result = behaviorURI.getResult(repo);
+		if (result.isEmpty()) {
+			throw new LoadBehaviorException("No ?behaviorURI defined");
+		}
+		BindingSet bindings = result.get(0);
+		Value strValue = bindings.getValue("behaviorURI");
+		if (strValue == null) {
+			throw new LoadBehaviorException("No ?behaviorURI defined");
 		} else {
-			throw new LoadBehaviorException("No URI for BehaviorTree defined, missing IRI: " + AJANVocabulary.BEHAVIOR_HAS_BT);
+			return vf.createIRI(strValue.stringValue());
 		}
 	}
 

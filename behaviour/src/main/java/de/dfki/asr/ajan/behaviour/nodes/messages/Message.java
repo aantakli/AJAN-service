@@ -28,6 +28,7 @@ import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
 import de.dfki.asr.ajan.behaviour.service.impl.SelectQueryTemplate;
 import de.dfki.asr.ajan.behaviour.nodes.action.common.ACTNUtil;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpHeader;
 import de.dfki.asr.ajan.common.AgentUtil;
 import java.io.IOException;
@@ -35,18 +36,15 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.util.Models;
-import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +62,7 @@ public class Message extends AbstractTDBLeafTask {
 
 	@RDF("bt:queryUri")
 	@Setter @Getter
-	private BehaviorConstructQuery queryURI;
+	private BehaviorSelectQuery queryURI;
 
 	@RDF("bt:binding")
 	@Setter @Getter
@@ -138,15 +136,16 @@ public class Message extends AbstractTDBLeafTask {
 	@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
 	protected void setRequestUri() throws URISyntaxException, MessageEvaluationException {
 		Repository repo = BTUtil.getInitializedRepository(getObject(), queryURI.getOriginBase());
-		Model result = queryURI.getResult(repo);
-		if (result.contains(null, AJANVocabulary.HTTP_REQUEST_URI, null)) {
-			Model uris = result.filter(null, AJANVocabulary.HTTP_REQUEST_URI, null);
-			requestURI = readLiteralUri(Models.objectLiteral(uris));
-			if (requestURI.isEmpty()) {
-				requestURI = readResourceUri(Models.objectIRI(uris));
-			}
+		List<BindingSet> result = queryURI.getResult(repo);
+		if (result.isEmpty()) {
+			throw new MessageEvaluationException("No ?requestURI defined in Message description");
+		}
+		BindingSet bindings = result.get(0);
+		Value strValue = bindings.getValue("requestURI");
+		if (strValue == null) {
+			throw new MessageEvaluationException("No ?requestURI defined in Message description");
 		} else {
-			throw new MessageEvaluationException("No RequestURI defined in Message description");
+			requestURI = strValue.stringValue();
 		}
 	}
 
@@ -161,23 +160,6 @@ public class Message extends AbstractTDBLeafTask {
 		List<HttpHeader> headers = binding.getHeaders();
 		String mimeType = ACTNUtil.getMimeTypeFromHeaders(headers);
 		return ACTNUtil.getModelPayload(query.getResult(repo), mimeType);
-	}
-
-	private String readLiteralUri(final Optional<Literal> lit) throws MessageEvaluationException {
-		if (!lit.isPresent()) {
-			return "";
-		}
-		if (!lit.get().getDatatype().equals(XMLSchema.ANYURI)) {
-			throw new MessageEvaluationException("RequestURI not defined as xsd:anyURI");
-		}
-		return lit.get().stringValue();
-	}
-
-	private String readResourceUri(final Optional<IRI> res) throws MessageEvaluationException {
-		if (!res.isPresent()) {
-			throw new MessageEvaluationException("No RequestUri specified");
-		}
-		return res.get().toString();
 	}
 
 	@Override

@@ -102,7 +102,7 @@ public class HttpConnection implements IConnection {
 		return sendRequest();
 	}
 
-	private Object sendRequest() throws IOException {
+	private Object sendRequest() throws HttpResponseException, IOException {
 		try (CloseableHttpClient httpClient = HttpClientBuilder.create()
 				.setDefaultRequestConfig(requestConfig)
 				.setRetryHandler(new DefaultHttpRequestRetryHandler(2, false)).build();
