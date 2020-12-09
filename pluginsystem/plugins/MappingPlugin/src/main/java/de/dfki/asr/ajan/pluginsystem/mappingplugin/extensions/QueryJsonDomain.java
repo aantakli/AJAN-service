@@ -26,7 +26,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.messages.QueryDomain;
 import de.dfki.asr.ajan.behaviour.nodes.messages.SyncMessage;
-import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpBinding;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpHeader;
 import de.dfki.asr.ajan.common.AJANVocabulary;
@@ -71,7 +71,7 @@ public class QueryJsonDomain extends SyncMessage implements NodeExtension {
 
 	@RDF("bt:queryUri")
 	@Getter @Setter
-	private BehaviorConstructQuery queryURI;
+	private BehaviorSelectQuery queryURI;
 	private Model domainResponse;
 
 	@Override
