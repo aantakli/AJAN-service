@@ -127,6 +127,7 @@ public class InitialDataProvider {
         tripleStoreMap.entrySet().forEach((entry) -> {
             String folderPath = (String) entry.getKey();
             TripleDataBase repo = entry.getValue();
+            repo.clear();
             ArrayList<String> result = (ArrayList<String>) getAllFilesFromFolder(folderPath);
             result.forEach((filePath) -> {
                 pushFileToStore(filePath, repo);
@@ -150,7 +151,6 @@ public class InitialDataProvider {
     private void pushFileToStore(final String inputFile, final TripleDataBase tripleDataBase) {
         String extension = FilenameUtils.getExtension(inputFile).toLowerCase();
         try (InputStream input = new FileInputStream(inputFile)) {
-            tripleDataBase.clear();
             switch (extension) {
                 case "ttl":
                     tripleDataBase.add(input, RDFFormat.TURTLE);
