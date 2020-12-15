@@ -150,12 +150,14 @@ public class Message extends AbstractTDBLeafTask {
 	}
 
 	protected String getInput(final HttpBinding binding) throws URISyntaxException, UnsupportedEncodingException {
-		BehaviorConstructQuery query = binding.getPayload().getBtQuery();
 		SelectQueryTemplate tmpl = binding.getPayload().getTemplate();
 		if (tmpl != null) {
-			Repository repo = BTUtil.getInitializedRepository(getObject(), tmpl.getOriginBase());
-			return ACTNUtil.getTemplatePayload(query.getResult(repo), tmpl);
+			Repository repo = BTUtil.getInitializedRepository(getObject(), tmpl.getBtQuery().getOriginBase());
+			BehaviorConstructQuery queryAll = new BehaviorConstructQuery();
+			queryAll.setSparql("CONSTRUCT {?s ?p ?o} WHERE {?s ?p ?o}");
+			return ACTNUtil.getTemplatePayload(queryAll.getResult(repo), tmpl);
 		}
+		BehaviorConstructQuery query = binding.getPayload().getBtQuery();
 		Repository repo = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
 		List<HttpHeader> headers = binding.getHeaders();
 		String mimeType = ACTNUtil.getMimeTypeFromHeaders(headers);

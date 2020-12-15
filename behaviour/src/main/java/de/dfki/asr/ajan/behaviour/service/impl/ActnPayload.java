@@ -37,6 +37,6 @@ public class ActnPayload {
 	@RDF("bt:query")
 	private BehaviorConstructQuery btQuery;
 
-	@RDF("actn:template")
+	@RDF("bt:template")
 	private SelectQueryTemplate template;
 }

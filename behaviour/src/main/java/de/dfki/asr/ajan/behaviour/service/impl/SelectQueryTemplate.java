@@ -19,8 +19,9 @@
 
 package de.dfki.asr.ajan.behaviour.service.impl;
 
-import java.net.URI;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import java.util.Iterator;
+import java.util.List;
 import lombok.Data;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
@@ -29,43 +30,32 @@ import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.Binding;
 import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.TupleQuery;
-import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 
-@RDFBean("actn:SelectQueryTemplate")
+@RDFBean("bt:SelectQueryTemplate")
 @Data
 public class SelectQueryTemplate {
 	@RDFSubject
 	private String id;
 
-	@RDF("bt:originBase")
-	private URI originBase;
+	@RDF("bt:query")
+	private BehaviorSelectQuery btQuery;
 
-	@RDF("actn:sparql")
-	private String sparql;
-
-	@RDF("actn:stringTemplate")
+	@RDF("bt:stringTemplate")
 	private String template;
 
 	private final ValueFactory vf = SimpleValueFactory.getInstance();
 
 	public String getResult(final Repository repo) {
-		try (RepositoryConnection conn = repo.getConnection()) {
-			TupleQuery query = conn.prepareTupleQuery(sparql);
-			return getTemplateResult(query.evaluate());
-		}
-	}
-
-	private String getTemplateResult(final TupleQueryResult result) {
+		List<BindingSet> result = btQuery.getResult(repo);
 		String tmpString = "";
-		if (result.hasNext()) {
-			BindingSet set = result.next();
+		Iterator<BindingSet> setItr = result.iterator();
+		while (setItr.hasNext()) {
+			BindingSet set = setItr.next();
 			Iterator<Binding> itr = set.iterator();
 			while (itr.hasNext()) {
 				Binding bdg = itr.next();
-				tmpString = template.replace("{" + bdg.getName() + "}", bdg.getValue().stringValue());
+				tmpString = template.replace("$" + bdg.getName() + "$", bdg.getValue().stringValue());
 			}
 		}
 		return tmpString;
