@@ -86,11 +86,11 @@ public class QueryDomain extends SyncMessage {
 		if (response instanceof Model) {
 			domainResponse = (Model) response;
 			if (domainResponse.isEmpty()) {
-				return false;
+				return true;
 			}
 			return updateBeliefs(modifyResponse(domainResponse), targetBase);
 		}
-		return false;
+		return true;
 	}
 
 	@Override

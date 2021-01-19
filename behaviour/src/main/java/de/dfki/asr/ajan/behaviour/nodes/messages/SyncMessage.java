@@ -70,11 +70,11 @@ public class SyncMessage extends Message {
 		if (response instanceof Model) {
 			Model model = (Model) response;
 			if (model.isEmpty()) {
-				return false;
+				return true;
 			}
 			return updateBeliefs(modifyResponse(model), validate.getTargetBase());
 		}
-		return false;
+		return true;
 	}
 
 	protected Model modifyResponse(final Model response) {

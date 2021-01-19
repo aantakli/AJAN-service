@@ -109,11 +109,11 @@ public class Message extends AbstractTDBLeafTask {
 		if (response instanceof Model) {
 			Model model = (Model) response;
 			if (model.isEmpty()) {
-				return false;
+				return true;
 			}
 			return updateBeliefs(AgentUtil.setNamedGraph(model, new URI(requestURI)), targetBase);
 		}
-		return false;
+		return true;
 	}
 
 	protected boolean updateBeliefs(final Model model, final URI targetBase) {
