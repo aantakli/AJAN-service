@@ -80,11 +80,12 @@ public class UnregisterListener extends AbstractTDBLeafTask implements NodeExten
 
 	@RDF("bt-mosim:callback")
 	@Getter @Setter
-	private int callback;
+	private BehaviorSelectQuery callback;
 
 	@RDF("bt:targetBase")
 	@Getter @Setter
 	private URI repository;
+	private int clPort;
 
 	protected static final Logger LOG = LoggerFactory.getLogger(UnregisterListener.class);
 
@@ -124,10 +125,11 @@ public class UnregisterListener extends AbstractTDBLeafTask implements NodeExten
 		return new LeafStatus(Status.FAILED, report);
 	}
 
-	private boolean unregisterEventCallback() throws TTransportException, TException {
+	private boolean unregisterEventCallback() throws TTransportException, TException, URISyntaxException {
 		MIPAddress address = new MIPAddress();
 		address.setAddress(THRIFT_HOST);
-		address.setPort(callback);
+		clPort = MOSIMUtil.getPortInfos(callback, this.getObject());
+		address.setPort(clPort);
 		TTransport transport;
         transport = new TSocket(host, port);
         transport.open();
@@ -145,7 +147,7 @@ public class UnregisterListener extends AbstractTDBLeafTask implements NodeExten
 		model.add(subj, MOSIMVocabulary.HAS_HOST, vf.createLiteral(host));
 		model.add(subj, MOSIMVocabulary.HAS_PORT, vf.createLiteral(port));
 		model.add(subj, MOSIMVocabulary.HAS_EVENT_TYPE, vf.createLiteral(event));
-		model.add(subj, MOSIMVocabulary.HAS_CALLBACK, vf.createLiteral(callback));
+		model.add(subj, MOSIMVocabulary.HAS_CALLBACK, vf.createLiteral(clPort));
 		return model;
 	}
 

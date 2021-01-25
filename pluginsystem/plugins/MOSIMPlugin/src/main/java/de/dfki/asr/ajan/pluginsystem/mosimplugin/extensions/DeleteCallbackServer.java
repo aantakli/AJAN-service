@@ -24,9 +24,12 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.endpoint.ThriftPluginServer;
-import static de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.AbortInstruction.LOG;
+import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -53,7 +56,8 @@ public class DeleteCallbackServer extends AbstractTDBLeafTask implements NodeExt
 
 	@RDF("bt-mosim:callback")
 	@Getter @Setter
-	private int callback;
+	private BehaviorSelectQuery callback;
+	private int clPort;
 
 	protected static final Logger LOG = LoggerFactory.getLogger(DeleteCallbackServer.class);
 
@@ -64,14 +68,21 @@ public class DeleteCallbackServer extends AbstractTDBLeafTask implements NodeExt
 
 	@Override
 	public LeafStatus executeLeaf() {
-		deleteCoSimCallbackServer();
+		try {
+			deleteCoSimCallbackServer();
+		} catch (URISyntaxException ex) {
+			String report = toString() + " FAILED";
+			LOG.info(report);
+			return new LeafStatus(Status.FAILED, report);
+		}
 		String report = toString() + " SUCCEEDED";
 		LOG.info(report);
 		return new LeafStatus(Status.SUCCEEDED, report);
 	}
 
-	public void deleteCoSimCallbackServer() {
-		ThriftPluginServer.stop(callback);
+	public void deleteCoSimCallbackServer() throws URISyntaxException {
+		clPort = MOSIMUtil.getPortInfos(callback, this.getObject());
+		ThriftPluginServer.stop(clPort);
 	}
 
 	@Override

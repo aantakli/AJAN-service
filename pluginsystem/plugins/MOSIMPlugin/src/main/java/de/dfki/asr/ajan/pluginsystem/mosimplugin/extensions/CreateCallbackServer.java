@@ -24,6 +24,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.endpoint.MCoSimulationEventCallbackHandler;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.endpoint.ThriftPluginServer;
@@ -31,7 +32,9 @@ import static de.dfki.asr.ajan.pluginsystem.mosimplugin.endpoint.ThriftPluginSer
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.exceptions.PortExistingException;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.exceptions.SetupCallbackServerException;
 import static de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.AbortInstruction.LOG;
+import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.mosim.mmi.cosim.MCoSimulationEventCallback;
+import java.net.URISyntaxException;
 import java.util.logging.Level;
 import lombok.Getter;
 import lombok.Setter;
@@ -66,7 +69,8 @@ public class CreateCallbackServer extends AbstractTDBLeafTask implements NodeExt
 
 	@RDF("bt-mosim:callback")
 	@Getter @Setter
-	private int callback;
+	private BehaviorSelectQuery callback;
+	private int clPort;
 
 	private TServer coSimServer;
 	private static MCoSimulationEventCallbackHandler coSimHandler;
@@ -93,7 +97,7 @@ public class CreateCallbackServer extends AbstractTDBLeafTask implements NodeExt
 		Runnable simpleMCoSim = () -> {
 			try {
 				start(coSimProcessor);
-			} catch (TException | PortExistingException | SetupCallbackServerException ex) {
+			} catch (TException | PortExistingException | SetupCallbackServerException | URISyntaxException ex) {
 				try {
 					throw new SetupCallbackServerException("Problems in starting the CoSimCallback server.");
 				} catch (SetupCallbackServerException ex1) {
@@ -104,13 +108,14 @@ public class CreateCallbackServer extends AbstractTDBLeafTask implements NodeExt
 		new Thread(simpleMCoSim).start();
 	}
 
-	private void start(MCoSimulationEventCallback.Processor coSimProcessor) throws TException, PortExistingException, SetupCallbackServerException {
+	private void start(MCoSimulationEventCallback.Processor coSimProcessor) throws TException, PortExistingException, SetupCallbackServerException, URISyntaxException {
+		clPort = MOSIMUtil.getPortInfos(callback, this.getObject());
 		try {
-			TServerTransport serverTransport = new TServerSocket(callback);
+			TServerTransport serverTransport = new TServerSocket(clPort);
 			coSimServer = new TSimpleServer(new TServer.Args(serverTransport)
 					.processor(coSimProcessor)
 					.protocolFactory(new TCompactProtocol.Factory()));
-			if (!ThriftPluginServer.add(callback, coSimServer)) {
+			if (!ThriftPluginServer.add(clPort, coSimServer)) {
 				throw new PortExistingException("Port: " + callback + " is already reserved!");
 			}
 			LOG.info("Starting the CoSimCallback server...");

@@ -347,6 +347,16 @@ public final class MOSIMUtil {
 		}
 		return host;
 	}
+	
+	public static int getPortInfos(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
+		Repository repo = BTUtil.getInitializedRepository(info, query.getOriginBase());
+		List<BindingSet> result = query.getResult(repo);
+		if (!result.isEmpty()) {
+			BindingSet bindings = result.get(0);
+			return Integer.parseInt(bindings.getValue("port").stringValue());
+		}
+		return 0;
+	}
 
 	public static MSceneObject getMSceneObject(final String id, final Repository repo) {
 		try (RepositoryConnection conn = repo.getConnection()) {
