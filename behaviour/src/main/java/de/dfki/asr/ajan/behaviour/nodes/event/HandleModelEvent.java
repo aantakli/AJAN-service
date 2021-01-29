@@ -19,30 +19,30 @@
 
 package de.dfki.asr.ajan.behaviour.nodes.event;
 
+import de.dfki.asr.ajan.behaviour.events.ModelEventInformation;
 import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
-import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
-import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
-import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.*;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
 import de.dfki.asr.ajan.common.AgentUtil;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,14 +58,11 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 	@Getter @Setter
 	private String label;
 
-	@RDF("bt:eventContext")
-	@Getter @Setter
-	private URI context;
-
 	@RDF("bt:validate")
 	@Getter @Setter
 	private BehaviorConstructQuery query;
 	protected BehaviorConstructQuery constructQuery;
+	private IRI context;
 	protected static final Logger LOG = LoggerFactory.getLogger(HandleModelEvent.class);
 
 	@Override
@@ -119,8 +116,18 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 	protected Model getEventModel() {
 		Model model = new LinkedHashModel();
 		Object info = this.getObject().getEventInformation();
-		if (info instanceof Model) {
-			model = constructQuery.getResult((Model)this.getObject().getEventInformation());
+		if (info instanceof ModelEventInformation) {
+			if (constructQuery == null || constructQuery.getSparql().isEmpty()) {
+				model = ((ModelEventInformation) info).getModel();
+			} else {
+				model = constructQuery.getResult(((ModelEventInformation) info).getModel());
+				if (model.contains(null, BTVocabulary.HAS_EVENT_CONTEXT, null)) {
+					Optional<IRI> contextIRI = Models.objectIRI(model.filter(null, BTVocabulary.HAS_EVENT_CONTEXT, null));
+					if (contextIRI.isPresent()) {
+						context = contextIRI.get();
+					}
+				}
+			}
 		}
 		return model;
 	}
