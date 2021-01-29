@@ -126,6 +126,7 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 					if (contextIRI.isPresent()) {
 						context = contextIRI.get();
 					}
+					model.remove(null, BTVocabulary.HAS_EVENT_CONTEXT, null);
 				}
 			}
 		}

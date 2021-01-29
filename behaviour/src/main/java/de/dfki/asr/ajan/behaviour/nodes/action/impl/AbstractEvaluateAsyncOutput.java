@@ -21,6 +21,7 @@ package de.dfki.asr.ajan.behaviour.nodes.action.impl;
 
 import com.badlogic.gdx.ai.btree.Task;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
+import de.dfki.asr.ajan.behaviour.events.ModelEventInformation;
 import de.dfki.asr.ajan.behaviour.nodes.Action;
 import de.dfki.asr.ajan.behaviour.nodes.action.AbstractChainStep;
 import de.dfki.asr.ajan.behaviour.nodes.action.TaskStep;
@@ -84,8 +85,9 @@ public abstract class AbstractEvaluateAsyncOutput extends AbstractChainStep {
 
 	private Model readEventOutcome(final AgentTaskInformation info, final String id) throws URISyntaxException {
 		Model model = new LinkedHashModel();
-		if (info.getActionInformation().get(id) instanceof Model) {
-			model = (Model)info.getActionInformation().get(id);
+		if (info.getActionInformation().get(id) instanceof ModelEventInformation) {
+			ModelEventInformation output = (ModelEventInformation)info.getActionInformation().get(id);
+			model = output.getModel();
 		}
 		return model;
 	}
