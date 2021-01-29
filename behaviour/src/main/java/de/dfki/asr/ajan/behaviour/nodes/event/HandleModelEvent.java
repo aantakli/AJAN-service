@@ -58,6 +58,14 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 	@Getter @Setter
 	private String label;
 
+	@RDF("ajan:event")
+	@Getter @Setter
+	private URI event;
+
+	@RDF("ajan:goal")
+	@Getter @Setter
+	private URI goal;
+
 	@RDF("bt:validate")
 	@Getter @Setter
 	private BehaviorConstructQuery query;
@@ -96,38 +104,53 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 	}
 
 	protected boolean handleEvent() throws ConditionEvaluationException {
-		boolean result = false;
-		try {
-			Model model = getEventModel();
-			if (!model.isEmpty()) {
-				if (constructQuery.getTargetBase().equals(new URI(AJANVocabulary.EXECUTION_KNOWLEDGE.toString()))) {
-					this.getObject().getExecutionBeliefs().update(addNamedGraph(model));
-				} else if (constructQuery.getTargetBase().equals(new URI(AJANVocabulary.AGENT_KNOWLEDGE.toString()))) {
-					this.getObject().getAgentBeliefs().update(addNamedGraph(model));
+		if (checkEventGoalMatching()) {
+			try {
+				Model model = getEventModel();
+				if (!model.isEmpty()) {
+					if (constructQuery.getTargetBase().equals(new URI(AJANVocabulary.EXECUTION_KNOWLEDGE.toString()))) {
+						this.getObject().getExecutionBeliefs().update(addNamedGraph(model));
+					} else if (constructQuery.getTargetBase().equals(new URI(AJANVocabulary.AGENT_KNOWLEDGE.toString()))) {
+						this.getObject().getAgentBeliefs().update(addNamedGraph(model));
+					}
+					return true;
 				}
-				result = true;
+			} catch (QueryEvaluationException | URISyntaxException ex) {
+				throw new ConditionEvaluationException(ex);
 			}
-		} catch (QueryEvaluationException | URISyntaxException ex) {
-			throw new ConditionEvaluationException(ex);
 		}
-		return result;
+		return false;
+	}
+
+	protected boolean checkEventGoalMatching() {
+		if (this.getObject().getEventInformation() instanceof ModelEventInformation) {
+			ModelEventInformation info = (ModelEventInformation)this.getObject().getEventInformation();
+			boolean bothNull = event == null && goal == null;
+			boolean eventMatching = event != null && event.toString().equals(((ModelEventInformation) info).getEvent());
+			boolean goalMatching = goal != null && goal.toString().equals(((ModelEventInformation) info).getEvent());
+			return bothNull || eventMatching || goalMatching;
+		}
+		return false;
 	}
 
 	protected Model getEventModel() {
-		Model model = new LinkedHashModel();
 		Object info = this.getObject().getEventInformation();
+		Model model = new LinkedHashModel();
 		if (info instanceof ModelEventInformation) {
+			ModelEventInformation eventInfo = (ModelEventInformation) info;
+			model = eventInfo.getModel();
 			if (constructQuery == null || constructQuery.getSparql().isEmpty()) {
-				model = ((ModelEventInformation) info).getModel();
+				return model;
 			} else {
-				model = constructQuery.getResult(((ModelEventInformation) info).getModel());
-				if (model.contains(null, BTVocabulary.HAS_EVENT_CONTEXT, null)) {
-					Optional<IRI> contextIRI = Models.objectIRI(model.filter(null, BTVocabulary.HAS_EVENT_CONTEXT, null));
+				Model result = constructQuery.getResult(model);
+				if (result.contains(null, BTVocabulary.HAS_EVENT_CONTEXT, null)) {
+					Optional<IRI> contextIRI = Models.objectIRI(result.filter(null, BTVocabulary.HAS_EVENT_CONTEXT, null));
 					if (contextIRI.isPresent()) {
 						context = contextIRI.get();
 					}
-					model.remove(null, BTVocabulary.HAS_EVENT_CONTEXT, null);
+					result.remove(null, BTVocabulary.HAS_EVENT_CONTEXT, null);
 				}
+				return result;
 			}
 		}
 		return model;

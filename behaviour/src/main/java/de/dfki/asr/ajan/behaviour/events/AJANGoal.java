@@ -20,7 +20,6 @@
 package de.dfki.asr.ajan.behaviour.events;
 
 import de.dfki.asr.ajan.behaviour.nodes.common.Variable;
-import de.dfki.asr.ajan.common.AgentUtil;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -51,7 +50,10 @@ public class AJANGoal extends ModelCallback {
 	public void setEventInformation(final Producer producer, final Object information) {
 		if (information instanceof GoalInformation) {
 			GoalInformation gInfo = (GoalInformation)information;
-			this.information = AgentUtil.setNamedGraph(gInfo.getModel().iterator(), url);
+			ModelEventInformation info = new ModelEventInformation();
+			info.setEvent(url);
+			info.setModel(gInfo.getModel());
+			this.information = info;
 			notifyListeners(producer);
 		}
 	}

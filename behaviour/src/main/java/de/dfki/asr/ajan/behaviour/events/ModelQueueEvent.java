@@ -19,7 +19,6 @@
 
 package de.dfki.asr.ajan.behaviour.events;
 
-import de.dfki.asr.ajan.common.AgentUtil;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.eclipse.rdf4j.model.Model;
 
@@ -28,8 +27,14 @@ public class ModelQueueEvent extends DefaultQueueEvent {
 
 	@Override
 	public void setEventInformation(final Object information) {
-		Model model = AgentUtil.setNamedGraph(((Model)information).iterator(), getUrl());
-		this.queueInformation.add(model);
+		this.queueInformation.add(getEventInfo(information));
 		notifyListeners();
+	}
+
+	private ModelEventInformation getEventInfo(final Object information) {
+		ModelEventInformation info = new ModelEventInformation();
+		info.setEvent(getUrl());
+		info.setModel(((Model)information));
+		return info;
 	}
 }
