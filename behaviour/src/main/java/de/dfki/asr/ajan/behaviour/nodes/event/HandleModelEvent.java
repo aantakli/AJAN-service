@@ -26,27 +26,19 @@ import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.*;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
-import de.dfki.asr.ajan.common.AgentUtil;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
-import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
 @RDFBean("bt:HandleEvent")
 public class HandleModelEvent extends AbstractTDBLeafTask {
@@ -69,8 +61,8 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 	@RDF("bt:validate")
 	@Getter @Setter
 	private BehaviorConstructQuery query;
+
 	protected BehaviorConstructQuery constructQuery;
-	private IRI context;
 	protected static final Logger LOG = LoggerFactory.getLogger(HandleModelEvent.class);
 
 	@Override
@@ -109,9 +101,9 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 				Model model = getEventModel();
 				if (!model.isEmpty()) {
 					if (constructQuery.getTargetBase().equals(new URI(AJANVocabulary.EXECUTION_KNOWLEDGE.toString()))) {
-						this.getObject().getExecutionBeliefs().update(addNamedGraph(model));
+						this.getObject().getExecutionBeliefs().update(model);
 					} else if (constructQuery.getTargetBase().equals(new URI(AJANVocabulary.AGENT_KNOWLEDGE.toString()))) {
-						this.getObject().getAgentBeliefs().update(addNamedGraph(model));
+						this.getObject().getAgentBeliefs().update(model);
 					}
 					return true;
 				}
@@ -142,35 +134,10 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 			if (constructQuery == null || constructQuery.getSparql().isEmpty()) {
 				return model;
 			} else {
-				Model result = constructQuery.getResult(model);
-				if (result.contains(null, BTVocabulary.HAS_EVENT_CONTEXT, null)) {
-					Optional<IRI> contextIRI = Models.objectIRI(result.filter(null, BTVocabulary.HAS_EVENT_CONTEXT, null));
-					if (contextIRI.isPresent()) {
-						context = contextIRI.get();
-					}
-					result.remove(null, BTVocabulary.HAS_EVENT_CONTEXT, null);
-				}
-				return result;
+				return constructQuery.getResult(model);
 			}
 		}
 		return model;
-	}
-
-	protected Model addNamedGraph(final Model model) {
-		if (context != null) {
-			String ctx = context.toString();
-			String graphName = ctx + "_" + UUID.randomUUID().toString();
-			model.add(vf.createIRI(graphName), org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, vf.createIRI(ctx));
-			model.add(vf.createIRI(graphName), BTVocabulary.HAS_TIMESTAMP, vf.createLiteral(createTimeStamp(), XMLSchema.DATETIME));
-			return AgentUtil.setNamedGraph(model.iterator(), graphName);
-		}
-		return model;
-	}
-
-	protected String createTimeStamp() {
-		LocalDateTime dateTime = LocalDateTime.now();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-		return formatter.format(dateTime);
 	}
 
 	@Override

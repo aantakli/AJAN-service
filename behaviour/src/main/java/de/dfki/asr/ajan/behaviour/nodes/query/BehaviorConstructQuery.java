@@ -21,13 +21,20 @@ package de.dfki.asr.ajan.behaviour.nodes.query;
 
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
+import de.dfki.asr.ajan.common.AgentUtil;
 import de.dfki.asr.ajan.common.SPARQLUtil;
 import java.net.URI;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.Data;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 
@@ -41,13 +48,24 @@ public class BehaviorConstructQuery implements BehaviorQuery {
 	private URI targetBase;
 	private String sparql;
 	private Model result;
+	private IRI context;
 
 	private Boolean reset = false;
+	private final ValueFactory vf = SimpleValueFactory.getInstance();
 
 	@Override
 	public Model getResult(final Repository repo) {
 		reset = false;
-		result = SPARQLUtil.queryRepository(repo, sparql);
+		Model resultModel = SPARQLUtil.queryRepository(repo, sparql);
+		if (resultModel.contains(null, BTVocabulary.HAS_RDF_CONTEXT, null)) {
+			Optional<IRI> contextIRI = Models.objectIRI(resultModel.filter(null, BTVocabulary.HAS_RDF_CONTEXT, null));
+			if (contextIRI.isPresent()) {
+				context = contextIRI.get();
+				resultModel = addNamedGraph(resultModel);
+			}
+			resultModel.remove(null, BTVocabulary.HAS_RDF_CONTEXT, null);
+		}
+		result = resultModel;
 		return result;
 	}
 
@@ -56,6 +74,16 @@ public class BehaviorConstructQuery implements BehaviorQuery {
 		Model resultModel = getResult(repo);
 		repo.shutDown();
 		return resultModel;
+	}
+
+	protected Model addNamedGraph(final Model model) {
+		if (context != null) {
+			String ctx = context.toString();
+			String graphName = ctx + "_" + UUID.randomUUID().toString();
+			model.add(vf.createIRI(graphName), org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, vf.createIRI(ctx));
+			return AgentUtil.setNamedGraph(model.iterator(), graphName);
+		}
+		return model;
 	}
 
 	@Override

@@ -74,7 +74,7 @@ public class BTVocabulary {
 	public final static IRI QUERY_BINDING = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#QueryBinding");
 	public final static IRI GRAPH = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Graph");
 
-	public final static IRI HAS_EVENT_CONTEXT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#eventContext");
+	public final static IRI HAS_RDF_CONTEXT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#rdfContext");
 	public final static IRI HAS_CHILD = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#hasChild");
 	public final static IRI HAS_CHILDREN = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#hasChildren");
 	public final static IRI HAS_CONSTRAINTS = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#constraints");

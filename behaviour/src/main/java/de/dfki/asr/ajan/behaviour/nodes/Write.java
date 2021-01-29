@@ -24,12 +24,10 @@ import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
-import de.dfki.asr.ajan.common.AgentUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
-import java.net.URI;
 import java.net.URISyntaxException;
 import lombok.Getter;
 import lombok.Setter;
@@ -57,9 +55,6 @@ public class Write extends AbstractTDBLeafTask {
 	@Getter @Setter
 	private BehaviorConstructQuery query;
 
-	@RDF("bt:context")
-	@Getter @Setter
-	private URI context;
 	private static final Logger LOG = LoggerFactory.getLogger(Write.class);
 
 	@Override
@@ -94,13 +89,7 @@ public class Write extends AbstractTDBLeafTask {
 
 	private Model getInputModel() throws URISyntaxException {
 		Repository origin = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
-		Model model;
-		if (context == null) {
-			model = query.getResult(origin);
-		} else {
-			model = AgentUtil.setNamedGraph(query.getResult(origin), context);
-		}
-		return model;
+		return query.getResult(origin);
 	}
 
 	@Override
