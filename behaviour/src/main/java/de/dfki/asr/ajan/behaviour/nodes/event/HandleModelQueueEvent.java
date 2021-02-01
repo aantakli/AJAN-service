@@ -21,6 +21,7 @@ package de.dfki.asr.ajan.behaviour.nodes.event;
 
 import de.dfki.asr.ajan.behaviour.events.ModelEventInformation;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
+import de.dfki.asr.ajan.common.AJANVocabulary;
 import java.util.Queue;
 import lombok.Getter;
 import lombok.Setter;
@@ -54,10 +55,9 @@ public class HandleModelQueueEvent extends HandleModelEvent {
 	}
 
 	private boolean checkQueueItem(final String eventUrl) {
-		boolean bothNull = getEvent() == null && getGoal() == null;
 		boolean eventMatching = getEvent() != null && getEvent().toString().equals(eventUrl);
-		boolean goalMatching = getGoal() != null && getGoal().toString().equals(eventUrl);
-		return bothNull || eventMatching || goalMatching;
+		boolean allEvents = getEvent() != null && getEvent().toString().equals(AJANVocabulary.ALL.toString());
+		return getEvent() == null || eventMatching || allEvents;
 	}
 
 	@Override

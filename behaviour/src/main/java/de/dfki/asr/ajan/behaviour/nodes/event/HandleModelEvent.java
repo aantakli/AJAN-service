@@ -117,10 +117,9 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 	protected boolean checkEventGoalMatching() {
 		if (this.getObject().getEventInformation() instanceof ModelEventInformation) {
 			ModelEventInformation info = (ModelEventInformation)this.getObject().getEventInformation();
-			boolean bothNull = event == null && goal == null;
 			boolean eventMatching = event != null && event.toString().equals(((ModelEventInformation) info).getEvent());
-			boolean goalMatching = goal != null && goal.toString().equals(((ModelEventInformation) info).getEvent());
-			return bothNull || eventMatching || goalMatching;
+			boolean allEvents = event != null && event.toString().equals(AJANVocabulary.ALL.toString());
+			return event == null || eventMatching || allEvents;
 		}
 		return false;
 	}

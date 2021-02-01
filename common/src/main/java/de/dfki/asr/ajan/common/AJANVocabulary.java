@@ -38,6 +38,8 @@ public class AJANVocabulary {
 
 	public final static IRI AJAN_PROCESS_ID = FACTORY.createIRI("http://www.ajan.de/ajan-ns#processId");
 
+	public final static IRI ALL = FACTORY.createIRI("http://www.ajan.de/ajan-ns#All");
+	public final static IRI NONE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#None");
 	public final static IRI AGENT_KNOWLEDGE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#AgentKnowledge");
 	public final static IRI EXECUTION_KNOWLEDGE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#ExecutionKnowledge");
 	public final static IRI BEHAVIOR_KNOWLEDGE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#BehaviorKnowledge");
