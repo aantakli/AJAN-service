@@ -54,10 +54,6 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 	@Getter @Setter
 	private URI event;
 
-	@RDF("ajan:goal")
-	@Getter @Setter
-	private URI goal;
-
 	@RDF("bt:validate")
 	@Getter @Setter
 	private BehaviorConstructQuery query;
