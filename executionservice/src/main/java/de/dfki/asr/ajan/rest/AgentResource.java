@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 public class AgentResource {
 	private static final String TEXT = "text/plain";
 	private static final String JSON = "application/json";
+        private static final String TRIG = "application/trig";
 	private static final String TURTLE = "text/turtle";
 	private static final String JSONLD = "application/ld+json";
 	public static final String CONNECTION_PARAMETER = "connectionID";
@@ -81,9 +82,9 @@ public class AgentResource {
 	}
 
 	@POST
-	@Consumes({TURTLE,JSONLD})
+	@Consumes({TURTLE,TRIG,JSONLD})
 	@Produces({TURTLE,JSONLD})
-	@ApiOperation("Receive Turtle or LD+JSON")
+	@ApiOperation("Receive Turtle, TRIG or LD+JSON")
 	public Agent modelPostAgent(@QueryParam("capability") final String capability, final Model model) {
 		return setEvent(capability, model);
 	}

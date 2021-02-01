@@ -13,7 +13,7 @@
 		<module name="OneStatementPerLine"/>
 		<module name="OuterTypeFilename"/>
 		<module name="CyclomaticComplexity">
-			<property name="max" value="7"/>
+			<property name="max" value="15"/>
 		</module>
 		<module name="LeftCurly">
 			<property name="option" value="eol"/>

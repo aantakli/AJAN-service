@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 see AJAN-service/AUTHORS.txt (German Research Center for Artificial Intelligence, DFKI).
+ * Copyright (C) 2021 Andre Antakli (German Research Center for Artificial Intelligence, DFKI).
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,25 +16,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-
 package de.dfki.asr.ajan.behaviour.events;
 
-import org.cyberborean.rdfbeans.annotations.RDFBean;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.eclipse.rdf4j.model.Model;
 
-@RDFBean("ajan:ModelQueueEvent")
-public class ModelQueueEvent extends DefaultQueueEvent {
+/**
+ *
+ * @author Andre Antakli (German Research Center for Artificial Intelligence,
+ * DFKI)
+ */
+@Data
+public class ModelEventInformation {
+	@Getter @Setter
+	private String event;
 
-	@Override
-	public void setEventInformation(final Object information) {
-		this.queueInformation.add(getEventInfo(information));
-		notifyListeners();
-	}
-
-	private ModelEventInformation getEventInfo(final Object information) {
-		ModelEventInformation info = new ModelEventInformation();
-		info.setEvent(getUrl());
-		info.setModel(((Model)information));
-		return info;
-	}
+	@Getter @Setter
+	private Model model;
 }

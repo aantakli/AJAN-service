@@ -19,7 +19,6 @@
 
 package de.dfki.asr.ajan.behaviour.events;
 
-import de.dfki.asr.ajan.common.AgentUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -40,13 +39,20 @@ public class ModelEvent extends DefaultEvent {
 
 	@Override
 	public void setEventInformation(final Object information) {
-		this.information = AgentUtil.setNamedGraph(((Model)information).iterator(), url);
+		this.information = getEventInfo(information);
 		notifyListeners();
 	}
 
 	@Override
 	public void setEventInformation(final String id, final Object information) {
-		this.information = AgentUtil.setNamedGraph(((Model)information).iterator(), url);
+		this.information = getEventInfo(information);
 		notifyListeners(id);
+	}
+
+	private ModelEventInformation getEventInfo(final Object information) {
+		ModelEventInformation info = new ModelEventInformation();
+		info.setEvent(url);
+		info.setModel(((Model)information));
+		return info;
 	}
 }

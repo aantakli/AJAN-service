@@ -19,22 +19,15 @@
 
 package de.dfki.asr.ajan.behaviour.nodes.event;
 
+import de.dfki.asr.ajan.behaviour.events.ModelEventInformation;
 import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
-import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
-import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
-import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.*;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
-import de.dfki.asr.ajan.common.AgentUtil;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -46,7 +39,6 @@ import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
 @RDFBean("bt:HandleEvent")
 public class HandleModelEvent extends AbstractTDBLeafTask {
@@ -58,13 +50,18 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 	@Getter @Setter
 	private String label;
 
-	@RDF("bt:eventContext")
+	@RDF("ajan:event")
 	@Getter @Setter
-	private URI context;
+	private URI event;
+
+	@RDF("ajan:goal")
+	@Getter @Setter
+	private URI goal;
 
 	@RDF("bt:validate")
 	@Getter @Setter
 	private BehaviorConstructQuery query;
+
 	protected BehaviorConstructQuery constructQuery;
 	protected static final Logger LOG = LoggerFactory.getLogger(HandleModelEvent.class);
 
@@ -99,47 +96,47 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 	}
 
 	protected boolean handleEvent() throws ConditionEvaluationException {
-		boolean result = false;
-		try {
-			Model model = getEventModel();
-			if (!model.isEmpty()) {
-				if (constructQuery.getTargetBase().equals(new URI(AJANVocabulary.EXECUTION_KNOWLEDGE.toString()))) {
-					this.getObject().getExecutionBeliefs().update(addNamedGraph(model));
-				} else if (constructQuery.getTargetBase().equals(new URI(AJANVocabulary.AGENT_KNOWLEDGE.toString()))) {
-					this.getObject().getAgentBeliefs().update(addNamedGraph(model));
+		if (checkEventGoalMatching()) {
+			try {
+				Model model = getEventModel();
+				if (!model.isEmpty()) {
+					if (constructQuery.getTargetBase().equals(new URI(AJANVocabulary.EXECUTION_KNOWLEDGE.toString()))) {
+						this.getObject().getExecutionBeliefs().update(model);
+					} else if (constructQuery.getTargetBase().equals(new URI(AJANVocabulary.AGENT_KNOWLEDGE.toString()))) {
+						this.getObject().getAgentBeliefs().update(model);
+					}
+					return true;
 				}
-				result = true;
+			} catch (QueryEvaluationException | URISyntaxException ex) {
+				throw new ConditionEvaluationException(ex);
 			}
-		} catch (QueryEvaluationException | URISyntaxException ex) {
-			throw new ConditionEvaluationException(ex);
 		}
-		return result;
+		return false;
+	}
+
+	protected boolean checkEventGoalMatching() {
+		if (this.getObject().getEventInformation() instanceof ModelEventInformation) {
+			ModelEventInformation info = (ModelEventInformation)this.getObject().getEventInformation();
+			boolean eventMatching = event != null && event.toString().equals(((ModelEventInformation) info).getEvent());
+			boolean allEvents = event != null && event.toString().equals(AJANVocabulary.ALL.toString());
+			return event == null || eventMatching || allEvents;
+		}
+		return false;
 	}
 
 	protected Model getEventModel() {
-		Model model = new LinkedHashModel();
 		Object info = this.getObject().getEventInformation();
-		if (info instanceof Model) {
-			model = constructQuery.getResult((Model)this.getObject().getEventInformation());
+		Model model = new LinkedHashModel();
+		if (info instanceof ModelEventInformation) {
+			ModelEventInformation eventInfo = (ModelEventInformation) info;
+			model = eventInfo.getModel();
+			if (constructQuery == null || constructQuery.getSparql().isEmpty()) {
+				return model;
+			} else {
+				return constructQuery.getResult(model);
+			}
 		}
 		return model;
-	}
-
-	protected Model addNamedGraph(final Model model) {
-		if (context != null) {
-			String ctx = context.toString();
-			String graphName = ctx + "_" + UUID.randomUUID().toString();
-			model.add(vf.createIRI(graphName), org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, vf.createIRI(ctx));
-			model.add(vf.createIRI(graphName), BTVocabulary.HAS_TIMESTAMP, vf.createLiteral(createTimeStamp(), XMLSchema.DATETIME));
-			return AgentUtil.setNamedGraph(model.iterator(), graphName);
-		}
-		return model;
-	}
-
-	protected String createTimeStamp() {
-		LocalDateTime dateTime = LocalDateTime.now();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-		return formatter.format(dateTime);
 	}
 
 	@Override
