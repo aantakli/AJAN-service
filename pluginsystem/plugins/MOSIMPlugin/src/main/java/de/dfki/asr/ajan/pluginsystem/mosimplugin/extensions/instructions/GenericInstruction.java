@@ -38,6 +38,7 @@ import org.apache.thrift.TException;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.Extension;
@@ -46,8 +47,7 @@ import ro.fortsoft.pf4j.Extension;
 @RDFBean("bt-mosim:GenericBinding")
 public class GenericInstruction extends AbstractInstruction {
 
-    private String objects = "";
-    private Map<String,String> objectIDs = new HashMap();
+    private ArrayList<Value> constraints;
 	@Getter @Setter
     private String mmu = "";
 
@@ -72,10 +72,12 @@ public class GenericInstruction extends AbstractInstruction {
 			"WHERE {\n" +
 			"	?instruction mosim:mmu ?mmu .\n" +
 			"	?instruction mosim:objects ?objects .\n" +
-			"	?instruction mosim:mmuProperties ?properties .\n" +
 			"	?instruction mosim:actionName ?actionName .\n" +
+			"	?instruction mosim:mmuProperties ?properties .\n" +
+			"	?instruction mosim:constraint ?constraint .\n" +
 			"	?instruction mosim:startCondition ?startCond .\n" +
 			"	?instruction mosim:endCondition ?endCond .\n" +
+			
 			"	?cosim rdf:type mosim:CoSimulator .\n" +
 			"	?cosim mosim:host ?host .\n" +
 			"	?cosim mosim:port ?port .\n" +
@@ -133,17 +135,17 @@ public class GenericInstruction extends AbstractInstruction {
     protected void readInput(final InputModel inputModel, final AgentTaskInformation info) {
 		try {
 			mmu = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_MMU);
-			objects = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_OBJECTS);
-			properties = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_MMU_PROPERTIES);
 			actionName = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_ACTION_NAME);
-			startCond = MOSIMUtil.getConditionInput(MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_START_CONDITION),info);
-			endCond = MOSIMUtil.getConditionInput(MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_END_CONDITION),info);
+			properties = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_MMU_PROPERTIES);
+			constraints = MOSIMUtil.getObjects(inputModel, null, MOSIMVocabulary.HAS_CONSTRAINT);
+			startCond = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_START_CONDITION);
+			endCond = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_END_CONDITION);
 			cosimHost = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_HOST);
 			cosimPort = Integer.parseInt(MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_PORT));
-			if (!objects.equals("")) {
-				objectIDs = MOSIMUtil.getObjectIDs(info, MOSIMUtil.OBJECT, objects);
-			}
-			instProps = MOSIMUtil.createGeneralProperties(properties, objectIDs, info);
+			/*if (!objects.equals("")) {
+				objectIDs = MOSIMUtil.getObjectIDs(info,MOSIMUtil.OBJECT,objects);
+			}*/
+			instProps = MOSIMUtil.createGeneralProperties(properties, info);
 		} catch (URISyntaxException ex) {
 			return;
 		}

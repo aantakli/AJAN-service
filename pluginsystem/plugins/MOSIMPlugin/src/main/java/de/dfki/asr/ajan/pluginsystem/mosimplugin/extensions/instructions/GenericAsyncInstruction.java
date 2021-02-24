@@ -26,6 +26,7 @@ import de.dfki.asr.ajan.behaviour.nodes.action.definition.InputModel;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ResultModel;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
+import de.mosim.mmi.constraints.MConstraint;
 import de.mosim.mmi.mmu.MInstruction;
 import de.mosim.mmi.cosim.MCoSimulationAccess;
 import de.mosim.mmi.mmu.MSimulationEvent;
@@ -42,6 +43,7 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,18 +53,22 @@ import ro.fortsoft.pf4j.Extension;
 @RDFBean("bt-mosim:GenericAsyncBinding")
 public class GenericAsyncInstruction extends AbstractAsyncInstruction {
 
-    private String objects = "";
-    private Map<String,String> objectIDs = new HashMap();
     private String mmu = "";
+	private String actionName;
+
+	private String properties;
+	private Map<String,String> instProps;
+
+	private ArrayList<Value> constraints;
+	private List<MConstraint> mConstraints = null;
+
+	private String startCond = "";
+	private String endCond = "";
+	
 	@Getter @Setter
     private String cosimHost;
 	@Getter @Setter
     private int cosimPort;
-	private String properties;
-	private Map<String,String> instProps;
-	private String actionName;
-	private String startCond = "";
-	private String endCond = "";
 	
 	protected static final Logger LOG = LoggerFactory.getLogger(GenericAsyncInstruction.class);
 
@@ -74,10 +80,12 @@ public class GenericAsyncInstruction extends AbstractAsyncInstruction {
 			"WHERE {\n" +
 			"	?instruction mosim:mmu ?mmu .\n" +
 			"	?instruction mosim:objects ?objects .\n" +
-			"	?instruction mosim:mmuProperties ?properties .\n" +
 			"	?instruction mosim:actionName ?actionName .\n" +
+			"	?instruction mosim:mmuProperties ?properties .\n" +
+			"	?instruction mosim:constraint ?constraint .\n" +
 			"	?instruction mosim:startCondition ?startCond .\n" +
 			"	?instruction mosim:endCondition ?endCond .\n" +
+			
 			"	?cosim rdf:type mosim:CoSimulator .\n" +
 			"	?cosim mosim:host ?host .\n" +
 			"	?cosim mosim:port ?port .\n" +
@@ -135,17 +143,17 @@ public class GenericAsyncInstruction extends AbstractAsyncInstruction {
     protected void readInput(final InputModel inputModel, final AgentTaskInformation info) {
 		try {
 			mmu = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_MMU);
-			objects = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_OBJECTS);
-			properties = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_MMU_PROPERTIES);
 			actionName = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_ACTION_NAME);
-			startCond = MOSIMUtil.getConditionInput(MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_START_CONDITION),info);
-			endCond = MOSIMUtil.getConditionInput(MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_END_CONDITION),info);
+			properties = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_MMU_PROPERTIES);
+			instProps = MOSIMUtil.createGeneralProperties(properties, info);
+			constraints = MOSIMUtil.getObjects(inputModel, null, MOSIMVocabulary.HAS_CONSTRAINT);
+			if (!constraints.isEmpty()) {
+				mConstraints = MOSIMUtil.getConstraints(MOSIMUtil.getConstraintObj64(constraints, inputModel));
+			}
+			startCond = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_START_CONDITION);
+			endCond = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_END_CONDITION);
 			cosimHost = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_HOST);
 			cosimPort = Integer.parseInt(MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_PORT));
-			if (!objects.equals("")) {
-				objectIDs = MOSIMUtil.getObjectIDs(info,MOSIMUtil.OBJECT,objects);
-			}
-			instProps = MOSIMUtil.createGeneralProperties(properties, objectIDs, info);
 		} catch (URISyntaxException ex) {
 			return;
 		}
@@ -153,7 +161,7 @@ public class GenericAsyncInstruction extends AbstractAsyncInstruction {
 
 	@Override
     protected boolean performOperation(final MCoSimulationAccess.Client client, final String actionID) throws TException {
-		MInstruction instruction = MOSIMUtil.createMInstruction(instID, actionID, mmu, instProps, null, startCond, endCond);
+		MInstruction instruction = MOSIMUtil.createMInstruction(instID, actionID, mmu, instProps, mConstraints, startCond, endCond);
 		return client.AssignInstruction(instruction, new HashMap<>()).Successful;
     }
 

@@ -24,23 +24,18 @@ import de.dfki.asr.ajan.behaviour.nodes.action.common.ACTNVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ActionVariable;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.InputModel;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ResultModel;
-import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.instructions.AbstractAsyncInstruction;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.constraints.MConstraint;
-import de.mosim.mmi.constraints.MGeometryConstraint;
 import de.mosim.mmi.mmu.MInstruction;
 import de.mosim.mmi.cosim.MCoSimulationAccess;
-import de.mosim.mmi.math.MTransform;
 import de.mosim.mmi.mmu.MSimulationEvent;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.thrift.TException;
@@ -50,8 +45,6 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
-import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.parser.ParsedTupleQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.Extension;
@@ -164,7 +157,9 @@ public class WalkInstruction extends AbstractAsyncInstruction {
 		target = MOSIMUtil.getResource(inputModel, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MOSIMVocabulary.M_SCENE_OBJECT);
 		if (target == null) {
 			target = MOSIMUtil.getResource(inputModel, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MOSIMVocabulary.M_TRANSFORM);
-			constraints = getWalkConstraints(MOSIMUtil.getObject(inputModel, target, MOSIMVocabulary.HAS_OBJECT));
+			Map<String,IRI> obj64s = new HashMap();
+			obj64s.put(MOSIMUtil.getObject(inputModel, target, MOSIMVocabulary.HAS_OBJECT), MOSIMVocabulary.M_TRANSFORM);
+			constraints = MOSIMUtil.getConstraints(obj64s);
 			targetID = constraints.get(0).ID;
 		} else {
 			targetID = MOSIMUtil.getObject(inputModel, target, MOSIMVocabulary.HAS_ID);
@@ -180,23 +175,6 @@ public class WalkInstruction extends AbstractAsyncInstruction {
 		MInstruction walk = MOSIMUtil.createMInstruction(instID, actionID, mmu, MOSIMUtil.createWalkProperties(targetID), constraints, null, null);
 		return client.AssignInstruction(walk, new HashMap<>()).Successful;
     }
-
-	private List<MConstraint> getWalkConstraints(final String obj64) {
-		List<MConstraint> list = new ArrayList();
-		try {
-			MConstraint constraint = new MConstraint();
-			constraint.ID = "ajan_const_" + 1;
-			MGeometryConstraint geo = new MGeometryConstraint();
-			geo.ParentObjectID = "";
-			MTransform trans = (MTransform) MOSIMUtil.decodeObjectBase64(obj64);
-			geo.ParentToConstraint = trans;
-			constraint.GeometryConstraint = geo;
-			list.add(constraint);
-			return list;
-		} catch (IOException | ClassNotFoundException ex) {
-			return null;
-		}
-	}
 
 	@Override
 	public void setResponse(String id, Object response) {
