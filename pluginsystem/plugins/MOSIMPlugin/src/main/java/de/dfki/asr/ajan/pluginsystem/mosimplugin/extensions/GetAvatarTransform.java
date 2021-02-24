@@ -33,6 +33,7 @@ import de.mosim.mmi.math.MQuaternion;
 import de.mosim.mmi.math.MTransform;
 import de.mosim.mmi.math.MVector3;
 import de.mosim.mmi.services.MSkeletonAccess;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -109,7 +110,7 @@ public class GetAvatarTransform extends AbstractTDBLeafTask implements NodeExten
 				LOG.info(report);
 				return new LeafStatus(Status.SUCCEEDED, report);
 			}
-		} catch (URISyntaxException ex) {
+		} catch (URISyntaxException | IOException ex) {
 			String report = toString() + " FAILED";
 			LOG.info(report);
 			return new LeafStatus(Status.FAILED, report);
@@ -148,7 +149,7 @@ public class GetAvatarTransform extends AbstractTDBLeafTask implements NodeExten
 		}
 	}
 
-	private Model getInputModel(final MTransform transform, final List<String> avatarID) {
+	private Model getInputModel(final MTransform transform, final List<String> avatarID) throws IOException {
 		Model model = new LinkedHashModel();
 		IRI subject = vf.createIRI(avatarID.get(0));
 		MOSIMUtil.setTransform(model, subject, transform);

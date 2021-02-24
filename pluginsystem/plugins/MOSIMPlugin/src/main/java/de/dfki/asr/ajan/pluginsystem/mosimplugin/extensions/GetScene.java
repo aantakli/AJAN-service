@@ -28,11 +28,20 @@ import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
+import de.mosim.mmi.constraints.MConstraint;
+import de.mosim.mmi.constraints.MGeometryConstraint;
 import de.mosim.mmi.scene.MCollider;
 import de.mosim.mmi.services.MSceneAccess;
 import de.mosim.mmi.scene.MSceneObject;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
@@ -100,7 +109,7 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 				LOG.info(report);
 				return new LeafStatus(Status.SUCCEEDED, report);
 			}
-		} catch (URISyntaxException ex) {
+		} catch (URISyntaxException | IOException | ClassNotFoundException ex) {
 			String report = toString() + " FAILED";
 			LOG.info(report);
 			return new LeafStatus(Status.FAILED, report);
@@ -124,7 +133,7 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 		}
 	}
 
-	private Model getInputModel(final List<MSceneObject> objects) {
+	private Model getInputModel(final List<MSceneObject> objects) throws IOException, ClassNotFoundException {
 		Model model = new LinkedHashModel();
 		IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
 		for (MSceneObject object: objects) {
@@ -132,25 +141,23 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 			model.add(subject, rdfType, MOSIMVocabulary.M_SCENE_OBJECT);
 			model.add(subject, MOSIMVocabulary.HAS_ID, vf.createLiteral(object.ID));
 			model.add(subject, RDFS.LABEL, vf.createLiteral(object.Name));
-			if (object.isSetTransform() && object.Transform != null) {
-				MOSIMUtil.setTransform(model, subject, object.Transform);
-			}
-			if (object.isSetTransform() && object.Collider != null) {
-				setCollider(model, subject, object.Collider);
-			}
+			model.add(subject, MOSIMVocabulary.HAS_OBJECT, vf.createLiteral(MOSIMUtil.encodeObjectBase64(object)));
 			if (object.isSetProperties() && !object.Properties.isEmpty()) {
 				setProperties(model, subject, object.Properties);
 			}
+			if (object.isSetTransform() && object.Transform != null) {
+				MOSIMUtil.setTransform(model, subject, object.Transform);
+			}
+			if (object.isSetCollider() && object.Collider != null) {
+				MOSIMUtil.setCollider(model, subject, object.Collider);
+			}
+			if (object.isSetConstraints()&& !object.Constraints.isEmpty()) {
+				for (MConstraint contst: object.Constraints) {
+					MOSIMUtil.setConstraint(model, subject, contst);
+				}
+			}
 		}
 		return model;
-	}
-
-	private void setCollider(final Model model, final IRI subject, final MCollider collider) {
-		IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
-		Resource transIRI = vf.createBNode();
-		model.add(subject, MOSIMVocabulary.HAS_COLLIDER, transIRI);
-		model.add(transIRI, rdfType, MOSIMVocabulary.M_COLLIDER);
-		model.add(transIRI, MOSIMVocabulary.HAS_ID, vf.createLiteral(collider.ID));
 	}
 
 	private void setProperties(final Model model, final IRI subject, final Map<String,String> properties) {

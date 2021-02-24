@@ -33,6 +33,7 @@ import de.mosim.mmi.scene.MSceneObject;
 import de.mosim.mmi.services.MSceneAccess;
 import de.mosim.mmi.services.MWalkPoint;
 import de.mosim.mmi.services.MWalkPointEstimationService;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -80,10 +81,6 @@ public class GetWalkPoints extends AbstractTDBLeafTask implements NodeExtension 
 	private String host;
 	private int port;
 
-	@RDF("bt-mosim:scene")
-	@Getter @Setter
-	private BehaviorSelectQuery scene;
-
 	@RDF("bt-mosim:sceneObjects")
 	@Getter @Setter
 	private BehaviorSelectQuery objects;
@@ -122,7 +119,7 @@ public class GetWalkPoints extends AbstractTDBLeafTask implements NodeExtension 
 				LOG.info(report);
 				return new LeafStatus(Status.SUCCEEDED, report);
 			}
-		} catch (URISyntaxException ex) {
+		} catch (URISyntaxException | ClassNotFoundException | IOException ex) {
 			String report = toString() + " FAILED";
 			LOG.info(report);
 			return new LeafStatus(Status.FAILED, report);
@@ -132,7 +129,7 @@ public class GetWalkPoints extends AbstractTDBLeafTask implements NodeExtension 
 		return new LeafStatus(Status.FAILED, report);
 	}
 
-	private List<MWalkPoint> getWalkPoints() throws URISyntaxException {
+	private List<MWalkPoint> getWalkPoints() throws IOException, ClassNotFoundException, URISyntaxException {
 		try {
 			try (TTransport transport = new TSocket(host, port)) {
 				transport.open();
@@ -146,7 +143,7 @@ public class GetWalkPoints extends AbstractTDBLeafTask implements NodeExtension 
 		}
 	}
 
-	private List<MSceneObject> getMSceneObjects(final MSceneObject targetObj) throws URISyntaxException {
+	private List<MSceneObject> getMSceneObjects(final MSceneObject targetObj) throws IOException, ClassNotFoundException, URISyntaxException {
 		Repository repo = BTUtil.getInitializedRepository(this.getObject(), objects.getOriginBase());
 		List<BindingSet> result = objects.getResult(repo);
 		List<MSceneObject> sObjects = new ArrayList();
@@ -154,42 +151,31 @@ public class GetWalkPoints extends AbstractTDBLeafTask implements NodeExtension 
 		Iterator<BindingSet> itr = result.iterator();
 		while (itr.hasNext()) {
 			BindingSet binding = itr.next();
-			sObjects.add(getMSceneObject(binding.getValue("id").stringValue()));
+			String obj64 = binding.getValue("object").stringValue();
+			sObjects.add(getMSceneObject(obj64));
 		}
 		return sObjects;
 	}
 
-	private MSceneObject getWalkTarget() throws URISyntaxException {
+	private MSceneObject getWalkTarget() throws IOException, ClassNotFoundException, URISyntaxException {
 		if (query != null) {
 			Repository repo = BTUtil.getInitializedRepository(this.getObject(), target.getOriginBase());
 			List<BindingSet> result = target.getResult(repo);
 			if (!result.isEmpty()) {
 				BindingSet bindings = result.get(0);
-				String id = bindings.getValue("targetID").stringValue();
-				MSceneObject obj = getMSceneObject(id);
+				String obj64 = bindings.getValue("object").stringValue();
+				MSceneObject obj = getMSceneObject(obj64);
 				return obj;
 			}
 		}
 		return null;
 	}
 
-	private MSceneObject getMSceneObject(final String id) throws URISyntaxException {
-		Map<String,String> hostMap = MOSIMUtil.getHostInfos(scene, this.getObject());
-		Map.Entry<String,String> entry = hostMap.entrySet().iterator().next();
-		try {
-			try (TTransport transport = new TSocket(entry.getKey(), Integer.parseInt(entry.getValue()))) {
-				transport.open();
-				TProtocol protocol = new TCompactProtocol(transport);
-				MSceneAccess.Client client = new MSceneAccess.Client(protocol);
-				return client.GetSceneObjectByID(id);
-			}
-		} catch (TException ex) {
-			LOG.error("Could not load List<MSceneObject>", ex);
-			return null;
-		}
+	private MSceneObject getMSceneObject(final String obj64) throws IOException, ClassNotFoundException {
+		return (MSceneObject) MOSIMUtil.decodeObjectBase64(obj64);
 	}
 	
-	private Model getWalkPointsModel(final List<MWalkPoint> walkpoints) {
+	private Model getWalkPointsModel(final List<MWalkPoint> walkpoints) throws IOException {
 		Model model = new LinkedHashModel();
 		IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
 		for (MWalkPoint point: walkpoints) {

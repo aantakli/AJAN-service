@@ -25,15 +25,25 @@ import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.constraints.MConstraint;
+import de.mosim.mmi.constraints.MGeometryConstraint;
 import de.mosim.mmi.math.MQuaternion;
 import de.mosim.mmi.math.MTransform;
 import de.mosim.mmi.math.MVector3;
 import de.mosim.mmi.mmiConstants;
 import de.mosim.mmi.mmu.MInstruction;
+import de.mosim.mmi.scene.MCollider;
 import de.mosim.mmi.scene.MSceneObject;
+import de.mosim.mmi.services.MWalkPoint;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,17 +128,10 @@ public final class MOSIMUtil {
 	public final static String MTRANSFORM = 
             "PREFIX mosim: <http://www.dfki.de/mosim-ns#>\n" +
 			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-			"SELECT ?id ?posX ?posY ?posZ ?rotX ?rotY ?rotZ ?rotW \n" +
+			"SELECT ?id ?object \n" +
 			"WHERE {\n" +
 			"	?transform rdf:type mosim:MTransform .\n" +
-			"	?transform mosim:id ?id .\n" +
-			"	?transform mosim:posX ?posX .\n" +
-			"	?transform mosim:posY ?posY .\n" +
-			"	?transform mosim:posZ ?posZ .\n" +
-			"	?transform mosim:rotX ?rotX .\n" +
-			"	?transform mosim:rotY ?rotY .\n" +
-			"	?transform mosim:rotZ ?rotZ .\n" +
-			"	?transform mosim:rotW ?rotW .\n" +
+			"	?transform mosim:object ?object .\n" +
 			"}";
 
 	private MOSIMUtil() {
@@ -315,6 +318,9 @@ public final class MOSIMUtil {
 	public static String getObject(final Model model, final Resource subject, final IRI predicate) {
         Model filter = model.filter(subject, predicate, null);
         Set<Value> objects = filter.objects();
+		if (objects.isEmpty()) {
+			return "";
+		}
         Value objj = new ArrayList<>(objects).get(0);
         return objj.stringValue();
     }
@@ -377,36 +383,10 @@ public final class MOSIMUtil {
 		}
 	}
 
-	public static MTransform getTransform(final BindingSet binding) throws URISyntaxException {
-		MTransform transform = new MTransform();
-		transform.ID = binding.getValue("id").stringValue();
-		MVector3 position = new MVector3();
-		position.X = Double.parseDouble(binding.getValue("posX").stringValue());
-		position.Y = Double.parseDouble(binding.getValue("posY").stringValue());
-		position.Z = Double.parseDouble(binding.getValue("posZ").stringValue());
-		MQuaternion rotation = new MQuaternion();
-		rotation.X = Double.parseDouble(binding.getValue("rotX").stringValue());
-		rotation.Y = Double.parseDouble(binding.getValue("rotY").stringValue());
-		rotation.Z = Double.parseDouble(binding.getValue("rotZ").stringValue());
-		rotation.W = Double.parseDouble(binding.getValue("rotW").stringValue());
-		transform.Position = position;
-		transform.Rotation = rotation;
+	public static MTransform getTransform(final BindingSet binding) throws URISyntaxException, IOException, ClassNotFoundException {
+		MTransform transform = (MTransform) decodeObjectBase64(binding.getValue("object").stringValue());
 		return transform;
 	}
-
-	public static List<String> getTransformVars() {
-		List<String> list = new ArrayList();
-		list.add("id");
-		list.add("posX");
-		list.add("posY");
-		list.add("posZ");
-		list.add("rotX");
-		list.add("rotY");
-		list.add("rotZ");
-		list.add("rotW");
-		return list;
-	}
-
 	
 	public static MTransform getLookAtTransform(final MTransform sourcePoint, final MTransform destPoint) {
 		Vector3D srcVec = new Vector3D(sourcePoint.Position.X,sourcePoint.Position.Y,sourcePoint.Position.Z);
@@ -426,18 +406,48 @@ public final class MOSIMUtil {
 		return sourcePoint.setRotation(new MQuaternion(q.getQ0(),q.getQ1(),q.getQ2(),q.getQ3()));
 	}
 
-	public static void setTransform(final Model model, final Resource subject, final MTransform transform) {
+	public static void setTransform(final Model model, final Resource subject, final MTransform transform) throws IOException {
 		IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
 		Resource transIRI = vf.createBNode();
 		model.add(subject, MOSIMVocabulary.HAS_TRANSFORM, transIRI);
 		model.add(transIRI, rdfType, MOSIMVocabulary.M_TRANSFORM);
 		model.add(transIRI, MOSIMVocabulary.HAS_ID, vf.createLiteral(transform.ID));
-		model.add(transIRI, MOSIMVocabulary.HAS_POS_X, vf.createLiteral(transform.Position.X));
-		model.add(transIRI, MOSIMVocabulary.HAS_POS_Y, vf.createLiteral(transform.Position.Y));
-		model.add(transIRI, MOSIMVocabulary.HAS_POS_Z, vf.createLiteral(transform.Position.Z));
-		model.add(transIRI, MOSIMVocabulary.HAS_ROT_X, vf.createLiteral(transform.Rotation.X));
-		model.add(transIRI, MOSIMVocabulary.HAS_ROT_Y, vf.createLiteral(transform.Rotation.Y));
-		model.add(transIRI, MOSIMVocabulary.HAS_ROT_Z, vf.createLiteral(transform.Rotation.Z));
-		model.add(transIRI, MOSIMVocabulary.HAS_ROT_W, vf.createLiteral(transform.Rotation.W));
+		model.add(transIRI, MOSIMVocabulary.HAS_OBJECT, vf.createLiteral(encodeObjectBase64(transform)));
+	}
+
+	public static void setCollider(final Model model, final IRI subject, final MCollider collider) throws IOException {
+		IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
+		Resource transIRI = vf.createBNode();
+		model.add(subject, MOSIMVocabulary.HAS_COLLIDER, transIRI);
+		model.add(transIRI, rdfType, MOSIMVocabulary.M_COLLIDER);
+		model.add(transIRI, MOSIMVocabulary.HAS_ID, vf.createLiteral(collider.ID));
+		model.add(transIRI, MOSIMVocabulary.HAS_OBJECT, vf.createLiteral(encodeObjectBase64(collider)));
+	}
+
+	public static void setConstraint(final Model model, final Resource subject, final MConstraint constr) throws IOException {
+		IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
+		Resource transIRI = vf.createBNode();
+		model.add(subject, MOSIMVocabulary.HAS_CONSTRAINT, transIRI);
+		model.add(transIRI, rdfType, MOSIMVocabulary.M_GEO_CONSTRAINT);
+		model.add(transIRI, MOSIMVocabulary.HAS_ID, vf.createLiteral(constr.ID));
+		model.add(transIRI, MOSIMVocabulary.HAS_OBJECT, vf.createLiteral(encodeObjectBase64(constr)));
+	}
+
+	public static String encodeObjectBase64(final Object object) throws IOException {
+		String output = "";
+		try (ByteArrayOutputStream objIn = new ByteArrayOutputStream()) {
+			try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(objIn)) {
+				objectOutputStream.writeObject(object);
+			}
+			output = Base64.getEncoder().encodeToString(objIn.toByteArray());
+		}
+		return output;
+	}
+
+	public static Object decodeObjectBase64(final String encoded) throws IOException, ClassNotFoundException {
+		byte[] decoded = Base64.getDecoder().decode(encoded);
+		InputStream objOut = new ByteArrayInputStream(decoded);
+		ObjectInputStream objectInputStream = new ObjectInputStream(objOut);
+		return objectInputStream.readObject();
 	}
 }

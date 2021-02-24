@@ -34,11 +34,13 @@ import de.mosim.mmi.mmu.MInstruction;
 import de.mosim.mmi.cosim.MCoSimulationAccess;
 import de.mosim.mmi.math.MTransform;
 import de.mosim.mmi.mmu.MSimulationEvent;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.thrift.TException;
@@ -90,14 +92,7 @@ public class WalkInstruction extends AbstractAsyncInstruction {
 			"	} \n" +
 			"	OPTIONAL { \n" +
 			"		?transform rdf:type mosim:MTransform .\n" +
-			"		?transform mosim:id ?id .\n" +
-			"		?transform mosim:posX ?posX .\n" +
-			"		?transform mosim:posY ?posY .\n" +
-			"		?transform mosim:posZ ?posZ .\n" +
-			"		?transform mosim:rotX ?rotX .\n" +
-			"		?transform mosim:rotY ?rotY .\n" +
-			"		?transform mosim:rotZ ?rotZ .\n" +
-			"		?transform mosim:rotW ?rotW .\n" +
+			"		?transform mosim:object ?object .\n" +
 			"	} \n" +
 			"	?cosim rdf:type mosim:CoSimulator .\n" +
 			"	?cosim mosim:host ?host .\n" +
@@ -169,7 +164,7 @@ public class WalkInstruction extends AbstractAsyncInstruction {
 		target = MOSIMUtil.getResource(inputModel, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MOSIMVocabulary.M_SCENE_OBJECT);
 		if (target == null) {
 			target = MOSIMUtil.getResource(inputModel, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MOSIMVocabulary.M_TRANSFORM);
-			constraints = getWalkConstraints(inputModel);
+			constraints = getWalkConstraints(MOSIMUtil.getObject(inputModel, target, MOSIMVocabulary.HAS_OBJECT));
 			targetID = constraints.get(0).ID;
 		} else {
 			targetID = MOSIMUtil.getObject(inputModel, target, MOSIMVocabulary.HAS_ID);
@@ -186,22 +181,19 @@ public class WalkInstruction extends AbstractAsyncInstruction {
 		return client.AssignInstruction(walk, new HashMap<>()).Successful;
     }
 
-	private List<MConstraint> getWalkConstraints(final InputModel inputModel) {
+	private List<MConstraint> getWalkConstraints(final String obj64) {
 		List<MConstraint> list = new ArrayList();
-		List<String> varNames = MOSIMUtil.getTransformVars();
-		ParsedTupleQuery selectQuery = SPARQLUtil.getSelectQuery(MOSIMUtil.MTRANSFORM, varNames);
-		List<BindingSet> bindings = SPARQLUtil.queryModel((Model)inputModel, selectQuery);
 		try {
 			MConstraint constraint = new MConstraint();
 			constraint.ID = "ajan_const_" + 1;
 			MGeometryConstraint geo = new MGeometryConstraint();
 			geo.ParentObjectID = "";
-			MTransform trans = MOSIMUtil.getTransform(bindings.get(0));
+			MTransform trans = (MTransform) MOSIMUtil.decodeObjectBase64(obj64);
 			geo.ParentToConstraint = trans;
 			constraint.GeometryConstraint = geo;
 			list.add(constraint);
 			return list;
-		} catch (URISyntaxException ex) {
+		} catch (IOException | ClassNotFoundException ex) {
 			return null;
 		}
 	}
