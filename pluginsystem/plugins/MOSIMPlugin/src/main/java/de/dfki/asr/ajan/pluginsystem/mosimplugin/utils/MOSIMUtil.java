@@ -28,12 +28,9 @@ import de.mosim.mmi.constraints.MConstraint;
 import de.mosim.mmi.constraints.MGeometryConstraint;
 import de.mosim.mmi.math.MQuaternion;
 import de.mosim.mmi.math.MTransform;
-import de.mosim.mmi.math.MVector3;
 import de.mosim.mmi.mmiConstants;
 import de.mosim.mmi.mmu.MInstruction;
 import de.mosim.mmi.scene.MCollider;
-import de.mosim.mmi.scene.MSceneObject;
-import de.mosim.mmi.services.MWalkPoint;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -49,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.UUID;
 import org.apache.commons.math3.complex.Quaternion;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.eclipse.rdf4j.model.IRI;
@@ -70,9 +66,6 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
  * @author Andre Antakli
  */
 public final class MOSIMUtil {
-
-	public final static int KEY = 0;
-	public final static int VALUE = 1;
 	
 	protected final static ValueFactory vf = SimpleValueFactory.getInstance();
 
@@ -166,13 +159,13 @@ public final class MOSIMUtil {
 		return properties;
 	}
 
-	public static Map<String,String> createGeneralProperties(final String general, final AgentTaskInformation info) throws URISyntaxException {
+	public static Map<String,String> createGeneralProperties(final ArrayList<Value> values, final Model inputModel) throws URISyntaxException {
 		Map<String,String> properties = new HashMap();
-		if (!general.equals("")) {
-			String[] list = general.split(";");
-			for (String list1 : list) {
-				String[] keyvalue = list1.replace(" ", "").split(",");
-				properties.put(keyvalue[KEY], keyvalue[VALUE]);
+		if (!values.isEmpty()) {
+			for (Value val: values) {
+				String key = getObject(inputModel, (IRI) val, MOSIMVocabulary.HAS_KEY);
+				String value = getObject(inputModel, (IRI) val, MOSIMVocabulary.HAS_VALUE);
+				properties.put(key, value);
 			}
 		}
 		return properties;
@@ -180,18 +173,19 @@ public final class MOSIMUtil {
 
 	public static Map<String,IRI> getConstraintObj64(final ArrayList<Value> values, final Model inputModel) {
 		Map<String,IRI> map = new HashMap();
+		IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
 		if (!values.isEmpty()) {
 			for (Value val: values) {
-				IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
 				String type = getObject(inputModel, (Resource) val, rdfType);
 				String obj64 = getObject(inputModel, (Resource) val, MOSIMVocabulary.HAS_OBJECT);
 				map.put(obj64, vf.createIRI(type));
+				
 			}
 		}
 		return map;
 	}
 
-	public static List<MConstraint> getConstraints(final Map<String,IRI> obj64s) {
+	public static List<MConstraint> createConstraints(final Map<String,IRI> obj64s) {
 		List<MConstraint> list = new ArrayList();
 		for (Entry<String,IRI> entry: obj64s.entrySet()) {
 			MConstraint constraint = getConstraint(entry.getKey(), entry.getValue());
@@ -202,10 +196,10 @@ public final class MOSIMUtil {
 
 	public static MConstraint getConstraint(final String obj64, final IRI type) {
 		try {
-			if (type == MOSIMVocabulary.M_CONSTRAINT) {
+			if (type.toString().equals(MOSIMVocabulary.M_CONSTRAINT.toString())) {
 				return (MConstraint) MOSIMUtil.decodeObjectBase64(obj64);
 			}
-			else if (type == MOSIMVocabulary.M_TRANSFORM) {
+			else if (type.toString().equals(MOSIMVocabulary.M_TRANSFORM.toString())) {
 				MConstraint constraint = new MConstraint();
 				MGeometryConstraint geo = new MGeometryConstraint();
 				geo.ParentObjectID = "";
@@ -353,7 +347,7 @@ public final class MOSIMUtil {
 		IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
 		Resource transIRI = vf.createBNode();
 		model.add(subject, MOSIMVocabulary.HAS_CONSTRAINT, transIRI);
-		model.add(transIRI, rdfType, MOSIMVocabulary.M_GEO_CONSTRAINT);
+		model.add(transIRI, rdfType, MOSIMVocabulary.M_CONSTRAINT);
 		model.add(transIRI, MOSIMVocabulary.HAS_ID, vf.createLiteral(constr.ID));
 		model.add(transIRI, MOSIMVocabulary.HAS_OBJECT, vf.createLiteral(encodeObjectBase64(constr)));
 	}

@@ -25,6 +25,7 @@ import de.dfki.asr.ajan.behaviour.nodes.action.definition.InputModel;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ResultModel;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
+import de.mosim.mmi.constraints.MConstraint;
 import de.mosim.mmi.mmu.MInstruction;
 import de.mosim.mmi.cosim.MCoSimulationAccess;
 import java.net.URISyntaxException;
@@ -45,24 +46,26 @@ import ro.fortsoft.pf4j.Extension;
 
 @Extension
 @RDFBean("bt-mosim:GenericBinding")
-public class GenericInstruction extends AbstractInstruction {
+public class MMUInstruction extends AbstractInstruction {
 
-    private ArrayList<Value> constraints;
-	@Getter @Setter
-    private String mmu = "";
+	private String mmu = "";
+	private String actionName;
 
+	private ArrayList<Value> properties;
+	private Map<String,String> instProps;
+
+	private ArrayList<Value> constraints;
+	private List<MConstraint> mConstraints = null;
+
+	private String startCond = "";
+	private String endCond = "";
+	
 	@Getter @Setter
     private String cosimHost;
 	@Getter @Setter
     private int cosimPort;
 
-	private String properties;
-	private Map<String,String> instProps;
-	private String actionName;
-	private String startCond = "";
-	private String endCond = "";
-
-	protected static final Logger LOG = LoggerFactory.getLogger(GenericAsyncInstruction.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(AsyncMMUInstruction.class);
 
     private final static String CONSUME = 
 			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
@@ -71,23 +74,19 @@ public class GenericInstruction extends AbstractInstruction {
 			"ASK\n" +
 			"WHERE {\n" +
 			"	?instruction mosim:mmu ?mmu .\n" +
-			"	?instruction mosim:objects ?objects .\n" +
-			"	?instruction mosim:actionName ?actionName .\n" +
-			"	?instruction mosim:mmuProperties ?properties .\n" +
-			"	?instruction mosim:constraint ?constraint .\n" +
-			"	?instruction mosim:startCondition ?startCond .\n" +
-			"	?instruction mosim:endCondition ?endCond .\n" +
-			
+			"	OPTIONAL { \n" +
+			"		?instruction mosim:mmuProperty ?property .\n" +
+			"		?instruction mosim:actionName ?actionName .\n" +
+			"		?instruction mosim:constraint ?constraint .\n" +
+			"		?instruction mosim:startCondition ?startCond .\n" +
+			"		?instruction mosim:endCondition ?endCond .\n" +
+			"	} \n" +
 			"	?cosim rdf:type mosim:CoSimulator .\n" +
 			"	?cosim mosim:host ?host .\n" +
 			"	?cosim mosim:port ?port .\n" +
 			"}";
 
     private final static String PRODUCE = 
-            "PREFIX mosim: <http://www.dfki.de/mosim-ns#>\n" +
-			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-			"PREFIX actn: <http://www.ajan.de/actn#>\n" +
-			"PREFIX dct: <http://purl.org/dc/terms/>\n" +
 			"ASK\n" +
 			"WHERE {\n" +
 			"	?s ?p ?o .\n" +
@@ -117,7 +116,6 @@ public class GenericInstruction extends AbstractInstruction {
     public List<ActionVariable> getVariables() {
         List<ActionVariable> vars = new ArrayList();
         vars.add(new ActionVariable(vf.createBNode().getID(), "mmu"));
-        vars.add(new ActionVariable(vf.createBNode().getID(), "target"));
         return vars;
     }
 
@@ -136,24 +134,25 @@ public class GenericInstruction extends AbstractInstruction {
 		try {
 			mmu = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_MMU);
 			actionName = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_ACTION_NAME);
-			properties = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_MMU_PROPERTIES);
+			properties = MOSIMUtil.getObjects(inputModel, null, MOSIMVocabulary.HAS_MMU_PROPERTY);
+			instProps = MOSIMUtil.createGeneralProperties(properties, inputModel);
 			constraints = MOSIMUtil.getObjects(inputModel, null, MOSIMVocabulary.HAS_CONSTRAINT);
+			if (!constraints.isEmpty())
+				mConstraints = MOSIMUtil.createConstraints(MOSIMUtil.getConstraintObj64(constraints, inputModel));
 			startCond = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_START_CONDITION);
 			endCond = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_END_CONDITION);
 			cosimHost = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_HOST);
 			cosimPort = Integer.parseInt(MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_PORT));
-			/*if (!objects.equals("")) {
-				objectIDs = MOSIMUtil.getObjectIDs(info,MOSIMUtil.OBJECT,objects);
-			}*/
-			instProps = MOSIMUtil.createGeneralProperties(properties, info);
-		} catch (URISyntaxException ex) {
-			return;
+		} catch (URISyntaxException | NumberFormatException ex) {
+
 		}
     }
 
 	@Override
     protected boolean performOperation(final MCoSimulationAccess.Client client, final String actionID) throws TException {
-		MInstruction instruction = MOSIMUtil.createMInstruction(instID, actionID, mmu, instProps, null, startCond, endCond);
+		if (mmu.isEmpty()) 
+			return false;
+		MInstruction instruction = MOSIMUtil.createMInstruction(instID, actionID, mmu, instProps, mConstraints, startCond, endCond);
 		return client.AssignInstruction(instruction, new HashMap<>()).Successful;
     }
 
@@ -165,7 +164,8 @@ public class GenericInstruction extends AbstractInstruction {
 			if (!actionName.equals("")) {
 				model.add(root, MOSIMVocabulary.HAS_ACTION_NAME, vf.createLiteral(actionName));
 			}
-			model.add(root, MOSIMVocabulary.HAS_ACTION_ID, vf.createLiteral(instID));
+			model.add(root, MOSIMVocabulary.HAS_INSTRUCTION_ID, vf.createLiteral(instID));
+			model.add(root, MOSIMVocabulary.HAS_ACTION_ID, vf.createLiteral(id));
 			model.add(root, MOSIMVocabulary.HAS_MMU, vf.createLiteral(mmu));
 		}
 	}

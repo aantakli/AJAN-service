@@ -20,7 +20,6 @@
 package de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.instructions.specificnodes;
 
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
-import de.dfki.asr.ajan.behaviour.nodes.action.common.ACTNVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ActionVariable;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.InputModel;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ResultModel;
@@ -29,7 +28,6 @@ import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.mmu.MInstruction;
 import de.mosim.mmi.cosim.MCoSimulationAccess;
-import de.mosim.mmi.mmu.MSimulationEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +37,6 @@ import org.apache.thrift.TException;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension

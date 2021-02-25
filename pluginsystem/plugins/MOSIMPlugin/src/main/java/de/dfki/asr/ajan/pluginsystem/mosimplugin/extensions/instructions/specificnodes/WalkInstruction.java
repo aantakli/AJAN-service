@@ -159,7 +159,7 @@ public class WalkInstruction extends AbstractAsyncInstruction {
 			target = MOSIMUtil.getResource(inputModel, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MOSIMVocabulary.M_TRANSFORM);
 			Map<String,IRI> obj64s = new HashMap();
 			obj64s.put(MOSIMUtil.getObject(inputModel, target, MOSIMVocabulary.HAS_OBJECT), MOSIMVocabulary.M_TRANSFORM);
-			constraints = MOSIMUtil.getConstraints(obj64s);
+			constraints = MOSIMUtil.createConstraints(obj64s);
 			targetID = constraints.get(0).ID;
 		} else {
 			targetID = MOSIMUtil.getObject(inputModel, target, MOSIMVocabulary.HAS_ID);

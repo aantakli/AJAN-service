@@ -159,11 +159,11 @@ public final class MOSIMHelpers {
 			String operator = getOperator(keyvalue[1]);
 			String value = keyvalue[1].replace(operator, "").replace("<id@", "").replace(">", "");
 			String newValue = objectIDs.get(value);
-			properties.put(keyvalue[MOSIMUtil.KEY], newValue + operator);
+			properties.put(keyvalue[0], newValue + operator);
 		} else if (keyvalue[1].startsWith("<actionId@")) {
 			String operator = getOperator(keyvalue[1]);
 			String newValue = getActionID(keyvalue[1].replace(operator, ""), info);
-			properties.put(keyvalue[MOSIMUtil.KEY], newValue + operator);
+			properties.put(keyvalue[0], newValue + operator);
 		}
 	}
 }
