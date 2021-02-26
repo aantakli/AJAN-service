@@ -27,6 +27,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
+import de.mosim.mmi.core.MBoolResponse;
 import de.mosim.mmi.cosim.MCoSimulationAccess;
 import de.mosim.mmi.scene.MSceneObject;
 import java.net.URISyntaxException;
@@ -114,15 +115,14 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 				TProtocol protocol = new TCompactProtocol(transport);
 				MCoSimulationAccess.Client client = new MCoSimulationAccess.Client(protocol);
 				List<String> ids = getInstructionIDs();
+				MBoolResponse response;
 				if (ids.isEmpty()) {
-					client.Abort();
-				} else if (ids.size() == 1) {
-					client.AbortInstruction(ids.get(0));
+					response = client.Abort();
 				} else {
-					client.AbortInstructions(ids);
+					response = client.AbortInstructions(ids);
 				}
 				transport.close();
-				return true;
+				return response.Successful;
 			}
 		} catch (TException ex) {
 			LOG.error("Could not load List<MSceneObject>", ex);

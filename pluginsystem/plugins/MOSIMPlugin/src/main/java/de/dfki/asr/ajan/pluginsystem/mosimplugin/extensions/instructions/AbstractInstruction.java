@@ -131,6 +131,7 @@ public abstract class AbstractInstruction extends ThriftAction {
     @Override
     public ResultModel abort(InputModel inputModel) {
         LOG.info("Abort ThriftAsyncAction");
+		instID = "";
         thread.interrupt();
         ResultModel model = new ResultModel();
         model.add(vf.createBNode(), vf.createIRI("http://nullinger.de/abort"), vf.createBNode());

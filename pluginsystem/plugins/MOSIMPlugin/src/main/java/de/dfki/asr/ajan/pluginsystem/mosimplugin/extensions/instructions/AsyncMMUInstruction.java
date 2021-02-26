@@ -148,6 +148,7 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 			endCond = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_END_CONDITION);
 			cosimHost = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_HOST);
 			cosimPort = Integer.parseInt(MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_PORT));
+			LOG.info(mmu);
 		} catch (URISyntaxException ex) {
 
 		}
@@ -168,9 +169,11 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 			if ((event.Type.equals("end") || event.Type.equals("PositioningFinished")) && event.Reference.equals(instID)) {
 				ResultModel model = new ResultModel();
 				Resource root = vf.createIRI(url);
+				model.add(root, MOSIMVocabulary.HAS_INSTRUCTION_ID, vf.createLiteral(instID));
 				model.add(root, MOSIMVocabulary.HAS_ACTION_ID, vf.createLiteral(id));
 				model.add(root, MOSIMVocabulary.HAS_FINISHED, vf.createLiteral(true));
 				getEvent().setEventInformation(id, model);
+				instID = "";
 			} else if (event.Type.equals("initError") && event.Reference.equals(instID)) {
 				ResultModel model = new ResultModel();
 				model.add(vf.createBNode(), RDF.TYPE, ACTNVocabulary.FAULT);
