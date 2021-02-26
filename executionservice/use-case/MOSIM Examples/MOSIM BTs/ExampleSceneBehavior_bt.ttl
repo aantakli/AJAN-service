@@ -1,0 +1,261 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> . <http://localhost:8090/rdf4j/repositories/behaviors#ExampleSceneBehavior> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#BehaviorTree>. <http://localhost:8090/rdf4j/repositories/behaviors#ExampleSceneBehavior> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Root>. <http://localhost:8090/rdf4j/repositories/behaviors#ExampleSceneBehavior> <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-107bf1d7-221c-49d7-8314-3923e15818e9>. <http://localhost:8090/rdf4j/repositories/behaviors#ExampleSceneBehavior> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#ExampleSceneBehavior> <http://www.w3.org/2000/01/rdf-schema#label> """ExampleSceneBehavior"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-107bf1d7-221c-49d7-8314-3923e15818e9> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Sequence>. <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-107bf1d7-221c-49d7-8314-3923e15818e9> <http://www.ajan.de/behavior/bt-ns#hasChildren> _:b429. <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-107bf1d7-221c-49d7-8314-3923e15818e9> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-107bf1d7-221c-49d7-8314-3923e15818e9> <http://www.w3.org/2000/01/rdf-schema#label> """defaultSequence"""^^xsd:string. _:b429 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#IdleTest>. _:b429 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b430. <http://localhost:8090/rdf4j/repositories/behaviors#IdleTest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Action>. <http://localhost:8090/rdf4j/repositories/behaviors#IdleTest> <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#GenericInstruction>. <http://localhost:8090/rdf4j/repositories/behaviors#IdleTest> <http://www.ajan.de/behavior/bt-ns#evaluate> """false"""^^xsd:boolean. <http://localhost:8090/rdf4j/repositories/behaviors#IdleTest> <http://www.ajan.de/behavior/bt-ns#inputs> _:b423. <http://localhost:8090/rdf4j/repositories/behaviors#IdleTest> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#IdleTest> <http://www.w3.org/2000/01/rdf-schema#label> """idle()"""^^xsd:string. _:b423 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:b311. _:b423 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>. _:b311 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#ConstructQuery>. _:b311 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Input>. _:b311 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b311 <http://www.ajan.de/behavior/bt-ns#queryTemplate> """{"id":"Idle Instruction","title":"Idle Instruction","description":"","nodes":["Action"],"targetBase":"http://www.ajan.de/ajan-ns#AgentKnowledge","query":"","queryVariables":"avatar,cosim,host,port","parameters":[]}"""^^xsd:string. _:b311 <http://www.ajan.de/behavior/bt-ns#queryTemplateDefaultQuery> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	?avatar rdf:type mosim:Avatar .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string. _:b311 <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:Instruction mosim:mmu "Pose/Idle" .
+	test:Instruction mosim:actionName "Idle" .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string. _:b430 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Action-f524bec7-e767-4cfd-90e6-c1e92776cb62>. _:b430 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b431. <http://localhost:8090/rdf4j/repositories/behaviors#Action-f524bec7-e767-4cfd-90e6-c1e92776cb62> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Action>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-f524bec7-e767-4cfd-90e6-c1e92776cb62> <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#GenericInstruction>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-f524bec7-e767-4cfd-90e6-c1e92776cb62> <http://www.ajan.de/behavior/bt-ns#inputs> _:b413. <http://localhost:8090/rdf4j/repositories/behaviors#Action-f524bec7-e767-4cfd-90e6-c1e92776cb62> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Action-f524bec7-e767-4cfd-90e6-c1e92776cb62> <http://www.w3.org/2000/01/rdf-schema#label> """gaze(Object)"""^^xsd:string. _:b413 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:b289. _:b413 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>. _:b289 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#ConstructQuery>. _:b289 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Input>. _:b289 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b289 <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:Instruction mosim:mmu "Pose/Gaze" .
+	test:Instruction mosim:actionName "Gaze" .
+	test:Instruction mosim:mmuProperty test:TargetProperty .
+	
+	test:TargetProperty mosim:key "TargetID" .
+	test:TargetProperty mosim:value ?id .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label "GraspObject2" .
+	?target mosim:id ?id .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string. _:b431 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Action-4af4dda4-365a-401e-af93-6ccfb3483ec3>. _:b431 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b432. <http://localhost:8090/rdf4j/repositories/behaviors#Action-4af4dda4-365a-401e-af93-6ccfb3483ec3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Action>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-4af4dda4-365a-401e-af93-6ccfb3483ec3> <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#GenericAsyncInstruction>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-4af4dda4-365a-401e-af93-6ccfb3483ec3> <http://www.ajan.de/behavior/bt-ns#inputs> _:b407. <http://localhost:8090/rdf4j/repositories/behaviors#Action-4af4dda4-365a-401e-af93-6ccfb3483ec3> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Action-4af4dda4-365a-401e-af93-6ccfb3483ec3> <http://www.w3.org/2000/01/rdf-schema#label> """reach(Target,Hand)"""^^xsd:string. _:b407 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:b227. _:b407 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>. _:b227 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#ConstructQuery>. _:b227 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Input>. _:b227 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b227 <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:Instruction mosim:mmu "Pose/Reach" .
+	test:Instruction mosim:actionName "ReachR" .
+	test:Instruction mosim:mmuProperty test:TargetProperty .
+	test:Instruction mosim:mmuProperty test:HandProperty .
+	test:Instruction mosim:constraint ?constraint .
+	
+	test:TargetProperty mosim:key "TargetID" .
+	test:TargetProperty mosim:value ?id .
+	
+	test:HandProperty mosim:key "Hand" .
+	test:HandProperty mosim:value "Right" .
+
+	?constraint rdf:type mosim:MConstraint .
+	?constraint mosim:object ?object .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label "GraspObject2" .
+	?target mosim:constraint ?constraint .
+
+	?constraint rdf:type mosim:MConstraint .
+	?constraint mosim:id ?id .
+	?constraint mosim:object ?object .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string. _:b432 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#AbortInstruction-264fb6d5-47de-4d58-932d-79b728f0a3fe>. _:b432 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b433. <http://localhost:8090/rdf4j/repositories/behaviors#AbortInstruction-264fb6d5-47de-4d58-932d-79b728f0a3fe> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/mosim-ns#AbortInstruction>. <http://localhost:8090/rdf4j/repositories/behaviors#AbortInstruction-264fb6d5-47de-4d58-932d-79b728f0a3fe> <http://www.ajan.de/behavior/mosim-ns#host> _:b182. <http://localhost:8090/rdf4j/repositories/behaviors#AbortInstruction-264fb6d5-47de-4d58-932d-79b728f0a3fe> <http://www.ajan.de/behavior/mosim-ns#instructionID> _:b183. <http://localhost:8090/rdf4j/repositories/behaviors#AbortInstruction-264fb6d5-47de-4d58-932d-79b728f0a3fe> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#AbortInstruction-264fb6d5-47de-4d58-932d-79b728f0a3fe> <http://www.w3.org/2000/01/rdf-schema#label> """abort(Gaze)"""^^xsd:string. _:b182 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#SelectQuery>. _:b182 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b182 <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?host ?port 
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string. _:b183 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#SelectQuery>. _:b183 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b183 <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?id 
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:instruction ?instruction .
+	?instruction mosim:mmu "Pose/Gaze" .
+	?instruction mosim:instructionID ?id .
+}"""^^xsd:string. _:b433 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Action-a0b45cb0-4361-4fa6-8560-4712450f1701>. _:b433 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b434. <http://localhost:8090/rdf4j/repositories/behaviors#Action-a0b45cb0-4361-4fa6-8560-4712450f1701> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Action>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-a0b45cb0-4361-4fa6-8560-4712450f1701> <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#GenericAsyncInstruction>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-a0b45cb0-4361-4fa6-8560-4712450f1701> <http://www.ajan.de/behavior/bt-ns#inputs> _:b410. <http://localhost:8090/rdf4j/repositories/behaviors#Action-a0b45cb0-4361-4fa6-8560-4712450f1701> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Action-a0b45cb0-4361-4fa6-8560-4712450f1701> <http://www.w3.org/2000/01/rdf-schema#label> """carry(Target,Hand)"""^^xsd:string. _:b410 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:b349. _:b410 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>. _:b349 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#ConstructQuery>. _:b349 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Input>. _:b349 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b349 <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:Instruction mosim:mmu "Object/Carry" .
+	test:Instruction mosim:actionName "CarryR" .
+	test:Instruction mosim:mmuProperty test:TargetProperty .
+	test:Instruction mosim:mmuProperty test:HandProperty .
+	
+	test:TargetProperty mosim:key "TargetID" .
+	test:TargetProperty mosim:value ?id .
+	
+	test:HandProperty mosim:key "Hand" .
+	test:HandProperty mosim:value "Right" .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label "GraspObject2" .
+	?target mosim:id ?id .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string. _:b434 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Action-86424acb-e2bf-41b6-8b1d-cb3a0b355c12>. _:b434 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b435. <http://localhost:8090/rdf4j/repositories/behaviors#Action-86424acb-e2bf-41b6-8b1d-cb3a0b355c12> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Action>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-86424acb-e2bf-41b6-8b1d-cb3a0b355c12> <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#GenericAsyncInstruction>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-86424acb-e2bf-41b6-8b1d-cb3a0b355c12> <http://www.ajan.de/behavior/bt-ns#inputs> _:b409. <http://localhost:8090/rdf4j/repositories/behaviors#Action-86424acb-e2bf-41b6-8b1d-cb3a0b355c12> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Action-86424acb-e2bf-41b6-8b1d-cb3a0b355c12> <http://www.w3.org/2000/01/rdf-schema#label> """walk(Target)"""^^xsd:string. _:b409 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:b389. _:b409 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>. _:b389 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#ConstructQuery>. _:b389 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Input>. _:b389 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b389 <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:Instruction mosim:mmu "Locomotion/Walk" .
+	test:Instruction mosim:actionName "Walk" .
+	test:Instruction mosim:mmuProperty test:TargetProperty .
+	
+	test:TargetProperty mosim:key "TargetID" .
+	test:TargetProperty mosim:value ?id .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label "WalkTarget2" .
+	?target mosim:id ?id .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string. _:b435 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Action-a4dfd473-1540-4464-9f61-6554cb4b5222>. _:b435 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b436. <http://localhost:8090/rdf4j/repositories/behaviors#Action-a4dfd473-1540-4464-9f61-6554cb4b5222> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Action>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-a4dfd473-1540-4464-9f61-6554cb4b5222> <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#GenericAsyncInstruction>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-a4dfd473-1540-4464-9f61-6554cb4b5222> <http://www.ajan.de/behavior/bt-ns#inputs> _:b411. <http://localhost:8090/rdf4j/repositories/behaviors#Action-a4dfd473-1540-4464-9f61-6554cb4b5222> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Action-a4dfd473-1540-4464-9f61-6554cb4b5222> <http://www.w3.org/2000/01/rdf-schema#label> """move(Object,Target)"""^^xsd:string. _:b411 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:b189. _:b411 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>. _:b189 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#ConstructQuery>. _:b189 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Input>. _:b189 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b189 <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:Instruction mosim:mmu "Object/Move" .
+	test:Instruction mosim:actionName "MoveR" .
+	test:Instruction mosim:mmuProperty test:SubjectProperty .
+	test:Instruction mosim:mmuProperty test:TargetProperty .
+	test:Instruction mosim:mmuProperty test:HandProperty .
+	test:Instruction mosim:mmuProperty test:OnStart .
+	
+	test:SubjectProperty mosim:key "SubjectID" .
+	test:SubjectProperty mosim:value ?subId .
+
+	test:TargetProperty mosim:key "TargetID" .
+	test:TargetProperty mosim:value ?tarId .
+	
+	test:HandProperty mosim:key "Hand" .
+	test:HandProperty mosim:value "Right" .
+
+	test:OnStart mosim:key "OnStart" .
+	test:OnStart mosim:value ?onStart .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?subject rdf:type mosim:MSceneObject .
+	?subject rdfs:label "GraspObject2" .
+	?subject mosim:id ?subId .
+
+	?target rdf:type mosim:MSceneObject .
+	?target rdfs:label "PositioningTargetRight" .
+	?target mosim:id ?tarId .
+
+	?instruction rdf:type mosim:Instruction .
+	?instruction mosim:instructionID ?instID .
+	?instruction mosim:mmu "Object/Carry" .
+
+	BIND (CONCAT (STR(?instID),":EndInstruction") as ?onStart)
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string. _:b436 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Action-b2f728c7-dd05-4ef5-9392-57200f813407>. _:b436 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b437. <http://localhost:8090/rdf4j/repositories/behaviors#Action-b2f728c7-dd05-4ef5-9392-57200f813407> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Action>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-b2f728c7-dd05-4ef5-9392-57200f813407> <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#GenericAsyncInstruction>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-b2f728c7-dd05-4ef5-9392-57200f813407> <http://www.ajan.de/behavior/bt-ns#inputs> _:b412. <http://localhost:8090/rdf4j/repositories/behaviors#Action-b2f728c7-dd05-4ef5-9392-57200f813407> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Action-b2f728c7-dd05-4ef5-9392-57200f813407> <http://www.w3.org/2000/01/rdf-schema#label> """release()"""^^xsd:string. _:b412 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:b312. _:b412 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>. _:b312 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#ConstructQuery>. _:b312 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Input>. _:b312 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b312 <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:Instruction mosim:mmu "Object/Release" .
+	test:Instruction mosim:actionName "ReleaseR" .
+	test:Instruction mosim:mmuProperty test:HandProperty .
+	
+	test:HandProperty mosim:key "Hand" .
+	test:HandProperty mosim:value "Right" .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string. _:b437 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#AbortInstruction-c1521c51-fc5f-4840-a9ce-a83716f1165e>. _:b437 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b438. <http://localhost:8090/rdf4j/repositories/behaviors#AbortInstruction-c1521c51-fc5f-4840-a9ce-a83716f1165e> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/mosim-ns#AbortInstruction>. <http://localhost:8090/rdf4j/repositories/behaviors#AbortInstruction-c1521c51-fc5f-4840-a9ce-a83716f1165e> <http://www.ajan.de/behavior/mosim-ns#host> _:b224. <http://localhost:8090/rdf4j/repositories/behaviors#AbortInstruction-c1521c51-fc5f-4840-a9ce-a83716f1165e> <http://www.ajan.de/behavior/mosim-ns#instructionID> _:b246. <http://localhost:8090/rdf4j/repositories/behaviors#AbortInstruction-c1521c51-fc5f-4840-a9ce-a83716f1165e> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#AbortInstruction-c1521c51-fc5f-4840-a9ce-a83716f1165e> <http://www.w3.org/2000/01/rdf-schema#label> """abort(All)"""^^xsd:string. _:b224 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#SelectQuery>. _:b224 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b224 <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?host ?port
+
+WHERE {
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string. _:b246 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#SelectQuery>. _:b246 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b246 <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?id 
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:instruction ?instruction .
+	?instruction mosim:mmu "test" .
+	?instruction mosim:instructionID ?id .
+}"""^^xsd:string. _:b438 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Update-b28109c1-c416-4451-94e7-bb951ddb735f>. _:b438 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>. <http://localhost:8090/rdf4j/repositories/behaviors#Update-b28109c1-c416-4451-94e7-bb951ddb735f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Update>. <http://localhost:8090/rdf4j/repositories/behaviors#Update-b28109c1-c416-4451-94e7-bb951ddb735f> <http://www.ajan.de/behavior/bt-ns#query> _:b272. <http://localhost:8090/rdf4j/repositories/behaviors#Update-b28109c1-c416-4451-94e7-bb951ddb735f> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Update-b28109c1-c416-4451-94e7-bb951ddb735f> <http://www.w3.org/2000/01/rdf-schema#label> """removeAll"""^^xsd:string. _:b272 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#UpdateQuery>. _:b272 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b272 <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+DELETE {
+	?avatar mosim:instruction ?instruction .
+    ?instruction rdf:type mosim:Instruction .
+    ?instruction mosim:mmu ?mmu .
+    ?instruction mosim:actionID ?id .
+}
+WHERE {
+	?avatar rdf:type mosim:Avatar .
+	?avatar mosim:instruction ?instruction .
+    ?instruction rdf:type mosim:Instruction .
+    ?instruction mosim:mmu ?mmu .
+    ?instruction mosim:actionID ?id .
+}"""^^xsd:string.
