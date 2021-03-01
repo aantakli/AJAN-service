@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-@RDFBean("bt-mosim:GenericBinding")
+@RDFBean("bt-mosim:MMUBinding")
 public class MMUInstruction extends AbstractInstruction {
 
 	private String mmu = "";
@@ -94,7 +94,7 @@ public class MMUInstruction extends AbstractInstruction {
 
     @Override
     public IRI getType() {
-        return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#GenericBinding"); // Is not counted either
+        return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#MMUBinding"); // Is not counted either
     }
 
 	@Override
@@ -121,12 +121,12 @@ public class MMUInstruction extends AbstractInstruction {
 
     @Override
     public String getLable() {
-        return "GenericInstruction"; // to trigger this action AJAN places it under services:<getLable()>
+        return "MMUInstruction"; // to trigger this action AJAN places it under services:<getLable()>
     }
 
     @Override
     public String getDescription() {
-        return "MOSIM MMU Generic Istruction";
+        return "MOSIM MMU Istruction";
     }
 
 	@Override

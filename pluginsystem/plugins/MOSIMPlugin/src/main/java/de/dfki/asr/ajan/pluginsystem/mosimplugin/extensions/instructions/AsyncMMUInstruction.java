@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-@RDFBean("bt-mosim:GenericAsyncBinding")
+@RDFBean("bt-mosim:AsyncMMUBinding")
 public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 
     private String mmu = "";
@@ -99,7 +99,7 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 
     @Override
     public IRI getType() {
-        return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#GenericAsyncBinding"); // Is not counted either
+        return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#AsyncMMUBinding"); // Is not counted either
     }
 
 	@Override
@@ -126,12 +126,12 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 
     @Override
     public String getLable() {
-        return "GenericAsyncInstruction"; // to trigger this action AJAN places it under services:<getLable()>
+        return "AsyncMMUInstruction"; // to trigger this action AJAN places it under services:<getLable()>
     }
 
     @Override
     public String getDescription() {
-        return "MOSIM MMU Generic Async Istruction";
+        return "MOSIM Async MMU Istruction";
     }
 
 	@Override
