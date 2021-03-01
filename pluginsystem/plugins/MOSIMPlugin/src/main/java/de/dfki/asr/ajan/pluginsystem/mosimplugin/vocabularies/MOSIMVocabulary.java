@@ -73,6 +73,8 @@ public class MOSIMVocabulary {
 	public final static IRI HAS_ACTION_NAME = FACTORY.createIRI("http://www.dfki.de/mosim-ns#actionName");
 	public final static IRI HAS_START_CONDITION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#startCondition");
 	public final static IRI HAS_END_CONDITION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#endCondition");
+	public final static IRI HAS_TIMESTAMP = FACTORY.createIRI("http://www.dfki.de/mosim-ns#timestamp");
+	public final static IRI HAS_JSON_INSTRUCTION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#jsonInstruction");
 
 	public final static IRI HAS_EVENT_TYPE = FACTORY.createIRI("http://www.dfki.de/mosim-ns#eventType");
 	public final static IRI HAS_HOST = FACTORY.createIRI("http://www.dfki.de/mosim-ns#host");

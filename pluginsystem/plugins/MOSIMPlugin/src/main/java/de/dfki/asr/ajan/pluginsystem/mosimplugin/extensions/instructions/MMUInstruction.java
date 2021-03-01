@@ -59,6 +59,8 @@ public class MMUInstruction extends AbstractInstruction {
 
 	private String startCond = "";
 	private String endCond = "";
+
+	private String instructionDef = "";
 	
 	@Getter @Setter
     private String cosimHost;
@@ -153,6 +155,7 @@ public class MMUInstruction extends AbstractInstruction {
 		if (mmu.isEmpty()) 
 			return false;
 		MInstruction instruction = MOSIMUtil.createMInstruction(instID, actionID, mmu, instProps, mConstraints, startCond, endCond);
+		instructionDef = MOSIMUtil.getInstructionDef(instruction);
 		return client.AssignInstruction(instruction, new HashMap<>()).Successful;
     }
 
@@ -161,12 +164,16 @@ public class MMUInstruction extends AbstractInstruction {
 		if (response instanceof ResultModel) {
 			ResultModel model = (ResultModel)response;
 			Resource root = vf.createIRI(url);
+			model.add(root, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MOSIMVocabulary.INSTRUCTION);
 			if (!actionName.equals("")) {
 				model.add(root, MOSIMVocabulary.HAS_ACTION_NAME, vf.createLiteral(actionName));
 			}
 			model.add(root, MOSIMVocabulary.HAS_INSTRUCTION_ID, vf.createLiteral(instID));
 			model.add(root, MOSIMVocabulary.HAS_ACTION_ID, vf.createLiteral(id));
 			model.add(root, MOSIMVocabulary.HAS_MMU, vf.createLiteral(mmu));
+			model.add(root, MOSIMVocabulary.HAS_TIMESTAMP, vf.createLiteral(MOSIMUtil.getTimeStamp()));
+			if (!instructionDef.isEmpty())
+				model.add(root, MOSIMVocabulary.HAS_JSON_INSTRUCTION, vf.createLiteral(instructionDef));
 		}
 	}
 }

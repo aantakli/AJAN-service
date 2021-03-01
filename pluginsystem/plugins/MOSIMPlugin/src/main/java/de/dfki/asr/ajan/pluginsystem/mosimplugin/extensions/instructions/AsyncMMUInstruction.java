@@ -64,6 +64,8 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 
 	private String startCond = "";
 	private String endCond = "";
+
+	private String instructionDef = "";
 	
 	@Getter @Setter
     private String cosimHost;
@@ -159,6 +161,7 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 		if (mmu.isEmpty()) 
 			return false;
 		MInstruction instruction = MOSIMUtil.createMInstruction(instID, actionID, mmu, instProps, mConstraints, startCond, endCond);
+		instructionDef = MOSIMUtil.getInstructionDef(instruction);
 		return client.AssignInstruction(instruction, new HashMap<>()).Successful;
     }
 
@@ -173,6 +176,8 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 				model.add(root, MOSIMVocabulary.HAS_ACTION_ID, vf.createLiteral(id));
 				model.add(root, MOSIMVocabulary.HAS_FINISHED, vf.createLiteral(true));
 				getEvent().setEventInformation(id, model);
+				if (!instructionDef.isEmpty())
+				model.add(root, MOSIMVocabulary.HAS_JSON_INSTRUCTION, vf.createLiteral(instructionDef));
 				instID = "";
 			} else if (event.Type.equals("initError") && event.Reference.equals(instID)) {
 				ResultModel model = new ResultModel();
@@ -201,9 +206,10 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 		model.add(root, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MOSIMVocabulary.INSTRUCTION);
 		model.add(root, MOSIMVocabulary.HAS_INSTRUCTION_ID, vf.createLiteral(instID));
 		model.add(root, MOSIMVocabulary.HAS_ACTION_ID, vf.createLiteral(id.toString()));
+		model.add(root, MOSIMVocabulary.HAS_TIMESTAMP, vf.createLiteral(MOSIMUtil.getTimeStamp()));
 		model.add(root, MOSIMVocabulary.HAS_MMU, vf.createLiteral(mmu));
-		//model.add(root, MOSIMVocabulary.HAS_INSTRUCTION_PROPERTIES, vf.createLiteral(instProps.));
-		//model.add(root, MOSIMVocabulary.HAS_INSTRUCTION_CONSTRAINTS, vf.createLiteral(mConstraints));
+		if (!instructionDef.isEmpty())
+				model.add(root, MOSIMVocabulary.HAS_JSON_INSTRUCTION, vf.createLiteral(instructionDef));
 		return model;
 	}
 }

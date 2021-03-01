@@ -19,6 +19,8 @@
 
 package de.dfki.asr.ajan.pluginsystem.mosimplugin.utils;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
@@ -39,8 +41,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +65,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  *
@@ -169,6 +175,12 @@ public final class MOSIMUtil {
 			}
 		}
 		return properties;
+	}
+
+	public static String getInstructionDef(final MInstruction instruction) {
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode node = mapper.valueToTree(instruction);
+		return node.toString();
 	}
 
 	public static Map<String,IRI> getConstraintObj64(final ArrayList<Value> values, final Model inputModel) {
@@ -368,5 +380,11 @@ public final class MOSIMUtil {
 		InputStream objOut = new ByteArrayInputStream(decoded);
 		ObjectInputStream objectInputStream = new ObjectInputStream(objOut);
 		return objectInputStream.readObject();
+	}
+
+	public static String getTimeStamp() {
+		Date date= new Date();
+		Timestamp ts = new Timestamp(date.getTime());
+		return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(ts);
 	}
 }
