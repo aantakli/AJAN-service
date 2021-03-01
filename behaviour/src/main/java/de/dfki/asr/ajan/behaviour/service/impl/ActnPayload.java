@@ -19,7 +19,7 @@
 
 package de.dfki.asr.ajan.behaviour.service.impl;
 
-import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorQuery;
 import lombok.Data;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
@@ -35,7 +35,7 @@ public class ActnPayload {
 	private String sparql;
 
 	@RDF("bt:query")
-	private BehaviorConstructQuery btQuery;
+	private BehaviorQuery btQuery;
 
 	@RDF("bt:template")
 	private SelectQueryTemplate template;
