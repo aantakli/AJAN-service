@@ -22,7 +22,10 @@ package de.dfki.asr.ajan.behaviour.nodes.query;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import static de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.setQueryBindingModel;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
@@ -35,6 +38,8 @@ import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.query.resultio.QueryResultIO;
+import org.eclipse.rdf4j.query.resultio.TupleQueryResultFormat;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 
@@ -61,6 +66,16 @@ public class BehaviorSelectQuery implements BehaviorQuery {
 				bindings.add(result.next());
 			}
 			return bindings;
+		}
+	}
+
+	public String getResult(final Repository repo, final TupleQueryResultFormat format) throws IOException {
+		try (RepositoryConnection conn = repo.getConnection()) {
+			TupleQuery query = conn.prepareTupleQuery(sparql);
+			TupleQueryResult result = query.evaluate();
+			ByteArrayOutputStream output = new ByteArrayOutputStream();
+			QueryResultIO.writeTuple(result, TupleQueryResultFormat.SPARQL, output);
+			return new String(output.toByteArray(), StandardCharsets.UTF_8);
 		}
 	}
 

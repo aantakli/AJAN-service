@@ -1,0 +1,148 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> . <http://localhost:8090/rdf4j/repositories/behaviors#WalkBehavior> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#BehaviorTree>. <http://localhost:8090/rdf4j/repositories/behaviors#WalkBehavior> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Root>. <http://localhost:8090/rdf4j/repositories/behaviors#WalkBehavior> <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#Priority-30ab7b00-65a6-4aa6-8fda-5b99845b3bf7>. <http://localhost:8090/rdf4j/repositories/behaviors#WalkBehavior> <http://www.w3.org/2000/01/rdf-schema#label> """WalkBehavior"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Priority-30ab7b00-65a6-4aa6-8fda-5b99845b3bf7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Priority>. <http://localhost:8090/rdf4j/repositories/behaviors#Priority-30ab7b00-65a6-4aa6-8fda-5b99845b3bf7> <http://www.ajan.de/behavior/bt-ns#hasChildren> _:b292. <http://localhost:8090/rdf4j/repositories/behaviors#Priority-30ab7b00-65a6-4aa6-8fda-5b99845b3bf7> <http://www.w3.org/2000/01/rdf-schema#label> """defaultPriority"""^^xsd:string. _:b292 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-1e7a929b-4b9e-4ec6-af3a-f2a140519607>. _:b292 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b293. <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-1e7a929b-4b9e-4ec6-af3a-f2a140519607> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Sequence>. <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-1e7a929b-4b9e-4ec6-af3a-f2a140519607> <http://www.ajan.de/behavior/bt-ns#hasChildren> _:b324. <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-1e7a929b-4b9e-4ec6-af3a-f2a140519607> <http://www.w3.org/2000/01/rdf-schema#label> """defaultSequence"""^^xsd:string. _:b324 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#HandleEvent-f78a24db-f7c0-4134-9298-b3a8f4493f2c>. _:b324 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b325. <http://localhost:8090/rdf4j/repositories/behaviors#HandleEvent-f78a24db-f7c0-4134-9298-b3a8f4493f2c> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#HandleEvent>. <http://localhost:8090/rdf4j/repositories/behaviors#HandleEvent-f78a24db-f7c0-4134-9298-b3a8f4493f2c> <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#WalkGoal>. <http://localhost:8090/rdf4j/repositories/behaviors#HandleEvent-f78a24db-f7c0-4134-9298-b3a8f4493f2c> <http://www.ajan.de/behavior/bt-ns#validate> _:b200. <http://localhost:8090/rdf4j/repositories/behaviors#HandleEvent-f78a24db-f7c0-4134-9298-b3a8f4493f2c> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#HandleEvent-f78a24db-f7c0-4134-9298-b3a8f4493f2c> <http://www.w3.org/2000/01/rdf-schema#label> """HandleWalkGoal"""^^xsd:string. _:b200 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#ConstructQuery>. _:b200 <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX sp: <http://spinrdf.org/sp#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:WalkTarget rdf:value ?walkTarget .
+}
+WHERE {
+	?target sp:varName "target".
+	?target rdf:value ?walkTarget .
+}"""^^xsd:string. _:b200 <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b325 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#BT_458f9566-4a84-4932-b789-3ad9f7f2b755>. _:b325 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b326. _:b326 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#UntilSuccess-fe510364-ccbf-41f2-bad2-26feeaeab212>. _:b326 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b327. <http://localhost:8090/rdf4j/repositories/behaviors#UntilSuccess-fe510364-ccbf-41f2-bad2-26feeaeab212> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#UntilSuccess>. <http://localhost:8090/rdf4j/repositories/behaviors#UntilSuccess-fe510364-ccbf-41f2-bad2-26feeaeab212> <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-65db0caa-3d7e-4dd6-b5b8-e5ffa51491ae>. <http://localhost:8090/rdf4j/repositories/behaviors#UntilSuccess-fe510364-ccbf-41f2-bad2-26feeaeab212> <http://www.w3.org/2000/01/rdf-schema#label> """defaultUntilSuccess"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-65db0caa-3d7e-4dd6-b5b8-e5ffa51491ae> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Sequence>. <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-65db0caa-3d7e-4dd6-b5b8-e5ffa51491ae> <http://www.ajan.de/behavior/bt-ns#hasChildren> _:b341. <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-65db0caa-3d7e-4dd6-b5b8-e5ffa51491ae> <http://www.w3.org/2000/01/rdf-schema#label> """defaultSequence"""^^xsd:string. _:b341 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Priority-75b0d7fe-e303-4fc4-85a6-3dd78a091235>. _:b341 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b342. <http://localhost:8090/rdf4j/repositories/behaviors#Priority-75b0d7fe-e303-4fc4-85a6-3dd78a091235> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Priority>. <http://localhost:8090/rdf4j/repositories/behaviors#Priority-75b0d7fe-e303-4fc4-85a6-3dd78a091235> <http://www.ajan.de/behavior/bt-ns#hasChildren> _:b298. <http://localhost:8090/rdf4j/repositories/behaviors#Priority-75b0d7fe-e303-4fc4-85a6-3dd78a091235> <http://www.w3.org/2000/01/rdf-schema#label> """defaultPriority"""^^xsd:string. _:b298 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Inverter-9c4f54da-d87b-4e6a-a311-2c04bcc50d98>. _:b298 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b299. <http://localhost:8090/rdf4j/repositories/behaviors#Inverter-9c4f54da-d87b-4e6a-a311-2c04bcc50d98> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Invert>. <http://localhost:8090/rdf4j/repositories/behaviors#Inverter-9c4f54da-d87b-4e6a-a311-2c04bcc50d98> <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#Condition-59634edc-20cd-4f17-bb33-83a23aa4fa9d>. <http://localhost:8090/rdf4j/repositories/behaviors#Inverter-9c4f54da-d87b-4e6a-a311-2c04bcc50d98> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Inverter-9c4f54da-d87b-4e6a-a311-2c04bcc50d98> <http://www.w3.org/2000/01/rdf-schema#label> """defaultInverter"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Condition-59634edc-20cd-4f17-bb33-83a23aa4fa9d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Condition>. <http://localhost:8090/rdf4j/repositories/behaviors#Condition-59634edc-20cd-4f17-bb33-83a23aa4fa9d> <http://www.ajan.de/behavior/bt-ns#query> _:b240. <http://localhost:8090/rdf4j/repositories/behaviors#Condition-59634edc-20cd-4f17-bb33-83a23aa4fa9d> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Condition-59634edc-20cd-4f17-bb33-83a23aa4fa9d> <http://www.w3.org/2000/01/rdf-schema#label> """WaypointLeft?"""^^xsd:string. _:b240 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#AskQuery>. _:b240 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b240 <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ASK
+WHERE {
+	?walkpoint rdf:type mosim:MWalkPoint .
+}"""^^xsd:string. _:b299 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Update-c5d49e9a-c810-4fc0-80d9-2096b97fc4c6>. _:b299 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>. <http://localhost:8090/rdf4j/repositories/behaviors#Update-c5d49e9a-c810-4fc0-80d9-2096b97fc4c6> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Update>. <http://localhost:8090/rdf4j/repositories/behaviors#Update-c5d49e9a-c810-4fc0-80d9-2096b97fc4c6> <http://www.ajan.de/behavior/bt-ns#query> _:b207. <http://localhost:8090/rdf4j/repositories/behaviors#Update-c5d49e9a-c810-4fc0-80d9-2096b97fc4c6> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Update-c5d49e9a-c810-4fc0-80d9-2096b97fc4c6> <http://www.w3.org/2000/01/rdf-schema#label> """SetFocusWaypoint?!"""^^xsd:string. _:b207 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#UpdateQuery>. _:b207 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b207 <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+INSERT {
+	?point rdf:type mosim:InFocus .
+}
+WHERE {
+	?point rdf:type mosim:MWalkPoint .
+	{
+		SELECT ?point
+		WHERE {
+			?point rdf:type mosim:MWalkPoint .
+			?point mosim:pathLength ?length .
+		} ORDER BY ASC(?length) LIMIT 1 
+	}
+}"""^^xsd:string. _:b342 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Priority-2c9c3084-318b-43ee-849d-24e99dcbd303>. _:b342 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>. <http://localhost:8090/rdf4j/repositories/behaviors#Priority-2c9c3084-318b-43ee-849d-24e99dcbd303> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Priority>. <http://localhost:8090/rdf4j/repositories/behaviors#Priority-2c9c3084-318b-43ee-849d-24e99dcbd303> <http://www.ajan.de/behavior/bt-ns#hasChildren> _:b289. <http://localhost:8090/rdf4j/repositories/behaviors#Priority-2c9c3084-318b-43ee-849d-24e99dcbd303> <http://www.w3.org/2000/01/rdf-schema#label> """defaultPriority"""^^xsd:string. _:b289 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Action-2d143365-952e-4bd0-bdd6-57fa9db490d1>. _:b289 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b290. <http://localhost:8090/rdf4j/repositories/behaviors#Action-2d143365-952e-4bd0-bdd6-57fa9db490d1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Action>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-2d143365-952e-4bd0-bdd6-57fa9db490d1> <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#AsyncMMUInstruction>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-2d143365-952e-4bd0-bdd6-57fa9db490d1> <http://www.ajan.de/behavior/bt-ns#inputs> _:b269. <http://localhost:8090/rdf4j/repositories/behaviors#Action-2d143365-952e-4bd0-bdd6-57fa9db490d1> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Action-2d143365-952e-4bd0-bdd6-57fa9db490d1> <http://www.w3.org/2000/01/rdf-schema#label> """walk(MMU,Object)"""^^xsd:string. _:b269 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:b189. _:b269 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>. _:b189 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#ConstructQuery>. _:b189 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Input>. _:b189 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b189 <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:Instruction mosim:mmu "Locomotion/Walk" .
+	test:Instruction mosim:actionName "Walk" .
+	test:Instruction mosim:mmuProperty test:TargetProperty .
+	test:Instruction mosim:constraint ?transform .
+	
+	test:TargetProperty mosim:key "TargetID" .
+	test:TargetProperty mosim:value ?id .
+
+	?transform rdf:type mosim:MTransform .
+	?transform mosim:object ?object .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?walkpoint rdf:type mosim:MWalkPoint .
+	?walkpoint rdf:type mosim:InFocus .
+	?walkpoint mosim:transform ?transform .
+
+	?transform mosim:id ?id .
+	?transform mosim:object ?object .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string. _:b290 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-7fd3b4ca-2368-4ad6-ae3c-5471b8976cab>. _:b290 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b291. <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-7fd3b4ca-2368-4ad6-ae3c-5471b8976cab> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Sequence>. <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-7fd3b4ca-2368-4ad6-ae3c-5471b8976cab> <http://www.ajan.de/behavior/bt-ns#hasChildren> _:b345. <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-7fd3b4ca-2368-4ad6-ae3c-5471b8976cab> <http://www.w3.org/2000/01/rdf-schema#label> """defaultSequence"""^^xsd:string. _:b345 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Update-1d43f47b-f790-4670-bcad-197964a95a5c>. _:b345 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b346. <http://localhost:8090/rdf4j/repositories/behaviors#Update-1d43f47b-f790-4670-bcad-197964a95a5c> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Update>. <http://localhost:8090/rdf4j/repositories/behaviors#Update-1d43f47b-f790-4670-bcad-197964a95a5c> <http://www.ajan.de/behavior/bt-ns#query> _:b206. <http://localhost:8090/rdf4j/repositories/behaviors#Update-1d43f47b-f790-4670-bcad-197964a95a5c> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Update-1d43f47b-f790-4670-bcad-197964a95a5c> <http://www.w3.org/2000/01/rdf-schema#label> """DeleteInFocusWaypoint?!"""^^xsd:string. _:b206 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#UpdateQuery>. _:b206 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b206 <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+DELETE {
+	?walkpoint rdf:type mosim:MWalkPoint .
+        ?walkpoint rdf:type mosim:InFocus .
+	?walkpoint mosim:transform ?transform .
+	?walkpoint ?p ?o .
+        ?transform ?p ?o .
+}
+WHERE {
+	?walkpoint rdf:type mosim:MWalkPoint .
+        ?walkpoint rdf:type mosim:InFocus .
+	?walkpoint mosim:transform ?transform .
+	?walkpoint ?p ?o .
+        ?transform ?p ?o .
+}"""^^xsd:string. _:b346 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Inverter-89c44c79-4774-457c-a5e7-cbb0d970f99e>. _:b346 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>. <http://localhost:8090/rdf4j/repositories/behaviors#Inverter-89c44c79-4774-457c-a5e7-cbb0d970f99e> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Invert>. <http://localhost:8090/rdf4j/repositories/behaviors#Inverter-89c44c79-4774-457c-a5e7-cbb0d970f99e> <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#Condition-9da4b01a-a510-4b42-9d88-09fca6789a27>. <http://localhost:8090/rdf4j/repositories/behaviors#Inverter-89c44c79-4774-457c-a5e7-cbb0d970f99e> <http://www.w3.org/2000/01/rdf-schema#label> """defaultInverter"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Condition-9da4b01a-a510-4b42-9d88-09fca6789a27> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Condition>. <http://localhost:8090/rdf4j/repositories/behaviors#Condition-9da4b01a-a510-4b42-9d88-09fca6789a27> <http://www.ajan.de/behavior/bt-ns#query> _:b214. <http://localhost:8090/rdf4j/repositories/behaviors#Condition-9da4b01a-a510-4b42-9d88-09fca6789a27> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Condition-9da4b01a-a510-4b42-9d88-09fca6789a27> <http://www.w3.org/2000/01/rdf-schema#label> """WaypointLeft?"""^^xsd:string. _:b214 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#AskQuery>. _:b214 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b214 <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ASK
+WHERE {
+	?walkpoint rdf:type mosim:MWalkPoint .
+}"""^^xsd:string. _:b291 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Action-ebb487b7-1090-4ec3-9f61-e1e9aba2349b>. _:b291 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-ebb487b7-1090-4ec3-9f61-e1e9aba2349b> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Action>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-ebb487b7-1090-4ec3-9f61-e1e9aba2349b> <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#AsyncMMUInstruction>. <http://localhost:8090/rdf4j/repositories/behaviors#Action-ebb487b7-1090-4ec3-9f61-e1e9aba2349b> <http://www.ajan.de/behavior/bt-ns#inputs> _:b283. <http://localhost:8090/rdf4j/repositories/behaviors#Action-ebb487b7-1090-4ec3-9f61-e1e9aba2349b> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Action-ebb487b7-1090-4ec3-9f61-e1e9aba2349b> <http://www.w3.org/2000/01/rdf-schema#label> """walk(MMU,Object)"""^^xsd:string. _:b283 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:b227. _:b283 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>. _:b227 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#ConstructQuery>. _:b227 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Input>. _:b227 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b227 <http://www.ajan.de/behavior/bt-ns#sparql> """
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX test: <http://test/>
+
+CONSTRUCT {
+	test:Instruction mosim:mmu "Locomotion/Walk" .
+	test:Instruction mosim:actionName "Walk" .
+	test:Instruction mosim:mmuProperty test:TargetProperty .
+	test:Instruction mosim:constraint ?transform .
+	
+	test:TargetProperty mosim:key "TargetID" .
+	test:TargetProperty mosim:value ?id .
+
+	?transform rdf:type mosim:MTransform .
+	?transform mosim:object ?object .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}
+WHERE {
+	?walkpoint rdf:type mosim:MWalkPoint .
+	?walkpoint rdf:type mosim:InFocus .
+	?walkpoint mosim:transform ?transform .
+
+	?transform mosim:id ?id .
+	?transform mosim:object ?object .
+
+	?cosim rdf:type mosim:CoSimulator .
+	?cosim mosim:host ?host .
+	?cosim mosim:port ?port .
+}"""^^xsd:string. _:b327 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Update-f8942da1-06a8-40a5-916f-02322f87fea0>. _:b327 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b328. <http://localhost:8090/rdf4j/repositories/behaviors#Update-f8942da1-06a8-40a5-916f-02322f87fea0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Update>. <http://localhost:8090/rdf4j/repositories/behaviors#Update-f8942da1-06a8-40a5-916f-02322f87fea0> <http://www.ajan.de/behavior/bt-ns#query> _:b180. <http://localhost:8090/rdf4j/repositories/behaviors#Update-f8942da1-06a8-40a5-916f-02322f87fea0> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Update-f8942da1-06a8-40a5-916f-02322f87fea0> <http://www.w3.org/2000/01/rdf-schema#label> """DeleteWaypoints?!"""^^xsd:string. _:b180 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#UpdateQuery>. _:b180 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b180 <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+DELETE {
+	?walkpoint rdf:type mosim:MWalkPoint .
+	?walkpoint mosim:transform ?transform .
+	?walkpoint ?p ?o .
+        ?transform ?y ?z .
+}
+WHERE {
+	?walkpoint rdf:type mosim:MWalkPoint .
+	?walkpoint mosim:transform ?transform .
+	?walkpoint ?p ?o .
+        ?transform ?y ?z .
+}"""^^xsd:string. _:b328 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Update-bfc54f89-0d58-46ea-9cc6-e341adc0dce4>. _:b328 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>. <http://localhost:8090/rdf4j/repositories/behaviors#Update-bfc54f89-0d58-46ea-9cc6-e341adc0dce4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Update>. <http://localhost:8090/rdf4j/repositories/behaviors#Update-bfc54f89-0d58-46ea-9cc6-e341adc0dce4> <http://www.ajan.de/behavior/bt-ns#query> _:b181. <http://localhost:8090/rdf4j/repositories/behaviors#Update-bfc54f89-0d58-46ea-9cc6-e341adc0dce4> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Update-bfc54f89-0d58-46ea-9cc6-e341adc0dce4> <http://www.w3.org/2000/01/rdf-schema#label> """RemoveWalkGoalInput?!"""^^xsd:string. _:b181 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#UpdateQuery>. _:b181 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b181 <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX test: <http://test/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+DELETE {
+	test:WalkTarget rdf:value ?walkTarget .
+}
+WHERE {
+	test:WalkTarget rdf:value ?walkTarget .
+}"""^^xsd:string. _:b293 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://localhost:8090/rdf4j/repositories/behaviors#Update-54e9634d-9e0e-4455-83e4-2de0e51897e7>. _:b293 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>. <http://localhost:8090/rdf4j/repositories/behaviors#Update-54e9634d-9e0e-4455-83e4-2de0e51897e7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#Update>. <http://localhost:8090/rdf4j/repositories/behaviors#Update-54e9634d-9e0e-4455-83e4-2de0e51897e7> <http://www.ajan.de/behavior/bt-ns#query> _:b199. <http://localhost:8090/rdf4j/repositories/behaviors#Update-54e9634d-9e0e-4455-83e4-2de0e51897e7> <http://www.w3.org/2000/01/rdf-schema#comment> """"""^^xsd:string. <http://localhost:8090/rdf4j/repositories/behaviors#Update-54e9634d-9e0e-4455-83e4-2de0e51897e7> <http://www.w3.org/2000/01/rdf-schema#label> """RemoveWalkGoalInput?!"""^^xsd:string. _:b199 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.ajan.de/behavior/bt-ns#UpdateQuery>. _:b199 <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>. _:b199 <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX test: <http://test/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+DELETE {
+	test:WalkTarget rdf:value ?walkTarget .
+}
+WHERE {
+	test:WalkTarget rdf:value ?walkTarget .
+}"""^^xsd:string.

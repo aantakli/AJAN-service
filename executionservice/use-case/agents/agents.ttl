@@ -1,249 +1,136 @@
-# @base <http://localhost/rdf4j/repositories/agents> .
-
-@prefix : <http://localhost:8090/rdf4j/repositories/agents#> .
-@prefix behaviors: <http://localhost:8090/rdf4j/repositories/behaviors#> .
-@prefix beliefs: <http://localhost:8090/rdf4j/repositories/beliefs#> .
-
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix http: <http://www.w3.org/2011/http#> .
-@prefix ajan: <http://www.ajan.de/ajan-ns#> .
-@prefix sp: <http://spinrdf.org/sp#> .
-@prefix test: <http://test/> .
-@prefix mosim: <http://www.dfki.de/mosim-ns#> .
-@prefix dct: <http://purl.org/dc/terms/> .
 
-# ----------- Endpoint ------------
-
-# localhost:8080/ajan/agents/ | POST | text/turtle
-
-# ------------- Body --------------
-
-#@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-#@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-#@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-#@prefix ajan: <http://www.ajan.de/ajan-ns#> .
-#@prefix inv: <http://www.dfki.de/inversiv#> .
-#@prefix : <http://www.dfki.de/inversiv#> .
-#@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
-#@prefix http: <http://www.w3.org/2006/http#> .
-#@prefix test: <http://test/> .
-#
-#:initialization rdf:type ajan:AgentInitialisation ;
-#				ajan:agentName "Agento"^^xsd:string ;
-#				ajan:agentTemplate <http://localhost:8090/rdf4j/repositories/agents#ExampleAgent> ;
-#				ajan:agentInitKnowledge test:Subject  .
-#
-#test:Subject rdf:type test:Resource .
-#test:Subject test:predicate "Geh weg!" .
-
-
-# ----------- Templates -----------
-
-:GenericExampleAgent
-	rdfs:label "GenericExample Agent" ;
-	a ajan:AgentTemplate ;
-	ajan:event :ExecuteEvent ;
-	ajan:endpoint :ExecuteEndpoint ;
-	ajan:initialBehavior :InitialBehavior ;
-	ajan:finalBehavior :FinalBehavior ;
-	ajan:behavior :ExampleSceneGenericBehavior .
-
-:ExampleAgent
-	rdfs:label "Example Agent" ;
-	a ajan:AgentTemplate ;
-	ajan:event :ExecuteEvent ;
-	ajan:endpoint :ExecuteEndpoint ;
-	ajan:initialBehavior :InitialBehavior ;
-	ajan:finalBehavior :FinalBehavior ;
-	ajan:behavior :ExampleSceneBehavior .
-
-:ExamplePositionAgent
-	rdfs:label "ExamplePosition Agent" ;
-	a ajan:AgentTemplate ;
-	ajan:event :ExecuteEvent ;
-	ajan:event :PositionGoal ;
-	ajan:event :WalkGoal ;
-	ajan:endpoint :ExecuteEndpoint ;
-	ajan:initialBehavior :InitialBehavior ;
-	ajan:finalBehavior :FinalBehavior ;
-	ajan:behavior :ExamplePositionBehavior ;
-	ajan:behavior :PositionBehavior ;
-	ajan:behavior :WalkBehavior .
-
-:MOSIMAgent
-	rdfs:label "MOSIM Agent" ;
-	a ajan:AgentTemplate ;
-	ajan:event :ExecuteEvent ;
-	ajan:endpoint :ExecuteEndpoint ;
-	ajan:event :PositionGoal ;
-	ajan:event :WalkGoal ;
-	ajan:initialBehavior :InitialBehavior ;
-	ajan:finalBehavior :FinalBehavior ;
-	ajan:behavior :MOSIMBehavior ;
-	ajan:behavior :WalkBehavior ;
-	ajan:behavior :PositionBehavior .
-
-# --------- InitKnowledge ---------
-
-:InitKnowledge
-	test:test1 "Hallo1" ;
-	test:test2 "Hallo2" .
-
-# ----------- Behaviors -----------
-
-:InitialBehavior
-	a ajan:InitialBehavior ;
-	rdfs:label "Initial Behavior" ;
-	ajan:bt behaviors:InitialBehavior .
-
-:FinalBehavior
-	a ajan:FinalBehavior ;
-	rdfs:label "Final Behavior" ;
-	ajan:bt behaviors:FinalBehavior .
-
-:ExampleSceneGenericBehavior
-	a ajan:Behavior, mosim:Breakdown ;
-	rdfs:label "ExampleSceneGenericBehavior" ;
-	dct:requires "{ Task: '', MMUs: {'idle','reach','carry','walk','move','release'}}" ;
-	ajan:trigger :ExecuteEvent ;
-	ajan:bt behaviors:ExampleSceneGenericBehavior .
-
-:ExampleSceneBehavior
-	a ajan:Behavior, mosim:Breakdown ;
-	rdfs:label "ExampleSceneBehavior" ;
-	dct:requires "{ Task: '', MMUs: {'idle','reach','carry','walk','move','release'}}" ;
-	ajan:trigger :ExecuteEvent ;
-	ajan:bt behaviors:ExampleSceneBehavior .
-
-:ExamplePositionBehavior
-	a ajan:Behavior, mosim:Breakdown ;
-	rdfs:label "ExamplePositionBehavior" ;
-	dct:requires "{ Task: '', MMUs: {'idle','reach','carry','walk','move','release'}}" ;
-	ajan:trigger :ExecuteEvent ;
-	ajan:bt behaviors:ExamplePositionBehavior .
-
-:MOSIMBehavior
-	a ajan:Behavior ;
-	rdfs:label "MOSIM Behavior" ;
-	ajan:trigger :ExecuteEvent ;
-	ajan:bt behaviors:MOSIMBehavior .
-
-:PositionBehavior
-	a ajan:Behavior, mosim:Breakdown ;
-	rdfs:label "Position Behavior" ;
-	dct:requires "{ Task: 'Position', MMUs: {'idle','reach','carry','walk','move','release'}}" ;
-	ajan:trigger :PositionGoal ;
-	ajan:bt behaviors:PositionBehavior .
-
-:WalkBehavior
-	a ajan:Behavior, mosim:Breakdown ;
-	rdfs:label "Walk Behavior" ;
-	dct:requires "MMUs: {'walk'}" ;
-	ajan:trigger :WalkGoal ;
-	ajan:bt behaviors:WalkBehavior .
-
-#:TightenBehavior
-#	a ajan:Behavior, mosim:Breakdown ;
-#	rdfs:label "Tighten Behavior" ;
-#	dct:requires "MMUs: {'idle','reach','carry','walk','move','release'}" ;
-#	ajan:trigger :TightenGoal ;
-#	ajan:bt behaviors:TightenBehavior .
-
-#:CheckBehavior
-#	a ajan:Behavior, mosim:Breakdown ;
-#	rdfs:label "Check Behavior" ;
-#	dct:requires "MMUs: {'idle','reach','carry','walk','move','release'}" ;
-#	ajan:trigger :CheckGoal ;
-#	ajan:bt behaviors:CheckBehavior .
-
-# ----------- Endpoints -----------
-
-:ExecuteEndpoint
-	a ajan:Endpoint ;
-	rdfs:label "Execute Endpoint" ;
-	ajan:capability "execute";
-	ajan:event :ExecuteEvent .
-
-# ----------- Events -----------
-
-:ExecuteEvent
-	a ajan:ModelEvent ;
-	rdfs:label "ExecuteEvent" .
-
-# ----------- Goals ------------
-
-:PositionGoal
-	a ajan:Goal ;
-	rdfs:label "Position Goal" ;
-	ajan:variables (
-		[ a ajan:Variable ;
-		  sp:varName "part" ;
-		  ajan:dataType rdfs:Resource ]
-		[ a ajan:Variable ;
-		  sp:varName "tool" ;
-		  ajan:dataType rdfs:Resource ]
-		[ a ajan:Variable ;
-		  sp:varName "operation" ;
-		  ajan:dataType xsd:string ]
-	) ;
-	ajan:condition """
+<http://localhost:8090/rdf4j/repositories/agents#WalkGoal> a <http://www.ajan.de/ajan-ns#Goal>;
+  <http://www.ajan.de/ajan-ns#condition> """
 		ASK
 		WHERE {
 			?s ?p ?o .
-		}"""^^xsd:string .
+		}""";
+  <http://www.ajan.de/ajan-ns#variables> _:genid-8788ef851e664565b0b337a347533e05-b2144 .
 
-:WalkGoal
-	a ajan:Goal ;
-	rdfs:label "Walk Goal" ;
-	ajan:variables (
-		[ a ajan:Variable ;
-		  sp:varName "target" ;
-		  ajan:dataType rdfs:Resource ]
-	) ;
-	ajan:condition """
+_:genid-8788ef851e664565b0b337a347533e05-b2144 rdf:first _:genid-8788ef851e664565b0b337a347533e05-b2140 .
+
+_:genid-8788ef851e664565b0b337a347533e05-b2140 a <http://www.ajan.de/ajan-ns#Variable>;
+  <http://spinrdf.org/sp#varName> "target";
+  <http://www.ajan.de/ajan-ns#dataType> rdfs:Resource .
+
+_:genid-8788ef851e664565b0b337a347533e05-b2144 rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/agents#WalkGoal> rdfs:label "Walk Goal" .
+
+<http://localhost:8090/rdf4j/repositories/agents#PositionGoal> a <http://www.ajan.de/ajan-ns#Goal>;
+  <http://www.ajan.de/ajan-ns#condition> """
 		ASK
 		WHERE {
 			?s ?p ?o .
-		}"""^^xsd:string .
+		}""";
+  <http://www.ajan.de/ajan-ns#variables> _:genid-8788ef851e664565b0b337a347533e05-b2141 .
 
-#:TightenGoal
-#	a ajan:Goal ;
-#	rdfs:label "g_tightenGoal" ;
-#	ajan:variables (
-#		[ a ajan:Variable ;
-#		  sp:varName "part" ;
-#		  ajan:dataType rdfs:Resource ]
-#		[ a ajan:Variable ;
-#		  sp:varName "tool" ;
-#		  ajan:dataType rdfs:Resource ]
-#		[ a ajan:Variable ;
-#		  sp:varName "operation" ;
-#		  ajan:dataType xsd:string ]
-#	) ;
-#	ajan:condition """
-#		ASK
-#		WHERE {
-#			?s ?p ?o .
-#		}"""^^xsd:string .
+_:genid-8788ef851e664565b0b337a347533e05-b2141 rdf:first _:genid-8788ef851e664565b0b337a347533e05-b2137 .
 
-#:CheckGoal
-#	a ajan:Goal ;
-#	rdfs:label "g_checkGoal" ;
-#	ajan:variables (
-#		[ a ajan:Variable ;
-#		  sp:varName "part" ;
-#		  ajan:dataType rdfs:Resource ]
-#		[ a ajan:Variable ;
-#		  sp:varName "tool" ;
-#		  ajan:dataType rdfs:Resource ]
-#		[ a ajan:Variable ;
-#		  sp:varName "operation" ;
-#		  ajan:dataType xsd:string ]
-#	) ;
-#	ajan:condition """
-#		ASK
-#		WHERE {
-#			?s ?p ?o .
-#		}"""^^xsd:string .
+_:genid-8788ef851e664565b0b337a347533e05-b2137 a <http://www.ajan.de/ajan-ns#Variable>;
+  <http://spinrdf.org/sp#varName> "part";
+  <http://www.ajan.de/ajan-ns#dataType> rdfs:Resource .
+
+_:genid-8788ef851e664565b0b337a347533e05-b2141 rdf:rest _:genid-8788ef851e664565b0b337a347533e05-b2142 .
+
+_:genid-8788ef851e664565b0b337a347533e05-b2142 rdf:first _:genid-8788ef851e664565b0b337a347533e05-b2138 .
+
+_:genid-8788ef851e664565b0b337a347533e05-b2138 a <http://www.ajan.de/ajan-ns#Variable>;
+  <http://spinrdf.org/sp#varName> "tool";
+  <http://www.ajan.de/ajan-ns#dataType> rdfs:Resource .
+
+_:genid-8788ef851e664565b0b337a347533e05-b2142 rdf:rest _:genid-8788ef851e664565b0b337a347533e05-b2143 .
+
+_:genid-8788ef851e664565b0b337a347533e05-b2143 rdf:first _:genid-8788ef851e664565b0b337a347533e05-b2139 .
+
+_:genid-8788ef851e664565b0b337a347533e05-b2139 a <http://www.ajan.de/ajan-ns#Variable>;
+  <http://spinrdf.org/sp#varName> "operation";
+  <http://www.ajan.de/ajan-ns#dataType> xsd:string .
+
+_:genid-8788ef851e664565b0b337a347533e05-b2143 rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/agents#PositionGoal> rdfs:label "Position Goal" .
+
+<http://localhost:8090/rdf4j/repositories/agents#ExampleAgent> a <http://www.ajan.de/ajan-ns#AgentTemplate>;
+  <http://www.ajan.de/ajan-ns#behavior> <http://localhost:8090/rdf4j/repositories/agents#ExampleSceneBehavior>;
+  <http://www.ajan.de/ajan-ns#endpoint> <http://localhost:8090/rdf4j/repositories/agents#ExecuteEndpoint>;
+  <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#ExecuteEvent>;
+  <http://www.ajan.de/ajan-ns#finalBehavior> <http://localhost:8090/rdf4j/repositories/agents#FinalBehavior>;
+  <http://www.ajan.de/ajan-ns#initialBehavior> <http://localhost:8090/rdf4j/repositories/agents#InitialBehavior>;
+  rdfs:label "Example Agent" .
+
+<http://localhost:8090/rdf4j/repositories/agents#ExamplePositionAgent> a <http://www.ajan.de/ajan-ns#AgentTemplate>;
+  <http://www.ajan.de/ajan-ns#behavior> <http://localhost:8090/rdf4j/repositories/agents#ExamplePositionBehavior>,
+    <http://localhost:8090/rdf4j/repositories/agents#PositionBehavior>, <http://localhost:8090/rdf4j/repositories/agents#WalkBehavior>;
+  <http://www.ajan.de/ajan-ns#endpoint> <http://localhost:8090/rdf4j/repositories/agents#ExecuteEndpoint>;
+  <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#ExecuteEvent>,
+    <http://localhost:8090/rdf4j/repositories/agents#PositionGoal>, <http://localhost:8090/rdf4j/repositories/agents#WalkGoal>;
+  <http://www.ajan.de/ajan-ns#finalBehavior> <http://localhost:8090/rdf4j/repositories/agents#FinalBehavior>;
+  <http://www.ajan.de/ajan-ns#initialBehavior> <http://localhost:8090/rdf4j/repositories/agents#InitialBehavior>;
+  rdfs:label "ExamplePosition Agent" .
+
+<http://localhost:8090/rdf4j/repositories/agents#MOSIMAgent> a <http://www.ajan.de/ajan-ns#AgentTemplate>;
+  <http://www.ajan.de/ajan-ns#behavior> <http://localhost:8090/rdf4j/repositories/agents#MOSIMBehavior>,
+    <http://localhost:8090/rdf4j/repositories/agents#PositionBehavior>, <http://localhost:8090/rdf4j/repositories/agents#WalkBehavior>;
+  <http://www.ajan.de/ajan-ns#endpoint> <http://localhost:8090/rdf4j/repositories/agents#ExecuteEndpoint>;
+  <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#ExecuteEvent>,
+    <http://localhost:8090/rdf4j/repositories/agents#PositionGoal>, <http://localhost:8090/rdf4j/repositories/agents#WalkGoal>;
+  <http://www.ajan.de/ajan-ns#finalBehavior> <http://localhost:8090/rdf4j/repositories/agents#FinalBehavior>;
+  <http://www.ajan.de/ajan-ns#initialBehavior> <http://localhost:8090/rdf4j/repositories/agents#InitialBehavior>;
+  rdfs:label "MOSIM Agent" .
+
+<http://localhost:8090/rdf4j/repositories/agents#InitKnowledge> <http://test/test1>
+    "Hallo1";
+  <http://test/test2> "Hallo2" .
+
+<http://localhost:8090/rdf4j/repositories/agents#InitialBehavior> a <http://www.ajan.de/ajan-ns#InitialBehavior>;
+  <http://www.ajan.de/ajan-ns#bt> <http://localhost:8090/rdf4j/repositories/behaviors#InitialBehavior>;
+  rdfs:label "Initial Behavior" .
+
+<http://localhost:8090/rdf4j/repositories/agents#FinalBehavior> a <http://www.ajan.de/ajan-ns#FinalBehavior>;
+  <http://www.ajan.de/ajan-ns#bt> <http://localhost:8090/rdf4j/repositories/behaviors#FinalBehavior>;
+  rdfs:label "Final Behavior" .
+
+<http://localhost:8090/rdf4j/repositories/agents#ExampleSceneBehavior> a <http://www.ajan.de/ajan-ns#Behavior>,
+    <http://www.dfki.de/mosim-ns#Breakdown>;
+  <http://purl.org/dc/terms/requires> "{ Task: '', MMUs: {'idle','reach','carry','walk','move','release'}}";
+  <http://www.ajan.de/ajan-ns#bt> <http://localhost:8090/rdf4j/repositories/behaviors#ExampleSceneBehavior>;
+  <http://www.ajan.de/ajan-ns#trigger> <http://localhost:8090/rdf4j/repositories/agents#ExecuteEvent>;
+  rdfs:label "ExampleSceneBehavior" .
+
+<http://localhost:8090/rdf4j/repositories/agents#ExamplePositionBehavior> a <http://www.ajan.de/ajan-ns#Behavior>,
+    <http://www.dfki.de/mosim-ns#Breakdown>;
+  <http://purl.org/dc/terms/requires> "{ Task: '', MMUs: {'idle','reach','carry','walk','move','release'}}";
+  <http://www.ajan.de/ajan-ns#bt> <http://localhost:8090/rdf4j/repositories/behaviors#ExamplePositionBehavior>;
+  <http://www.ajan.de/ajan-ns#trigger> <http://localhost:8090/rdf4j/repositories/agents#ExecuteEvent>;
+  rdfs:label "ExamplePositionBehavior" .
+
+<http://localhost:8090/rdf4j/repositories/agents#MOSIMBehavior> a <http://www.ajan.de/ajan-ns#Behavior>;
+  <http://www.ajan.de/ajan-ns#bt> <http://localhost:8090/rdf4j/repositories/behaviors#MOSIMBehavior>;
+  <http://www.ajan.de/ajan-ns#trigger> <http://localhost:8090/rdf4j/repositories/agents#ExecuteEvent>;
+  rdfs:label "MOSIM Behavior" .
+
+<http://localhost:8090/rdf4j/repositories/agents#PositionBehavior> a <http://www.ajan.de/ajan-ns#Behavior>,
+    <http://www.dfki.de/mosim-ns#Breakdown>;
+  <http://purl.org/dc/terms/requires> "{ Task: 'Position', MMUs: {'idle','reach','carry','walk','move','release'}}";
+  <http://www.ajan.de/ajan-ns#bt> <http://localhost:8090/rdf4j/repositories/behaviors#PositionBehavior>;
+  <http://www.ajan.de/ajan-ns#trigger> <http://localhost:8090/rdf4j/repositories/agents#PositionGoal>;
+  rdfs:label "Position Behavior" .
+
+<http://localhost:8090/rdf4j/repositories/agents#WalkBehavior> a <http://www.ajan.de/ajan-ns#Behavior>,
+    <http://www.dfki.de/mosim-ns#Breakdown>;
+  <http://purl.org/dc/terms/requires> "MMUs: {'walk'}";
+  <http://www.ajan.de/ajan-ns#bt> <http://localhost:8090/rdf4j/repositories/behaviors#WalkBehavior>;
+  <http://www.ajan.de/ajan-ns#trigger> <http://localhost:8090/rdf4j/repositories/agents#WalkGoal>;
+  rdfs:label "Walk Behavior" .
+
+<http://localhost:8090/rdf4j/repositories/agents#ExecuteEndpoint> a <http://www.ajan.de/ajan-ns#Endpoint>;
+  <http://www.ajan.de/ajan-ns#capability> "execute";
+  <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#ExecuteEvent>;
+  rdfs:label "Execute Endpoint" .
+
+<http://localhost:8090/rdf4j/repositories/agents#ExecuteEvent> a <http://www.ajan.de/ajan-ns#ModelEvent>;
+  rdfs:label "ExecuteEvent" .

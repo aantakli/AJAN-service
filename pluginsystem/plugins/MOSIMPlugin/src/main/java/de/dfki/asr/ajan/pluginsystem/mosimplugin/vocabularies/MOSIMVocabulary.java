@@ -30,17 +30,22 @@ public class MOSIMVocabulary {
 	public final static IRI M_SCENE_OBJECT = FACTORY.createIRI("http://www.dfki.de/mosim-ns#MSceneObject");
 	public final static IRI M_TRANSFORM = FACTORY.createIRI("http://www.dfki.de/mosim-ns#MTransform");
 	public final static IRI M_COLLIDER = FACTORY.createIRI("http://www.dfki.de/mosim-ns#MCollider");
+	public final static IRI M_CONSTRAINT = FACTORY.createIRI("http://www.dfki.de/mosim-ns#MConstraint");
 	public final static IRI M_WALKPOINT = FACTORY.createIRI("http://www.dfki.de/mosim-ns#MWalkPoint");
 	public final static IRI M_PART = FACTORY.createIRI("http://www.dfki.de/mosim-ns#Part");
 	public final static IRI M_FINAL_LOCATION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#FinalLocation");
 	public final static IRI CO_SIMULATOR = FACTORY.createIRI("http://www.dfki.de/mosim-ns#CoSimulator");
 	public final static IRI INSTRUCTION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#Instruction");
+	public final static IRI PROPERTY = FACTORY.createIRI("http://www.dfki.de/mosim-ns#Property");
 
 	public final static IRI CONTAINS = FACTORY.createIRI("http://www.dfki.de/mosim-ns#contains");
 	public final static IRI HAS_ACTION_ID = FACTORY.createIRI("http://www.dfki.de/mosim-ns#actionID");
+	public final static IRI HAS_INSTRUCTION_ID = FACTORY.createIRI("http://www.dfki.de/mosim-ns#instructionID");
 	public final static IRI HAS_ID = FACTORY.createIRI("http://www.dfki.de/mosim-ns#id");
+	public final static IRI HAS_OBJECT = FACTORY.createIRI("http://www.dfki.de/mosim-ns#object");
 	public final static IRI HAS_TRANSFORM = FACTORY.createIRI("http://www.dfki.de/mosim-ns#transform");
 	public final static IRI HAS_COLLIDER = FACTORY.createIRI("http://www.dfki.de/mosim-ns#collider");
+	public final static IRI HAS_CONSTRAINT = FACTORY.createIRI("http://www.dfki.de/mosim-ns#constraint");
 	public final static IRI HAS_PATH_LENGTH = FACTORY.createIRI("http://www.dfki.de/mosim-ns#pathLength");
 	public final static IRI HAS_POS_X = FACTORY.createIRI("http://www.dfki.de/mosim-ns#posX");
 	public final static IRI HAS_POS_Y = FACTORY.createIRI("http://www.dfki.de/mosim-ns#posY");
@@ -49,6 +54,9 @@ public class MOSIMVocabulary {
 	public final static IRI HAS_ROT_Y = FACTORY.createIRI("http://www.dfki.de/mosim-ns#rotY");
 	public final static IRI HAS_ROT_Z = FACTORY.createIRI("http://www.dfki.de/mosim-ns#rotZ");
 	public final static IRI HAS_ROT_W = FACTORY.createIRI("http://www.dfki.de/mosim-ns#rotW");
+	
+	public final static IRI HAS_KEY = FACTORY.createIRI("http://www.dfki.de/mosim-ns#key");
+	public final static IRI HAS_VALUE = FACTORY.createIRI("http://www.dfki.de/mosim-ns#value");
 	public final static IRI HAS_MMU = FACTORY.createIRI("http://www.dfki.de/mosim-ns#mmu");
 	public final static IRI HAS_NAME = FACTORY.createIRI("http://www.dfki.de/mosim-ns#name");
 	public final static IRI HAS_MOTION_TYPE = FACTORY.createIRI("http://www.dfki.de/mosim-ns#motionType");
@@ -57,12 +65,16 @@ public class MOSIMVocabulary {
 	public final static IRI HAS_FINAL_LOCATION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#finalLocation");
 	public final static IRI IS_LOCATED_AT = FACTORY.createIRI("http://www.dfki.de/mosim-ns#isLocatedAt");
 	public final static IRI HAS_INSTRUCTION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#instruction");
+	public final static IRI HAS_INSTRUCTION_PROPERTIES = FACTORY.createIRI("http://www.dfki.de/mosim-ns#instructionProperties");
 	public final static IRI HAS_FINISHED = FACTORY.createIRI("http://www.dfki.de/mosim-ns#finished");
-	public final static IRI HAS_MMU_PROPERTIES = FACTORY.createIRI("http://www.dfki.de/mosim-ns#mmuProperties");
+	public final static IRI HAS_MMU_PROPERTY = FACTORY.createIRI("http://www.dfki.de/mosim-ns#mmuProperty");
+	public final static IRI HAS_INSTRUCTION_CONSTRAINTS = FACTORY.createIRI("http://www.dfki.de/mosim-ns#instructionConstraints");
 	public final static IRI HAS_OBJECTS = FACTORY.createIRI("http://www.dfki.de/mosim-ns#objects");
 	public final static IRI HAS_ACTION_NAME = FACTORY.createIRI("http://www.dfki.de/mosim-ns#actionName");
 	public final static IRI HAS_START_CONDITION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#startCondition");
 	public final static IRI HAS_END_CONDITION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#endCondition");
+	public final static IRI HAS_TIMESTAMP = FACTORY.createIRI("http://www.dfki.de/mosim-ns#timestamp");
+	public final static IRI HAS_JSON_INSTRUCTION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#jsonInstruction");
 
 	public final static IRI HAS_EVENT_TYPE = FACTORY.createIRI("http://www.dfki.de/mosim-ns#eventType");
 	public final static IRI HAS_HOST = FACTORY.createIRI("http://www.dfki.de/mosim-ns#host");

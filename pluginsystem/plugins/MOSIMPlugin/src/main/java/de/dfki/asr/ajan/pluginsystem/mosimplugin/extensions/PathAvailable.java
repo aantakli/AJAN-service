@@ -27,15 +27,16 @@ import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
+import static de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.GetWalkPoints.LOG;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.constraints.MInterval3;
 import de.mosim.mmi.constraints.MPathConstraint;
+import de.mosim.mmi.math.MTransform;
 import de.mosim.mmi.math.MVector;
-import de.mosim.mmi.math.MVector3;
 import de.mosim.mmi.scene.MSceneObject;
 import de.mosim.mmi.services.MPathPlanningService;
-import de.mosim.mmi.services.MSceneAccess;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -94,10 +95,6 @@ public class PathAvailable extends AbstractTDBLeafTask implements NodeExtension 
 	private String host;
 	private int port;
 
-	@RDF("bt-mosim:scene")
-	@Getter @Setter
-	private BehaviorSelectQuery scene;
-
 	@RDF("bt:targetBase")
 	@Getter @Setter
 	private URI repository;
@@ -149,58 +146,54 @@ public class PathAvailable extends AbstractTDBLeafTask implements NodeExtension 
 				TProtocol protocol = new TCompactProtocol(transport);
 				MPathPlanningService.Client client = new MPathPlanningService.Client(protocol);
 				Input targetInp = getInput(target);
+				if (targetInp == null) {
+					return false;
+				}
 				MPathConstraint path = client.ComputePath(getInput(avatar).vector, targetInp.vector, getMSceneObjects(), getProperties());
 				Model inputModel = getInputModel(targetInp.iri, path);
 				MOSIMUtil.writeInput(inputModel, repository.toString(), this.getObject());
 				return !path.getPolygonPoints().isEmpty();
 			}
-		} catch (TException | URISyntaxException ex) {
+		} catch (TException | URISyntaxException | ClassNotFoundException | IOException ex) {
 			LOG.error("Could not check path", ex);
 			return false;
 		}
 	}
 
-	private Input getInput(final BehaviorConstructQuery query) throws URISyntaxException {
+	private Input getInput(final BehaviorConstructQuery query) throws URISyntaxException, IOException, ClassNotFoundException {
 		Input input = new Input();
 		MVector vector = new MVector();
 		List<Double> values = new ArrayList();
 		Repository repo = BTUtil.getInitializedRepository(this.getObject(), query.getOriginBase());
 		Model result = query.getResult(repo);
 		input.iri = MOSIMUtil.getResource(result, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MOSIMVocabulary.M_WALKPOINT);
-		values.add(0, new Double(MOSIMUtil.getObject(result, null, MOSIMVocabulary.HAS_POS_X)));
-		values.add(1, new Double(MOSIMUtil.getObject(result, null, MOSIMVocabulary.HAS_POS_Y)));
-		values.add(2, new Double(MOSIMUtil.getObject(result, null, MOSIMVocabulary.HAS_POS_Z)));
+		String transObj = MOSIMUtil.getObject(result, null, MOSIMVocabulary.HAS_OBJECT);
+		if (transObj.isEmpty())
+			return null;
+		MTransform trans = (MTransform) MOSIMUtil.decodeObjectBase64(transObj);
+		values.add(0, trans.getPosition().getX());
+		values.add(1, trans.getPosition().getY());
+		values.add(2, trans.getPosition().getZ());
 		vector.setValues(values);
 		input.vector = vector;
 		return input;
 	}
 
-	private List<MSceneObject> getMSceneObjects() throws URISyntaxException {
+	private List<MSceneObject> getMSceneObjects() throws IOException, ClassNotFoundException, URISyntaxException {
 		Repository repo = BTUtil.getInitializedRepository(this.getObject(), objects.getOriginBase());
 		List<BindingSet> result = objects.getResult(repo);
 		List<MSceneObject> sObjects = new ArrayList();
 		Iterator<BindingSet> itr = result.iterator();
 		while (itr.hasNext()) {
 			BindingSet binding = itr.next();
-			sObjects.add(getMSceneObject(binding.getValue("id").stringValue()));
+			String obj64 = binding.getValue("object").stringValue();
+			sObjects.add(getMSceneObject(obj64));
 		}
 		return sObjects;
 	}
 
-	private MSceneObject getMSceneObject(final String id) throws URISyntaxException {
-		Map<String,String> hostMap = MOSIMUtil.getHostInfos(scene, this.getObject());
-		Map.Entry<String,String> entry = hostMap.entrySet().iterator().next();
-		try {
-			try (TTransport transport = new TSocket(entry.getKey(), Integer.parseInt(entry.getValue()))) {
-				transport.open();
-				TProtocol protocol = new TCompactProtocol(transport);
-				MSceneAccess.Client client = new MSceneAccess.Client(protocol);
-				return client.GetSceneObjectByID(id);
-			}
-		} catch (TException ex) {
-			LOG.error("Could not load List<MSceneObject>", ex);
-			return null;
-		}
+	private MSceneObject getMSceneObject(final String obj64) throws IOException, ClassNotFoundException {
+		return (MSceneObject) MOSIMUtil.decodeObjectBase64(obj64);
 	}
 
 	private Map<String, String> getProperties() {
@@ -220,7 +213,8 @@ public class PathAvailable extends AbstractTDBLeafTask implements NodeExtension 
 			MInterval3 next = path.getPolygonPoints().get(i).TranslationConstraint.Limits;
 			length += Math.sqrt(Math.pow(first.X.Max - next.X.Max, 2) + Math.pow(first.Z.Max - next.Z.Max, 2));
 		}
-		model.add(subject, MOSIMVocabulary.HAS_PATH_LENGTH, vf.createLiteral(length));
+		if (!path.getPolygonPoints().isEmpty())
+			model.add(subject, MOSIMVocabulary.HAS_PATH_LENGTH, vf.createLiteral(length));
 		return model;
 	}
 

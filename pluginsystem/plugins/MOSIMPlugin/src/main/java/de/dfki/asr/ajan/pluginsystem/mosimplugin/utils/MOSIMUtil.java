@@ -19,24 +19,37 @@
 
 package de.dfki.asr.ajan.pluginsystem.mosimplugin.utils;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.constraints.MConstraint;
+import de.mosim.mmi.constraints.MGeometryConstraint;
 import de.mosim.mmi.math.MQuaternion;
 import de.mosim.mmi.math.MTransform;
-import de.mosim.mmi.math.MVector3;
 import de.mosim.mmi.mmiConstants;
 import de.mosim.mmi.mmu.MInstruction;
-import de.mosim.mmi.scene.MSceneObject;
+import de.mosim.mmi.scene.MCollider;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.commons.math3.complex.Quaternion;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -52,84 +65,15 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  *
  * @author Andre Antakli
  */
 public final class MOSIMUtil {
-
-	private final static int KEY = 0;
-	private final static int VALUE = 1;
 	
 	protected final static ValueFactory vf = SimpleValueFactory.getInstance();
-	
-	public final static String OBJECT = 
-            "PREFIX mosim: <http://www.dfki.de/mosim-ns#>\n" +
-			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-			"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
-			"SELECT ?id \n" +
-			"WHERE {\n" +
-			"	?object rdf:type mosim:MSceneObject .\n" +
-			"	?object rdfs:label <name> .\n" +
-			"	?object mosim:id ?id .\n" +
-			"}";
-
-	public final static String ACTION = 
-            "PREFIX mosim: <http://www.dfki.de/mosim-ns#>\n" +
-			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-			"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
-			"SELECT ?id ?name\n" +
-			"WHERE {\n" +
-			"	?action mosim:actionID ?id .\n" +
-			"	?action mosim:mmu ?name .\n" +
-			"	?action mosim:actionName <actionName> .\n" +
-			"}";
-
-	public final static String HOST = 
-            "PREFIX mosim: <http://www.dfki.de/mosim-ns#>\n" +
-			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-			"SELECT ?host ?port \n" +
-			"WHERE {\n" +
-			"	?cosim rdf:type mosim:CoSimulator .\n" +
-			"	?cosim mosim:host ?host .\n" +
-			"	?cosim mosim:port ?port .\n" +
-			"}";
-
-	public final static String MSCENEOBJECT = 
-            "PREFIX mosim: <http://www.dfki.de/mosim-ns#>\n" +
-			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-			"SELECT ?id ?posX ?posY ?posZ ?rotX ?rotY ?rotZ ?rotW \n" +
-			"WHERE {\n" +
-			"	?object rdf:type mosim:MSceneObject .\n" +
-			"	?object mosim:id <@ID> .\n" +
-			"	?object mosim:transform ?transform .\n" +
-			"	?transform rdf:type mosim:MTransform .\n" +
-			"	?transform mosim:id ?id .\n" +
-			"	?transform mosim:posX ?posX .\n" +
-			"	?transform mosim:posY ?posY .\n" +
-			"	?transform mosim:posZ ?posZ .\n" +
-			"	?transform mosim:rotX ?rotX .\n" +
-			"	?transform mosim:rotY ?rotY .\n" +
-			"	?transform mosim:rotZ ?rotZ .\n" +
-			"	?transform mosim:rotW ?rotW .\n" +
-			"}";
-
-	public final static String MTRANSFORM = 
-            "PREFIX mosim: <http://www.dfki.de/mosim-ns#>\n" +
-			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-			"SELECT ?id ?posX ?posY ?posZ ?rotX ?rotY ?rotZ ?rotW \n" +
-			"WHERE {\n" +
-			"	?transform rdf:type mosim:MTransform .\n" +
-			"	?transform mosim:id ?id .\n" +
-			"	?transform mosim:posX ?posX .\n" +
-			"	?transform mosim:posY ?posY .\n" +
-			"	?transform mosim:posZ ?posZ .\n" +
-			"	?transform mosim:rotX ?rotX .\n" +
-			"	?transform mosim:rotY ?rotY .\n" +
-			"	?transform mosim:rotZ ?rotZ .\n" +
-			"	?transform mosim:rotW ?rotW .\n" +
-			"}";
 
 	private MOSIMUtil() {
 
@@ -221,71 +165,76 @@ public final class MOSIMUtil {
 		return properties;
 	}
 
-	public static Map<String,String> createGeneralProperties(final String general, final Map<String,String> objectIDs, final AgentTaskInformation info) throws URISyntaxException {
+	public static Map<String,String> createGeneralProperties(final ArrayList<Value> values, final Model inputModel) throws URISyntaxException {
 		Map<String,String> properties = new HashMap();
-		if (!general.equals("")) {
-			String[] list = general.split(";");
-			for (String list1 : list) {
-				String[] keyvalue = list1.replace(" ", "").split(",");
-				if (keyvalue[1].startsWith("<id@")) {
-					String operator = getOperator(keyvalue[1]);
-					String value = keyvalue[1].replace(operator, "").replace("<id@", "").replace(">", "");
-					String newValue = objectIDs.get(value);
-					properties.put(keyvalue[KEY], newValue + operator);
-				} else if (keyvalue[1].startsWith("<actionId@")) {
-					String operator = getOperator(keyvalue[1]);
-					String newValue = getActionID(keyvalue[1].replace(operator, ""),info);
-					properties.put(keyvalue[KEY], newValue + operator);
-				} else {
-					properties.put(keyvalue[KEY], keyvalue[VALUE]);
-				}
+		if (!values.isEmpty()) {
+			for (Value val: values) {
+				String key = getObject(inputModel, (IRI) val, MOSIMVocabulary.HAS_KEY);
+				String value = getObject(inputModel, (IRI) val, MOSIMVocabulary.HAS_VALUE);
+				properties.put(key, value);
 			}
 		}
 		return properties;
 	}
 
+	public static String getInstructionDef(final MInstruction instruction) {
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode node = mapper.valueToTree(instruction);
+		return node.toString();
+	}
+
+	public static Map<String,IRI> getConstraintObj64(final ArrayList<Value> values, final Model inputModel) {
+		Map<String,IRI> map = new HashMap();
+		IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
+		if (!values.isEmpty()) {
+			for (Value val: values) {
+				String type = getObject(inputModel, (Resource) val, rdfType);
+				String obj64 = getObject(inputModel, (Resource) val, MOSIMVocabulary.HAS_OBJECT);
+				map.put(obj64, vf.createIRI(type));
+				
+			}
+		}
+		return map;
+	}
+
+	public static List<MConstraint> createConstraints(final Map<String,IRI> obj64s) {
+		List<MConstraint> list = new ArrayList();
+		for (Entry<String,IRI> entry: obj64s.entrySet()) {
+			MConstraint constraint = getConstraint(entry.getKey(), entry.getValue());
+			list.add(constraint);
+		}
+		return list;
+	}
+
+	public static MConstraint getConstraint(final String obj64, final IRI type) {
+		try {
+			if (type.toString().equals(MOSIMVocabulary.M_CONSTRAINT.toString())) {
+				return (MConstraint) MOSIMUtil.decodeObjectBase64(obj64);
+			}
+			else if (type.toString().equals(MOSIMVocabulary.M_TRANSFORM.toString())) {
+				MConstraint constraint = new MConstraint();
+				MGeometryConstraint geo = new MGeometryConstraint();
+				geo.ParentObjectID = "";
+				MTransform trans = (MTransform) MOSIMUtil.decodeObjectBase64(obj64);
+				geo.ParentToConstraint = trans;
+				constraint.ID = trans.ID;
+				constraint.GeometryConstraint = geo;
+				return constraint;
+			}
+			else {
+				return new MConstraint(); 
+			}
+		} catch (IOException | ClassNotFoundException ex) {
+			return new MConstraint();
+		}
+	}
+
 	public static void setHost(final AgentTaskInformation info, String cosimHost, int cosimPort) throws URISyntaxException {
-		List<BindingSet> bindings = MOSIMUtil.getBindings(MOSIMUtil.HOST, info);
+		List<BindingSet> bindings = MOSIMUtil.getBindings(MOSIMHelpers.HOST, info);
 		if (!bindings.isEmpty()) {
 			cosimHost = bindings.get(0).getValue("host").stringValue();
 			cosimPort = Integer.parseInt(bindings.get(0).getValue("port").stringValue());
 		}
-	}
-
-	private static String getOperator(final String input) {
-		String[] part = input.split(">");
-		if (part.length > 1)
-			return part[1];
-		else
-			return "";
-	}
-
-	public static String getActionID(final String actionName, final AgentTaskInformation info) throws URISyntaxException {
-		String value = actionName.replace("<actionId@", "").replace(">", "");
-		String query = ACTION.replace("<actionName>", '"' + value + '"');
-		List<BindingSet> bindings = getBindings(query,info);
-		return bindings.get(0).getValue("id").stringValue();
-	}
-
-	public static String getConditionInput(final String cond, final AgentTaskInformation info) throws URISyntaxException {
-		if (cond.startsWith("<actionId@")) {
-			String operator = getOperator(cond);
-			return getActionID(cond.replace(operator, ""), info) + operator;
-		} else {
-			return cond;
-		}
-	}
-
-	public static Map<String,String> getObjectIDs(final AgentTaskInformation info, final String sparql, String objects) throws URISyntaxException {
-		Map<String,String> objectIDs = new HashMap();
-		String[] objectList = objects.replace(" ", "").split(";");
-		for (String object: objectList) {
-			String query = sparql;
-			query = query.replace("<name>", '"' + object + '"');
-			List<BindingSet> bindings = getBindings(query, info);
-			objectIDs.put(object, bindings.get(0).getValue("id").stringValue());
-		}
-		return objectIDs;
 	}
 
 	public static List<BindingSet> getBindings(final String sparql, final AgentTaskInformation info) throws URISyntaxException {
@@ -313,10 +262,17 @@ public final class MOSIMUtil {
     }
 
 	public static String getObject(final Model model, final Resource subject, final IRI predicate) {
+        ArrayList<Value> objects = getObjects(model, subject, predicate);
+		if (objects.isEmpty()) {
+			return "";
+		}
+        return objects.get(0).stringValue();
+    }
+
+	public static ArrayList<Value> getObjects(final Model model, final Resource subject, final IRI predicate) {
         Model filter = model.filter(subject, predicate, null);
         Set<Value> objects = filter.objects();
-        Value objj = new ArrayList<>(objects).get(0);
-        return objj.stringValue();
+		return new ArrayList<>(objects);
     }
 
 	public static void writeInput(final Model model, final String repository, final AgentTaskInformation info) {
@@ -358,55 +314,10 @@ public final class MOSIMUtil {
 		return 0;
 	}
 
-	public static MSceneObject getMSceneObject(final String id, final Repository repo) {
-		try (RepositoryConnection conn = repo.getConnection()) {
-			String query = MSCENEOBJECT.replace("<@ID>", "'" + id + "'");
-			TupleQuery tuplQ = conn.prepareTupleQuery(query);
-			TupleQueryResult result = tuplQ.evaluate();
-			List<BindingSet> bindings = new ArrayList();
-			while (result.hasNext()) {
-				bindings.add(result.next());
-			}
-			MSceneObject obj = new MSceneObject();
-			obj.ID = id;
-			obj.Name = bindings.get(0).getValue("posX").stringValue();
-			obj.Transform = getTransform(bindings.get(0));
-			return obj;
-		} catch (Exception ex) {
-			return null;
-		}
-	}
-
-	public static MTransform getTransform(final BindingSet binding) throws URISyntaxException {
-		MTransform transform = new MTransform();
-		transform.ID = binding.getValue("id").stringValue();
-		MVector3 position = new MVector3();
-		position.X = Double.parseDouble(binding.getValue("posX").stringValue());
-		position.Y = Double.parseDouble(binding.getValue("posY").stringValue());
-		position.Z = Double.parseDouble(binding.getValue("posZ").stringValue());
-		MQuaternion rotation = new MQuaternion();
-		rotation.X = Double.parseDouble(binding.getValue("rotX").stringValue());
-		rotation.Y = Double.parseDouble(binding.getValue("rotY").stringValue());
-		rotation.Z = Double.parseDouble(binding.getValue("rotZ").stringValue());
-		rotation.W = Double.parseDouble(binding.getValue("rotW").stringValue());
-		transform.Position = position;
-		transform.Rotation = rotation;
+	public static MTransform getTransform(final BindingSet binding) throws URISyntaxException, IOException, ClassNotFoundException {
+		MTransform transform = (MTransform) decodeObjectBase64(binding.getValue("object").stringValue());
 		return transform;
 	}
-
-	public static List<String> getTransformVars() {
-		List<String> list = new ArrayList();
-		list.add("id");
-		list.add("posX");
-		list.add("posY");
-		list.add("posZ");
-		list.add("rotX");
-		list.add("rotY");
-		list.add("rotZ");
-		list.add("rotW");
-		return list;
-	}
-
 	
 	public static MTransform getLookAtTransform(final MTransform sourcePoint, final MTransform destPoint) {
 		Vector3D srcVec = new Vector3D(sourcePoint.Position.X,sourcePoint.Position.Y,sourcePoint.Position.Z);
@@ -426,18 +337,54 @@ public final class MOSIMUtil {
 		return sourcePoint.setRotation(new MQuaternion(q.getQ0(),q.getQ1(),q.getQ2(),q.getQ3()));
 	}
 
-	public static void setTransform(final Model model, final Resource subject, final MTransform transform) {
+	public static void setTransform(final Model model, final Resource subject, final MTransform transform) throws IOException {
 		IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
 		Resource transIRI = vf.createBNode();
 		model.add(subject, MOSIMVocabulary.HAS_TRANSFORM, transIRI);
 		model.add(transIRI, rdfType, MOSIMVocabulary.M_TRANSFORM);
 		model.add(transIRI, MOSIMVocabulary.HAS_ID, vf.createLiteral(transform.ID));
-		model.add(transIRI, MOSIMVocabulary.HAS_POS_X, vf.createLiteral(transform.Position.X));
-		model.add(transIRI, MOSIMVocabulary.HAS_POS_Y, vf.createLiteral(transform.Position.Y));
-		model.add(transIRI, MOSIMVocabulary.HAS_POS_Z, vf.createLiteral(transform.Position.Z));
-		model.add(transIRI, MOSIMVocabulary.HAS_ROT_X, vf.createLiteral(transform.Rotation.X));
-		model.add(transIRI, MOSIMVocabulary.HAS_ROT_Y, vf.createLiteral(transform.Rotation.Y));
-		model.add(transIRI, MOSIMVocabulary.HAS_ROT_Z, vf.createLiteral(transform.Rotation.Z));
-		model.add(transIRI, MOSIMVocabulary.HAS_ROT_W, vf.createLiteral(transform.Rotation.W));
+		model.add(transIRI, MOSIMVocabulary.HAS_OBJECT, vf.createLiteral(encodeObjectBase64(transform)));
+	}
+
+	public static void setCollider(final Model model, final IRI subject, final MCollider collider) throws IOException {
+		IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
+		Resource transIRI = vf.createBNode();
+		model.add(subject, MOSIMVocabulary.HAS_COLLIDER, transIRI);
+		model.add(transIRI, rdfType, MOSIMVocabulary.M_COLLIDER);
+		model.add(transIRI, MOSIMVocabulary.HAS_ID, vf.createLiteral(collider.ID));
+		model.add(transIRI, MOSIMVocabulary.HAS_OBJECT, vf.createLiteral(encodeObjectBase64(collider)));
+	}
+
+	public static void setConstraint(final Model model, final Resource subject, final MConstraint constr) throws IOException {
+		IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
+		Resource transIRI = vf.createBNode();
+		model.add(subject, MOSIMVocabulary.HAS_CONSTRAINT, transIRI);
+		model.add(transIRI, rdfType, MOSIMVocabulary.M_CONSTRAINT);
+		model.add(transIRI, MOSIMVocabulary.HAS_ID, vf.createLiteral(constr.ID));
+		model.add(transIRI, MOSIMVocabulary.HAS_OBJECT, vf.createLiteral(encodeObjectBase64(constr)));
+	}
+
+	public static String encodeObjectBase64(final Object object) throws IOException {
+		String output = "";
+		try (ByteArrayOutputStream objIn = new ByteArrayOutputStream()) {
+			try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(objIn)) {
+				objectOutputStream.writeObject(object);
+			}
+			output = Base64.getEncoder().encodeToString(objIn.toByteArray());
+		}
+		return output;
+	}
+
+	public static Object decodeObjectBase64(final String encoded) throws IOException, ClassNotFoundException {
+		byte[] decoded = Base64.getDecoder().decode(encoded);
+		InputStream objOut = new ByteArrayInputStream(decoded);
+		ObjectInputStream objectInputStream = new ObjectInputStream(objOut);
+		return objectInputStream.readObject();
+	}
+
+	public static String getTimeStamp() {
+		Date date= new Date();
+		Timestamp ts = new Timestamp(date.getTime());
+		return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(ts);
 	}
 }

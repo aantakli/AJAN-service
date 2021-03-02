@@ -28,6 +28,7 @@ import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
 import de.dfki.asr.ajan.behaviour.service.impl.SelectQueryTemplate;
 import de.dfki.asr.ajan.behaviour.nodes.action.common.ACTNUtil;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorQuery;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpHeader;
 import de.dfki.asr.ajan.common.AgentUtil;
@@ -45,6 +46,7 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.resultio.TupleQueryResultFormat;
 import org.eclipse.rdf4j.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,7 +151,7 @@ public class Message extends AbstractTDBLeafTask {
 		}
 	}
 
-	protected String getInput(final HttpBinding binding) throws URISyntaxException, UnsupportedEncodingException {
+	protected String getInput(final HttpBinding binding) throws URISyntaxException, UnsupportedEncodingException, IOException {
 		SelectQueryTemplate tmpl = binding.getPayload().getTemplate();
 		if (tmpl != null) {
 			Repository repo = BTUtil.getInitializedRepository(getObject(), tmpl.getBtQuery().getOriginBase());
@@ -157,11 +159,19 @@ public class Message extends AbstractTDBLeafTask {
 			queryAll.setSparql("CONSTRUCT {?s ?p ?o} WHERE {?s ?p ?o}");
 			return ACTNUtil.getTemplatePayload(queryAll.getResult(repo), tmpl);
 		}
-		BehaviorConstructQuery query = binding.getPayload().getBtQuery();
+		BehaviorQuery query = binding.getPayload().getBtQuery();
 		Repository repo = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
 		List<HttpHeader> headers = binding.getHeaders();
 		String mimeType = ACTNUtil.getMimeTypeFromHeaders(headers);
-		return ACTNUtil.getModelPayload(query.getResult(repo), mimeType);
+		if (mimeType.contains("application/sparql-results+xml")) {
+			BehaviorSelectQuery select = new BehaviorSelectQuery();
+			select.setSparql(query.getSparql());
+			return select.getResult(repo, TupleQueryResultFormat.SPARQL);
+		} else {
+			BehaviorConstructQuery construct = new BehaviorConstructQuery();
+			construct.setSparql(query.getSparql());
+			return ACTNUtil.getModelPayload(construct.getResult(repo), mimeType);
+		}
 	}
 
 	@Override
