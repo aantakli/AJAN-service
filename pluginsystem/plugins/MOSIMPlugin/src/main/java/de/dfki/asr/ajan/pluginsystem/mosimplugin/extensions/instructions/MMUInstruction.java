@@ -163,11 +163,12 @@ public class MMUInstruction extends AbstractInstruction {
 	public void setResponse(String id, Object response) {
 		if (response instanceof ResultModel) {
 			ResultModel model = (ResultModel)response;
-			Resource root = vf.createIRI(url);
+			Resource root = vf.createBNode();
 			model.add(root, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MOSIMVocabulary.INSTRUCTION);
 			if (!actionName.equals("")) {
 				model.add(root, MOSIMVocabulary.HAS_ACTION_NAME, vf.createLiteral(actionName));
 			}
+			model.add(root, MOSIMVocabulary.HAS_ACTION_URL, vf.createLiteral(url));
 			model.add(root, MOSIMVocabulary.HAS_INSTRUCTION_ID, vf.createLiteral(instID));
 			model.add(root, MOSIMVocabulary.HAS_ACTION_ID, vf.createLiteral(id));
 			model.add(root, MOSIMVocabulary.HAS_MMU, vf.createLiteral(mmu));

@@ -109,14 +109,30 @@ public abstract class AbstractAsyncInstruction extends ThriftAction {
                 try {
                     handler = ThriftPluginServer.getHandler();
                     handler.register(id.toString(), currObject);
-                    executeOperation(id.toString());
+                    executeOperation(id, info);
                 } catch (URISyntaxException | ConditionEvaluationException | LoadPredicateException | NullPointerException ex) {
                     LOG.error(toString() + " FAILED due to query evaluation error OR handler object is null. Cannot register Event.");
                 }
             }
         };
         thread.start();
-		updateInfo(id,info);
+    }
+
+	protected abstract void readInput(final InputModel inputModel, final AgentTaskInformation info);
+
+    protected void executeOperation(final UUID id, final AgentTaskInformation info) throws ConditionEvaluationException, URISyntaxException, LoadPredicateException {
+        try {
+            try (TTransport transport = new TSocket(getCosimHost(),getCosimPort())) {
+				transport.open();
+				TProtocol protocol = new TCompactProtocol(transport);
+				MCoSimulationAccess.Client client = new MCoSimulationAccess.Client(protocol);
+				performOperation(client, id.toString());
+				updateInfo(id,info);
+				transport.close();
+			}
+        } catch (TException ex) {
+            LOG.info("Cannot connect to MCoSimulationAccess", ex);
+        }
     }
 
 	protected void updateInfo(final UUID id, final AgentTaskInformation info) {
@@ -124,22 +140,6 @@ public abstract class AbstractAsyncInstruction extends ThriftAction {
 		Model removeModel = getRemoveModel(id);
 		info.getAgentBeliefs().update(addModel, removeModel, false);
 	}
-
-	protected abstract void readInput(final InputModel inputModel, final AgentTaskInformation info);
-
-    protected void executeOperation(String actionID) throws ConditionEvaluationException, URISyntaxException, LoadPredicateException {
-        try {
-            try (TTransport transport = new TSocket(getCosimHost(),getCosimPort())) {
-				transport.open();
-				TProtocol protocol = new TCompactProtocol(transport);
-				MCoSimulationAccess.Client client = new MCoSimulationAccess.Client(protocol);
-				performOperation(client, actionID);
-				transport.close();
-			}
-        } catch (TException ex) {
-            LOG.info("Cannot connect to MCoSimulationAccess", ex);
-        }
-    }
 
 	protected abstract boolean performOperation(final MCoSimulationAccess.Client client, final String actionID) throws TException;
 	protected abstract String getCosimHost();

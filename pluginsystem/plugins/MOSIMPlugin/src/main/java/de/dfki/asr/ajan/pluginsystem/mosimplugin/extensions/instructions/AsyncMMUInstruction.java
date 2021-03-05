@@ -65,6 +65,8 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 
 	private String startCond = "";
 	private String endCond = "";
+	private Resource instRoot = null;
+	private String timeStamp = "";
 
 	private String instructionDef = "";
 	
@@ -176,24 +178,22 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 			MSimulationEvent event = (MSimulationEvent)response;
 			if (event.Type.equals(finalEvent) && event.Reference.equals(instID)) {
 				ResultModel model = new ResultModel();
-				Resource root = vf.createIRI(url);
-				model.add(root, MOSIMVocabulary.HAS_INSTRUCTION_ID, vf.createLiteral(instID));
-				model.add(root, MOSIMVocabulary.HAS_ACTION_ID, vf.createLiteral(id));
-				model.add(root, MOSIMVocabulary.HAS_FINISHED, vf.createLiteral(true));
+				model.add(instRoot, RDF.TYPE, ACTNVocabulary.SUCCESS);
 				getEvent().setEventInformation(id, model);
-				if (!instructionDef.isEmpty())
-				model.add(root, MOSIMVocabulary.HAS_JSON_INSTRUCTION, vf.createLiteral(instructionDef));
 				instID = "";
 			} else if (event.Type.equals("initError") && event.Reference.equals(instID)) {
 				ResultModel model = new ResultModel();
-				model.add(vf.createBNode(), RDF.TYPE, ACTNVocabulary.FAULT);
+				model.add(instRoot, RDF.TYPE, ACTNVocabulary.FAULT);
 				getEvent().setEventInformation(id, model);
+				instID = "";
 			}
 		}
 	}
 
 	@Override
 	protected Model getAddModel(final UUID id) {
+		instRoot = vf.createBNode();
+		timeStamp = MOSIMUtil.getTimeStamp();
 		return getUpdateModel(id);
 	}
 
@@ -204,17 +204,17 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 
 	private Model getUpdateModel(final UUID id) {
 		ResultModel model = new ResultModel();
-		Resource root = vf.createIRI(url);
 		if (!actionName.equals("")) {
-			model.add(root, MOSIMVocabulary.HAS_ACTION_NAME, vf.createLiteral(actionName));
+			model.add(instRoot, MOSIMVocabulary.HAS_ACTION_NAME, vf.createLiteral(actionName));
 		}
-		model.add(root, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MOSIMVocabulary.INSTRUCTION);
-		model.add(root, MOSIMVocabulary.HAS_INSTRUCTION_ID, vf.createLiteral(instID));
-		model.add(root, MOSIMVocabulary.HAS_ACTION_ID, vf.createLiteral(id.toString()));
-		model.add(root, MOSIMVocabulary.HAS_TIMESTAMP, vf.createLiteral(MOSIMUtil.getTimeStamp()));
-		model.add(root, MOSIMVocabulary.HAS_MMU, vf.createLiteral(mmu));
+		model.add(instRoot, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MOSIMVocabulary.INSTRUCTION);
+		model.add(instRoot, MOSIMVocabulary.HAS_INSTRUCTION_ID, vf.createLiteral(instID));
+		model.add(instRoot, MOSIMVocabulary.HAS_ACTION_URL, vf.createLiteral(url));
+		model.add(instRoot, MOSIMVocabulary.HAS_ACTION_ID, vf.createLiteral(id.toString()));
+		model.add(instRoot, MOSIMVocabulary.HAS_TIMESTAMP, vf.createLiteral(timeStamp));
+		model.add(instRoot, MOSIMVocabulary.HAS_MMU, vf.createLiteral(mmu));
 		if (!instructionDef.isEmpty())
-				model.add(root, MOSIMVocabulary.HAS_JSON_INSTRUCTION, vf.createLiteral(instructionDef));
+				model.add(instRoot, MOSIMVocabulary.HAS_JSON_INSTRUCTION, vf.createLiteral(instructionDef));
 		return model;
 	}
 }
