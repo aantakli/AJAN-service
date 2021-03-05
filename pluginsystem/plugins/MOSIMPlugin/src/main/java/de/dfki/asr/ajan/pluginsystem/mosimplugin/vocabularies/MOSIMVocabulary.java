@@ -80,4 +80,5 @@ public class MOSIMVocabulary {
 	public final static IRI HAS_HOST = FACTORY.createIRI("http://www.dfki.de/mosim-ns#host");
 	public final static IRI HAS_PORT = FACTORY.createIRI("http://www.dfki.de/mosim-ns#port");
 	public final static IRI HAS_CALLBACK = FACTORY.createIRI("http://www.dfki.de/mosim-ns#callback");
+	public final static IRI HAS_FINAL_EVENT = FACTORY.createIRI("http://www.dfki.de/mosim-ns#finalEvent");
 }

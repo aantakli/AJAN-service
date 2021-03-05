@@ -54,6 +54,7 @@ import ro.fortsoft.pf4j.Extension;
 public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 
     private String mmu = "";
+	private String finalEvent = "end";
 	private String actionName;
 
 	private ArrayList<Value> properties;
@@ -82,6 +83,7 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 			"WHERE {\n" +
 			"	?instruction mosim:mmu ?mmu .\n" +
 			"	OPTIONAL { \n" +
+			"		?instruction mosim:finalEvent ?event .\n" +
 			"		?instruction mosim:mmuProperty ?property .\n" +
 			"		?instruction mosim:actionName ?actionName .\n" +
 			"		?instruction mosim:constraint ?constraint .\n" +
@@ -140,6 +142,9 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
     protected void readInput(final InputModel inputModel, final AgentTaskInformation info) {
 		try {
 			mmu = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_MMU);
+			finalEvent = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_FINAL_EVENT);
+			if (finalEvent.isEmpty())
+				finalEvent = "end";
 			actionName = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_ACTION_NAME);
 			properties = MOSIMUtil.getObjects(inputModel, null, MOSIMVocabulary.HAS_MMU_PROPERTY);
 			instProps = MOSIMUtil.createGeneralProperties(properties, inputModel);
@@ -169,7 +174,7 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 	public void setResponse(String id, Object response) {
 		if (response instanceof MSimulationEvent) {
 			MSimulationEvent event = (MSimulationEvent)response;
-			if ((event.Type.equals("end") || event.Type.equals("PositioningFinished")) && event.Reference.equals(instID)) {
+			if (event.Type.equals(finalEvent) && event.Reference.equals(instID)) {
 				ResultModel model = new ResultModel();
 				Resource root = vf.createIRI(url);
 				model.add(root, MOSIMVocabulary.HAS_INSTRUCTION_ID, vf.createLiteral(instID));
