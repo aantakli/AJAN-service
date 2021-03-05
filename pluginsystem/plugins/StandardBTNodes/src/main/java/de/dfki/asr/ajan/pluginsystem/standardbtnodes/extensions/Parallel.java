@@ -60,8 +60,8 @@ public class Parallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTaskInfo
 
 	@RDF("bt:orchestration")
 	public void setOrchestrator(final URI orchestration) {
-		if (orchestration.getFragment().equals("Join")) {
-			this.orchestrator = Orchestrator.Join;
+		if (orchestration.getFragment().equals("Resume")) {
+			this.orchestrator = Orchestrator.Resume;
 		}
 	}
 
@@ -131,7 +131,7 @@ public class Parallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTaskInfo
 	 * @param policy the policy
 	 * @param tasks the children */
 	public Parallel (Policy policy, Array<Task<AgentTaskInformation>> tasks) {
-		this(policy, Orchestrator.Resume, tasks);
+		this(policy, Orchestrator.Join, tasks);
 	}
 
 	/** Creates a parallel task with the given orchestrator, sequence policy and the given children
