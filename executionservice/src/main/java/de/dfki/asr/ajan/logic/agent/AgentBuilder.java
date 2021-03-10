@@ -25,6 +25,7 @@ import de.dfki.asr.ajan.knowledge.AgentBeliefBase;
 import de.dfki.asr.ajan.model.*;
 import de.dfki.asr.ajan.behaviour.events.Event;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
+import de.dfki.asr.ajan.behaviour.nodes.common.Debug;
 import de.dfki.asr.ajan.behaviour.service.impl.IConnection;
 import de.dfki.asr.ajan.common.TripleStoreManager.Inferencing;
 import de.dfki.asr.ajan.data.AgentModelManager;
@@ -149,7 +150,9 @@ public class AgentBuilder {
                     connections,
                     extensions,
                     new LinkedHashMap(),
-                    reportURI));
+                    reportURI,
+                    new Debug()
+                ));
             }
         }
 }

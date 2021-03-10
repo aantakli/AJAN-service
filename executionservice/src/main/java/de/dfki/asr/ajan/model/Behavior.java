@@ -20,6 +20,7 @@
 package de.dfki.asr.ajan.model;
 
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
+import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.DebugMode;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.ModelMode;
 import java.util.List;
 import lombok.Data;
@@ -40,5 +41,15 @@ public class Behavior {
 		Model model = new LinkedHashModel();
 		ValueFactory vf = SimpleValueFactory.getInstance();
 		return behaviorTree.getModel(model, vf.createIRI(btURL), mode);
+	}
+
+        public void setDebug(final String btURL, final DebugMode mode) {
+            if (mode.equals(DebugMode.RESUME)) {
+                behaviorTree.getObject().getDebug().setDebugging(false);
+                behaviorTree.getObject().getDebug().setMode(DebugMode.NONE);
+            } else if (mode.equals(DebugMode.STEP)) {
+                behaviorTree.getObject().getDebug().setMode(mode);
+            }
+            behaviorTree.run();
 	}
 }

@@ -23,6 +23,7 @@ import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
+import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.DebugMode;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.ModelMode;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
 import org.eclipse.rdf4j.model.Model;
@@ -39,10 +40,27 @@ public abstract class AbstractTDBLeafTask extends LeafTask<AgentTaskInformation>
 
 	@Override
 	public Status execute() {
+		Debug debug = this.getObject().getDebug();
+		if (debug.isDebugging()) {
+			if (null == debug.getMode()) {
+				return Status.RUNNING;
+			} else {
+				if (debug.getMode().equals(DebugMode.STEP)) {
+					debug.setMode(DebugMode.NONE);
+					return runNode();
+				}
+				return Status.RUNNING;
+			}
+		} else {
+			return runNode();
+		}
+	}
+
+	private Status runNode() {
 		LeafStatus leafStatus = this.executeLeaf();
-		Status status = leafStatus.getStatus();
+		Status state = leafStatus.getStatus();
 		BTUtil.sendReport(this.getObject(), leafStatus.getLabel());
-		return status;
+		return state;
 	}
 
 	public abstract LeafStatus executeLeaf();

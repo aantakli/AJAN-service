@@ -45,6 +45,7 @@ public class BTVocabulary {
 	public final static IRI MESSAGE = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Message");
 	public final static IRI EXECUTOR = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Executor");
 	public final static IRI REPEATER = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Repeater");
+	public final static IRI DEBUG = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Debug");
 
 	public final static IRI INPUT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Input");
 	public final static IRI CONSTRAINT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Constraint");

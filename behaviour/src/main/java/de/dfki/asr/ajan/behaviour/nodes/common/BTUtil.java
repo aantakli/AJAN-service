@@ -64,6 +64,12 @@ public final class BTUtil {
 		DETAIL
 	}
 
+	public enum DebugMode {
+		NONE,
+		RESUME,
+		STEP
+	}
+
 	private static final ValueFactory VF = SimpleValueFactory.getInstance();
 	private static final Logger LOG = LoggerFactory.getLogger(BTRoot.class);
 

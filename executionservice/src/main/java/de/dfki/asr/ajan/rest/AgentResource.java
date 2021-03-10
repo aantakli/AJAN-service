@@ -20,6 +20,7 @@
 package de.dfki.asr.ajan.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.DebugMode;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.ModelMode;
 import de.dfki.asr.ajan.logic.agent.AgentManager;
 import de.dfki.asr.ajan.model.Agent;
@@ -142,6 +143,25 @@ public class AgentResource {
 			}
 		}
 		return new LinkedHashModel();
+	}
+   
+        @Path(BEHAVIOR_PATH)
+	@GET
+	@Produces({TURTLE,JSONLD})
+	@ApiOperation(value = "Set Behavior Debug.")
+        @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+	public void setBehaviorDebug(@PathParam(BEHAVIOR_ID) final String behaviorId, @QueryParam("debug") final String mode) throws URISyntaxException {
+		String id;
+                for (Entry<Resource,Behavior> entry: agent.getBehaviors().entrySet()) {
+                        id = new URI(entry.getKey().stringValue()).getFragment();
+                        DebugMode md = DebugMode.RESUME;
+			if (mode != null && "step".equals(mode)) {
+				md = DebugMode.STEP;
+			}
+			if (behaviorId.equals(id)) {
+				entry.getValue().setDebug(agent.getUrl() + "/behaviors/" + behaviorId, md);
+			}
+		}
 	}
 
 	@Path(COMPLETION_PATH)
