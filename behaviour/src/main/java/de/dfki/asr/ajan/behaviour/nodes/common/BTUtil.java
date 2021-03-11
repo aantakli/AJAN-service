@@ -66,6 +66,7 @@ public final class BTUtil {
 
 	public enum DebugMode {
 		NONE,
+		PAUSE,
 		RESUME,
 		STEP
 	}

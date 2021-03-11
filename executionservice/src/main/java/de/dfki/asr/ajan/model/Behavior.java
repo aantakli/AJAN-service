@@ -22,6 +22,7 @@ package de.dfki.asr.ajan.model;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.DebugMode;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.ModelMode;
+import de.dfki.asr.ajan.behaviour.nodes.common.Debug;
 import java.util.List;
 import lombok.Data;
 import org.eclipse.rdf4j.model.Model;
@@ -44,11 +45,24 @@ public class Behavior {
 	}
 
         public void setDebug(final String btURL, final DebugMode mode) {
-            if (mode.equals(DebugMode.RESUME)) {
-                behaviorTree.getObject().getDebug().setDebugging(false);
-                behaviorTree.getObject().getDebug().setMode(DebugMode.NONE);
-            } else if (mode.equals(DebugMode.STEP)) {
-                behaviorTree.getObject().getDebug().setMode(mode);
+            Debug debug = behaviorTree.getObject().getDebug();
+            if (debug.isDebugging()) {
+                switch (mode) {
+                    case RESUME:
+                        debug.setDebugging(false);
+                        debug.setMode(DebugMode.NONE);
+                        break;
+                    case STEP:
+                        debug.setMode(mode);
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                if (mode.equals(DebugMode.PAUSE)) {
+                    debug.setDebugging(true);
+                    debug.setMode(DebugMode.NONE);
+                }
             }
             behaviorTree.run();
 	}

@@ -157,6 +157,8 @@ public class AgentResource {
                         DebugMode md = DebugMode.RESUME;
 			if (mode != null && "step".equals(mode)) {
 				md = DebugMode.STEP;
+			} else if (mode != null && "pause".equals(mode)) {
+				md = DebugMode.PAUSE;
 			}
 			if (behaviorId.equals(id)) {
 				entry.getValue().setDebug(agent.getUrl() + "/behaviors/" + behaviorId, md);
