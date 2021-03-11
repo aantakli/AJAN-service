@@ -37,6 +37,7 @@ public abstract class AbstractTDBLeafTask extends LeafTask<AgentTaskInformation>
 
 	protected final ValueFactory vf = SimpleValueFactory.getInstance();
 	private Resource instance;
+	private Status debugState = Status.FRESH;
 
 	@Override
 	public Status execute() {
@@ -45,13 +46,15 @@ public abstract class AbstractTDBLeafTask extends LeafTask<AgentTaskInformation>
 			if (null == debug.getMode()) {
 				return Status.RUNNING;
 			} else {
-				if (debug.getMode().equals(DebugMode.STEP)) {
+				if (debug.getMode().equals(DebugMode.STEP) || debugState.equals(Status.RUNNING)) {
 					debug.setMode(DebugMode.NONE);
-					return runNode();
+					debugState = runNode();
+					return debugState;
 				}
 				return Status.RUNNING;
 			}
 		} else {
+			debugState = Status.FRESH;
 			return runNode();
 		}
 	}
