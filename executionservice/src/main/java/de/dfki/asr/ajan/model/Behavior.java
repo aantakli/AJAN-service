@@ -47,6 +47,7 @@ public class Behavior {
         public void setDebug(final String btURL, final DebugMode mode) {
             Debug debug = behaviorTree.getObject().getDebug();
             if (debug.isDebugging()) {
+                debug.setBtURI(btURL);
                 switch (mode) {
                     case RESUME:
                         debug.setDebugging(false);

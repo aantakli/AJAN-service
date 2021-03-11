@@ -51,9 +51,10 @@ public class Breakpoint extends AbstractTDBLeafTask {
 	@Override
 	public Status execute() {
 		Debug debug = this.getObject().getDebug();
-		String report = toString() + " SUCCESS";
+		String report = toString() + " SUCCEEDED";
 		debug.setDebugging(true);
 		LOG.info(report);
+		BTUtil.sendReport(this.getObject(), "DEBUGGING: Behavior(" + debug.getBtURI() + ")");
 		return Status.SUCCEEDED;
 	}
 

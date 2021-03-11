@@ -95,8 +95,8 @@ public class AgentBuilder {
 		addAgentInformationToKnowledge(beliefs);
 		beliefs.update(initialKnowledge);
 		connections = new ConcurrentHashMap<>();
-                configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree());
-                configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree());
+                configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource());
+                configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), finalBehavior.getResource());
 		configureBehaviorTrees(beliefs);
 		return new Agent(url, name, template, initialBehavior, finalBehavior, behaviors, beliefs, events, endpoints, connections);
 	}
@@ -126,7 +126,7 @@ public class AgentBuilder {
 	protected void configureBehaviorTrees(final AgentBeliefBase beliefs) {
 		behaviors.entrySet().stream().forEach((Map.Entry<Resource, Behavior> behavior) -> {
                     BTRoot bt = behavior.getValue().getBehaviorTree();
-                    configureBehaviorTree(beliefs, bt);
+                    configureBehaviorTree(beliefs, bt, behavior.getKey());
                     behavior.getValue().getEvents().forEach((res) -> {
                             try {
                                     events.get(new URI(res.toString())).register(bt);
@@ -137,8 +137,10 @@ public class AgentBuilder {
 		});
 	}
 
-        protected void configureBehaviorTree(final AgentBeliefBase beliefs, final BTRoot bt) {
+        protected void configureBehaviorTree(final AgentBeliefBase beliefs, final BTRoot bt, final Resource uri) {
             if (beliefs != null && bt != null) {
+                Debug debug = new Debug();
+                debug.setBtURI(uri.stringValue());
                 bt.setObject(new AgentTaskInformation(
                     bt,
                     beliefs,
@@ -151,7 +153,7 @@ public class AgentBuilder {
                     extensions,
                     new LinkedHashMap(),
                     reportURI,
-                    new Debug()
+                    debug
                 ));
             }
         }
