@@ -62,8 +62,11 @@ public abstract class AbstractTDBLeafTask extends LeafTask<AgentTaskInformation>
 	private Status runNode() {
 		LeafStatus leafStatus = this.executeLeaf();
 		Status state = leafStatus.getStatus();
-		if (this.getObject().getDebug().isDebugging()) {
-			leafStatus = new LeafStatus(state, "DEBUGGING: " + leafStatus.getLabel());
+		Debug debug = this.getObject().getDebug();
+		if (debug.isDebugging()) {
+			leafStatus = new LeafStatus(state, "[" + debug.getAgentURI() + "] DEBUGGING(" + debug.getBtURI() + "): " + leafStatus.getLabel());
+		} else {
+			leafStatus = new LeafStatus(state, "[" + debug.getAgentURI() + "]: " + leafStatus.getLabel());
 		}
 		BTUtil.sendReport(this.getObject(), leafStatus.getLabel());
 		return state;

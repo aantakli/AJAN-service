@@ -95,8 +95,8 @@ public class AgentBuilder {
 		addAgentInformationToKnowledge(beliefs);
 		beliefs.update(initialKnowledge);
 		connections = new ConcurrentHashMap<>();
-                configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), getBehaviorURI(url, initialBehavior.getResource()));
-                configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), getBehaviorURI(url, finalBehavior.getResource()));
+                configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource());
+                configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), finalBehavior.getResource());
 		configureBehaviorTrees(beliefs);
 		return new Agent(url, name, template, initialBehavior, finalBehavior, behaviors, beliefs, events, endpoints, connections);
 	}
@@ -127,7 +127,7 @@ public class AgentBuilder {
 		behaviors.entrySet().stream().forEach((Map.Entry<Resource, Behavior> behavior) -> {
                     BTRoot bt = behavior.getValue().getBehaviorTree();
                     try {
-                        configureBehaviorTree(beliefs, bt, getBehaviorURI(url, behavior.getKey()));
+                        configureBehaviorTree(beliefs, bt, behavior.getKey());
                     }
                     catch (URISyntaxException ex) {
                         Logger.getLogger(AgentBuilder.class.getName()).log(Level.SEVERE, null, ex);
@@ -142,10 +142,8 @@ public class AgentBuilder {
 		});
 	}
 
-        protected void configureBehaviorTree(final AgentBeliefBase beliefs, final BTRoot bt, final String uri) {
+        protected void configureBehaviorTree(final AgentBeliefBase beliefs, final BTRoot bt, final Resource behaviorIRI) throws URISyntaxException {
             if (beliefs != null && bt != null) {
-                Debug debug = new Debug();
-                debug.setBtURI(uri);
                 bt.setObject(new AgentTaskInformation(
                     bt,
                     beliefs,
@@ -158,13 +156,17 @@ public class AgentBuilder {
                     extensions,
                     new LinkedHashMap(),
                     reportURI,
-                    debug
+                    createDebug(behaviorIRI)
                 ));
             }
         }
 
-        protected String getBehaviorURI(final String uri, final Resource bt) throws URISyntaxException {
+        protected Debug createDebug(final Resource bt) throws URISyntaxException {
+            Debug debug = new Debug();
+            debug.setAgentURI(url);
             String behaviorId = new URI(bt.stringValue()).getFragment();
-            return url + "/behaviors/" + behaviorId;
+            String btUri = url + "/behaviors/" + behaviorId;
+            debug.setBtURI(btUri);
+            return debug;
         }
 }

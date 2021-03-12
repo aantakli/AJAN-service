@@ -28,6 +28,7 @@ import de.dfki.asr.ajan.behaviour.events.Producer;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.ModelMode;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
+import de.dfki.asr.ajan.behaviour.nodes.common.Debug;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Direction;
 import lombok.Getter;
@@ -100,7 +101,13 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 			block = true;
 			long before = System.currentTimeMillis();
 			this.step();
-			BTUtil.sendReport(this.getObject(), "BTRoot: " + label + ", time: " + (System.currentTimeMillis() - before) + "ms, FINISHED");
+			Debug debug = this.getObject().getDebug();
+			long time = System.currentTimeMillis() - before;
+			if (debug.isDebugging()) {
+				BTUtil.sendReport(this.getObject(), "[" + debug.getAgentURI() + "] DEBUGGING(" + debug.getBtURI() + "): BTRoot(" + label + "), time = " + time + "ms, FINISHED");
+			} else {
+				BTUtil.sendReport(this.getObject(), "[" + debug.getAgentURI() + "]: BTRoot(" + label + "), time = " + time + "ms, FINISHED");
+			}
 			LOG.info(Long.toString(System.currentTimeMillis() - before));
 			block = false;
 			if (goalProducer != null) {

@@ -109,10 +109,10 @@ public class RDFAgentBuilder extends AgentBuilder {
         reportURI = modelManager.getReportURI(initialKnowledge);
         beliefs.update(initialKnowledge);
         if (initialBehavior != null) {
-            configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), getBehaviorURI(url, initialBehavior.getResource()));
+            configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource());
         }
         if (finalBehavior != null) {
-            configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), getBehaviorURI(url, finalBehavior.getResource()));
+            configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), initialBehavior.getResource());
         }
         configureBehaviorTrees(beliefs);
         return beliefs;

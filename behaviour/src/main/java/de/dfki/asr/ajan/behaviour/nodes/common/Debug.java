@@ -27,6 +27,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.DebugMode;
  */
 public class Debug {
 	private DebugMode mode;
+	private String agentURI;
 	private String btURI;
 	private boolean debugging;
 
@@ -38,6 +39,10 @@ public class Debug {
 
 	public void setMode(final DebugMode mode) {
 		this.mode = mode;
+	}
+
+	public void setAgentURI(final String uri) {
+		this.agentURI = uri;
 	}
 
 	public void setBtURI(final String uri) {
@@ -58,5 +63,9 @@ public class Debug {
 
 	public String getBtURI() {
 		return this.btURI;
+	}
+
+	public String getAgentURI() {
+		return this.agentURI;
 	}
 }
