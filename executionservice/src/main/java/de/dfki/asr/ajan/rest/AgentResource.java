@@ -125,47 +125,56 @@ public class AgentResource {
             return Response.status(Response.Status.OK).build();
 	}
 
-	@Path(BEHAVIOR_PATH)
+        @Path(BEHAVIOR_PATH)
 	@GET
 	@Produces({TURTLE,JSONLD})
 	@ApiOperation(value = "Get Behavior Information.")
         @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-	public Model getBehaviorInfo(@PathParam(BEHAVIOR_ID) final String behaviorId, @QueryParam("mode") final String mode) throws URISyntaxException {
+	public Model getBehavior(@PathParam(BEHAVIOR_ID) final String behaviorId, @QueryParam("method") final String method, @QueryParam("mode") final String mode) throws URISyntaxException {
             String id = "";
-            LOG.info("Received Behavior call: " + behaviorId + ", " + mode);
+            String behaviorURI = "";
+            LOG.info("Received Behavior call: " + behaviorId + ", " + method + ", " + mode);
             for (Entry<Resource,Behavior> entry: agent.getBehaviors().entrySet()) {
                 id = new URI(entry.getKey().stringValue()).getFragment();
-                ModelMode md = ModelMode.NORMAL;
-                if (mode != null && "detail".equals(mode)) {
-                    md = ModelMode.DETAIL;
-                }
-                if (behaviorId.equals(id)) {
-                    return entry.getValue().getStatus(agent.getUrl() + "/behaviors/" + behaviorId, md);
+                if (behaviorId.equals(id) && method != null && mode != null) {
+                    behaviorURI = agent.getUrl() + "/behaviors/" + behaviorId;
+                    if ("info".equals(method)) {
+                        return getBehaviorInfo(entry.getValue(), behaviorURI, mode);
+                    } else if ("debug".equals(method)) {
+                        return setBehaviorDebug(entry.getValue(), behaviorURI, mode);
+                    }
                 }
             }
             return new LinkedHashModel();
 	}
-   
-        @Path(BEHAVIOR_PATH)
-	@POST
-	@Produces({TURTLE,JSONLD})
-	@ApiOperation(value = "Set Behavior Debug.")
-        @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-	public void setBehaviorDebug(@PathParam(BEHAVIOR_ID) final String behaviorId, @QueryParam("debug") final String mode) throws URISyntaxException {
-            String id = "";
-            LOG.info("Received Debug call: " + behaviorId + ", " + mode);
-            for (Entry<Resource,Behavior> entry: agent.getBehaviors().entrySet()) {
-                id = new URI(entry.getKey().stringValue()).getFragment();
-                if (behaviorId.equals(id) && mode != null) {
-                    DebugMode md = DebugMode.RESUME;
-                    if ("step".equals(mode)) {
-                        md = DebugMode.STEP;
-                    } else if ("pause".equals(mode)) {
-                        md = DebugMode.PAUSE;
-                    }
-                    entry.getValue().setDebug(agent.getUrl() + "/behaviors/" + behaviorId, md);
-                }
+
+
+	private Model getBehaviorInfo(final Behavior behavior, final String uri, final String mode) throws URISyntaxException {
+            switch (mode) {
+                case "detail":
+                    return behavior.getStatus(uri, ModelMode.DETAIL);
+                case "normal":
+                    return behavior.getStatus(uri, ModelMode.NORMAL);
+                default:
+                    return new LinkedHashModel();
             }
+	}
+   
+	private Model setBehaviorDebug(final Behavior behavior, final String uri, final String mode) throws URISyntaxException {
+            switch (mode) {
+                case "resume":
+                    behavior.setDebug(uri, DebugMode.RESUME);
+                    break;
+                case "step":
+                    behavior.setDebug(uri, DebugMode.STEP);
+                    break;
+                case "pause":
+                    behavior.setDebug(uri, DebugMode.PAUSE);
+                    break;
+                default:
+                    break;
+            }
+            return getBehaviorInfo(behavior, mode, uri);
 	}
 
 	@Path(COMPLETION_PATH)
