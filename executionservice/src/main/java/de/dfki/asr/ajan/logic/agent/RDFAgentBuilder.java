@@ -103,16 +103,16 @@ public class RDFAgentBuilder extends AgentBuilder {
         return new Agent(url, name, template, initialBehavior, finalBehavior, behaviors, beliefs, events, endpoints, connections);
     }
 
-    protected AgentBeliefBase createAgentKnowledge(final Resource agentTemplateRsc) {
+    protected AgentBeliefBase createAgentKnowledge(final Resource agentTemplateRsc) throws URISyntaxException {
         AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(name,Inferencing.NONE));
         addAgentInformationToKnowledge(beliefs);
         reportURI = modelManager.getReportURI(initialKnowledge);
         beliefs.update(initialKnowledge);
         if (initialBehavior != null) {
-            configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource());
+            configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), getBehaviorURI(url, initialBehavior.getResource()));
         }
         if (finalBehavior != null) {
-            configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), finalBehavior.getResource());
+            configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), getBehaviorURI(url, finalBehavior.getResource()));
         }
         configureBehaviorTrees(beliefs);
         return beliefs;

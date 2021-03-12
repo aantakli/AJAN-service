@@ -95,8 +95,8 @@ public class AgentBuilder {
 		addAgentInformationToKnowledge(beliefs);
 		beliefs.update(initialKnowledge);
 		connections = new ConcurrentHashMap<>();
-                configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource());
-                configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), finalBehavior.getResource());
+                configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), getBehaviorURI(url, initialBehavior.getResource()));
+                configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), getBehaviorURI(url, finalBehavior.getResource()));
 		configureBehaviorTrees(beliefs);
 		return new Agent(url, name, template, initialBehavior, finalBehavior, behaviors, beliefs, events, endpoints, connections);
 	}
@@ -126,7 +126,12 @@ public class AgentBuilder {
 	protected void configureBehaviorTrees(final AgentBeliefBase beliefs) {
 		behaviors.entrySet().stream().forEach((Map.Entry<Resource, Behavior> behavior) -> {
                     BTRoot bt = behavior.getValue().getBehaviorTree();
-                    configureBehaviorTree(beliefs, bt, behavior.getKey());
+                    try {
+                        configureBehaviorTree(beliefs, bt, getBehaviorURI(url, behavior.getKey()));
+                    }
+                    catch (URISyntaxException ex) {
+                        Logger.getLogger(AgentBuilder.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     behavior.getValue().getEvents().forEach((res) -> {
                             try {
                                     events.get(new URI(res.toString())).register(bt);
@@ -137,10 +142,10 @@ public class AgentBuilder {
 		});
 	}
 
-        protected void configureBehaviorTree(final AgentBeliefBase beliefs, final BTRoot bt, final Resource uri) {
+        protected void configureBehaviorTree(final AgentBeliefBase beliefs, final BTRoot bt, final String uri) {
             if (beliefs != null && bt != null) {
                 Debug debug = new Debug();
-                debug.setBtURI(uri.stringValue());
+                debug.setBtURI(uri);
                 bt.setObject(new AgentTaskInformation(
                     bt,
                     beliefs,
@@ -156,5 +161,10 @@ public class AgentBuilder {
                     debug
                 ));
             }
+        }
+
+        protected String getBehaviorURI(final String uri, final Resource bt) throws URISyntaxException {
+            String behaviorId = new URI(bt.stringValue()).getFragment();
+            return url + "/behaviors/" + behaviorId;
         }
 }
