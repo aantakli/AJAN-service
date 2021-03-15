@@ -200,11 +200,12 @@ public final class BTUtil {
 		}
 	}
 
-	public static String createReport(final String url, final LeafStatus state, final Debug debug, final Model detail) {
+	public static String createReport(final String url, final String btUrl, final LeafStatus state, final Debug debug, final Model detail) {
 		Model reportModel = new LinkedHashModel();
 		Resource report = VF.createIRI(debug.getAgentURI() + "/report/" + UUID.randomUUID());
 		reportModel.add(report, RDF.TYPE, BTVocabulary.REPORT);
 		reportModel.add(report, AJANVocabulary.HAS_AGENT, VF.createIRI(debug.getAgentURI()));
+		reportModel.add(report, AJANVocabulary.BEHAVIOR_HAS_BT, VF.createIRI(btUrl));
 		reportModel.add(report, BTVocabulary.BT_NODE, VF.createIRI(url));
 		reportModel.add(report, RDFS.LABEL, VF.createLiteral(state.getLabel()));
 		if (debug.isDebugging()) {

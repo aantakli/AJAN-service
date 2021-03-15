@@ -28,6 +28,7 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,10 +52,11 @@ public class Breakpoint extends AbstractTDBLeafTask {
 	@Override
 	public Status execute() {
 		Debug debug = this.getObject().getDebug();
-		String report = toString() + " SUCCEEDED";
 		debug.setDebugging(true);
-		LOG.info(report);
-		BTUtil.sendReport(this.getObject(), "[" + debug.getAgentURI() + "] DEBUGGING(" + this.getObject().getBt().getInstance().stringValue() + "): " + this.getObject().getBt().getLabel());
+		BTRoot bt = this.getObject().getBt();
+		LeafStatus leafStatus = new LeafStatus(null, toString() + " SUCCEEDED");
+		String report = BTUtil.createReport(getUrl(), bt.getInstance().stringValue(), leafStatus, debug, new LinkedHashModel());
+		BTUtil.sendReport(this.getObject(),report);
 		return Status.SUCCEEDED;
 	}
 

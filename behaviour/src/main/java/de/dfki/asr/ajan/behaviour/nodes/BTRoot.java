@@ -31,6 +31,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.Debug;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Direction;
+import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -39,6 +40,7 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.slf4j.Logger;
@@ -107,11 +109,9 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 			this.step();
 			Debug debug = this.getObject().getDebug();
 			long time = System.currentTimeMillis() - before;
-			if (debug.isDebugging()) {
-				BTUtil.sendReport(this.getObject(), "[" + debug.getAgentURI() + "] DEBUGGING(" + getInstance().stringValue() + "): BTRoot(" + label + "), time = " + time + "ms, FINISHED");
-			} else {
-				BTUtil.sendReport(this.getObject(), "[" + debug.getAgentURI() + "]: BTRoot(" + label + "), time = " + time + "ms, FINISHED");
-			}
+			LeafStatus leafStatus = new LeafStatus(null, "BTRoot(" + label + "), time = " + time + "ms, FINISHED");
+			String report = BTUtil.createReport(getUrl(), getInstance().stringValue(), leafStatus, debug, new LinkedHashModel());
+			BTUtil.sendReport(this.getObject(),report);
 			LOG.info(Long.toString(System.currentTimeMillis() - before));
 			block = false;
 			if (goalProducer != null) {
