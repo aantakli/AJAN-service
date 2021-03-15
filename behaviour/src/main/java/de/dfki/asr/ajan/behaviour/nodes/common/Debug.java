@@ -28,12 +28,10 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.DebugMode;
 public class Debug {
 	private DebugMode mode;
 	private String agentURI;
-	private String btURI;
 	private boolean debugging;
 
 	public Debug() {
 		this.mode = DebugMode.NONE;
-		this.btURI = "";
 		this.debugging = false;
 	}
 
@@ -43,10 +41,6 @@ public class Debug {
 
 	public void setAgentURI(final String uri) {
 		this.agentURI = uri;
-	}
-
-	public void setBtURI(final String uri) {
-		this.btURI = uri;
 	}
 
 	public void setDebugging(final boolean debugging) {
@@ -59,10 +53,6 @@ public class Debug {
 
 	public boolean isDebugging() {
 		return this.debugging;
-	}
-
-	public String getBtURI() {
-		return this.btURI;
 	}
 
 	public String getAgentURI() {

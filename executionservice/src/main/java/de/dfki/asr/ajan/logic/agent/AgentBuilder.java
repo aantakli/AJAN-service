@@ -85,6 +85,7 @@ public class AgentBuilder {
 	protected String reportURI;
         
 	protected URI baseURI;
+        protected final ValueFactory vf = SimpleValueFactory.getInstance();
 
 	public AgentBuilder(final AgentTDBManager manager) {
 		tdbManager = manager;
@@ -144,6 +145,7 @@ public class AgentBuilder {
 
         protected void configureBehaviorTree(final AgentBeliefBase beliefs, final BTRoot bt, final Resource behaviorIRI) throws URISyntaxException {
             if (beliefs != null && bt != null) {
+                bt.setInstance(vf.createIRI(getBTInstance(behaviorIRI)));
                 bt.setObject(new AgentTaskInformation(
                     bt,
                     beliefs,
@@ -164,9 +166,11 @@ public class AgentBuilder {
         protected Debug createDebug(final Resource bt) throws URISyntaxException {
             Debug debug = new Debug();
             debug.setAgentURI(url);
-            String behaviorId = new URI(bt.stringValue()).getFragment();
-            String btUri = url + "/behaviors/" + behaviorId;
-            debug.setBtURI(btUri);
             return debug;
+        }
+
+        protected String getBTInstance(final Resource bt) throws URISyntaxException {
+            String behaviorId = new URI(bt.stringValue()).getFragment();
+            return url + "/behaviors/" + behaviorId;
         }
 }

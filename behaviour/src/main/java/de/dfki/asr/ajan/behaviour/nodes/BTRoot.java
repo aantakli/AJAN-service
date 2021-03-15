@@ -72,6 +72,10 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 		return getInstance(instance);
 	}
 
+	public void setInstance(final Resource btInstance) {
+		instance = btInstance;
+	}
+
 	@Override
 	public Resource getDefinition(final Resource btDefinition) {
 		return btDefinition;
@@ -104,7 +108,7 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 			Debug debug = this.getObject().getDebug();
 			long time = System.currentTimeMillis() - before;
 			if (debug.isDebugging()) {
-				BTUtil.sendReport(this.getObject(), "[" + debug.getAgentURI() + "] DEBUGGING(" + debug.getBtURI() + "): BTRoot(" + label + "), time = " + time + "ms, FINISHED");
+				BTUtil.sendReport(this.getObject(), "[" + debug.getAgentURI() + "] DEBUGGING(" + getInstance().stringValue() + "): BTRoot(" + label + "), time = " + time + "ms, FINISHED");
 			} else {
 				BTUtil.sendReport(this.getObject(), "[" + debug.getAgentURI() + "]: BTRoot(" + label + "), time = " + time + "ms, FINISHED");
 			}

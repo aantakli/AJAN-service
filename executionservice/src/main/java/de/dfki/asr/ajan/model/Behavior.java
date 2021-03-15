@@ -27,9 +27,7 @@ import java.util.List;
 import lombok.Data;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 @Data
 public class Behavior {
@@ -40,14 +38,12 @@ public class Behavior {
 
 	public Model getStatus(final String btURL, final ModelMode mode) {
 		Model model = new LinkedHashModel();
-		ValueFactory vf = SimpleValueFactory.getInstance();
-		return behaviorTree.getModel(model, vf.createIRI(btURL), mode);
+		return behaviorTree.getModel(model, behaviorTree.getInstance(), mode);
 	}
 
         public void setDebug(final String btURL, final DebugMode mode) {
             Debug debug = behaviorTree.getObject().getDebug();
             if (debug.isDebugging()) {
-                debug.setBtURI(btURL);
                 switch (mode) {
                     case RESUME:
                         debug.setDebugging(false);

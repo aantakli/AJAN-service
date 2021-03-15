@@ -47,6 +47,7 @@ public class AJANVocabulary {
 	public final static IRI SERVICE_KNOWLEDGE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#ServiceKnowledge");
 	public final static IRI TEMPLATE_KNOWLEDGE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#TemplateKnowledge");
 
+	public final static IRI HAS_AGENT = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agent");
 	public final static IRI AGENT_HAS_REPORT_URI = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentReportURI");
 	public final static IRI AGENT_HAS_INITKNOWLEDGE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentInitKnowledge");
 	public final static IRI AGENT_HAS_INITIALBEHAVIOR = FACTORY.createIRI("http://www.ajan.de/ajan-ns#initialBehavior");
