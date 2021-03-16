@@ -107,11 +107,13 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 			block = true;
 			long before = System.currentTimeMillis();
 			this.step();
-			Debug debug = this.getObject().getDebug();
-			long time = System.currentTimeMillis() - before;
-			LeafStatus leafStatus = new LeafStatus(null, "BTRoot(" + label + "), time = " + time + "ms, FINISHED");
-			String report = BTUtil.createReport(getUrl(), getInstance().stringValue(), leafStatus, debug, new LinkedHashModel());
-			BTUtil.sendReport(this.getObject(),report);
+			if (this.getObject() != null) {
+				Debug debug = this.getObject().getDebug();
+				long time = System.currentTimeMillis() - before;
+				LeafStatus leafStatus = new LeafStatus(null, "BTRoot(" + label + "), time = " + time + "ms, FINISHED");
+				String report = BTUtil.createReport(getUrl(), getInstance().stringValue(), leafStatus, debug, new LinkedHashModel());
+				BTUtil.sendReport(this.getObject(),report);
+			}
 			LOG.info(Long.toString(System.currentTimeMillis() - before));
 			block = false;
 			if (goalProducer != null) {
