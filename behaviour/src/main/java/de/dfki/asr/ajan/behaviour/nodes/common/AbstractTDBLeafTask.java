@@ -64,7 +64,10 @@ public abstract class AbstractTDBLeafTask extends LeafTask<AgentTaskInformation>
 		Status state = leafStatus.getStatus();
 		Debug debug = this.getObject().getDebug();
 		BTRoot bt = this.getObject().getBt();
-		Model detail = getModel(new LinkedHashModel(), bt, ModelMode.DETAIL);
+		Model detail = new LinkedHashModel();
+		if (debug.isDebugging()) {
+			detail = getModel(new LinkedHashModel(), bt, ModelMode.DETAIL);
+		}
 		String report = BTUtil.createReport(getUrl(), bt.getInstance().stringValue(), leafStatus, debug, detail);
 		BTUtil.sendReport(this.getObject(), report);
 		return state;

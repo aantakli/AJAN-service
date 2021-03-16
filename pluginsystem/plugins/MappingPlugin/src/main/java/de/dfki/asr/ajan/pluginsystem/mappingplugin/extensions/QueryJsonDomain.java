@@ -57,6 +57,10 @@ public class QueryJsonDomain extends SyncMessage implements NodeExtension {
 	@Getter @Setter
 	private String url;
 
+	@RDF("rdfs:label")
+	@Getter @Setter
+	private String label;
+
 	@RDF("bt:mapping")
 	@Getter @Setter
 	private URI mapping;
@@ -140,7 +144,7 @@ public class QueryJsonDomain extends SyncMessage implements NodeExtension {
 
 	@Override
 	public String toString() {
-		return "QueryJsonDomain (" + getUrl() + ")";
+		return "QueryJsonDomain (" + getLabel() + ")";
 	}
 
 	@Override

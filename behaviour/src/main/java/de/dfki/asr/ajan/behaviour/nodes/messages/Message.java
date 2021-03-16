@@ -20,6 +20,7 @@
 package de.dfki.asr.ajan.behaviour.nodes.messages;
 
 import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
+import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.*;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpBinding;
@@ -176,7 +177,15 @@ public class Message extends AbstractTDBLeafTask {
 
 	@Override
 	public String toString() {
-		return "Message (" + label + ")";
+		return "Message (" + getLabel() + ")";
+	}
+
+	@Override
+	public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
+		if (mode.equals(BTUtil.ModelMode.DETAIL) && queryURI != null) {
+			queryURI.setResultModel(getInstance(root.getInstance()), BTVocabulary.QUERY_URI_RESULT, model);
+		}
+		return super.getModel(model, root, mode);
 	}
 
 	@Override

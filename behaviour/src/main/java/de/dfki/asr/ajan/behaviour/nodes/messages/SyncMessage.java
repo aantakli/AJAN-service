@@ -41,6 +41,10 @@ public class SyncMessage extends Message {
 	@Getter @Setter
 	private String url;
 
+	@RDF("rdfs:label")
+	@Getter @Setter
+	private String label;
+
 	@RDF("bt:validate")
 	@Getter @Setter
 	private BehaviorConstructQuery validate;
@@ -87,14 +91,18 @@ public class SyncMessage extends Message {
 
 	@Override
 	public String toString() {
-		return "SyncMessage (" + super.getUrl() + ")";
+		return "SyncMessage (" + getLabel() + ")";
 	}
 
 	@Override
 	public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
 		if (mode.equals(BTUtil.ModelMode.DETAIL)) {
-			queryURI.setResultModel(getInstance(root.getInstance()), BTVocabulary.QUERY_URI_RESULT, model);
-			validate.setResultModel(getInstance(root.getInstance()), BTVocabulary.VALIDATE_RESULT, model);
+			if (queryURI != null) {
+				queryURI.setResultModel(getInstance(root.getInstance()), BTVocabulary.QUERY_URI_RESULT, model);
+			}
+			if (validate != null) {
+				validate.setResultModel(getInstance(root.getInstance()), BTVocabulary.VALIDATE_RESULT, model);
+			}
 		}
 		return super.getModel(model, root, mode);
 	}
