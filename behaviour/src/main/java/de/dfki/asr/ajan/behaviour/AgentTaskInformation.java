@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Data;
 import de.dfki.asr.ajan.behaviour.nodes.action.UriGenerator;
+import de.dfki.asr.ajan.behaviour.nodes.common.Debug;
 
 @SuppressWarnings("PMD.TooManyFields")
 @Data
@@ -48,4 +49,5 @@ public class AgentTaskInformation {
 	private UriGenerator uriGenerator;
 	private Object eventInformation;
 	private final String reportURI;
+	private final Debug debug;
 }

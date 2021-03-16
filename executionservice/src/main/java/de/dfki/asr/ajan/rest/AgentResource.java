@@ -20,6 +20,7 @@
 package de.dfki.asr.ajan.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.DebugMode;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.ModelMode;
 import de.dfki.asr.ajan.logic.agent.AgentManager;
 import de.dfki.asr.ajan.model.Agent;
@@ -63,22 +64,22 @@ public class AgentResource {
 	private static final Logger LOG = LoggerFactory.getLogger(AgentResource.class);
 
 	public AgentResource(final Agent agent, final AgentManager manager) {
-		this.agent = agent;
-		this.agentManager = manager;
+            this.agent = agent;
+            this.agentManager = manager;
 	}
 
 	@GET
 	@Produces({TURTLE,JSONLD})
 	@ApiOperation("List a specific agent")
 	public Agent getAgent() {
-		return agent;
+            return agent;
 	}
 
 	@POST
 	@Produces({TURTLE,JSONLD})
 	@ApiOperation("Receive Object")
 	public Agent postAgent(@QueryParam("capability") final String capability) {
-		return setEvent(capability, new Object());
+            return setEvent(capability, new Object());
 	}
 
 	@POST
@@ -86,7 +87,7 @@ public class AgentResource {
 	@Produces({TURTLE,JSONLD})
 	@ApiOperation("Receive Turtle, TRIG or LD+JSON")
 	public Agent modelPostAgent(@QueryParam("capability") final String capability, final Model model) {
-		return setEvent(capability, model);
+            return setEvent(capability, model);
 	}
 
 	@POST
@@ -94,7 +95,7 @@ public class AgentResource {
 	@Produces({TURTLE,JSONLD})
 	@ApiOperation("Receive Text")
 	public Agent stringPostAgent(@QueryParam("capability") final String capability, final String string) {
-		return setEvent(capability, string);
+            return setEvent(capability, string);
 	}
 
 	@POST
@@ -102,46 +103,78 @@ public class AgentResource {
 	@Produces({TURTLE,JSONLD})
 	@ApiOperation("Receive Json")
 	public Agent jsonPostAgent(@QueryParam("capability") final String capability, final JsonNode json) {
-		return setEvent(capability, json);
+            return setEvent(capability, json);
 	}
 
 	private Agent setEvent(final String capability, final Object input) {
-		if (capability == null) {
-			return null;
-		}
-		agent.setEndpointEvent(capability, input);
-		return agent;
+            if (capability == null) {
+                return null;
+            }
+            agent.setEndpointEvent(capability, input);
+            return agent;
 	}
 
 	@DELETE
 	public Response deleteAgent() {
-		try  {
-			agent.stop();
-			agentManager.deleteAgent(agent);
-		} catch (IllegalArgumentException ex) {
-			return Response.status(Response.Status.NOT_FOUND).build();
-		}
-		return Response.status(Response.Status.OK).build();
+            try  {
+                agent.stop();
+                agentManager.deleteAgent(agent);
+            } catch (IllegalArgumentException ex) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            return Response.status(Response.Status.OK).build();
 	}
 
-	@Path(BEHAVIOR_PATH)
+        @Path(BEHAVIOR_PATH)
 	@GET
 	@Produces({TURTLE,JSONLD})
 	@ApiOperation(value = "Get Behavior Information.")
         @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-	public Model getBehavior(@PathParam(BEHAVIOR_ID) final String behaviorId, @QueryParam("mode") final String mode) throws URISyntaxException {
-		String id;
-                for (Entry<Resource,Behavior> entry: agent.getBehaviors().entrySet()) {
-                        id = new URI(entry.getKey().stringValue()).getFragment();
-			ModelMode md = ModelMode.NORMAL;
-			if (mode != null && "detail".equals(mode)) {
-				md = ModelMode.DETAIL;
-			}
-			if (behaviorId.equals(id)) {
-				return entry.getValue().getStatus(agent.getUrl() + "/behaviors/" + behaviorId, md);
-			}
-		}
-		return new LinkedHashModel();
+	public Model getBehavior(@PathParam(BEHAVIOR_ID) final String behaviorId, @QueryParam("method") final String method, @QueryParam("mode") final String mode) throws URISyntaxException {
+            String id = "";
+            String behaviorURI = "";
+            LOG.info("Received Behavior call: " + behaviorId + ", " + method + ", " + mode);
+            for (Entry<Resource,Behavior> entry: agent.getBehaviors().entrySet()) {
+                id = new URI(entry.getKey().stringValue()).getFragment();
+                if (behaviorId.equals(id) && method != null && mode != null) {
+                    behaviorURI = agent.getUrl() + "/behaviors/" + behaviorId;
+                    if ("info".equals(method)) {
+                        return getBehaviorInfo(entry.getValue(), behaviorURI, mode);
+                    } else if ("debug".equals(method)) {
+                        return setBehaviorDebug(entry.getValue(), behaviorURI, mode);
+                    }
+                }
+            }
+            return new LinkedHashModel();
+	}
+
+
+	private Model getBehaviorInfo(final Behavior behavior, final String uri, final String mode) throws URISyntaxException {
+            switch (mode) {
+                case "detail":
+                    return behavior.getStatus(uri, ModelMode.DETAIL);
+                case "normal":
+                    return behavior.getStatus(uri, ModelMode.NORMAL);
+                default:
+                    return new LinkedHashModel();
+            }
+	}
+   
+	private Model setBehaviorDebug(final Behavior behavior, final String uri, final String mode) throws URISyntaxException {
+            switch (mode) {
+                case "resume":
+                    behavior.setDebug(uri, DebugMode.RESUME);
+                    break;
+                case "step":
+                    behavior.setDebug(uri, DebugMode.STEP);
+                    break;
+                case "pause":
+                    behavior.setDebug(uri, DebugMode.PAUSE);
+                    break;
+                default:
+                    break;
+            }
+            return getBehaviorInfo(behavior, mode, uri);
 	}
 
 	@Path(COMPLETION_PATH)
@@ -149,11 +182,11 @@ public class AgentResource {
 	@Consumes(TURTLE)
 	@ApiOperation(value = "Complete an asynchronous action.")
 	public void completeAction(@PathParam(CONNECTION_PARAMETER) final String conId, @PathParam(ACTION_PARAMETER) final String actId, final Model model) {
-		LOG.info("Action with ID: " + actId + " finnished");
-		agent.getConnections().entrySet().stream().map((entry) -> entry.getValue()).forEach((connection) -> {
-			if (conId.equals(connection.getId().toString())) {
-				connection.response(model, actId);
-			}
-		});
+            LOG.info("Action with ID: " + actId + " finnished");
+            agent.getConnections().entrySet().stream().map((entry) -> entry.getValue()).forEach((connection) -> {
+                if (conId.equals(connection.getId().toString())) {
+                    connection.response(model, actId);
+                }
+            });
 	}
 }

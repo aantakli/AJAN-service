@@ -58,9 +58,9 @@ public class PrioParallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTask
 	@Getter @Setter
 	private String label;
 
-	@RDF("bt:orchestration")
-	public void setOrchestrator(final URI orchestration) {
-		if (orchestration.getFragment().equals("Join")) {
+	@RDF("bt:join")
+	public void setOrchestrator(final boolean join) {
+		if (join) {
 			this.orchestrator = Orchestrator.Join;
 		}
 	}

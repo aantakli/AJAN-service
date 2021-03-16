@@ -20,14 +20,14 @@
 package de.dfki.asr.ajan.model;
 
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
+import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.DebugMode;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.ModelMode;
+import de.dfki.asr.ajan.behaviour.nodes.common.Debug;
 import java.util.List;
 import lombok.Data;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 @Data
 public class Behavior {
@@ -38,7 +38,29 @@ public class Behavior {
 
 	public Model getStatus(final String btURL, final ModelMode mode) {
 		Model model = new LinkedHashModel();
-		ValueFactory vf = SimpleValueFactory.getInstance();
-		return behaviorTree.getModel(model, vf.createIRI(btURL), mode);
+		return behaviorTree.getModel(model, behaviorTree.getInstance(), mode);
+	}
+
+        public void setDebug(final String btURL, final DebugMode mode) {
+            Debug debug = behaviorTree.getObject().getDebug();
+            if (debug.isDebugging()) {
+                switch (mode) {
+                    case RESUME:
+                        debug.setDebugging(false);
+                        debug.setMode(DebugMode.NONE);
+                        break;
+                    case STEP:
+                        debug.setMode(mode);
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                if (mode.equals(DebugMode.PAUSE)) {
+                    debug.setDebugging(true);
+                    debug.setMode(DebugMode.NONE);
+                }
+            }
+            behaviorTree.run();
 	}
 }

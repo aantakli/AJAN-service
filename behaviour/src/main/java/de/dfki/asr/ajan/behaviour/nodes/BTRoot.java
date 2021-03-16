@@ -28,8 +28,10 @@ import de.dfki.asr.ajan.behaviour.events.Producer;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.ModelMode;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
+import de.dfki.asr.ajan.behaviour.nodes.common.Debug;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Direction;
+import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -38,6 +40,7 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.slf4j.Logger;
@@ -71,6 +74,10 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 		return getInstance(instance);
 	}
 
+	public void setInstance(final Resource btInstance) {
+		instance = btInstance;
+	}
+
 	@Override
 	public Resource getDefinition(final Resource btDefinition) {
 		return btDefinition;
@@ -100,7 +107,13 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 			block = true;
 			long before = System.currentTimeMillis();
 			this.step();
-			BTUtil.sendReport(this.getObject(), "BTRoot: " + label + ", time: " + (System.currentTimeMillis() - before) + "ms, FINISHED");
+			if (this.getObject() != null) {
+				Debug debug = this.getObject().getDebug();
+				long time = System.currentTimeMillis() - before;
+				LeafStatus leafStatus = new LeafStatus(null, "BTRoot(" + label + "), time = " + time + "ms, FINISHED");
+				String report = BTUtil.createReport(getUrl(), getInstance().stringValue(), leafStatus, debug, new LinkedHashModel());
+				BTUtil.sendReport(this.getObject(),report);
+			}
 			LOG.info(Long.toString(System.currentTimeMillis() - before));
 			block = false;
 			if (goalProducer != null) {

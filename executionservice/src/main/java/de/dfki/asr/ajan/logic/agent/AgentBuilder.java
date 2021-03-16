@@ -25,6 +25,7 @@ import de.dfki.asr.ajan.knowledge.AgentBeliefBase;
 import de.dfki.asr.ajan.model.*;
 import de.dfki.asr.ajan.behaviour.events.Event;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
+import de.dfki.asr.ajan.behaviour.nodes.common.Debug;
 import de.dfki.asr.ajan.behaviour.service.impl.IConnection;
 import de.dfki.asr.ajan.common.TripleStoreManager.Inferencing;
 import de.dfki.asr.ajan.data.AgentModelManager;
@@ -84,6 +85,7 @@ public class AgentBuilder {
 	protected String reportURI;
         
 	protected URI baseURI;
+        protected final ValueFactory vf = SimpleValueFactory.getInstance();
 
 	public AgentBuilder(final AgentTDBManager manager) {
 		tdbManager = manager;
@@ -94,8 +96,8 @@ public class AgentBuilder {
 		addAgentInformationToKnowledge(beliefs);
 		beliefs.update(initialKnowledge);
 		connections = new ConcurrentHashMap<>();
-                configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree());
-                configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree());
+                configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource());
+                configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), finalBehavior.getResource());
 		configureBehaviorTrees(beliefs);
 		return new Agent(url, name, template, initialBehavior, finalBehavior, behaviors, beliefs, events, endpoints, connections);
 	}
@@ -125,7 +127,12 @@ public class AgentBuilder {
 	protected void configureBehaviorTrees(final AgentBeliefBase beliefs) {
 		behaviors.entrySet().stream().forEach((Map.Entry<Resource, Behavior> behavior) -> {
                     BTRoot bt = behavior.getValue().getBehaviorTree();
-                    configureBehaviorTree(beliefs, bt);
+                    try {
+                        configureBehaviorTree(beliefs, bt, behavior.getKey());
+                    }
+                    catch (URISyntaxException ex) {
+                        Logger.getLogger(AgentBuilder.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     behavior.getValue().getEvents().forEach((res) -> {
                             try {
                                     events.get(new URI(res.toString())).register(bt);
@@ -136,8 +143,9 @@ public class AgentBuilder {
 		});
 	}
 
-        protected void configureBehaviorTree(final AgentBeliefBase beliefs, final BTRoot bt) {
+        protected void configureBehaviorTree(final AgentBeliefBase beliefs, final BTRoot bt, final Resource behaviorIRI) throws URISyntaxException {
             if (beliefs != null && bt != null) {
+                bt.setInstance(vf.createIRI(getBTInstance(behaviorIRI)));
                 bt.setObject(new AgentTaskInformation(
                     bt,
                     beliefs,
@@ -149,7 +157,20 @@ public class AgentBuilder {
                     connections,
                     extensions,
                     new LinkedHashMap(),
-                    reportURI));
+                    reportURI,
+                    createDebug(behaviorIRI)
+                ));
             }
+        }
+
+        protected Debug createDebug(final Resource bt) throws URISyntaxException {
+            Debug debug = new Debug();
+            debug.setAgentURI(url);
+            return debug;
+        }
+
+        protected String getBTInstance(final Resource bt) throws URISyntaxException {
+            String behaviorId = new URI(bt.stringValue()).getFragment();
+            return url + "/behaviors/" + behaviorId;
         }
 }

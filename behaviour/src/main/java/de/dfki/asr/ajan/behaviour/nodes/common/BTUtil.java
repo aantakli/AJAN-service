@@ -25,14 +25,17 @@ import com.badlogic.gdx.ai.btree.Task;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.Action;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
+import de.dfki.asr.ajan.behaviour.nodes.action.common.ACTNUtil;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.common.AgentUtil;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -44,6 +47,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.RDFCollections;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
@@ -62,6 +66,13 @@ public final class BTUtil {
 	public enum ModelMode {
 		NORMAL,
 		DETAIL
+	}
+
+	public enum DebugMode {
+		NONE,
+		PAUSE,
+		RESUME,
+		STEP
 	}
 
 	private static final ValueFactory VF = SimpleValueFactory.getInstance();
@@ -173,11 +184,11 @@ public final class BTUtil {
 		return root;
 	}
 
-	public static void sendReport(final AgentTaskInformation info, final String state) {
+	public static void sendReport(final AgentTaskInformation info, final String report) {
 		if (info != null && !info.getReportURI().equals("")) {
 			CloseableHttpClient httpClient = HttpClients.createDefault();
 			HttpPost httpPost = new HttpPost(info.getReportURI());
-			HttpEntity postParams = new StringEntity(state, ContentType.DEFAULT_TEXT);
+			HttpEntity postParams = new StringEntity(report, ContentType.DEFAULT_TEXT);
 			httpPost.setEntity(postParams);
 			CloseableHttpResponse httpResponse;
 			try {
@@ -186,6 +197,25 @@ public final class BTUtil {
 			} catch (IOException ex) {
 				java.util.logging.Logger.getLogger(Action.class.getName()).log(Level.SEVERE, null, ex);
 			}
+		}
+	}
+
+	public static String createReport(final String url, final String btUrl, final LeafStatus state, final Debug debug, final Model detail) {
+		Model reportModel = new LinkedHashModel();
+		Resource report = VF.createIRI(debug.getAgentURI() + "/report/" + UUID.randomUUID());
+		reportModel.add(report, RDF.TYPE, BTVocabulary.REPORT);
+		reportModel.add(report, AJANVocabulary.HAS_AGENT, VF.createIRI(debug.getAgentURI()));
+		reportModel.add(report, AJANVocabulary.BEHAVIOR_HAS_BT, VF.createIRI(btUrl));
+		reportModel.add(report, BTVocabulary.BT_NODE, VF.createIRI(url));
+		reportModel.add(report, RDFS.LABEL, VF.createLiteral(state.getLabel()));
+		if (debug.isDebugging()) {
+			reportModel.add(report, BTVocabulary.HAS_DEBUGGING, VF.createLiteral(true));
+			reportModel = AgentUtil.mergeModels(reportModel, detail, null);
+		}
+		try {
+			return ACTNUtil.getModelPayload(reportModel, "application/ld+json");
+		} catch (UnsupportedEncodingException ex) {
+			return "";
 		}
 	}
 }

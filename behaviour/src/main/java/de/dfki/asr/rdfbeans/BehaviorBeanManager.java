@@ -109,6 +109,7 @@ public class BehaviorBeanManager extends RDFBeanManager {
 		registerType(Variable.class);
 		registerType(Bound.class);
 		registerType(Bindings.class);
+		registerType(Breakpoint.class);
 	}
 
 	private static void actionTypeMap() throws RDFBeanValidationException {

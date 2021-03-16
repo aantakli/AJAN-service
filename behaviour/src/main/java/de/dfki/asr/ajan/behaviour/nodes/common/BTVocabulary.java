@@ -45,6 +45,8 @@ public class BTVocabulary {
 	public final static IRI MESSAGE = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Message");
 	public final static IRI EXECUTOR = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Executor");
 	public final static IRI REPEATER = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Repeater");
+	public final static IRI DEBUG = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Debug");
+	public final static IRI REPORT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Report");
 
 	public final static IRI INPUT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Input");
 	public final static IRI CONSTRAINT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Constraint");
@@ -93,13 +95,17 @@ public class BTVocabulary {
 	public final static IRI HAS_EVENT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#event");
 	public final static IRI HAS_QUERY_RESULT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#queryResult");
 	public final static IRI HAS_GRAPH_RESULT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#graphResult");
+	public final static IRI HAS_DETAIL = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#detail");
 	public final static IRI HAS_RESULT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#result");
 	public final static IRI HAS_QUERY_BINDING = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#queryBinding");
 	public final static IRI HAS_NAME = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#name");
 	public final static IRI HAS_VALUE = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#value");
 	public final static IRI BT_NODE = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#btNode");
 	public final static IRI HAS_TIMESTAMP = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#timeStamp");
+	public final static IRI HAS_DEBUGGING = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#debugging");
 
+	public final static IRI ST_FRESH = FACTORY.createIRI("http://www.ajan.de/behavior/state-ns#Fresh");
+	public final static IRI ST_RUNNING = FACTORY.createIRI("http://www.ajan.de/behavior/state-ns#Running");
 	public final static IRI ST_SUCCESS = FACTORY.createIRI("http://www.ajan.de/behavior/state-ns#Success");
 	public final static IRI ST_FAIL = FACTORY.createIRI("http://www.ajan.de/behavior/state-ns#Fail");
 	public final static IRI ST_UNCLEAR = FACTORY.createIRI("http://www.ajan.de/behavior/state-ns#Unclear");

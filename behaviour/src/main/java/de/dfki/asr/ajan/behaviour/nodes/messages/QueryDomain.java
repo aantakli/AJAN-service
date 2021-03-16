@@ -48,6 +48,10 @@ public class QueryDomain extends SyncMessage {
 	@Getter @Setter
 	private String url;
 
+	@RDF("rdfs:label")
+	@Getter @Setter
+	private String label;
+
 	@RDF("bt:targetBase")
 	@Getter @Setter
 	private URI targetBase;
@@ -100,12 +104,12 @@ public class QueryDomain extends SyncMessage {
 
 	@Override
 	public String toString() {
-		return "QueryDomain (" + url + ")";
+		return "QueryDomain (" + getLabel() + ")";
 	}
 
 	@Override
 	public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
-		if (mode.equals(BTUtil.ModelMode.DETAIL)) {
+		if (mode.equals(BTUtil.ModelMode.DETAIL) && queryURI != null) {
 			Resource resource = getInstance(root.getInstance());
 			queryURI.setResultModel(resource, BTVocabulary.QUERY_URI_RESULT, model);
 			if (domainResponse != null && !domainResponse.isEmpty()) {

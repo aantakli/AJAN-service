@@ -24,6 +24,7 @@ import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.events.Event;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.branch.Executor;
+import de.dfki.asr.ajan.behaviour.nodes.common.Debug;
 import de.dfki.asr.ajan.common.SparqlTripleDataBase;
 import de.dfki.asr.ajan.common.TripleDataBase;
 import de.dfki.asr.ajan.common.TripleStoreManager.Inferencing;
@@ -115,7 +116,7 @@ public class UnmarshalBehaviourTest {
 	@Test(dependsOnMethods = {"loadRoot"})
 	public void rootCanStep() {
 		Map<URI,Event> events = new ConcurrentHashMap();
-		AgentTaskInformation info = new AgentTaskInformation(new BTRoot(), new AgentBeliefBase(beliefsTDB), new ExecutionBeliefBase(Inferencing.NONE), behaviorTDB, domainTDB, servicesTDB, events, new ConcurrentHashMap<>(), extensions, new LinkedHashMap(), "");
+		AgentTaskInformation info = new AgentTaskInformation(new BTRoot(), new AgentBeliefBase(beliefsTDB), new ExecutionBeliefBase(Inferencing.NONE), behaviorTDB, domainTDB, servicesTDB, events, new ConcurrentHashMap<>(), extensions, new LinkedHashMap(), "", new Debug());
 		root.setObject(info);
 		root.step();
 	}
