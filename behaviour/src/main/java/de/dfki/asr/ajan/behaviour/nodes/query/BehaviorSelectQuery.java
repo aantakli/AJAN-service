@@ -59,7 +59,7 @@ public class BehaviorSelectQuery implements BehaviorQuery {
 	public List<BindingSet> getResult(final Repository repo) {
 		reset = false;
 		try (RepositoryConnection conn = repo.getConnection()) {
-			TupleQuery query = conn.prepareTupleQuery(sparql);
+			TupleQuery query = conn.prepareTupleQuery(getSparql());
 			TupleQueryResult result = query.evaluate();
 			bindings = new ArrayList();
 			while (result.hasNext()) {
@@ -71,7 +71,7 @@ public class BehaviorSelectQuery implements BehaviorQuery {
 
 	public String getResult(final Repository repo, final TupleQueryResultFormat format) throws IOException {
 		try (RepositoryConnection conn = repo.getConnection()) {
-			TupleQuery query = conn.prepareTupleQuery(sparql);
+			TupleQuery query = conn.prepareTupleQuery(getSparql());
 			TupleQueryResult result = query.evaluate();
 			ByteArrayOutputStream output = new ByteArrayOutputStream();
 			QueryResultIO.writeTuple(result, TupleQueryResultFormat.SPARQL, output);

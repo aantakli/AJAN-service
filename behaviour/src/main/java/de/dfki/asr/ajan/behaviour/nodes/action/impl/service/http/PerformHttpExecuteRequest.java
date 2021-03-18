@@ -19,12 +19,14 @@
 
 package de.dfki.asr.ajan.behaviour.nodes.action.impl.service.http;
 
+import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.action.TaskStep;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.TaskContext;
 import de.dfki.asr.ajan.behaviour.nodes.action.impl.AbstractPerformRequest;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ServiceActionDefinition;
 import de.dfki.asr.ajan.behaviour.service.impl.SelectQueryTemplate;
 import de.dfki.asr.ajan.behaviour.nodes.action.common.ACTNUtil;
+import de.dfki.asr.ajan.behaviour.service.impl.HttpBinding;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpConnection;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpHeader;
 import de.dfki.asr.ajan.behaviour.service.impl.IConnection;
@@ -51,12 +53,14 @@ public class PerformHttpExecuteRequest extends AbstractPerformRequest {
 		if (tmpl != null) {
 			return ACTNUtil.getTemplatePayload(inputModel, tmpl);
 		}
-		List<HttpHeader> headers = ((ServiceActionDefinition)service).getRun().getHeaders();
-		String mimeType = ACTNUtil.getMimeTypeFromHeaders(headers);
-		String constructQuery = ((ServiceActionDefinition)service).getRun().getPayload().getSparql();
 		try {
+			HttpBinding binding = ((ServiceActionDefinition)service).getRun();
+			binding.setAddHeaders(SPARQLUtil.createRepository(inputModel));
+			List<HttpHeader> headers = binding.getHeaders();
+			String mimeType = ACTNUtil.getMimeTypeFromHeaders(headers);
+			String constructQuery = ((ServiceActionDefinition)service).getRun().getPayload().getSparql();
 			return ACTNUtil.getModelPayload(SPARQLUtil.queryModel(inputModel, constructQuery), mimeType);
-		} catch (UnsupportedEncodingException ex) {
+		} catch (UnsupportedEncodingException | URISyntaxException | MessageEvaluationException ex) {
 			return "";
 		}
 	}
