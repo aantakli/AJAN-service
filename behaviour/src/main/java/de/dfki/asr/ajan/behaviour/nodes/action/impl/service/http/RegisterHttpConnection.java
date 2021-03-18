@@ -21,14 +21,18 @@ package de.dfki.asr.ajan.behaviour.nodes.action.impl.service.http;
 
 import com.badlogic.gdx.ai.btree.Task;
 import de.dfki.asr.ajan.behaviour.events.ModelEvent;
+import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.Action;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.action.AbstractChainStep;
 import de.dfki.asr.ajan.behaviour.nodes.action.TaskStep;
+import de.dfki.asr.ajan.behaviour.nodes.action.definition.InputModel;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.TaskContext;
 import de.dfki.asr.ajan.behaviour.service.impl.IConnection;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpConnection;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ServiceActionDefinition;
+import de.dfki.asr.ajan.behaviour.service.impl.HttpBinding;
+import de.dfki.asr.ajan.common.SPARQLUtil;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.slf4j.LoggerFactory;
@@ -46,16 +50,17 @@ public class RegisterHttpConnection extends AbstractChainStep {
 		service = context.get(ServiceActionDefinition.class);
 		IConnection connection;
 		try {
-			connection = getConnection(context);
+			InputModel inputModel = context.get(InputModel.class);
+			connection = getConnection(context, inputModel);
 			context.put(connection);
-		} catch (URISyntaxException ex) {
+		} catch (URISyntaxException | MessageEvaluationException ex) {
 			LOG.error("Failed to establish Connection", ex);
 			return Task.Status.FAILED;
 		}
 		return executeNext(context);
 	}
 
-	public IConnection getConnection(final TaskContext context) throws URISyntaxException {
+	public IConnection getConnection(final TaskContext context, final InputModel inputModel) throws URISyntaxException, MessageEvaluationException {
 		Action action = context.get(Action.class);
 		URI uri = new URI(service.getRun().getUrl());
 		if (action.getObject().getConnections().containsKey(uri)) {
@@ -65,11 +70,13 @@ public class RegisterHttpConnection extends AbstractChainStep {
 			}
 			return connection;
 		}
-		return createConnection(action, uri);
+		return createConnection(action, uri, inputModel);
 	};
 
-	private IConnection createConnection(final Action action, final URI uri) throws URISyntaxException {
-		HttpConnection connection = new HttpConnection(service.getRun());
+	private IConnection createConnection(final Action action, final URI uri, final InputModel inputModel) throws URISyntaxException, MessageEvaluationException {
+		HttpBinding binding = ((ServiceActionDefinition)service).getRun();
+		binding.setAddHeaders(SPARQLUtil.createRepository(inputModel));
+		HttpConnection connection = new HttpConnection(binding);
 		connection.setEvent(getEvent(action, uri));
 		action.getObject().getConnections().put(uri, connection);
 		return connection;

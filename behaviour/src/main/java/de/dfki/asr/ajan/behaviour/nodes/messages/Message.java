@@ -88,6 +88,7 @@ public class Message extends AbstractTDBLeafTask {
 	public LeafStatus executeLeaf() {
 		try {
 			setRequestUri();
+			binding.setAddHeaders(BTUtil.getInitializedRepository(getObject(), binding.getBtHeaders().getOriginBase()));
 			binding.setRequestURI(new URI(requestURI));
 			request = new HttpConnection(binding);
 			prepareRequest();
@@ -106,7 +107,6 @@ public class Message extends AbstractTDBLeafTask {
 
 	protected void prepareRequest() throws URISyntaxException, IOException, MessageEvaluationException {
 		String payload = null;
-		binding.setAddHeaders(BTUtil.getInitializedRepository(getObject(), binding.getBtHeaders().getOriginBase()));
 		if (binding.getPayload() != null) {
 			payload = getInput(binding);
 		}
