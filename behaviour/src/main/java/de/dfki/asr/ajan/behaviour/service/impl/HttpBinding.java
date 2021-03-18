@@ -19,6 +19,7 @@
 
 package de.dfki.asr.ajan.behaviour.service.impl;
 
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import java.net.URI;
 import java.util.List;
 import lombok.Getter;
@@ -48,6 +49,10 @@ public class HttpBinding {
 	@RDF("http-core:headers")
 	@Getter @Setter
 	private List<HttpHeader> headers;
+
+	@RDF("actn:headers")
+	@Getter @Setter
+	private BehaviorSelectQuery actnHeaders;
 
 	@RDF("http-core:body")
 	@Getter @Setter

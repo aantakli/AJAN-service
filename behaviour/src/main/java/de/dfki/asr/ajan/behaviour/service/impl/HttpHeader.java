@@ -27,9 +27,9 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 @RDFBean("http-core:Header")
 @Data
 public class HttpHeader {
-	@RDF("http-core:fieldValue")
-	private String headerValue;
-
 	@RDF("http-core:hdrName")
 	private URI headerName;
+
+	@RDF("http-core:fieldValue")
+	private String headerValue;
 }
