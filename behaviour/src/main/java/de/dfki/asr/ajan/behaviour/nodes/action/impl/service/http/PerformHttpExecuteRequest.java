@@ -48,16 +48,17 @@ public class PerformHttpExecuteRequest extends AbstractPerformRequest {
 
 	@Override
 	public String getInput(final Model inputModel) {
-		SelectQueryTemplate tmpl = ((ServiceActionDefinition)service).getRun().getPayload().getTemplate();
+		HttpBinding binding = ((ServiceActionDefinition)service).getRun();
+		SelectQueryTemplate tmpl = binding.getPayload().getTemplate();
 		if (tmpl != null) {
 			return ACTNUtil.getTemplatePayload(inputModel, tmpl);
 		}
 		try {
-			HttpBinding binding = ((ServiceActionDefinition)service).getRun();
 			List<HttpHeader> headers = binding.getHeaders();
 			String mimeType = ACTNUtil.getMimeTypeFromHeaders(headers);
-			String constructQuery = ((ServiceActionDefinition)service).getRun().getPayload().getSparql();
-			return ACTNUtil.getModelPayload(SPARQLUtil.queryModel(inputModel, constructQuery), mimeType);
+			String constructQuery = binding.getPayload().getSparql();
+			Model resultModel = SPARQLUtil.getNamedGraph(SPARQLUtil.queryModel(inputModel, constructQuery));
+			return ACTNUtil.getModelPayload(resultModel, mimeType);
 		} catch (UnsupportedEncodingException ex) {
 			return "";
 		}

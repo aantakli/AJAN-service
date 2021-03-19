@@ -26,8 +26,14 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.GraphQueryResult;
@@ -65,6 +71,7 @@ public final class SPARQLUtil {
 
 	private final static String INSERT = "(INSERT((?:.*?\\r?\\n?)*)})|(insert((?:.*?\\r?\\n?)*)})";
 	private final static String DELETE = "(DELETE((?:.*?\\r?\\n?)*)})|(delete((?:.*?\\r?\\n?)*)})";
+	private static final ValueFactory VF = SimpleValueFactory.getInstance();
 	//private final static String WHERE = "(WHERE((?:.*?\\r?\\n?)*)})";
 
 	private SPARQLUtil() {
@@ -243,5 +250,47 @@ public final class SPARQLUtil {
 
 	public static String queryNamedGraph (final String graphName) {
 		return "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <" + graphName + "> { ?s ?p ?o }}";
+	}
+
+	public static Model getNamedGraph(final Model resultModel) {
+		Model model = resultModel;
+		if (model.contains(null, AJANVocabulary.HAS_RDF_UUID_CONTEXT, null)) {
+			Optional<IRI> contextIRI = Models.objectIRI(model.filter(null, AJANVocabulary.HAS_RDF_UUID_CONTEXT, null));
+			if (contextIRI.isPresent()) {
+				IRI context = contextIRI.get();
+				model = addUniqueNamedGraph(model, context);
+			}
+			model.remove(null, AJANVocabulary.HAS_RDF_UUID_CONTEXT, null);
+		}
+		if (model.contains(null, AJANVocabulary.HAS_RDF_CONTEXT, null)) {
+			Optional<IRI> contextIRI = Models.objectIRI(model.filter(null, AJANVocabulary.HAS_RDF_CONTEXT, null));
+			if (contextIRI.isPresent()) {
+				IRI context = contextIRI.get();
+				model = addNamedGraph(model, context);
+			}
+			model.remove(null, AJANVocabulary.HAS_RDF_CONTEXT, null);
+		}
+		return model;
+	}
+
+	private static Model addNamedGraph(final Model model, final IRI context) {
+		if (context != null) {
+			String ctx = context.toString();
+			model.add(VF.createIRI(ctx), org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, AJANVocabulary.CONTEXT);
+			return AgentUtil.setNamedGraph(model.iterator(), ctx);
+		}
+		return model;
+	}
+
+	private static Model addUniqueNamedGraph(final Model model, final IRI context) {
+		if (context != null) {
+			String ctx = context.toString();
+			String graphName = ctx + "_" + UUID.randomUUID().toString();
+			model.add(VF.createIRI(ctx), org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, AJANVocabulary.CONTEXT);
+			model.add(VF.createIRI(ctx), org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, AJANVocabulary.UUID_CONTEXT);
+			model.add(VF.createIRI(graphName), org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, VF.createIRI(ctx));
+			return AgentUtil.setNamedGraph(model.iterator(), graphName);
+		}
+		return model;
 	}
 }

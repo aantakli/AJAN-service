@@ -85,6 +85,11 @@ public class AJANVocabulary {
 	public final static IRI EXC_EXCEPTION = FACTORY.createIRI("http://www.ajan.de/ajan-ns#Exception");
 	public final static IRI EXC_HAS_CAUSE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#hasCause");
 
+	public final static IRI CONTEXT = FACTORY.createIRI("http://www.ajan.de/ajan-ns#Context");
+	public final static IRI UUID_CONTEXT = FACTORY.createIRI("http://www.ajan.de/ajan-ns#UUIDContext");
+	public final static IRI HAS_RDF_CONTEXT = FACTORY.createIRI("http://www.ajan.de/ajan-ns#rdfContext");
+	public final static IRI HAS_RDF_UUID_CONTEXT = FACTORY.createIRI("http://www.ajan.de/ajan-ns#rdfUUIDContext");
+
 	public final static IRI ASYNC_REQUEST_URI = FACTORY.createIRI("http://www.ajan.de/actn#asyncRequestURI");
 
 	public final static IRI HTTP_PARAMETER_VALUE = FACTORY.createIRI("http://www.w3.org/2011/http#paramValue");
