@@ -22,6 +22,7 @@ package de.dfki.asr.ajan.behaviour.nodes.event;
 import de.dfki.asr.ajan.behaviour.events.ModelEventInformation;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
+import java.net.URI;
 import java.util.Queue;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,6 +39,14 @@ public class HandleModelQueueEvent extends HandleModelEvent {
 	@Getter @Setter
 	private String url;
 
+	@RDF("rdfs:label")
+	@Getter @Setter
+	private String label;
+
+	@RDF("ajan:event")
+	@Getter @Setter
+	private URI event;
+
 	@RDF("bt:validate")
 	@Getter @Setter
 	private BehaviorConstructQuery query;
@@ -48,7 +57,7 @@ public class HandleModelQueueEvent extends HandleModelEvent {
 		if (info instanceof Queue) {
 			Queue modelQueue = (Queue) this.getObject().getEventInformation();
 			if (modelQueue.peek() != null && modelQueue.peek() instanceof ModelEventInformation) {
-				return checkQueueItem(((ModelEventInformation)modelQueue.poll()).getEvent());
+				return checkQueueItem(((ModelEventInformation)modelQueue.peek()).getEvent());
 			}
 		}
 		return false;
@@ -68,7 +77,12 @@ public class HandleModelQueueEvent extends HandleModelEvent {
 		if (info instanceof Queue) {
 			Queue modelQueue = (Queue) this.getObject().getEventInformation();
 			if (modelQueue.peek() != null && modelQueue.peek() instanceof ModelEventInformation) {
-				model = constructQuery.getResult(((ModelEventInformation)modelQueue.poll()).getModel());
+				model = ((ModelEventInformation)modelQueue.poll()).getModel();
+				if (constructQuery == null || constructQuery.getSparql().isEmpty()) {
+					return model;
+				} else {
+					return constructQuery.getResult(model);
+				}
 			}
 		}
 		return model;

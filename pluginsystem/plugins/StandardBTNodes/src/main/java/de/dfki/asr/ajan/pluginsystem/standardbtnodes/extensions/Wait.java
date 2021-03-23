@@ -109,7 +109,7 @@ public class Wait extends AbstractTDBLeafTask implements NodeExtension {
 					running = Status.RUNNING;
 					sleep(milliseconds);
 					running = Status.SUCCEEDED;
-					bt.setEventInformation(new LinkedHashModel());
+					bt.run();
 				} catch (InterruptedException ex) {
 					LOG.info("Thread cancelled!");
 				}
