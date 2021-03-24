@@ -88,7 +88,9 @@ public class Message extends AbstractTDBLeafTask {
 	public LeafStatus executeLeaf() {
 		try {
 			setRequestUri();
-			binding.setAddHeaders(BTUtil.getInitializedRepository(getObject(), binding.getBtHeaders().getOriginBase()));
+			if (binding.getBtHeaders() != null) {
+				binding.setAddHeaders(BTUtil.getInitializedRepository(getObject(), binding.getBtHeaders().getOriginBase()));
+			}
 			binding.setRequestURI(new URI(requestURI));
 			request = new HttpConnection(binding);
 			prepareRequest();
