@@ -40,14 +40,14 @@ Start AJAN-Triplestore (see below), visit `http://localhost:8090/workbench/` and
 
 * `-Dserver.port=8080`
 	-> Set the port to 8080
-* `-DpublicHostName=127.0.0.1`-> Set the host to 127.0.0.1
-* `-DusePort=true` -> Use prot in AJAN base URI (Example AJAN base URI would be `http://127.0.0.1:8080/ajan/agents`)
-* `-Dtriplestore.url=http://localhost:8090/rdf4j` -> Points to the triplestore 
-* `-DloadTTLFiles=true` -> Loading of predefined models with start of AJAN service, this overwrites the existing models in the Triplestore
-* `-Dtriplestore.initialData.agentFolderPath=executionservice/use-case/agents` -> Folder to predefined agents (RDF/Trig)
-* `-Dtriplestore.initialData.domainFolderPath=executionservice/use-case/domains` -> Folder to predefined domain (RDF/Turtle)
-* `-Dtriplestore.initialData.serviceFolderPath=executionservice/use-case/services` -> Folder to predefined services (RDF/Turtle)
-* `-Dtriplestore.initialData.behaviorsFolderPath=executionservice/use-case/behaviors` -> Folder to predefined behaviors (RDF/Turtle)
+* `-DpublicHostName=127.0.0.1`<br>-> Set the host to 127.0.0.1
+* `-DusePort=true` <br>-> Use prot in AJAN base URI (Example AJAN base URI would be `http://127.0.0.1:8080/ajan/agents`)
+* `-Dtriplestore.url=http://localhost:8090/rdf4j` <br>-> Points to the triplestore 
+* `-DloadTTLFiles=true` <br>-> Loading of predefined models with start of AJAN service, this overwrites the existing models in the Triplestore
+* `-Dtriplestore.initialData.agentFolderPath=executionservice/use-case/agents` <br>-> Folder to predefined agents (RDF/Trig)
+* `-Dtriplestore.initialData.domainFolderPath=executionservice/use-case/domains` <br>-> Folder to predefined domain (RDF/Turtle)
+* `-Dtriplestore.initialData.serviceFolderPath=executionservice/use-case/services` <br>-> Folder to predefined services (RDF/Turtle)
+* `-Dtriplestore.initialData.behaviorsFolderPath=executionservice/use-case/behaviors` <br>-> Folder to predefined behaviors (RDF/Turtle)
    
 Pre-modelled agent templates, behaviors, service definitions and domain knowledge can be adapted via the turtle-files under the `ajan-service/executionservice/use-case` folder. If you want to model them graphically, we refer you to the [AJAN-editor](https://github.com/aantakli/AJAN-editor).
    
