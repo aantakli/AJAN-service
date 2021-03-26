@@ -51,3 +51,6 @@ Start AJAN-Triplestore (see below), visit `http://localhost:8090/workbench/` and
    
 Pre-modelled agent templates, behaviors, service definitions and domain knowledge can be adapted via the turtle-files under the `ajan-service/executionservice/use-case` folder. If you want to model them graphically, we refer you to the [AJAN-editor](https://github.com/aantakli/AJAN-editor).
    
+## Examples
+
+For examples, we refere to the [AJAN-service Wiki](https://github.com/aantakli/AJAN-service/wiki/1-AJAN-Overview).
