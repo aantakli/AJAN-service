@@ -38,9 +38,10 @@ Start AJAN-Triplestore (see below), visit `http://localhost:8090/workbench/` and
 
 ### VM Variables
 
-* `-Dserver.port=8080` -> Set the port to 8080
+* `-Dserver.port=8080`
+	-> Set the port to 8080
 * `-DpublicHostName=127.0.0.1`-> Set the host to 127.0.0.1
-* `-DusePort=true` -> Use prot in AJAN base URI (Example AJAN base URI would be
+* `-DusePort=true` -> Use prot in AJAN base URI (Example AJAN base URI would be `http://127.0.0.1:8080/ajan/agents`)
 * `-Dtriplestore.url=http://localhost:8090/rdf4j` -> Points to the triplestore 
 * `-DloadTTLFiles=true` -> Loading of predefined models with start of AJAN service. This overwrites the existing models in the Triplestore
 * `-Dtriplestore.initialData.agentFolderPath=executionservice/use-case/agents` -> Points to the source for predefined agents model (RDF/Trig)
