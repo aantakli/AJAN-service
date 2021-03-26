@@ -36,5 +36,5 @@ Start AJAN-Triplestore (see below), visit `http://localhost:8090/workbench/` and
 									-Dtriplestore.url=http://localhost:8090/rdf4j 
 									-jar executionservice/target/executionservice-0.1.jar`
    
-Pre-modelled agent templates, behaviors, service definitions and domain knowledge can be adapted without the AJAN-editor via the turtle-files under the `ajan-service/executionservice/use-case` folder.
+Pre-modelled agent templates, behaviors, service definitions and domain knowledge can be adapted via the turtle-files under the `ajan-service/executionservice/use-case` folder. If you want to model them graphically, we refer you to the [AJAN-editor](https://github.com/aantakli/AJAN-editor).
    
