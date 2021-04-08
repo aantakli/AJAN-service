@@ -286,7 +286,6 @@ public final class SPARQLUtil {
 		if (context != null) {
 			String ctx = context.toString();
 			String graphName = ctx + "_" + UUID.randomUUID().toString();
-			model.add(VF.createIRI(ctx), org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, AJANVocabulary.CONTEXT);
 			model.add(VF.createIRI(ctx), org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, AJANVocabulary.UUID_CONTEXT);
 			model.add(VF.createIRI(graphName), org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, VF.createIRI(ctx));
 			return AgentUtil.setNamedGraph(model.iterator(), graphName);
