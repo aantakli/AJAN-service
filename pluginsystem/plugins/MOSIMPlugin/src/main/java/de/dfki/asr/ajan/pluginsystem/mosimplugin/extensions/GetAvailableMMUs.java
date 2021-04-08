@@ -26,10 +26,10 @@ import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import static de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.AbortInstruction.LOG;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.core.MIPAddress;
+import de.mosim.mmi.core.MParameter;
 import de.mosim.mmi.mmu.MMUDescription;
 import de.mosim.mmi.register.MMIRegisterService;
 import java.net.URI;
@@ -74,10 +74,6 @@ public class GetAvailableMMUs extends AbstractTDBLeafTask implements NodeExtensi
 
 	private String host;
 	private int port;
-
-	@RDF("bt-mosim:sessionID")
-	@Getter @Setter
-	private String session;
 
 	@RDF("bt:targetBase")
 	@Getter @Setter
@@ -132,18 +128,25 @@ public class GetAvailableMMUs extends AbstractTDBLeafTask implements NodeExtensi
 	private Model getInputModel(final Map<MMUDescription,List<MIPAddress>> mmus) {
 		Model model = new LinkedHashModel();
 		IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
+		int i = 1;
 		for (MMUDescription mmu: mmus.keySet()) {
 			Resource subject = vf.createBNode();
 			model.add(subject, rdfType, MOSIMVocabulary.MMU_DESCRIPTION);
+			model.add(subject, MOSIMVocabulary.HAS_ORDER, vf.createLiteral(i));
 			model.add(subject, MOSIMVocabulary.HAS_ID, vf.createLiteral(mmu.ID));
-			model.add(subject, MOSIMVocabulary.HAS_MOTION_TYPE, getMotionType(mmu.MotionType));
+			model.add(subject, MOSIMVocabulary.HAS_NAME, vf.createLiteral(mmu.Name));
+			model.add(subject, MOSIMVocabulary.HAS_MOTION_TYPE, vf.createLiteral(mmu.MotionType));
+			if (mmu.isSetParameters()) {
+				for (MParameter param: mmu.Parameters) {
+					if (param.Required)
+						model.add(subject, MOSIMVocabulary.HAS_PARAMETER, vf.createLiteral(param.Name));
+					else
+						model.add(subject, MOSIMVocabulary.HAS_OPTIONAL_PARAMETER, vf.createLiteral(param.Name));
+				}
+			}
+			i += 1;
 		}
 		return model;
-	}
-
-	private IRI getMotionType(final String motionType) {
-		String mmu = motionType.substring(0,1).toUpperCase() + motionType.substring(1);
-		return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#" + mmu);
 	}
 
 	@Override

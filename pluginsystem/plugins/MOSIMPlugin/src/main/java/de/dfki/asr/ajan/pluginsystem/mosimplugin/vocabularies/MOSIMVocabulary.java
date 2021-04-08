@@ -58,8 +58,11 @@ public class MOSIMVocabulary {
 	public final static IRI HAS_KEY = FACTORY.createIRI("http://www.dfki.de/mosim-ns#key");
 	public final static IRI HAS_VALUE = FACTORY.createIRI("http://www.dfki.de/mosim-ns#value");
 	public final static IRI HAS_MMU = FACTORY.createIRI("http://www.dfki.de/mosim-ns#mmu");
+	public final static IRI HAS_ORDER = FACTORY.createIRI("http://www.dfki.de/mosim-ns#order");
 	public final static IRI HAS_NAME = FACTORY.createIRI("http://www.dfki.de/mosim-ns#name");
 	public final static IRI HAS_MOTION_TYPE = FACTORY.createIRI("http://www.dfki.de/mosim-ns#motionType");
+	public final static IRI HAS_PARAMETER = FACTORY.createIRI("http://www.dfki.de/mosim-ns#parameter");
+	public final static IRI HAS_OPTIONAL_PARAMETER = FACTORY.createIRI("http://www.dfki.de/mosim-ns#optionalParameter");
 	public final static IRI HAS_HAND = FACTORY.createIRI("http://www.dfki.de/mosim-ns#hand");
 	public final static IRI HAS_INITIAL_LOCATION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#initialLocation");
 	public final static IRI HAS_FINAL_LOCATION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#finalLocation");
