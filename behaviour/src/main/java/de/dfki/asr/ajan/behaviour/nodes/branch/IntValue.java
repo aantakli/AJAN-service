@@ -26,6 +26,7 @@ import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import java.math.BigInteger;
 import static java.math.BigInteger.ZERO;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import lombok.Getter;
@@ -43,13 +44,13 @@ public class IntValue {
 
 	@RDF("bt:intValue")
 	@Getter @Setter
-	private Integer value;
+	private List<BigInteger> value;
 
 	@RDF("bt:query")
 	@Getter @Setter
 	private BehaviorSelectQuery query;
 
-	public BigInteger getIntValue(final AgentTaskInformation info) throws SelectEvaluationException {
+	public List<BigInteger> getIntValue(final AgentTaskInformation info) throws SelectEvaluationException {
 		try {
 			if (query == null) {
 				return returnValue();
@@ -60,34 +61,38 @@ public class IntValue {
 		}
 	}
 
-	@SuppressWarnings("PMD.AvoidCatchingGenericException")
-	public BigInteger getIntValue(final Repository repo) throws SelectEvaluationException {
+	@SuppressWarnings({"PMD.AvoidCatchingGenericException","PMD.AvoidInstantiatingObjectsInLoops"})
+	public List<BigInteger> getIntValue(final Repository repo) throws SelectEvaluationException {
 		try {
 			if (query == null) {
 				return returnValue();
 			} else {
 				List<BindingSet> result = query.getResult(repo);
 				if (result.isEmpty()) {
-					return ZERO;
+					return returnValue();
 				}
-				BindingSet bindings = result.get(0);
-				Value strValue = bindings.getValue("intValue");
-				if (strValue == null) {
-					return ZERO;
-				} else {
-					return new BigInteger(strValue.stringValue().replace(" ",""));
+				Value strValue;
+				List<BigInteger> values = new ArrayList<>();
+				for (BindingSet set: result) {
+					strValue = set.getValue("intValue");
+					if (strValue != null) {
+						values.add(new BigInteger(strValue.stringValue().replace(" ","")));
+					}
 				}
+				return values;
 			}
 		} catch (QueryEvaluationException ex) {
 			throw new SelectEvaluationException("IntValue not defined as Integer", ex);
 		}
 	}
 
-	private BigInteger returnValue() {
+	private List<BigInteger> returnValue() {
+		List<BigInteger> values = new ArrayList<>();
 		if (value == null) {
-			return BigInteger.valueOf(0);
+			values.add(ZERO);
+			return values;
 		} else {
-			return BigInteger.valueOf(value);
+			return value;
 		}
 	}
 }

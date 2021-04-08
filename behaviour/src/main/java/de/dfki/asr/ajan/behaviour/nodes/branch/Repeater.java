@@ -145,12 +145,12 @@ public class Repeater extends LoopDecorator<AgentTaskInformation> implements Tre
 	}
 
 	private IntegerDistribution updateTimes() throws SelectEvaluationException {
-		BigInteger number = intValue.getIntValue(this.getObject());
+		BigInteger number = intValue.getIntValue(this.getObject()).get(0);
 		return new ConstantIntegerDistribution(number.intValue());
 	}
 
 	private IntegerDistribution updateTimes(final Repository repo) throws SelectEvaluationException {
-		BigInteger number = intValue.getIntValue(repo);
+		BigInteger number = intValue.getIntValue(repo).get(0);
 		return new ConstantIntegerDistribution(number.intValue());
 	}
 

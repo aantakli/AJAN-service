@@ -27,6 +27,8 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Direction;
 import de.dfki.asr.ajan.behaviour.nodes.common.TreeNode;
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
@@ -53,9 +55,16 @@ public class Executor extends AbstractTDBBranchTask {
 	@Getter @Setter
 	private String label;
 
+	@RDF("bt:sequence")
+	@Setter @Getter
+	private boolean sequence;
+
 	@RDF("bt:selectChild")
 	@Setter @Getter
 	private IntValue selectedChild;
+
+	private List<BigInteger> executionOrder = new ArrayList<>();
+	private int childIndex;
 
 	@RDF("bt:hasChildren")
 	public List<Task<AgentTaskInformation>> getChildren() {
@@ -90,8 +99,9 @@ public class Executor extends AbstractTDBBranchTask {
 	public void run () {
 		try {
 			if (runningChild == null) {
-				int child = selectedChild.getIntValue(this.getObject()).intValueExact();
-				runChild(child);
+				executionOrder = selectedChild.getIntValue(this.getObject());
+				childIndex = 0;
+				runChildByIndex();
 			} else {
 				runningChild.run();
 			}
@@ -101,16 +111,38 @@ public class Executor extends AbstractTDBBranchTask {
 		}
 	}
 
+	private void runChildByIndex() {
+		int child = executionOrder.get(childIndex).intValueExact();
+		if (child < 0 || child > children.size) {
+			LOG.info("No matching child found!");
+			fail();
+		} else {
+			runChild(child);
+		}
+	}
+
 	@Override
 	public void childFail(final Task<AgentTaskInformation> runningTask) {
 		super.childFail(runningTask);
-		fail();
+		childIndex += 1;
+		if (!sequence && executionOrder.size() > childIndex) {
+			runChildByIndex();
+		} else {
+			childIndex = 0;
+			fail();
+		}
 	}
 
 	@Override
 	public void childSuccess(final Task<AgentTaskInformation> runningTask) {
 		super.childSuccess(runningTask);
-		success();
+		childIndex += 1;
+		if (sequence && executionOrder.size() > childIndex) {
+			runChildByIndex();
+		} else {
+			childIndex = 0;
+			success();
+		}
 	}
 
 	@Override
@@ -121,7 +153,7 @@ public class Executor extends AbstractTDBBranchTask {
 		} else {
 			try {
 				Repository evalRepo = result.getRepo().initialize();
-				int childIndex = selectedChild.getIntValue(evalRepo).intValueExact();
+				int childIndex = selectedChild.getIntValue(evalRepo).get(0).intValueExact();
 				((TreeNode)this.getChild(childIndex)).evaluate(result.setDirection(Direction.Down));
 			} catch (SelectEvaluationException ex) {
 				LOG.error("Problems with the Select Query", ex);
