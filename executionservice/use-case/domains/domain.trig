@@ -53,7 +53,7 @@ mosim:Mapping {
 :TaskMapping
 	rml:logicalSource [
 		rml:referenceFormulation ql:JSONInput;
-	    rml:iterator "$.tasks.[*]"
+	    rml:iterator "$.workers.[*].tasks.[*]"
 	] ;
 
 	rr:subjectMap [
@@ -109,7 +109,7 @@ mosim:Mapping {
 :PartMapping
 	rml:logicalSource [
 		rml:referenceFormulation ql:JSONInput;
-	    rml:iterator "$.tasks.[*]"
+	    rml:iterator "$.workers.[*].tasks.[*]"
 	] ;
 
 	rr:subjectMap [
@@ -135,7 +135,7 @@ mosim:Mapping {
 :ToolMapping
 	rml:logicalSource [
 		rml:referenceFormulation ql:JSONInput;
-	    rml:iterator "$.tasks.[*]"
+	    rml:iterator "$.workers.[*].tasks.[*]"
 	] ;
 
 	rr:subjectMap [
@@ -161,7 +161,7 @@ mosim:Mapping {
 #:PositionMapping
 #	rml:logicalSource [
 #		rml:referenceFormulation ql:JSONInput;
-#	    rml:iterator "$.tasks.[*]"
+#	    rml:iterator "$.workers.[*].tasks.[*]"
 #	] ;
 #
 #	rr:subjectMap [
