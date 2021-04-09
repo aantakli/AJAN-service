@@ -114,6 +114,7 @@ public class Executor extends AbstractTDBBranchTask {
 	private void runChildByIndex() {
 		int child = executionOrder.get(childIndex).intValueExact();
 		if (child < 0 || child > children.size) {
+			LOG.info(toString() + "FAILED");
 			LOG.info("No matching child found!");
 			fail();
 		} else {
@@ -128,6 +129,7 @@ public class Executor extends AbstractTDBBranchTask {
 		if (!sequence && executionOrder.size() > childIndex) {
 			runChildByIndex();
 		} else {
+			resetSkipedChilds();
 			childIndex = 0;
 			fail();
 		}
@@ -140,8 +142,15 @@ public class Executor extends AbstractTDBBranchTask {
 		if (sequence && executionOrder.size() > childIndex) {
 			runChildByIndex();
 		} else {
+			resetSkipedChilds();
 			childIndex = 0;
 			success();
+		}
+	}
+
+	private void resetSkipedChilds() {
+		for (int i = childIndex; i < executionOrder.size(); i++) {
+			getChild(executionOrder.get(i).intValueExact()).resetTask();
 		}
 	}
 
