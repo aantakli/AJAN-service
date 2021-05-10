@@ -19,45 +19,48 @@
 
 package de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
-import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
-import de.mosim.mmi.core.MBoolResponse;
-import de.mosim.mmi.cosim.MCoSimulationAccess;
-import de.mosim.mmi.scene.MSceneObject;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.net.URI;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TSocket;
-import org.apache.thrift.transport.TTransport;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
+import org.eclipse.rdf4j.IsolationLevels;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Component;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
 @Component
-@RDFBean("bt-mosim:AbortInstruction")
-public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtension {
+@RDFBean("bt-mosim:SendHTLELogs")
+public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 	@RDFSubject
 	@Getter @Setter
 	private String url;
@@ -66,83 +69,91 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 	@Getter @Setter
 	private String label;
 
-	@RDF("bt-mosim:host")
+	@RDF("bt-mosim:endpointHTLE")
 	@Getter @Setter
-	private BehaviorSelectQuery query;
+	private URI endpoint;
 
-	private String host;
-	private int port;
+	@RDF("bt:originBase")
+	@Getter @Setter
+	private URI repository;
 
-	@RDF("bt-mosim:instructionID")
-	@Setter
-	private BehaviorSelectQuery instructionIDs;
+	private ObjectMapper objectMapper = new ObjectMapper();
+	protected static final Logger LOG = LoggerFactory.getLogger(SendHTLELogs.class);
 
-	protected static final Logger LOG = LoggerFactory.getLogger(AbortInstruction.class);
+	String MMU_LOGS = 
+            "PREFIX mosim: <http://www.dfki.de/mosim-ns#>\n" +
+			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+			"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+			"SELECT ?id ?timestamp ?object\n" +
+			"WHERE {\n" +
+			"	?instruction rdf:type mosim:Instruction .\n" +
+			"	?instruction mosim:taskId ?id .\n" +
+			"	?instruction mosim:timestamp ?timestamp .\n" +
+			"	?instruction mosim:jsonInstruction ?object .\n" +
+			"}";
 
 	@Override
 	public Resource getType() {
-		return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#AbortInstruction");
+		return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#SendHTLELogs");
 	}
 
 	@Override
 	public LeafStatus executeLeaf() {
 		try {
-			Map<String,String> hostMap = MOSIMUtil.getHostInfos(query, this.getObject());
-			if(!hostMap.isEmpty()) {
-				Map.Entry<String,String> entry = hostMap.entrySet().iterator().next();
-				host = entry.getKey();
-				port = Integer.parseInt(entry.getValue());
-				if (abortInstruction()) {
-					String report = toString() + " SUCCEEDED";
-					LOG.info(report);
-					return new LeafStatus(Status.SUCCEEDED, report);
-				};
+			if (readInput()) {
+				String report = toString() + " SUCCEEDED";
+				LOG.info(report);
+				return new LeafStatus(Status.SUCCEEDED, report);
 			}
-		} catch (URISyntaxException ex) {
+			String report = toString() + " FAILED";
+			LOG.info(report);
+			return new LeafStatus(Status.FAILED, report);
+		} catch (IOException ex) {
 			String report = toString() + " FAILED";
 			LOG.info(report);
 			return new LeafStatus(Status.FAILED, report);
 		}
-		String report = toString() + " FAILED";
-		LOG.info(report);
-		return new LeafStatus(Status.FAILED, report);
 	}
 
-	private boolean abortInstruction() throws URISyntaxException {
-		try {
-			try (TTransport transport = new TSocket(host, port)) {
-				transport.open();
-				TProtocol protocol = new TCompactProtocol(transport);
-				MCoSimulationAccess.Client client = new MCoSimulationAccess.Client(protocol);
-				List<String> ids = getInstructionIDs();
-				MBoolResponse response;
-				if (ids.isEmpty()) {
-					response = client.Abort();
-				} else {
-					response = client.AbortInstructions(ids);
-				}
-				transport.close();
-				return response.Successful;
-			}
-		} catch (TException ex) {
-			LOG.error("Could not load List<MSceneObject>", ex);
+	protected boolean readInput() throws IOException {
+		ObjectNode root = objectMapper.createObjectNode();
+		root.put("token", "DGnHku9w8OirCFz9J-wrUW7uK9Hdf");
+		root.put("action", "saveMMUTask");
+		ArrayNode array = root.putArray("data");
+		if (!readExternalRepo(array)) {
 			return false;
 		}
+		return sendMessage(root);
 	}
 
-	private List<String> getInstructionIDs() throws URISyntaxException {
-		List<String> instructions = new ArrayList();
-		if (instructionIDs != null) {
-			Repository repo = BTUtil.getInitializedRepository(this.getObject(), instructionIDs.getOriginBase());
-			List<BindingSet> result = instructionIDs.getResult(repo);
-			if (!result.isEmpty()) {
-				Iterator<BindingSet> itr = result.iterator();
-				while (itr.hasNext()) {
-					instructions.add(itr.next().getValue("id").stringValue());
-				}
+	private boolean readExternalRepo(final ArrayNode array) throws IOException {
+		boolean bool = false;
+		Repository repo = new SPARQLRepository(repository.toString());
+		try (RepositoryConnection conn = repo.getConnection()) {
+			conn.begin(IsolationLevels.SERIALIZABLE);
+			TupleQuery query = conn.prepareTupleQuery(MMU_LOGS);
+			TupleQueryResult result = query.evaluate();
+			while(result.hasNext()) {
+				bool = true;
+				BindingSet set = result.next();
+				ObjectNode object = array.addObject();
+				object.put("taskId", set.getValue("id").stringValue());
+				object.put("timestamp", set.getValue("timestamp").stringValue());
+				JsonNode childNode = objectMapper.readTree(set.getValue("object").stringValue());
+				object.set("instruction", childNode);
 			}
+			conn.close();
 		}
-		return instructions;
+		return bool;
+	}
+
+	private boolean sendMessage(final ObjectNode root) throws IOException {
+		try (CloseableHttpClient client = HttpClients.createDefault()) {
+			HttpPost httpPost = new HttpPost(endpoint.toString());
+			httpPost.setEntity(new StringEntity(root.toString()));
+			CloseableHttpResponse response = client.execute(httpPost);
+			return response.getStatusLine().getStatusCode() >= 200;
+		}
 	}
 
 	@Override
@@ -152,7 +163,7 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 
 	@Override
 	public String toString() {
-		return "AbortInstruction (" + getLabel() + ")";
+		return "SendHTLELogs (" + getLabel() + ")";
 	}
 	
 	@Override

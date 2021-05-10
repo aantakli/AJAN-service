@@ -50,17 +50,51 @@ ajan:TBox {
 }
 
 mosim:Mapping {
+
+:WorkerMapping
+	rml:logicalSource [
+		rml:referenceFormulation ql:JSONInput;
+	    rml:iterator "$.workers[*]"
+	] ;
+
+	rr:subjectMap [
+		rr:template "http://www.ajan.de/ajan-mapping-ns#Worker/{workerid}" ;
+		rr:class mosim:Worker ;
+	] ;
+	
+	rr:predicateObjectMap [
+		rr:predicate mosim:workerId ;
+		rr:objectMap [
+			rml:reference "workerid" ;
+			rr:datatype xsd:int
+		]
+	] ;
+	rr:predicateObjectMap [
+		rr:predicate mosim:task ;
+		rr:objectMap [
+			rr:template "http://www.ajan.de/ajan-mapping-ns#Task/{tasks.[*].taskid}";
+			rr:termType rr:IRI;
+		]
+	] .
+
 :TaskMapping
 	rml:logicalSource [
 		rml:referenceFormulation ql:JSONInput;
 	    rml:iterator "$.workers.[*].tasks.[*]"
 	] ;
 
-	rr:subjectMap [
-		rr:template "http://www.ajan.de/ajan-mapping-ns#Task/{step}" ;
+	rr:subjectMap [ 
+		rr:template "http://www.ajan.de/ajan-mapping-ns#Task/{taskid}" ;
 		rr:class mosim:Task ;
-	] ;
+	];
 
+	rr:predicateObjectMap [
+		rr:predicate mosim:taskId ;
+		rr:objectMap [
+			rml:reference "taskid" ;
+			rr:datatype xsd:int
+		]
+	] ;
 	rr:predicateObjectMap [
 		rr:predicate mosim:step ;
 		rr:objectMap [

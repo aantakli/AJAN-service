@@ -23,6 +23,7 @@ import be.ugent.rml.Executor;
 import be.ugent.rml.records.RecordsFactory;
 import be.ugent.rml.store.QuadStore;
 import be.ugent.rml.store.RDF4JStore;
+import be.ugent.rml.term.BlankNode;
 import be.ugent.rml.term.Literal;
 import be.ugent.rml.term.Term;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
@@ -65,20 +67,25 @@ public final class MappingUtil {
     private static Model readOutQuads(final QuadStore store, final IRI graph) {
         Model model = new LinkedHashModel();
         store.getQuads(null,null,null,null).stream().forEach((quad) -> {
-                model.add(VALUE_FACTORY.createIRI(quad.getSubject().getValue()),
-                                VALUE_FACTORY.createIRI(quad.getPredicate().getValue()),
-                                getValue(quad.getObject()), graph);
+			Resource subject = getSubject(quad.getSubject());
+			IRI predicate = VALUE_FACTORY.createIRI(quad.getPredicate().getValue());
+                model.add(subject,predicate,getValue(quad.getObject()), graph);
         });
         return model ;
+    }
+
+	private static Resource getSubject(final Term term) {
+        if (term instanceof BlankNode) return VALUE_FACTORY.createBNode(term.getValue());
+        else return VALUE_FACTORY.createIRI(term.getValue());
     }
 
     private static Value getValue(final Term term) {
         if (term instanceof Literal) {
                 Literal lit = (Literal)term;
                 return VALUE_FACTORY.createLiteral(lit.getValue(), VALUE_FACTORY.createIRI(lit.getDatatype().getValue()));
-        } else {
-                return VALUE_FACTORY.createIRI(term.getValue());
-        }
+        } 
+		else if (term instanceof BlankNode) return VALUE_FACTORY.createBNode(term.getValue());
+        else return VALUE_FACTORY.createIRI(term.getValue());
     }
 
     public static Model getTriplesMaps(final Repository repo, final List<URI> mappings) throws URISyntaxException {
