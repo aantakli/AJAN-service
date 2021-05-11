@@ -23,15 +23,20 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -53,7 +58,6 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Component;
 import ro.fortsoft.pf4j.Extension;
 
@@ -69,6 +73,10 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 	@Getter @Setter
 	private String label;
 
+	@RDF("bt-mosim:infoHTLE")
+	@Getter @Setter
+	private BehaviorSelectQuery info;
+
 	@RDF("bt-mosim:endpointHTLE")
 	@Getter @Setter
 	private URI endpoint;
@@ -77,7 +85,7 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 	@Getter @Setter
 	private URI repository;
 
-	private ObjectMapper objectMapper = new ObjectMapper();
+	private final ObjectMapper objectMapper = new ObjectMapper();
 	protected static final Logger LOG = LoggerFactory.getLogger(SendHTLELogs.class);
 
 	String MMU_LOGS = 
@@ -108,23 +116,35 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 			String report = toString() + " FAILED";
 			LOG.info(report);
 			return new LeafStatus(Status.FAILED, report);
-		} catch (IOException ex) {
+		} catch (IOException | URISyntaxException ex) {
 			String report = toString() + " FAILED";
 			LOG.info(report);
 			return new LeafStatus(Status.FAILED, report);
 		}
 	}
 
-	protected boolean readInput() throws IOException {
+	protected boolean readInput() throws IOException, URISyntaxException {
 		ObjectNode root = objectMapper.createObjectNode();
-		root.put("token", "DGnHku9w8OirCFz9J-wrUW7uK9Hdf");
-		root.put("action", "saveMMUTask");
-		root.put("ResultSet", "1");
+		setHLTEInfos(root);
 		ArrayNode array = root.putArray("data");
 		if (!readExternalRepo(array)) {
 			return false;
 		}
+		LOG.info(root.toString());
 		return sendMessage(root);
+	}
+
+	public void setHLTEInfos(final ObjectNode root) throws URISyntaxException {
+		root.put("action", "saveMMUTask");
+		if (info != null) {
+			Repository repo = BTUtil.getInitializedRepository(this.getObject(), info.getOriginBase());
+			List<BindingSet> result = info.getResult(repo);
+			if (!result.isEmpty()) {
+				BindingSet bindings = result.get(0);
+				root.put("token", bindings.getValue("token").stringValue());
+				root.put("ResultSet", bindings.getValue("resultSet").stringValue());
+			}
+		}
 	}
 
 	private boolean readExternalRepo(final ArrayNode array) throws IOException {
