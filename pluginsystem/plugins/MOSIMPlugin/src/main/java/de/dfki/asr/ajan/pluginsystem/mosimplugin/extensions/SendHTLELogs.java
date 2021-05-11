@@ -90,7 +90,7 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 			"	?instruction mosim:taskId ?id .\n" +
 			"	?instruction mosim:timestamp ?timestamp .\n" +
 			"	?instruction mosim:jsonInstruction ?object .\n" +
-			"}";
+			"} ORDER BY (?timestamp)";
 
 	@Override
 	public Resource getType() {
@@ -119,6 +119,7 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 		ObjectNode root = objectMapper.createObjectNode();
 		root.put("token", "DGnHku9w8OirCFz9J-wrUW7uK9Hdf");
 		root.put("action", "saveMMUTask");
+		root.put("ResultSet", "1");
 		ArrayNode array = root.putArray("data");
 		if (!readExternalRepo(array)) {
 			return false;
@@ -152,7 +153,7 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 			HttpPost httpPost = new HttpPost(endpoint.toString());
 			httpPost.setEntity(new StringEntity(root.toString()));
 			CloseableHttpResponse response = client.execute(httpPost);
-			return response.getStatusLine().getStatusCode() >= 200;
+			return response.getStatusLine().getStatusCode() < 300;
 		}
 	}
 
