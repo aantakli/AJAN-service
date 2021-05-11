@@ -171,6 +171,7 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 	private boolean sendMessage(final ObjectNode root) throws IOException {
 		try (CloseableHttpClient client = HttpClients.createDefault()) {
 			HttpPost httpPost = new HttpPost(endpoint.toString());
+			httpPost.addHeader("Content-Type", "application/json");
 			httpPost.setEntity(new StringEntity(root.toString()));
 			CloseableHttpResponse response = client.execute(httpPost);
 			return response.getStatusLine().getStatusCode() < 300;
