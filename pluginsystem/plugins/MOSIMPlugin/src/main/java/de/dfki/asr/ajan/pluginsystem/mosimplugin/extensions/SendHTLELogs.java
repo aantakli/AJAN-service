@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -34,11 +33,13 @@ import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -100,6 +101,18 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 			"	?instruction mosim:jsonInstruction ?object .\n" +
 			"} ORDER BY (?timestamp)";
 
+	String ABORT_LOGS = 
+            "PREFIX mosim: <http://www.dfki.de/mosim-ns#>\n" +
+			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+			"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+			"SELECT ?id ?timestamp ?instIds\n" +
+			"WHERE {\n" +
+			"	?instruction rdf:type mosim:AbortInstruction .\n" +
+			"	?instruction mosim:taskId ?id .\n" +
+			"	?instruction mosim:timestamp ?timestamp .\n" +
+			"	OPTIONAL { ?instruction mosim:instructionIDs ?instIds . }\n" +
+			"} ORDER BY (?timestamp)";
+
 	@Override
 	public Resource getType() {
 		return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#SendHTLELogs");
@@ -135,7 +148,6 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 	}
 
 	public void setHLTEInfos(final ObjectNode root) throws URISyntaxException {
-		root.put("action", "saveMMUTask");
 		if (info != null) {
 			Repository repo = BTUtil.getInitializedRepository(this.getObject(), info.getOriginBase());
 			List<BindingSet> result = info.getResult(repo);
@@ -152,18 +164,42 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 		Repository repo = new SPARQLRepository(repository.toString());
 		try (RepositoryConnection conn = repo.getConnection()) {
 			conn.begin(IsolationLevels.SERIALIZABLE);
-			TupleQuery query = conn.prepareTupleQuery(MMU_LOGS);
-			TupleQueryResult result = query.evaluate();
-			while(result.hasNext()) {
+			TupleQuery mmuQuery = conn.prepareTupleQuery(MMU_LOGS);
+			TupleQueryResult mmuResult = mmuQuery.evaluate();
+			if (readMMUInstructions(array, mmuResult)) {
 				bool = true;
-				BindingSet set = result.next();
-				ObjectNode object = array.addObject();
-				object.put("taskId", set.getValue("id").stringValue());
-				object.put("timestamp", set.getValue("timestamp").stringValue());
-				JsonNode childNode = objectMapper.readTree(set.getValue("object").stringValue());
-				object.set("instruction", childNode);
+				TupleQuery abortQuery = conn.prepareTupleQuery(ABORT_LOGS);
+				TupleQueryResult abortResult = abortQuery.evaluate();
+				readAbortInstructions(array, abortResult);
 			}
 			conn.close();
+		}
+		return bool;
+	}
+
+	private boolean readMMUInstructions(final ArrayNode array, final TupleQueryResult result) throws IOException {
+		boolean bool = false;
+		while(result.hasNext()) {
+			bool = true;
+			BindingSet set = result.next();
+			ObjectNode object = array.addObject();
+			object.put("taskId", set.getValue("id").stringValue());
+			object.put("timestamp", set.getValue("timestamp").stringValue());
+			JsonNode childNode = objectMapper.readTree(set.getValue("object").stringValue());
+			object.set("instruction", childNode);
+		}
+		return bool;
+	}
+
+	private boolean readAbortInstructions(final ArrayNode array, final TupleQueryResult result) throws IOException {
+		boolean bool = false;
+		while(result.hasNext()) {
+			bool = true;
+			BindingSet set = result.next();
+			ObjectNode object = array.addObject();
+			object.put("taskId", set.getValue("id").stringValue());
+			object.put("timestamp", set.getValue("timestamp").stringValue());
+			object.put("abortIDs", set.getValue("instIds").stringValue());
 		}
 		return bool;
 	}
@@ -171,9 +207,11 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 	private boolean sendMessage(final ObjectNode root) throws IOException {
 		try (CloseableHttpClient client = HttpClients.createDefault()) {
 			HttpPost httpPost = new HttpPost(endpoint.toString());
-			httpPost.addHeader("Content-Type", "application/json");
+			httpPost.addHeader("Content-Type", "application/json; charset=utf-8");
 			httpPost.setEntity(new StringEntity(root.toString()));
 			CloseableHttpResponse response = client.execute(httpPost);
+			HttpEntity entity = response.getEntity();
+			LOG.info(IOUtils.toString(entity.getContent(), StandardCharsets.UTF_8));
 			return response.getStatusLine().getStatusCode() < 300;
 		}
 	}
