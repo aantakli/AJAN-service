@@ -36,11 +36,13 @@ public class MOSIMVocabulary {
 	public final static IRI M_FINAL_LOCATION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#FinalLocation");
 	public final static IRI CO_SIMULATOR = FACTORY.createIRI("http://www.dfki.de/mosim-ns#CoSimulator");
 	public final static IRI INSTRUCTION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#Instruction");
+	public final static IRI ABORT_INSTRUCTION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#AbortInstruction");
 	public final static IRI PROPERTY = FACTORY.createIRI("http://www.dfki.de/mosim-ns#Property");
 
 	public final static IRI CONTAINS = FACTORY.createIRI("http://www.dfki.de/mosim-ns#contains");
 	public final static IRI HAS_ACTION_ID = FACTORY.createIRI("http://www.dfki.de/mosim-ns#actionID");
 	public final static IRI HAS_INSTRUCTION_ID = FACTORY.createIRI("http://www.dfki.de/mosim-ns#instructionID");
+	public final static IRI HAS_INSTRUCTION_IDS = FACTORY.createIRI("http://www.dfki.de/mosim-ns#instructionIDs");
 	public final static IRI HAS_ID = FACTORY.createIRI("http://www.dfki.de/mosim-ns#id");
 	public final static IRI HAS_OBJECT = FACTORY.createIRI("http://www.dfki.de/mosim-ns#object");
 	public final static IRI HAS_TRANSFORM = FACTORY.createIRI("http://www.dfki.de/mosim-ns#transform");

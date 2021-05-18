@@ -52,7 +52,7 @@ public class IntValue {
 
 	public List<BigInteger> getIntValue(final AgentTaskInformation info) throws SelectEvaluationException {
 		try {
-			if (query == null) {
+			if (query == null || query.getSparql().equals("")) {
 				return returnValue();
 			}
 			return getIntValue(BTUtil.getInitializedRepository(info, query.getOriginBase()));

@@ -19,6 +19,7 @@
 
 package de.dfki.asr.ajan.behaviour.nodes.query;
 
+import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.common.SPARQLUtil;
@@ -37,6 +38,8 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RDFBean("bt:UpdateQuery")
 @Data
@@ -50,23 +53,23 @@ public class BehaviorUpdateQuery implements BehaviorQuery {
 	private List<BindingSet> bindings;
 	private Boolean reset = false;
 	private final ValueFactory vf = SimpleValueFactory.getInstance();
+	private static final Logger LOG = LoggerFactory.getLogger(BTRoot.class);
 
 	@Override
 	@SuppressWarnings("PMD.AvoidCatchingGenericException")
 	public Boolean getResult(final Repository repo) {
 		reset = false;
-		result = false;
-		//List<UpdateExpr> updateExpr = getUpdateExpr(sparql);
-		//TupleExpr tupleExpr = getTupleExpr(updateExpr);
+		result = true;
 		try (RepositoryConnection conn = repo.getConnection()) {
-			String queryString = SPARQLUtil.getSelectQuery(this.getSparql());
-			TupleQueryResult list = conn.prepareTupleQuery(queryString).evaluate();
-			bindings = new ArrayList();
-			while (list.hasNext()) {
-				bindings.add(list.next());
-			}
-			if (!bindings.isEmpty()) {
-				result = true;
+			try {
+				String queryString = SPARQLUtil.getSelectQuery(this.getSparql());
+				TupleQueryResult list = conn.prepareTupleQuery(queryString).evaluate();
+				bindings = new ArrayList();
+				while (list.hasNext()) {
+					bindings.add(list.next());
+				}
+			} catch (Exception ex) {
+				LOG.info("Empty Bindings.");
 			}
 			Update updateQuery = conn.prepareUpdate(this.getSparql());
 			updateQuery.execute();

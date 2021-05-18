@@ -19,17 +19,21 @@
 
 package de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions;
 
+import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
+import de.dfki.asr.ajan.behaviour.nodes.action.definition.ResultModel;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
+import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
+import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.core.MBoolResponse;
 import de.mosim.mmi.cosim.MCoSimulationAccess;
-import de.mosim.mmi.scene.MSceneObject;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -37,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -45,10 +50,15 @@ import org.apache.thrift.transport.TTransport;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
+import org.eclipse.rdf4j.IsolationLevels;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -69,6 +79,10 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 	@RDF("bt-mosim:host")
 	@Getter @Setter
 	private BehaviorSelectQuery query;
+
+	@RDF("bt:targetBase")
+	@Getter @Setter
+	private URI repository;
 
 	private String host;
 	private int port;
@@ -122,9 +136,10 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 					response = client.AbortInstructions(ids);
 				}
 				transport.close();
+				addStatements(ids);
 				return response.Successful;
 			}
-		} catch (TException ex) {
+		} catch (TException | ConditionEvaluationException ex) {
 			LOG.error("Could not load List<MSceneObject>", ex);
 			return false;
 		}
@@ -143,6 +158,50 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 			}
 		}
 		return instructions;
+	}
+
+	private void addStatements(final List<String> ids) throws ConditionEvaluationException {
+		Model model = new LinkedHashModel();
+		Resource instRoot = vf.createBNode();
+		String timeStamp = MOSIMUtil.getTimeStamp();
+		model.add(instRoot, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MOSIMVocabulary.INSTRUCTION);
+		model.add(instRoot, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MOSIMVocabulary.ABORT_INSTRUCTION);
+		model.add(instRoot, MOSIMVocabulary.HAS_TIMESTAMP, vf.createLiteral(timeStamp));
+		model.add(instRoot, MOSIMVocabulary.HAS_INSTRUCTION_IDS, vf.createLiteral(StringUtils.join(ids, ",")));
+		performWrite(model);
+	}
+	
+	private void performWrite(final Model model) throws ConditionEvaluationException {
+		try {
+			if (repository.toString().equals(AJANVocabulary.DOMAIN_KNOWLEDGE.toString())
+							|| repository.toString().equals(AJANVocabulary.SERVICE_KNOWLEDGE.toString())
+							|| repository.toString().equals(AJANVocabulary.BEHAVIOR_KNOWLEDGE.toString())) {
+				return;
+			}
+			if (repository.toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
+				this.getObject().getExecutionBeliefs().update(model);
+			} else if (repository.toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
+				this.getObject().getAgentBeliefs().update(model);
+			} else {
+				updateExternalRepo(new SPARQLRepository(repository.toString()), model);
+			}
+		} catch (QueryEvaluationException ex) {
+			throw new ConditionEvaluationException(ex);
+		}
+	}
+
+	private void updateExternalRepo(final Repository repo, final Model model) {
+		try (RepositoryConnection conn = repo.getConnection()) {
+			conn.begin(IsolationLevels.SERIALIZABLE);
+			addStatementsWith(model,conn);
+			conn.commit();
+		}
+	}
+
+	private void addStatementsWith(final Model model, final RepositoryConnection connection) {
+		model.forEach((stmt) -> {
+			connection.add(stmt.getSubject(), stmt.getPredicate(), stmt.getObject(), (Resource) stmt.getContext());
+		});
 	}
 
 	@Override

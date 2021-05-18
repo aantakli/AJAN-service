@@ -34,10 +34,14 @@ import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
+import org.eclipse.rdf4j.IsolationLevels;
+import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,15 +80,44 @@ public class Write extends AbstractTDBLeafTask {
 
 	private void performWrite() throws ConditionEvaluationException {
 		try {
+			if (query.getTargetBase().toString().equals(AJANVocabulary.DOMAIN_KNOWLEDGE.toString())
+							|| query.getTargetBase().toString().equals(AJANVocabulary.SERVICE_KNOWLEDGE.toString())
+							|| query.getTargetBase().toString().equals(AJANVocabulary.BEHAVIOR_KNOWLEDGE.toString())) {
+				return;
+			}
 			Model model = getInputModel();
 			if (query.getTargetBase().toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
 				this.getObject().getExecutionBeliefs().update(model);
 			} else if (query.getTargetBase().toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
 				this.getObject().getAgentBeliefs().update(model);
+			} else {
+				updateExternalRepo(new SPARQLRepository(query.getTargetBase().toString()), model);
 			}
 		} catch (URISyntaxException | QueryEvaluationException ex) {
 			throw new ConditionEvaluationException(ex);
 		}
+	}
+
+	private void updateExternalRepo(final Repository repo, final Model model) {
+		try (RepositoryConnection conn = repo.getConnection()) {
+			conn.begin(IsolationLevels.SERIALIZABLE);
+			removeStatementsSupersededBy(model, conn, false);
+			addStatementsWith(model,conn);
+			conn.commit();
+		}
+	}
+
+	@SuppressWarnings("PMD.UselessParentheses")
+	private void removeStatementsSupersededBy(final Model model, final RepositoryConnection connection, final boolean mode) {
+		model.stream().filter((stmt) -> (!(stmt.getSubject() instanceof BNode) || (stmt.getSubject() instanceof BNode) && mode)).forEachOrdered((stmt) -> {
+			connection.remove(stmt.getSubject(), stmt.getPredicate(), null, (Resource) stmt.getContext());
+		});
+	}
+
+	private void addStatementsWith(final Model model, final RepositoryConnection connection) {
+		model.forEach((stmt) -> {
+			connection.add(stmt.getSubject(), stmt.getPredicate(), stmt.getObject(), (Resource) stmt.getContext());
+		});
 	}
 
 	private Model getInputModel() throws URISyntaxException {
