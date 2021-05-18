@@ -183,6 +183,7 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 			bool = true;
 			BindingSet set = result.next();
 			ObjectNode object = array.addObject();
+			object.put("type", "MMUInstruction");
 			object.put("taskId", set.getValue("id").stringValue());
 			object.put("timestamp", set.getValue("timestamp").stringValue());
 			JsonNode childNode = objectMapper.readTree(set.getValue("object").stringValue());
@@ -197,6 +198,7 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 			bool = true;
 			BindingSet set = result.next();
 			ObjectNode object = array.addObject();
+			object.put("type", "AbortInstruction");
 			object.put("taskId", set.getValue("id").stringValue());
 			object.put("timestamp", set.getValue("timestamp").stringValue());
 			object.put("abortIDs", set.getValue("instIds").stringValue());
