@@ -1,0 +1,98 @@
+
+@prefix : <http://test/> .
+
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix react: <http://www.dfki.de/react-ns#> .
+
+:Avatar_1 rdf:type react:Avatar .
+:Avatar_1 react:locatedNextTo :POI_1 .
+
+# POIs -------------------------
+
+:POI_1 rdf:type react:POI .
+:POI_1 react:position "poi_1" .
+
+:POI_2 rdf:type react:POI .
+:POI_2 react:position "poi_2" .
+
+:POI_3 rdf:type react:POI .
+:POI_3 react:position "poi_3" .
+
+:POI_4 rdf:type react:POI .
+:POI_4 react:position "poi_4" .
+
+:POI_5 rdf:type react:POI .
+:POI_5 react:position "Ende_ASP" .
+
+:POI_6 rdf:type react:POI .
+:POI_6 react:position "poi_6" .
+
+:POI_7 rdf:type react:POI .
+:POI_7 react:position "poi_7" .
+
+# Areas -------------------------
+
+:Area_1 rdf:type react:Area .
+:Area_1 rdf:type react:PedestrianWalk .
+
+:Area_2 rdf:type react:Area .
+:Area_2 rdf:type react:ZebraCrossing .
+
+:Area_3 rdf:type react:Area .
+:Area_3 rdf:type react:Street .
+
+:Area_4 rdf:type react:Area .
+:Area_4 rdf:type react:YogaStand .
+
+# Edge -------------------------
+
+:Edge_1 rdf:type react:Edge .
+:Edge_1 react:in "poi_1" .
+:Edge_1 react:out "poi_2" .
+:Edge_1 react:cost "1" .
+:Edge_1 react:isIn :Area_1 .
+
+:Edge_1 rdf:type react:Edge .
+:Edge_1 react:in "poi_1" .
+:Edge_1 react:out "poi_6" .
+:Edge_1 react:cost "1" .
+:Edge_1 react:isIn :Area_3 .
+
+:Edge_1 rdf:type react:Edge .
+:Edge_1 react:in "poi_6" .
+:Edge_1 react:out "poi_4" .
+:Edge_1 react:cost "1" .
+:Edge_1 react:isIn :Area_3 .
+
+:Edge_2 rdf:type react:Edge .
+:Edge_2 react:in "poi_2" .
+:Edge_2 react:out "poi_3" .
+:Edge_2 react:cost "1" .
+:Edge_2 react:isIn :Area_2 .
+
+:Edge_3 rdf:type react:Edge .
+:Edge_3 react:in "poi_3" .
+:Edge_3 react:out "poi_4" .
+:Edge_3 react:cost "1" .
+:Edge_3 react:isIn :Area_1 .
+
+:Edge_2 rdf:type react:Edge .
+:Edge_2 react:in "poi_2" .
+:Edge_2 react:out "poi_7" .
+:Edge_2 react:cost "1" .
+:Edge_2 react:isIn :Area_3 .
+
+:Edge_3 rdf:type react:Edge .
+:Edge_3 react:in "poi_7" .
+:Edge_3 react:out "poi_4" .
+:Edge_3 react:cost "1" .
+:Edge_3 react:isIn :Area_1 .
+
+:Edge_4 rdf:type react:Edge .
+:Edge_4 react:in "poi_4" .
+:Edge_4 react:out "Ende_ASP" .
+:Edge_4 react:cost "1" .
+:Edge_4 react:isIn :Area_4 .
