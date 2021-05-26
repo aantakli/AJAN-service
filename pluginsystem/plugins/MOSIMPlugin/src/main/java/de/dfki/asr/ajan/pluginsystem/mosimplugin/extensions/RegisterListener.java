@@ -127,9 +127,11 @@ public class RegisterListener extends AbstractTDBLeafTask implements NodeExtensi
 	}
 
 	private boolean registerEventCallback() throws TTransportException, TException, URISyntaxException {
+		Map<String,String> hostMap = MOSIMUtil.getHostInfos(callback, this.getObject());
+		Map.Entry<String,String> entry = hostMap.entrySet().iterator().next();
+		clPort = Integer.parseInt(entry.getValue());
 		MIPAddress address = new MIPAddress();
-		address.setAddress(THRIFT_HOST);
-		clPort = MOSIMUtil.getPortInfos(callback, this.getObject());
+		address.setAddress(entry.getKey());
 		address.setPort(clPort);
 		TTransport transport;
         transport = new TSocket(host, port);
