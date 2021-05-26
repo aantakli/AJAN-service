@@ -111,13 +111,13 @@ public class RegisterListener extends AbstractTDBLeafTask implements NodeExtensi
 					return new LeafStatus(Status.SUCCEEDED, report);
 				} catch (TException ex) {
 					String report = toString() + " FAILED";
-					LOG.info(report);
+					LOG.info(report, ex);
 					return new LeafStatus(Status.FAILED, report);
 				}
 			}
 		} catch (URISyntaxException ex) {
 			String report = toString() + " FAILED";
-			LOG.info(report);
+			LOG.info(report, ex);
 			return new LeafStatus(Status.FAILED, report);
 		}
 		String report = toString() + " FAILED";
