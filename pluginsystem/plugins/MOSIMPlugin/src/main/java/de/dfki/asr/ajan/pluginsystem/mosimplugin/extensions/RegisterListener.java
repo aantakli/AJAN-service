@@ -27,7 +27,6 @@ import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import static de.dfki.asr.ajan.pluginsystem.mosimplugin.endpoint.ThriftPluginServer.THRIFT_HOST;
-import static de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.AbortInstruction.LOG;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.core.MBoolResponse;
@@ -127,11 +126,9 @@ public class RegisterListener extends AbstractTDBLeafTask implements NodeExtensi
 	}
 
 	private boolean registerEventCallback() throws TTransportException, TException, URISyntaxException {
-		Map<String,String> hostMap = MOSIMUtil.getHostInfos(callback, this.getObject());
-		Map.Entry<String,String> entry = hostMap.entrySet().iterator().next();
-		clPort = Integer.parseInt(entry.getValue());
+		clPort = MOSIMUtil.getPortInfos(callback, this.getObject());
 		MIPAddress address = new MIPAddress();
-		address.setAddress(entry.getKey());
+		address.setAddress(THRIFT_HOST);
 		address.setPort(clPort);
 		TTransport transport;
         transport = new TSocket(host, port);
