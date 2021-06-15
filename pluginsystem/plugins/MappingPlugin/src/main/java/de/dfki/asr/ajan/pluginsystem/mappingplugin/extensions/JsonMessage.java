@@ -18,7 +18,9 @@
  */
 package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions;
 
+import be.ugent.rml.store.RDF4JStore;
 import com.badlogic.gdx.ai.btree.Task;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
@@ -27,14 +29,17 @@ import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpBinding;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpConnection;
+import de.dfki.asr.ajan.common.AgentUtil;
+import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.JSONMappingException;
+import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.RMLMapperException;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.utils.MappingUtil;
 import de.dfki.asr.poser.Converter.RdfToJson;
+import de.dfki.asr.poser.Namespace.JSON;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -42,14 +47,16 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.repository.Repository;
+import ro.fortsoft.pf4j.Extension;
 
 /**
  *
  * @author Andre Antakli (German Research Center for Artificial Intelligence,
  * DFKI)
  */
+@Extension
 @RDFBean("bt:JsonMessage")
-public class JsonMessage extends Message {
+public class JsonMessage extends Message implements NodeExtension {
 	@Getter @Setter
 	@RDFSubject
 	private String url;
@@ -70,16 +77,25 @@ public class JsonMessage extends Message {
 	@Getter @Setter
 	private URI targetBase;
 
+	@RDF("bt:dataMapping")
+	@Getter @Setter
+	private BehaviorConstructQuery dataMapping;
+
+	@RDF("bt:apiMapping")
+	@Getter @Setter
+	private BehaviorConstructQuery apiMapping;
+	
 	@RDF("bt:mapping")
 	@Getter @Setter
 	private URI mapping;
 
-	@RDF("bt:mappings")
-	@Getter @Setter
-	private List<URI> mappings;
+	private Model domainResponse;
 	
 	@Override
 	public LeafStatus executeLeaf() {
+		super.setUrl(url);
+		super.setQueryURI(queryURI);
+		super.setBinding(binding);
 		try {
 			setRequestUri();
 			getBinding().setRequestURI(new URI(requestURI));
@@ -101,14 +117,17 @@ public class JsonMessage extends Message {
 
 	private String createPayload() throws URISyntaxException, UnsupportedEncodingException, JSONMappingException {
 		String payload = "";
-		if (getBinding().getPayload() == null || mapping == null) {
+		if (getBinding().getPayload() == null || dataMapping == null || apiMapping == null) {
 			throw new JSONMappingException("No payload or Mapping defined!");
 		}
 		Model inputModel = getInputModel(binding);
-		Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
-		Model jsonModel = MappingUtil.getTriplesMaps(repo, mapping);
+		Repository dataRepo =  BTUtil.getInitializedRepository(getObject(), apiMapping.getOriginBase());
+		Model dataModel = modifyResponse(dataMapping.getResult(dataRepo), JSON.INPUT_DATA_TYPE.toString());
+		Repository apiRepo =  BTUtil.getInitializedRepository(getObject(), apiMapping.getOriginBase());
+		Model apiModel = modifyResponse(apiMapping.getResult(apiRepo), JSON.API_DESCRIPTION.toString());
+		dataModel.addAll(apiModel);
 		RdfToJson mapper = new RdfToJson();
-		payload = mapper.buildJsonString(inputModel, jsonModel);
+		payload = mapper.buildJsonString(inputModel, dataModel);
 		return payload;
 	}
 
@@ -116,5 +135,35 @@ public class JsonMessage extends Message {
 		BehaviorConstructQuery query = (BehaviorConstructQuery) binding.getPayload().getBtQuery();
 		Repository repo = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
 		return query.getResult(repo);
+	}
+
+	@Override
+	protected boolean checkResponse(final Object response) {
+		if (response instanceof ObjectNode) {
+			try {
+				domainResponse = getModel((ObjectNode)response);
+			} catch (URISyntaxException | RMLMapperException ex) {
+				LOG.error("Malformed response!");
+				return false;
+			}
+		} else if (response instanceof Model) {
+			domainResponse = (Model)response;
+		} else {
+			LOG.error("Mime Type is not supported!");
+			return false;
+		}
+		return updateBeliefs(modifyResponse(domainResponse, super.requestURI), targetBase);
+	}
+
+	protected Model modifyResponse(final Model model, final String uri) {
+		return AgentUtil.setNamedGraph(model.iterator(), uri);
+	}
+
+	protected Model getModel(final ObjectNode input) throws RMLMapperException, URISyntaxException {
+		Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
+		RDF4JStore rmlStore;
+		rmlStore = new RDF4JStore(MappingUtil.getTriplesMaps(repo, mapping));
+		Model model = MappingUtil.loadJsonMapping(input, rmlStore);
+		return model;
 	}
 }
