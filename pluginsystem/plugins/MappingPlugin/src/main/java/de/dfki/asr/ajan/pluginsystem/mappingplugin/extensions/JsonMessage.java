@@ -20,6 +20,7 @@ package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions;
 
 import be.ugent.rml.store.RDF4JStore;
 import com.badlogic.gdx.ai.btree.Task;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -95,9 +96,12 @@ public class JsonMessage extends Message implements NodeExtension {
 	public LeafStatus executeLeaf() {
 		super.setUrl(url);
 		super.setQueryURI(queryURI);
-		super.setBinding(binding);
 		try {
 			setRequestUri();
+			if (binding.getBtHeaders() != null && !binding.getBtHeaders().getSparql().isEmpty()) {
+				binding.setAddHeaders(BTUtil.getInitializedRepository(getObject(), binding.getBtHeaders().getOriginBase()));
+			}
+			super.setBinding(binding);
 			getBinding().setRequestURI(new URI(requestURI));
 			request = new HttpConnection(getBinding());
 			String payload = createPayload();
@@ -139,9 +143,9 @@ public class JsonMessage extends Message implements NodeExtension {
 
 	@Override
 	protected boolean checkResponse(final Object response) {
-		if (response instanceof ObjectNode) {
+		if (response instanceof JsonNode) {
 			try {
-				domainResponse = getModel((ObjectNode)response);
+				domainResponse = getModel((JsonNode)response);
 			} catch (URISyntaxException | RMLMapperException ex) {
 				LOG.error("Malformed response!");
 				return false;
@@ -159,7 +163,7 @@ public class JsonMessage extends Message implements NodeExtension {
 		return AgentUtil.setNamedGraph(model.iterator(), uri);
 	}
 
-	protected Model getModel(final ObjectNode input) throws RMLMapperException, URISyntaxException {
+	protected Model getModel(final JsonNode input) throws RMLMapperException, URISyntaxException {
 		Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
 		RDF4JStore rmlStore;
 		rmlStore = new RDF4JStore(MappingUtil.getTriplesMaps(repo, mapping));

@@ -13,6 +13,7 @@
 @prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
 @prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
 @prefix mosim: <http://www.dfki.de/mosim-ns#> .
+@prefix suite: <http://www.dfki.de/suite-ns#> .
 
 @prefix rr: <http://www.w3.org/ns/r2rml#>.
 @prefix rml: <http://semweb.mmlab.be/ns/rml#> .
@@ -169,26 +170,26 @@ ajan:ASP {
 	:PowerHistory
 		rml:logicalSource [
 			rml:referenceFormulation ql:JSONInput;
-			rml:iterator "$.workers[*]"
+			rml:iterator "$.array[*]"
 		] ;
 
 		rr:subjectMap [
-			rr:template "http://www.ajan.de/ajan-mapping-ns#Worker/{workerid}" ;
-			rr:class mosim:Worker ;
+			rr:template "http://www.ajan.de/ajan-mapping-ns#Timeseries/{time}" ;
+			rr:class suite:DataPoint ;
 		] ;
 		
 		rr:predicateObjectMap [
-			rr:predicate mosim:workerId ;
+			rr:predicate suite:time ;
 			rr:objectMap [
-				rml:reference "workerid" ;
-				rr:datatype xsd:int
+				rml:reference "time" ;
+				rr:datatype xsd:string
 			]
 		] ;
 		rr:predicateObjectMap [
-			rr:predicate mosim:task ;
+			rr:predicate suite:power ;
 			rr:objectMap [
-				rr:template "http://www.ajan.de/ajan-mapping-ns#Task/{tasks.[*].taskid}";
-				rr:termType rr:IRI;
+				rml:reference "power" ;
+				rr:datatype xsd:float
 			]
 		] .
 }

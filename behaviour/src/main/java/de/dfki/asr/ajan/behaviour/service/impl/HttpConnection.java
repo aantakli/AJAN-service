@@ -19,8 +19,8 @@
 
 package de.dfki.asr.ajan.behaviour.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.dfki.asr.ajan.behaviour.events.Event;
 import static de.dfki.asr.ajan.common.AgentUtil.formatForMimeType;
 import java.io.IOException;
@@ -167,9 +167,9 @@ public class HttpConnection implements IConnection {
 		return Rio.parse(response, BASE_URI, formatForMimeType(mime));
 	}
 
-	private ObjectNode createJsonFromResponse(final InputStream response) throws IOException {
+	private JsonNode createJsonFromResponse(final InputStream response) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
-		return (ObjectNode) mapper.readTree(response);
+		return mapper.readTree(response);
 	}
 
 	@Override
