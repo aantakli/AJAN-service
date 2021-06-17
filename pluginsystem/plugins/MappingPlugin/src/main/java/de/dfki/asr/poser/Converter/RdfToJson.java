@@ -29,6 +29,7 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 public class RdfToJson {
 
@@ -46,16 +47,45 @@ public class RdfToJson {
 
 		inputModel.setNamespace("rdfs", "https://www.w3.org/TR/rdf-schema/");
 		inputModel.setNamespace("json", "http://some.json.ontology/");
-		JSONObject jsonResult = new JSONObject();
 		// check the RDF description of the JSON API model for the desired input type
 		Model rootObject = RDFModelUtil.getRootObject(jsonModel);
-		jsonResult = buildJsonObjectFromModel(rootObject, inputModel, jsonResult);
-		return jsonResult.toString();
+		JSONObject jsonResult = new JSONObject();
+		Object object = buildJsonObjectFromModel(rootObject, inputModel, jsonResult);
+		if (object instanceof JSONArray)
+			return ((JSONArray)object).toString();
+		else 
+			return ((JSONObject)object).toString();
 	}
 
-	private JSONObject buildJsonObjectFromModel(Model objectModel, Model inputModel, JSONObject resultObject) {
-		String jsonKey = RDFModelUtil.getKeyForObject(objectModel);
+	private Object buildJsonObjectFromModel(Model objectModel, Model inputModel, JSONObject resultObject) {
 		Value jsonDataType = RDFModelUtil.getValueTypeForObject(objectModel);
+		if (JSON.ROOT_OBJECT.equals(jsonDataType)) {
+			JSONObject childJSON = resultObject;
+			Set<Value> childValues = getChildValuesOfRoot(objectModel);
+			for(Value child: childValues) {
+				Model childObjectModel = RDFModelUtil.getModelForResource(child, jsonModel);
+				childJSON = (JSONObject)buildJsonObjectFromModel(childObjectModel, inputModel, childJSON);
+			}
+			return childJSON;
+		}
+		if (JSON.ROOT_ARRAY.equals(jsonDataType)) {
+			JSONArray array = new JSONArray();
+			Set<Value> childValues = getChildValuesOfRoot(objectModel);
+			if(objectModel.predicates().contains(JSON.DATA_TYPE)) {
+				String valueType = RDFModelUtil.getCorrespondingInputValueType(objectModel, jsonModel);
+				Model dataTypeModel = InputDataReader.getModelForType(valueType, inputModel);
+				for(Resource subj: dataTypeModel.subjects()) {
+					Model subInputModel = InputDataReader.getSubInputModel(subj, inputModel);
+					JSONObject childJSON = new JSONObject();
+					for(Value child: childValues) {
+						Model childObjectModel = RDFModelUtil.getModelForResource(child, jsonModel);
+						array.put(buildJsonObjectFromModel(childObjectModel, subInputModel, childJSON));
+					}
+				}
+			}
+			return array;
+		}
+		String jsonKey = RDFModelUtil.getKeyForObject(objectModel);
 		if (!RDFModelUtil.isLiteral(jsonDataType)) {
 			Set<Value> childValues = getChildValuesOfJsonObject(objectModel, jsonKey);
 			//if this object maps to a input data type, make sure to generate an object for each corresponding value set
@@ -67,7 +97,7 @@ public class RdfToJson {
 					JSONObject childJSON = new JSONObject();
 					for(Value child: childValues) {
 						Model childObjectModel = RDFModelUtil.getModelForResource(child, jsonModel);
-						childJSON = buildJsonObjectFromModel(childObjectModel, subInputModel, childJSON);
+						childJSON = (JSONObject)buildJsonObjectFromModel(childObjectModel, subInputModel, childJSON);
 					}
 					addToParentObject(jsonDataType, resultObject, jsonKey, childJSON);
 				}
@@ -87,7 +117,7 @@ public class RdfToJson {
 		JSONObject childJSON = new JSONObject();
 		for (Value child : childValues) {
 			Model childObjectModel = RDFModelUtil.getModelForResource(child, jsonModel);
-			childJSON = buildJsonObjectFromModel(childObjectModel, inputModel1, childJSON);
+			childJSON = (JSONObject)buildJsonObjectFromModel(childObjectModel, inputModel1, childJSON);
 			addToParentObject(jsonDataType, resultObject, jsonKey, childJSON);
 		}
 		return resultObject;
@@ -111,7 +141,7 @@ public class RdfToJson {
 			resultObject.put(jsonKey, childJSON);
 		} else if (JSON.ARRAY.equals(jsonDataType)) {
 			resultObject.append(jsonKey, childJSON);
-		} else {
+		}  else {
 			throw new DataTypeException("Could not determine JSON collection type");
 		}
 	}
@@ -120,6 +150,14 @@ public class RdfToJson {
 		Set<Value> childValues = objectModel.filter(null, JSON.VALUE, null).objects();
 		if(childValues.isEmpty()) {
 			throw new DataTypeException("No value found for key " + jsonKey);
+		}
+		return childValues;
+	}
+
+	private Set<Value> getChildValuesOfRoot(Model objectModel) throws DataTypeException {
+		Set<Value> childValues = objectModel.filter(null, JSON.VALUE, null).objects();
+		if(childValues.isEmpty()) {
+			throw new DataTypeException("No value found for Root");
 		}
 		return childValues;
 	}

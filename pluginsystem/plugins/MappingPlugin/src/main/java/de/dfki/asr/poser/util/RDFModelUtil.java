@@ -178,7 +178,7 @@ public class RDFModelUtil {
 	}
 
 	public static Model getRootObject(Model jsonModel) {
-		Optional<IRI> subjOfRoot = Models.objectIRI(jsonModel.filter(null, JSON.ROOT, null));
+		Optional<IRI> subjOfRoot = Models.objectIRI(jsonModel.filter(null, JSON.HAS_ROOT, null));
 		if(!subjOfRoot.isPresent()) {
 			throw new NoSuchElementException("No root element found for JSON model");
 		}

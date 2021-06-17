@@ -29,12 +29,14 @@ public class JSON {
 	public static final IRI STRING = getIri("String");
 	public static final IRI OBJECT = getIri("Object");
 	public static final IRI ARRAY = getIri("Array");
+	public static final IRI ROOT_OBJECT = getIri("RootObject");
+	public static final IRI ROOT_ARRAY = getIri("RootArray");
 	public static final IRI BOOLEAN = getIri("Boolean");
 	public static final IRI VALUE = getIri("value");
 	public static final IRI DATA_TYPE = getIri("dataType");
 	public static final IRI INPUT_DATA_TYPE = getIri("InputDataType");
 	public static final IRI API_DESCRIPTION = getIri("ApiDescription");
-	public static final IRI ROOT = getIri("hasRoot");
+	public static final IRI HAS_ROOT = getIri("hasRoot");
 
 	private static IRI getIri(String localName) {
 		return SimpleValueFactory.getInstance().createIRI(NAMESPACE, localName);
