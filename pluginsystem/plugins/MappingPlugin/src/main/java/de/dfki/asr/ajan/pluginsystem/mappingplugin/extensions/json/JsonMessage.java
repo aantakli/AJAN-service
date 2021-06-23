@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions;
+package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.json;
 
 import be.ugent.rml.store.RDF4JStore;
 import com.badlogic.gdx.ai.btree.Task;
