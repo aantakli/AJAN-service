@@ -194,6 +194,35 @@ ajan:ASP {
 		] .
 }
 
+:MuazMapping {
+
+	:PredictionHistory
+		rml:logicalSource [
+			rml:referenceFormulation ql:JSONInput;
+			rml:iterator "$.array[*]"
+		] ;
+
+		rr:subjectMap [
+			rr:template "http://www.ajan.de/ajan-mapping-ns#Predictions/{time}" ;
+			rr:class suite:DataPoint ;
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate suite:time ;
+			rr:objectMap [
+				rml:reference "time" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		rr:predicateObjectMap [
+			rr:predicate suite:value ;
+			rr:objectMap [
+				rml:reference "value" ;
+				rr:datatype xsd:float
+			]
+		] .
+}
+
 mosim:Mapping {
 
 	:WorkerMapping
