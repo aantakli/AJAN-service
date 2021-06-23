@@ -21,7 +21,6 @@ package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions;
 import be.ugent.rml.store.RDF4JStore;
 import com.badlogic.gdx.ai.btree.Task;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
@@ -125,7 +124,7 @@ public class JsonMessage extends Message implements NodeExtension {
 			throw new JSONMappingException("No payload or Mapping defined!");
 		}
 		Model inputModel = getInputModel(binding);
-		Repository dataRepo =  BTUtil.getInitializedRepository(getObject(), apiMapping.getOriginBase());
+		Repository dataRepo =  BTUtil.getInitializedRepository(getObject(), dataMapping.getOriginBase());
 		Model dataModel = modifyResponse(dataMapping.getResult(dataRepo), JSON.INPUT_DATA_TYPE.toString());
 		Repository apiRepo =  BTUtil.getInitializedRepository(getObject(), apiMapping.getOriginBase());
 		Model apiModel = modifyResponse(apiMapping.getResult(apiRepo), JSON.API_DESCRIPTION.toString());
