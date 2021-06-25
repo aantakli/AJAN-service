@@ -27,10 +27,13 @@ import be.ugent.rml.term.BlankNode;
 import be.ugent.rml.term.Literal;
 import be.ugent.rml.term.Term;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.RMLMapperException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -52,13 +55,19 @@ public final class MappingUtil {
 
 }
 
-    public static Model loadJsonMapping(final ObjectNode input, final RDF4JStore rmlStore) throws RMLMapperException {
-        try {
+    public static Model loadJsonMapping(final JsonNode input, final RDF4JStore rmlStore) throws RMLMapperException {
+        ObjectNode node = JsonNodeFactory.instance.objectNode();;
+		if (input.isArray()) {
+			node.set("array", (ArrayNode)input);
+		} else {
+			node.setAll((ObjectNode)input);
+		}
+		try {
             boolean removeDuplicates = false;
             List<Term> triplesMaps = new ArrayList<>();
-            RecordsFactory rf = new RecordsFactory(input, "http://www.ajan.de/ajan-ns#EventInformation");
+            RecordsFactory rf = new RecordsFactory(node, "http://www.ajan.de/ajan-ns#EventInformation");
             Executor executor = new Executor(rmlStore, rf);
-            return readOutQuads(executor.execute(triplesMaps, removeDuplicates), getGraph(input));
+            return readOutQuads(executor.execute(triplesMaps, removeDuplicates), getGraph(node));
         } catch ( Error | UnsupportedOperationException | IOException ex) {
             throw new RMLMapperException(ex);
         }

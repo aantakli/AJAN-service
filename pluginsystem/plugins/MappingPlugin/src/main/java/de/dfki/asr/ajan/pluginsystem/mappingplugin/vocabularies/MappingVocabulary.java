@@ -29,9 +29,11 @@ public class MappingVocabulary {
 	public final static IRI MP_POSITION = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#Position");
 	public final static IRI MP_3VECTOR = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#3Vector");
 	public final static IRI MP_DISTANCE = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#Distance");
+	public final static IRI DATETIME_PREDICATE = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#DateTimePredicate");
 
 	public final static IRI MP_HAS_VALUE = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#value");
 	public final static IRI MP_HAS_X = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#x");
 	public final static IRI MP_HAS_Y = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#y");
 	public final static IRI MP_HAS_Z = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#z");
+	public final static IRI HAS_TIMEFORMAT = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#timeFormat");
 }

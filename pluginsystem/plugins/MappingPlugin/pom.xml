@@ -153,6 +153,12 @@ MA 02110-1301  USA
             <artifactId>asm</artifactId>
             <version>1.0.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20201115</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 
 	<build>

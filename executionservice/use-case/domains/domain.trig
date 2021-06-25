@@ -13,6 +13,7 @@
 @prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
 @prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
 @prefix mosim: <http://www.dfki.de/mosim-ns#> .
+@prefix suite: <http://www.dfki.de/suite-ns#> .
 
 @prefix rr: <http://www.w3.org/ns/r2rml#>.
 @prefix rml: <http://semweb.mmlab.be/ns/rml#> .
@@ -164,6 +165,64 @@ ajan:ASP {
 		"""^^xsd:string .
 }
 
+:SMMapping {
+
+	:PowerHistory
+		rml:logicalSource [
+			rml:referenceFormulation ql:JSONInput;
+			rml:iterator "$.array[*]"
+		] ;
+
+		rr:subjectMap [
+			rr:template "http://www.ajan.de/ajan-mapping-ns#Timeseries/{time}" ;
+			rr:class suite:DataPoint ;
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate suite:time ;
+			rr:objectMap [
+				rml:reference "time" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		rr:predicateObjectMap [
+			rr:predicate suite:power ;
+			rr:objectMap [
+				rml:reference "power" ;
+				rr:datatype xsd:float
+			]
+		] .
+}
+
+:MuazMapping {
+
+	:PredictionHistory
+		rml:logicalSource [
+			rml:referenceFormulation ql:JSONInput;
+			rml:iterator "$.array[*]"
+		] ;
+
+		rr:subjectMap [
+			rr:template "http://www.ajan.de/ajan-mapping-ns#Predictions/{time}" ;
+			rr:class suite:DataPoint ;
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate suite:time ;
+			rr:objectMap [
+				rml:reference "time" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		rr:predicateObjectMap [
+			rr:predicate suite:value ;
+			rr:objectMap [
+				rml:reference "value" ;
+				rr:datatype xsd:float
+			]
+		] .
+}
+
 mosim:Mapping {
 
 	:WorkerMapping
@@ -243,16 +302,6 @@ mosim:Mapping {
 					rr:parent "tool" ;
 				]
 			]
-		#] ;
-		#rr:predicateObjectMap [
-		#	rr:predicate mosim:position ;
-		#	rr:objectMap [
-		#		rr:parentTriplesMap :PositionMapping ;
-		#		rr:joinCondition [
-		#        	rr:child "position" ;
-		#        	rr:parent "position" ;
-		#    	]
-		#	]
 		]	.
 
 	:PartMapping
@@ -306,30 +355,4 @@ mosim:Mapping {
 				rr:datatype xsd:string
 			]
 		] .
-
-	#:PositionMapping
-	#	rml:logicalSource [
-	#		rml:referenceFormulation ql:JSONInput;
-	#	    rml:iterator "$.workers.[*].tasks.[*]"
-	#	] ;
-	#
-	#	rr:subjectMap [
-	#		rr:template "http://www.ajan.de/ajan-mapping-ns#Position/{position.type}/{position.id}" ;
-	#		rr:class mosim:Position ;
-	#	] ;
-	#	
-	#	rr:predicateObjectMap [
-	#		rr:predicate mosim:type ;
-	#		rr:objectMap [
-	#			rml:reference "position.type" ;
-	#			rr:datatype xsd:string
-	#		]
-	#	] ;
-	#	rr:predicateObjectMap [
-	#		rr:predicate mosim:id ;
-	#		rr:objectMap [
-	#			rml:reference "position.id" ;
-	#			rr:datatype xsd:string
-	#		]
-	#	] .
 }

@@ -17,9 +17,10 @@
  * MA 02110-1301  USA
  */
 
-package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions;
+package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.json;
 
 import be.ugent.rml.store.RDF4JStore;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -104,9 +105,9 @@ public class QueryJsonDomain extends SyncMessage implements NodeExtension {
 
 	@Override
 	protected boolean checkResponse(final Object response) {
-		if (response instanceof ObjectNode) {
+		if (response instanceof JsonNode) {
 			try {
-				domainResponse = getModel((ObjectNode)response);
+				domainResponse = getModel((JsonNode)response);
 			} catch (URISyntaxException | RMLMapperException ex) {
 				LOG.error("Malformed response!");
 				return false;
@@ -120,7 +121,7 @@ public class QueryJsonDomain extends SyncMessage implements NodeExtension {
 		return updateBeliefs(modifyResponse(domainResponse), targetBase);
 	}
 
-	protected Model getModel(final ObjectNode input) throws RMLMapperException, URISyntaxException {
+	protected Model getModel(final JsonNode input) throws RMLMapperException, URISyntaxException {
 		Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
 		RDF4JStore rmlStore;
 		if (mapping == null) {
