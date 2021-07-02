@@ -69,6 +69,7 @@ public class MOSIMVocabulary {
 	public final static IRI HAS_INITIAL_LOCATION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#initialLocation");
 	public final static IRI HAS_FINAL_LOCATION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#finalLocation");
 	public final static IRI IS_LOCATED_AT = FACTORY.createIRI("http://www.dfki.de/mosim-ns#isLocatedAt");
+	public final static IRI HAS_CHILD = FACTORY.createIRI("http://www.dfki.de/mosim-ns#hasChild");
 	public final static IRI HAS_INSTRUCTION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#instruction");
 	public final static IRI HAS_INSTRUCTION_PROPERTIES = FACTORY.createIRI("http://www.dfki.de/mosim-ns#instructionProperties");
 	public final static IRI HAS_FINISHED = FACTORY.createIRI("http://www.dfki.de/mosim-ns#finished");

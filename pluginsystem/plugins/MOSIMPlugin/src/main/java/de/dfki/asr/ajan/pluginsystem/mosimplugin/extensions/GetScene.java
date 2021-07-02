@@ -171,6 +171,9 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 				case "finalLocation":
 					model.add(subject, MOSIMVocabulary.HAS_FINAL_LOCATION, getMSceneObjectIRI(entry.getValue()));
 					break;
+				case "hasChildren":
+					setChildren(model, subject, entry.getValue());
+					break;
 				default:
 					break;
 			}
@@ -189,6 +192,12 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 
 	private IRI getMSceneObjectIRI(final String ID) {
 		return vf.createIRI("tcp://" + host + ":" + port + "/" + ID);
+	}
+
+	private void setChildren(final Model model, final IRI subject, final String children) {
+		for (String child : children.split(",")) {
+			model.add(subject, MOSIMVocabulary.HAS_CHILD, getMSceneObjectIRI(child));
+		}
 	}
 
 	@Override
