@@ -208,11 +208,15 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 			LOG.info(RDF);
 			InputStream input = new ByteArrayInputStream(RDF.getBytes());
 			Model additionalRDF = Rio.parse(input, "", RDFFormat.TURTLE);
-			Iterable<Statement> stmts = additionalRDF.getStatements(vf.createIRI("http://www.dfki.de/mosim-ns#This"), null, null);
+			Iterable<Statement> stmts = additionalRDF.getStatements(null, null, null);
 			Iterator<Statement> itr = stmts.iterator();
 			while (itr.hasNext()) {
 				Statement stmt = itr.next();
-				model.add(subject, stmt.getPredicate(), stmt.getObject());
+				if (stmt.getSubject().equals(vf.createIRI("http://www.dfki.de/mosim-ns#This"))) {
+					model.add(subject, stmt.getPredicate(), stmt.getObject());
+				} else {
+					model.add(stmt);
+				}
 			}
 		}
 	}

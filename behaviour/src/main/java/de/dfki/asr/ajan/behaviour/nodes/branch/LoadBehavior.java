@@ -111,9 +111,6 @@ public class LoadBehavior extends AbstractTDBBranchTask {
 				BTRoot behavior = generateBehavior();
 				if (behavior.getChildCount() > 0) {
 					addChild(behavior);
-					LOG.info(toString() + " SUCCEEDED");
-					LOG.info("Status (SUCCEEDED)");
-					success();
 					return true;
 				}
 			} catch (LoadBehaviorException | URISyntaxException ex) {
