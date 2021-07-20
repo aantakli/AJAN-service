@@ -91,7 +91,7 @@ public class ModelProducer {
 		Resource agentResource = getAgentResource(agent);
 		IRI agentKnowledge = factory.createIRI(agent.getBeliefs().getSparqlUpdateEndpoint().toString());
 		model.add(factory.createStatement(agentResource, RDF.TYPE, AJANVocabulary.AGENT_TYPE));
-		model.add(factory.createStatement(agentResource, AJANVocabulary.AGENT_HAS_NAME, factory.createLiteral(agent.getName())));
+		model.add(factory.createStatement(agentResource, AJANVocabulary.AGENT_HAS_ID, factory.createLiteral(agent.getId())));
                 model.add(factory.createStatement(agentResource, AJANVocabulary.AGENT_HAS_TEMPLATE, agent.getTemplate()));
 		model.add(factory.createStatement(agentResource, AJANVocabulary.AGENT_HAS_KNOWLEDGE, agentKnowledge));
 		agent.getBehaviors().forEach((k,v) -> {
@@ -120,10 +120,10 @@ public class ModelProducer {
 		ValueFactory factory = SimpleValueFactory.getInstance();
 		int segments = uriInfo.getPathSegments().size();
 		String path = uriInfo.getPathSegments().get(segments - 1).getPath();
-		if (agent.getName().equals(path)) {
+		if (agent.getId().equals(path)) {
 			agentResource = factory.createIRI(uriInfo.getAbsolutePath().toString());
 		} else {
-			agentResource = factory.createIRI(uriInfo.getAbsolutePath().toString() + agent.getName());
+			agentResource = factory.createIRI(uriInfo.getAbsolutePath().toString() + agent.getId());
 		}
 		return agentResource;
 	}

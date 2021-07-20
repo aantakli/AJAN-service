@@ -32,6 +32,7 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.model.util.Literals;
 import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
@@ -114,6 +115,14 @@ public class AgentModelManager {
 			throw new InitializationRDFValidationException(errorText);
 		}
 		return nameLiteral.getLabel();
+	}
+
+        public boolean getBoolean(final Model model) {
+		Optional<Literal> bool = Models.objectLiteral(model);
+		if (!bool.isPresent()) {
+			return true;
+		}
+		return Literals.getBooleanValue(bool.get(), true);
 	}
 
 	public Optional<IRI> getTypeIRI(final Model model, final String context) {

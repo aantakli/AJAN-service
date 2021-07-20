@@ -40,7 +40,7 @@ public class AgentTDBManager {
 		this.tdbManager = manager;
 	}
 
-	public TripleDataBase createAgentTDB(final String name, final Inferencing infer) {
-		return tdbManager.createTripleDataBase("agentKnowledge_" + name, true, infer);
+	public TripleDataBase createAgentTDB(final String id, final boolean overwrite, final Inferencing infer) {
+		return tdbManager.createTripleDataBase(id, overwrite, infer);
 	}
 }

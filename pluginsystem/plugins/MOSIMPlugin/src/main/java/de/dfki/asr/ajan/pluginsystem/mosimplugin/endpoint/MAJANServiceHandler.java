@@ -77,11 +77,11 @@ public class MAJANServiceHandler implements MAJANService.Iface {
     }
 
     @Override
-    public String CreateAgent(String name, String agentTemplate, MRDFGraph content) throws TException {
+    public String CreateAgent(String id, String agentTemplate, MRDFGraph content) throws TException {
         Agent agent;
         try {
             RDFFormat format = getRDFFormat(content.ContentType);
-            agent = agentManager.createAgent(name, agentTemplate, content.Graph, format);
+            agent = agentManager.createAgent(id, agentTemplate, content.Graph, format);
             return agent.getUrl();
 
         } catch (URISyntaxException | IOException ex) {
@@ -92,10 +92,10 @@ public class MAJANServiceHandler implements MAJANService.Iface {
     }
 
     @Override
-    public boolean DeleteAgent(String agentName) throws TException {
+    public boolean DeleteAgent(String agentId) throws TException {
         // changed String agentURI to agentName, because agentManager has no method to get an agent using URI.
         try {
-            Agent agent = agentManager.getAgent(agentName);
+            Agent agent = agentManager.getAgent(agentId);
 
             agent.stop();
             agentManager.deleteAgent(agent);
@@ -106,9 +106,9 @@ public class MAJANServiceHandler implements MAJANService.Iface {
     }
 
     @Override
-    public String ExecuteAgent(String agentName, String endpoint, MRDFGraph content) throws TException {
+    public String ExecuteAgent(String agentId, String endpoint, MRDFGraph content) throws TException {
         try {
-            Agent agent = agentManager.getAgent(agentName);
+            Agent agent = agentManager.getAgent(agentId);
             if (endpoint == null) {
                 agent.execute();
             } else {

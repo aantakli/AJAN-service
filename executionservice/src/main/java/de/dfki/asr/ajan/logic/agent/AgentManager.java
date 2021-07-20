@@ -147,8 +147,8 @@ public class AgentManager {
 		return agent;
 	}
 
-        public Agent createAgent(final String name, final String template, final String knowledge, final RDFFormat format) throws URISyntaxException, IOException {
-                agentParamBuilder.setName(name);
+        public Agent createAgent(final String id, final String template, final String knowledge, final RDFFormat format) throws URISyntaxException, IOException {
+                agentParamBuilder.setId(id);
 		agentParamBuilder.setBaseURI(baseURI);
                 agentParamBuilder.setAgentTemplate(template);
 		agentParamBuilder.setAgentKnowledge(knowledge, format);
@@ -174,7 +174,7 @@ public class AgentManager {
         private void addUriGenerator(final Agent agent) throws URISyntaxException {
             UriBuilder builder = UriBuilder.fromUri(baseURI)
 						.path(AgentsService.AGENT_PATH)
-						.resolveTemplate(AgentsService.NAME, agent.getName());
+						.resolveTemplate(AgentsService.NAME, agent.getId());
             agent.getBehaviors().entrySet().stream().forEach((behavior) -> {
                                 behavior.getValue()
 					.getBehaviorTree()
@@ -184,10 +184,10 @@ public class AgentManager {
         }
 
 	public void addAgent(final Agent agent) {
-		if (agentMap.containsKey(agent.getName())) {
-			throw new InitializationNotAllowedException("Agent " + agent.getName() + " already created");
+		if (agentMap.containsKey(agent.getId())) {
+			throw new InitializationNotAllowedException("Agent " + agent.getId() + " already created");
 		}
-		agentMap.put(agent.getName(), agent);
+		agentMap.put(agent.getId(), agent);
 	}
 
 	public Agent getAgent(final String agentName) {
@@ -203,11 +203,13 @@ public class AgentManager {
 	}
 
 	public void deleteAgent(final Agent agent) {
-		if (!agentMap.containsKey(agent.getName())) {
-			throw new IllegalArgumentException("Agent with name " + agent.getName() + " could not be found");
+		if (!agentMap.containsKey(agent.getId())) {
+			throw new IllegalArgumentException("Agent with ID " + agent.getId() + " could not be found");
 		}
-		tripleStoreManager.removeTripleDataBase(agent.getBeliefs());
-		agentMap.remove(agent.getName());
+                if (agent.isManageTDB()) {
+                    tripleStoreManager.removeTripleDataBase(agent.getBeliefs());
+                }
+                agentMap.remove(agent.getId());
 	}
 
 	public String sayHello() {

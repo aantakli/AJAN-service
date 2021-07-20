@@ -67,6 +67,7 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 	public TripleDataBase createTripleDataBase(final String tdbId, final boolean overwrite) {
 		return createTripleDataBase(tdbId,overwrite,Inferencing.NONE);
 	}
+
 	@Override
 	public TripleDataBase createTripleDataBase(final String tdbId, final boolean overwrite, final Inferencing useInferencing) throws TripleStoreException {
 		String com = "Accessed";
