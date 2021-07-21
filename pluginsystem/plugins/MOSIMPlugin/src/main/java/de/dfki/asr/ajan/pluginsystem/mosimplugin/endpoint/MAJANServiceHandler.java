@@ -81,7 +81,7 @@ public class MAJANServiceHandler implements MAJANService.Iface {
         Agent agent;
         try {
             RDFFormat format = getRDFFormat(content.ContentType);
-            agent = agentManager.createAgent(id, agentTemplate, content.Graph, format);
+            agent = agentManager.createAgent(id, agentTemplate, true, content.Graph, format);
             return agent.getUrl();
 
         } catch (URISyntaxException | IOException ex) {

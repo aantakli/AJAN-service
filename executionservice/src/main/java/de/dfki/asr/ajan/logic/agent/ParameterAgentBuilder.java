@@ -60,6 +60,11 @@ public class ParameterAgentBuilder extends RDFAgentBuilder {
         return this;
     }
 
+    public ParameterAgentBuilder setManageAgentTDB(final boolean overwrite) {
+        manageTDB = overwrite;
+        return this;
+    }
+
     public ParameterAgentBuilder setAgentKnowledge(final String strKnowledge, final RDFFormat format) throws IOException {
         InputStream input = new ByteArrayInputStream(strKnowledge.getBytes());
         initialKnowledge = Rio.parse(input, "", format);
@@ -84,6 +89,6 @@ public class ParameterAgentBuilder extends RDFAgentBuilder {
             setBehaviorTreesFromResource(template);
             AgentBeliefBase beliefs = createAgentKnowledge(template);
 
-            return new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, true, beliefs, events, endpoints, connections);
+            return new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
     }
 }

@@ -147,11 +147,12 @@ public class AgentManager {
 		return agent;
 	}
 
-        public Agent createAgent(final String id, final String template, final String knowledge, final RDFFormat format) throws URISyntaxException, IOException {
+        public Agent createAgent(final String id, final String template, final boolean manageTDB, final String knowledge, final RDFFormat format) throws URISyntaxException, IOException {
                 agentParamBuilder.setId(id);
 		agentParamBuilder.setBaseURI(baseURI);
                 agentParamBuilder.setAgentTemplate(template);
 		agentParamBuilder.setAgentKnowledge(knowledge, format);
+                agentParamBuilder.setManageAgentTDB(manageTDB);
 		Agent agent = agentParamBuilder.build();
                 initiateAgent(agent);
 		return agent;
