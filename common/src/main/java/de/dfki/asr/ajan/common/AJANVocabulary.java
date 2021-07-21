@@ -28,7 +28,8 @@ public class AJANVocabulary {
 	private static final ValueFactory FACTORY = SimpleValueFactory.getInstance();
 	public final static IRI AGENT_TYPE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#Agent");
 	public final static IRI AGENT_THIS = FACTORY.createIRI("http://www.ajan.de/ajan-ns#This");
-	public final static IRI AGENT_HAS_NAME = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentName");
+	public final static IRI AGENT_HAS_ID = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentId");
+	public final static IRI AGENT_HAS_MANAGE_TDB = FACTORY.createIRI("http://www.ajan.de/ajan-ns#manageTDB");
 	public final static IRI AGENT_HAS_ROOT = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentRoot");
 	public final static IRI AGENT_HAS_URI = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentURI");
 	public final static IRI AGENT_HAS_KNOWLEDGE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentKnowledge");

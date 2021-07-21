@@ -49,14 +49,19 @@ public class ParameterAgentBuilder extends RDFAgentBuilder {
         return this;
     }
 
-    public ParameterAgentBuilder setAgentName(final String name) {
-        this.name = name;
+    public ParameterAgentBuilder setAgentId(final String id) {
+        this.id = id;
         return this;
     }
 
     public ParameterAgentBuilder setAgentTemplate(final String template) {
         ValueFactory factory = SimpleValueFactory.getInstance();
         this.template = factory.createIRI(template);
+        return this;
+    }
+
+    public ParameterAgentBuilder setManageAgentTDB(final boolean overwrite) {
+        manageTDB = overwrite;
         return this;
     }
 
@@ -70,7 +75,7 @@ public class ParameterAgentBuilder extends RDFAgentBuilder {
     public Agent build() throws URISyntaxException {
             inferencing = Inferencing.NONE;
             connections = new ConcurrentHashMap<>();
-            url = (baseURI.toString() + name);
+            url = (baseURI.toString() + id);
             agentTemplateModel = modelManager.getTemplateFromTDB(agentRepo, template);
             extensions = pluginLoader.getNodeExtensions();
 
@@ -84,6 +89,6 @@ public class ParameterAgentBuilder extends RDFAgentBuilder {
             setBehaviorTreesFromResource(template);
             AgentBeliefBase beliefs = createAgentKnowledge(template);
 
-            return new Agent(url, name, template, initialBehavior, finalBehavior, behaviors, beliefs, events, endpoints, connections);
+            return new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
     }
 }

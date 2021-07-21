@@ -54,7 +54,7 @@ public class AgentBuilder {
 	protected final AgentTDBManager tdbManager;
 
 	@Getter @Setter
-	protected String name;
+	protected String id;
         @Getter @Setter
 	protected Repository agentRepo;
 	@Getter @Setter
@@ -69,6 +69,8 @@ public class AgentBuilder {
 	protected SingleRunBehavior finalBehavior;
 	@Getter @Setter
 	protected Map<Resource, Behavior> behaviors;
+        @Getter @Setter
+	protected boolean manageTDB;
 	@Getter @Setter
 	protected Map<URI, Event> events;
 	@Getter @Setter
@@ -92,14 +94,14 @@ public class AgentBuilder {
 	}
 
 	public Agent build() throws URISyntaxException {
-		AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(name,inferencing));
+		AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,manageTDB,inferencing));
 		addAgentInformationToKnowledge(beliefs);
 		beliefs.update(initialKnowledge);
 		connections = new ConcurrentHashMap<>();
                 configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource());
                 configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), finalBehavior.getResource());
 		configureBehaviorTrees(beliefs);
-		return new Agent(url, name, template, initialBehavior, finalBehavior, behaviors, beliefs, events, endpoints, connections);
+		return new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
 	}
 
 	protected void addAgentInformationToKnowledge(final AgentBeliefBase beliefs) {
@@ -108,7 +110,7 @@ public class AgentBuilder {
 		initialKnowledge.add(factory.createStatement(agent, RDF.TYPE, AJANVocabulary.AGENT_TYPE));
 		initialKnowledge.add(factory.createStatement(agent, RDF.TYPE, AJANVocabulary.AGENT_THIS));
 		initialKnowledge.add(factory.createStatement(agent, AJANVocabulary.AGENT_HAS_ROOT, factory.createLiteral(baseURI.toString())));
-		initialKnowledge.add(factory.createStatement(agent, AJANVocabulary.AGENT_HAS_NAME, factory.createLiteral(name)));
+		initialKnowledge.add(factory.createStatement(agent, AJANVocabulary.AGENT_HAS_ID, factory.createLiteral(id)));
 		initialKnowledge.add(factory.createStatement(agent, AJANVocabulary.AGENT_HAS_KNOWLEDGE, factory.createLiteral(beliefs.getSparqlUpdateEndpoint().toString())));
 		initialKnowledge.add(factory.createStatement(agent, AJANVocabulary.AGENT_HAS_TEMPLATE, template));
 		addTemplateKnowledge();

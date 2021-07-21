@@ -31,7 +31,6 @@ import de.dfki.asr.ajan.pluginsystem.mosimplugin.endpoint.ThriftPluginServer;
 import static de.dfki.asr.ajan.pluginsystem.mosimplugin.endpoint.ThriftPluginServer.handler;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.exceptions.PortExistingException;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.exceptions.SetupCallbackServerException;
-import static de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.AbortInstruction.LOG;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.mosim.mmi.cosim.MCoSimulationEventCallback;
 import java.net.URISyntaxException;

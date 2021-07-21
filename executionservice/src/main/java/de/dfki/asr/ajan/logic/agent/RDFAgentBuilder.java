@@ -87,8 +87,9 @@ public class RDFAgentBuilder extends AgentBuilder {
     @Override
     public Agent build() throws URISyntaxException {
         connections = new ConcurrentHashMap<>();
-        name = getNameFromModel();
-        url = (baseURI.toString() + name);
+        id = getIdFromModel();
+        manageTDB = isTDBManagement();
+        url = (baseURI.toString() + id);
         template = setTemplateFromResource();
 	inferencing = Inferencing.NONE;
         AgentEndpoints agentEndpoints = new AgentEndpoints(modelManager, resourceManager, agentRepo);
@@ -100,11 +101,11 @@ public class RDFAgentBuilder extends AgentBuilder {
         setBehaviorTreesFromResource(template);
         initialKnowledge = modelManager.getAgentInitKnowledge(vf.createIRI(url), agentResource, initAgentModel, false);
         AgentBeliefBase beliefs = createAgentKnowledge(template);
-        return new Agent(url, name, template, initialBehavior, finalBehavior, behaviors, beliefs, events, endpoints, connections);
+        return new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
     }
 
     protected AgentBeliefBase createAgentKnowledge(final Resource agentTemplateRsc) throws URISyntaxException {
-        AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(name,Inferencing.NONE));
+        AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,manageTDB,Inferencing.NONE));
         addAgentInformationToKnowledge(beliefs);
         reportURI = modelManager.getReportURI(initialKnowledge);
         beliefs.update(initialKnowledge);
@@ -142,11 +143,16 @@ public class RDFAgentBuilder extends AgentBuilder {
         return agentTemplateRsc;
     }
 
-    private String getNameFromModel() {
-        Model nameModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_NAME, null);
-        String agentName = modelManager.getLabel(nameModel, "No AgentTemplate-literal for " + AJANVocabulary.AGENT_HAS_NAME + " defined");
-        name = agentName;
-        return agentName;
+    private String getIdFromModel() {
+        Model idModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_ID, null);
+        String agentID = modelManager.getLabel(idModel, "No AgentTemplate-literal for " + AJANVocabulary.AGENT_HAS_ID + " defined");
+        id = agentID;
+        return agentID;
+    }
+
+    private boolean isTDBManagement() {
+        Model nameModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_MANAGE_TDB, null);
+        return modelManager.getBoolean(nameModel);
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")

@@ -36,11 +36,12 @@ import org.eclipse.rdf4j.model.Resource;
 @Data
 public class Agent {
 	private final String url;
-	private final String name;
+	private final String id;
         private final Resource template;
         private final SingleRunBehavior initialBehavior;
         private final SingleRunBehavior finalBehavior;
 	private final Map<Resource,Behavior> behaviors;
+        private final boolean manageTDB;
 	private final AgentBeliefBase beliefs;
 	private final Map<URI,Event> events;
 	private final Map<String,Endpoint> endpoints;
