@@ -84,6 +84,6 @@ public class ParameterAgentBuilder extends RDFAgentBuilder {
             setBehaviorTreesFromResource(template);
             AgentBeliefBase beliefs = createAgentKnowledge(template);
 
-            return new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, false, beliefs, events, endpoints, connections);
+            return new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, true, beliefs, events, endpoints, connections);
     }
 }
