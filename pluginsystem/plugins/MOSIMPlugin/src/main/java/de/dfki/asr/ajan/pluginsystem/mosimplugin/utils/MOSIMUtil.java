@@ -190,7 +190,6 @@ public final class MOSIMUtil {
 				String type = getObject(inputModel, (Resource) val, rdfType);
 				String obj64 = getObject(inputModel, (Resource) val, MOSIMVocabulary.HAS_OBJECT);
 				map.put(obj64, vf.createIRI(type));
-				
 			}
 		}
 		return map;

@@ -77,11 +77,11 @@ public class MAJANServiceHandler implements MAJANService.Iface {
     }
 
     @Override
-    public String CreateAgent(String name, String template, MRDFGraph content) throws TException {
+    public String CreateAgent(String name, String agentTemplate, MRDFGraph content) throws TException {
         Agent agent;
         try {
             RDFFormat format = getRDFFormat(content.ContentType);
-            agent = agentManager.createAgent(name, template, content.Graph, format);
+            agent = agentManager.createAgent(name, agentTemplate, content.Graph, format);
             return agent.getUrl();
 
         } catch (URISyntaxException | IOException ex) {

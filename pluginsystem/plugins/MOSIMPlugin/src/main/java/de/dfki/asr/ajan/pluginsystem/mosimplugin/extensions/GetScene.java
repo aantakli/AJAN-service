@@ -31,9 +31,12 @@ import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.constraints.MConstraint;
 import de.mosim.mmi.services.MSceneAccess;
 import de.mosim.mmi.scene.MSceneObject;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
@@ -50,7 +53,10 @@ import org.eclipse.rdf4j.model.vocabulary.*;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.Rio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -152,7 +158,7 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 		return model;
 	}
 
-	private void setProperties(final Model model, final IRI subject, final Map<String,String> properties) {
+	private void setProperties(final Model model, final IRI subject, final Map<String,String> properties) throws IOException {
 		IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
 		for (Map.Entry<String, String> entry : properties.entrySet()) {
 			switch(entry.getKey()){
@@ -170,6 +176,12 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 					break;
 				case "finalLocation":
 					model.add(subject, MOSIMVocabulary.HAS_FINAL_LOCATION, getMSceneObjectIRI(entry.getValue()));
+					break;
+				case "RDF":
+					setRDF(model, subject, entry.getValue());
+					break;
+				case "hasChildren":
+					setChildren(model, subject, entry.getValue());
 					break;
 				default:
 					break;
@@ -189,6 +201,30 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 
 	private IRI getMSceneObjectIRI(final String ID) {
 		return vf.createIRI("tcp://" + host + ":" + port + "/" + ID);
+	}
+
+	private void setRDF(final Model model, final IRI subject, final String RDF) throws IOException {
+		if (!RDF.equals("")) {
+			LOG.info(RDF);
+			InputStream input = new ByteArrayInputStream(RDF.getBytes());
+			Model additionalRDF = Rio.parse(input, "", RDFFormat.TURTLE);
+			Iterable<Statement> stmts = additionalRDF.getStatements(null, null, null);
+			Iterator<Statement> itr = stmts.iterator();
+			while (itr.hasNext()) {
+				Statement stmt = itr.next();
+				if (stmt.getSubject().equals(vf.createIRI("http://www.dfki.de/mosim-ns#This"))) {
+					model.add(subject, stmt.getPredicate(), stmt.getObject());
+				} else {
+					model.add(stmt);
+				}
+			}
+		}
+	}
+
+	private void setChildren(final Model model, final IRI subject, final String children) {
+		for (String child : children.split(",")) {
+			model.add(subject, MOSIMVocabulary.HAS_CHILD, getMSceneObjectIRI(child));
+		}
 	}
 
 	@Override
