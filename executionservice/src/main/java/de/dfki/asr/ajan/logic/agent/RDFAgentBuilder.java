@@ -48,6 +48,8 @@ import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("PMD.ExcessiveImports")
 public class RDFAgentBuilder extends AgentBuilder {
@@ -60,6 +62,7 @@ public class RDFAgentBuilder extends AgentBuilder {
     protected Resource agentResource;
 
     protected ValueFactory vf = SimpleValueFactory.getInstance();
+    private static final Logger LOG = LoggerFactory.getLogger(RDFAgentBuilder.class);
 
     public RDFAgentBuilder(final AgentTDBManager tdbManager, final Repository agentRepo, final AJANPluginLoader apl) {
         super(tdbManager);
@@ -88,6 +91,7 @@ public class RDFAgentBuilder extends AgentBuilder {
     public Agent build() throws URISyntaxException {
         connections = new ConcurrentHashMap<>();
         id = getIdFromModel();
+        LOG.info("Creating agent with ID: " + id);
         manageTDB = isTDBManagement();
         url = (baseURI.toString() + id);
         template = setTemplateFromResource();
@@ -101,7 +105,9 @@ public class RDFAgentBuilder extends AgentBuilder {
         setBehaviorTreesFromResource(template);
         initialKnowledge = modelManager.getAgentInitKnowledge(vf.createIRI(url), agentResource, initAgentModel, false);
         AgentBeliefBase beliefs = createAgentKnowledge(template);
-        return new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
+        Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
+        LOG.info("Agent with ID " + id + " is created: " + url);
+        return agent;
     }
 
     protected AgentBeliefBase createAgentKnowledge(final Resource agentTemplateRsc) throws URISyntaxException {

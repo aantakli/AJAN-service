@@ -47,6 +47,7 @@ import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.repository.Repository;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("PMD.TooManyFields")
 public class AgentBuilder {
@@ -88,12 +89,14 @@ public class AgentBuilder {
         
 	protected URI baseURI;
         protected final ValueFactory vf = SimpleValueFactory.getInstance();
+        private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AgentBuilder.class);
 
 	public AgentBuilder(final AgentTDBManager manager) {
 		tdbManager = manager;
 	}
 
 	public Agent build() throws URISyntaxException {
+                LOG.info("Creating agent with ID: " + id);
 		AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,manageTDB,inferencing));
 		addAgentInformationToKnowledge(beliefs);
 		beliefs.update(initialKnowledge);
@@ -101,7 +104,9 @@ public class AgentBuilder {
                 configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource());
                 configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), finalBehavior.getResource());
 		configureBehaviorTrees(beliefs);
-		return new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
+                Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
+                LOG.info("Agent with ID " + id + " is created: " + agent.getUrl());
+		return agent;
 	}
 
 	protected void addAgentInformationToKnowledge(final AgentBeliefBase beliefs) {

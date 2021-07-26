@@ -37,8 +37,12 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ParameterAgentBuilder extends RDFAgentBuilder {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ParameterAgentBuilder.class);
 
     public ParameterAgentBuilder(final AgentTDBManager tdbManager, final Repository agentRepo, final AJANPluginLoader apl) {
         super(tdbManager, agentRepo, apl);
@@ -73,6 +77,7 @@ public class ParameterAgentBuilder extends RDFAgentBuilder {
 
     @Override
     public Agent build() throws URISyntaxException {
+            LOG.info("Creating agent with ID: " + id);
             inferencing = Inferencing.NONE;
             connections = new ConcurrentHashMap<>();
             url = (baseURI.toString() + id);
@@ -88,7 +93,8 @@ public class ParameterAgentBuilder extends RDFAgentBuilder {
 
             setBehaviorTreesFromResource(template);
             AgentBeliefBase beliefs = createAgentKnowledge(template);
-
-            return new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
+            Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
+            LOG.info("Agent with ID " + id + " is created: " + agent.getUrl());
+            return agent;
     }
 }
