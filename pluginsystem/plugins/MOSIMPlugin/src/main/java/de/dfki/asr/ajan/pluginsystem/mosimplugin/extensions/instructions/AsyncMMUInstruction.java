@@ -20,6 +20,7 @@
 package de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.instructions;
 
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
+import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.action.common.ACTNVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ActionVariable;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.InputModel;
@@ -27,6 +28,7 @@ import de.dfki.asr.ajan.behaviour.nodes.action.definition.ResultModel;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.constraints.MConstraint;
+import de.mosim.mmi.core.MBoolResponse;
 import de.mosim.mmi.mmu.MInstruction;
 import de.mosim.mmi.cosim.MCoSimulationAccess;
 import de.mosim.mmi.mmu.MSimulationEvent;
@@ -39,6 +41,10 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TCompactProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TSocket;
+import org.apache.thrift.transport.TTransport;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -216,5 +222,25 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 		if (!instructionDef.isEmpty())
 				model.add(instRoot, MOSIMVocabulary.HAS_JSON_INSTRUCTION, vf.createLiteral(instructionDef));
 		return model;
+	}
+
+	@Override
+    public ResultModel abort(InputModel inputModel) {
+        abortInstruction();
+        return super.abort(inputModel);
+    }
+
+	private void abortInstruction() {
+		try {
+			try (TTransport transport = new TSocket(cosimHost, cosimPort)) {
+				transport.open();
+				TProtocol protocol = new TCompactProtocol(transport);
+				MCoSimulationAccess.Client client = new MCoSimulationAccess.Client(protocol);
+				client.AbortInstruction(instID);
+				transport.close();
+			}
+		} catch (TException ex) {
+			LOG.error("Could not load List<MSceneObject>", ex);
+		}
 	}
 }

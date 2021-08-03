@@ -21,7 +21,6 @@ package de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions;
 
 import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
-import de.dfki.asr.ajan.behaviour.nodes.action.definition.ResultModel;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
