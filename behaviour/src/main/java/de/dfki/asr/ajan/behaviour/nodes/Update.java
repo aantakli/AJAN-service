@@ -26,12 +26,20 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.logging.Level;
 import lombok.Getter;
 import lombok.Setter;
-import org.cyberborean.rdfbeans.annotations.RDF;
-import org.cyberborean.rdfbeans.annotations.RDFBean;
-import org.cyberborean.rdfbeans.annotations.RDFSubject;
+import org.apache.http.HttpEntity;
+import org.apache.http.StatusLine;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.cyberborean.rdfbeans.annotations.*;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
@@ -52,6 +60,11 @@ public class Update extends AbstractTDBLeafTask {
 	@RDF("bt:query")
 	@Getter @Setter
 	private BehaviorQuery query;
+
+	@RDF("bt:useW3C")
+	@Getter @Setter
+	private boolean useW3C;
+
 	private static final Logger LOG = LoggerFactory.getLogger(Update.class);
 
 	@Override
@@ -87,6 +100,9 @@ public class Update extends AbstractTDBLeafTask {
 	}
 
 	private Boolean performUpdateLogic(final Repository repo) {
+		if (useW3C) {
+			return senW3CQueryMsg();
+		}
 		Boolean result;
 		try {
 			Object obj = query.getResult(repo);
@@ -99,6 +115,25 @@ public class Update extends AbstractTDBLeafTask {
 			return false;
 		}
 		return result;
+	}
+
+	private Boolean senW3CQueryMsg() {
+		CloseableHttpClient httpClient = HttpClients.createDefault();
+		HttpPost httpPost = new HttpPost(query.getOriginBase());
+		HttpEntity postParams = new StringEntity(query.getSparql(), ContentType.create("text/turtle"));
+		httpPost.setEntity(postParams);
+		CloseableHttpResponse httpResponse;
+		try {
+			httpResponse = httpClient.execute(httpPost);
+			StatusLine statusLine = httpResponse.getStatusLine();
+			if (statusLine.getStatusCode() >= 300) {
+				LOG.info("POST Response Status: " + httpResponse.getStatusLine().getStatusCode());
+				return false;
+			}
+		} catch (IOException ex) {
+			java.util.logging.Logger.getLogger(Action.class.getName()).log(Level.SEVERE, null, ex);
+		}
+		return true;
 	}
 
 	@Override
