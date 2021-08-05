@@ -27,10 +27,10 @@ import de.dfki.asr.ajan.pluginsystem.extensionpoints.EndpointExtension;
 import de.mosim.mmi.agent.MAJANService;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.server.TServer;
-import org.apache.thrift.server.TThreadPoolServer;
+import org.apache.thrift.server.TServer.Args;
+import org.apache.thrift.server.TSimpleServer;
 import org.apache.thrift.transport.TServerTransport;
 import org.apache.thrift.transport.TTransportException;
 
@@ -86,9 +86,10 @@ public class ThriftPluginServer implements EndpointExtension {
         try {
             TServerTransport serverTransport = new TServerSocket(THRIFT_PORT);
 			// TThreadPoolServer has a known bug in Thrift Version 12 --> https://githubmemory.com/repo/apache/iotdb/issues/3144
-            server = new TThreadPoolServer(new TThreadPoolServer.Args(serverTransport)
-					.processor(processor)
-					.protocolFactory(new TBinaryProtocol.Factory(true,true)));
+            // server = new TThreadPoolServer(new TThreadPoolServer.Args(serverTransport)
+			//		.processor(processor)
+			//		.protocolFactory(new TBinaryProtocol.Factory(true,true)));
+			server = new TSimpleServer(new Args(serverTransport).processor(processor));
 			log.info("Starting the plugin server...");
             server.serve();
         } catch (TTransportException e) {

@@ -101,6 +101,11 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 				host = entry.getKey();
 				port = Integer.parseInt(entry.getValue());
 				List<MSceneObject> objects = getSceneObjects();
+				if (objects == null) {
+					String report = toString() + " FAILED";
+					LOG.info(report);
+					return new LeafStatus(Status.FAILED, report);
+				}
 				Model inputModel = getInputModel(objects);
 				MOSIMUtil.writeInput(inputModel, repository.toString(), this.getObject());
 				String report = toString() + " SUCCEEDED";
