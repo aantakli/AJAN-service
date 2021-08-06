@@ -120,7 +120,7 @@ public class Update extends AbstractTDBLeafTask {
 	private Boolean senW3CQueryMsg() {
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		HttpPost httpPost = new HttpPost(query.getOriginBase());
-		HttpEntity postParams = new StringEntity(query.getSparql(), ContentType.create("text/turtle"));
+		HttpEntity postParams = new StringEntity(query.getSparql(), ContentType.create("application/sparql-update"));
 		httpPost.setEntity(postParams);
 		CloseableHttpResponse httpResponse;
 		try {
