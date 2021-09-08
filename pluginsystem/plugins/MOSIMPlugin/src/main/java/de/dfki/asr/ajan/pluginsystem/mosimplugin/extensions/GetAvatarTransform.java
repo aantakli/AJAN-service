@@ -91,7 +91,7 @@ public class GetAvatarTransform extends AbstractTDBLeafTask implements NodeExten
 
 	@Override
 	public Resource getType() {
-		return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#GetAvatar");
+		return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#GetAvatarTransform");
 	}
 
 	@Override
