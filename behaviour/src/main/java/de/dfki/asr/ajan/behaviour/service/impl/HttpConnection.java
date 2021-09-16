@@ -32,7 +32,6 @@ import java.util.UUID;
 import lombok.Getter;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.config.RequestConfig;
@@ -42,7 +41,6 @@ import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,22 +106,18 @@ public class HttpConnection implements IConnection {
 				.setRetryHandler(new DefaultHttpRequestRetryHandler(2, false)).build();
 			CloseableHttpResponse response = httpClient.execute(request)) {
 			StatusLine statusLine = response.getStatusLine();
+			LOG.info("Status Code:" + statusLine.getStatusCode());
 			if (statusLine.getStatusCode() >= 300) {
 				throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
 			}
-			InputStream responseContent = getResponseContent(response);
 			HttpEntity entity = response.getEntity();
-			if (entity.getContentLength() != 0) {
+			if (entity != null && entity.getContentLength() != 0) {
+				InputStream responseContent = entity.getContent();
 				String entityFormat = getFormatFromResponse(entity);
 				return readContent(responseContent, entityFormat);
 			}
 			return new LinkedHashModel();
 		}
-	}
-
-	private InputStream getResponseContent(final HttpResponse response) throws IOException, RDFParseException {
-		HttpEntity entity = response.getEntity();
-		return entity.getContent();
 	}
 
 	private String getFormatFromResponse(final HttpEntity entity) {
