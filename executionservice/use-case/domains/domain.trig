@@ -302,6 +302,16 @@ mosim:Mapping {
 					rr:parent "tool" ;
 				]
 			]
+		] ;
+		rr:predicateObjectMap [
+			rr:predicate mosim:position ;
+			rr:objectMap [
+				rr:parentTriplesMap :PositionMapping ;
+				rr:joinCondition [
+					rr:child "position" ;
+					rr:parent "position" ;
+				]
+			]
 		]	.
 
 	:PartMapping
@@ -352,6 +362,32 @@ mosim:Mapping {
 			rr:predicate mosim:id ;
 			rr:objectMap [
 				rml:reference "tool.id" ;
+				rr:datatype xsd:string
+			]
+		] .
+
+	:PositionMapping
+		rml:logicalSource [
+			rml:referenceFormulation ql:JSONInput;
+			rml:iterator "$.workers.[*].tasks.[*]"
+		] ;
+
+		rr:subjectMap [
+			rr:template "http://www.ajan.de/ajan-mapping-ns#Position/{position.type}/{position.id}" ;
+			rr:class mosim:Position ;
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate mosim:type ;
+			rr:objectMap [
+				rml:reference "position.type" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		rr:predicateObjectMap [
+			rr:predicate mosim:id ;
+			rr:objectMap [
+				rml:reference "position.id" ;
 				rr:datatype xsd:string
 			]
 		] .
