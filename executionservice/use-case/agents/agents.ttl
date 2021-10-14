@@ -27,7 +27,6 @@
   <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#ExecuteEvent>,
     <http://localhost:8090/rdf4j/repositories/agents#WalkGoal>;
   <http://www.ajan.de/ajan-ns#finalBehavior> <http://localhost:8090/rdf4j/repositories/agents#FinalBehavior>;
-  <http://www.ajan.de/ajan-ns#initialBehavior> <http://localhost:8090/rdf4j/repositories/agents#InitialBehavior>;
   rdfs:label "ExampleWalk Agent" .
 
 <http://localhost:8090/rdf4j/repositories/agents#ExampleAgent> a <http://www.ajan.de/ajan-ns#AgentTemplate>;
@@ -35,7 +34,6 @@
   <http://www.ajan.de/ajan-ns#endpoint> <http://localhost:8090/rdf4j/repositories/agents#ExecuteEndpoint>;
   <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#ExecuteEvent>;
   <http://www.ajan.de/ajan-ns#finalBehavior> <http://localhost:8090/rdf4j/repositories/agents#FinalBehavior>;
-  <http://www.ajan.de/ajan-ns#initialBehavior> <http://localhost:8090/rdf4j/repositories/agents#InitialBehavior>;
   rdfs:label "Example Agent" .
 
 <http://localhost:8090/rdf4j/repositories/agents#ExamplePositionAgent> a <http://www.ajan.de/ajan-ns#AgentTemplate>;
@@ -45,7 +43,6 @@
   <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#ExecuteEvent>,
     <http://localhost:8090/rdf4j/repositories/agents#PositionGoal>, <http://localhost:8090/rdf4j/repositories/agents#WalkGoal>;
   <http://www.ajan.de/ajan-ns#finalBehavior> <http://localhost:8090/rdf4j/repositories/agents#FinalBehavior>;
-  <http://www.ajan.de/ajan-ns#initialBehavior> <http://localhost:8090/rdf4j/repositories/agents#InitialBehavior>;
   rdfs:label "ExamplePosition Agent" .
 
 <http://localhost:8090/rdf4j/repositories/agents#MOSIMAgent> a <http://www.ajan.de/ajan-ns#AgentTemplate>;
@@ -122,65 +119,16 @@
   rdfs:label "Check Behavior" .
 
 <http://localhost:8090/rdf4j/repositories/agents#GO_2b42076e-603d-46ba-9e48-7f1e742fd9bb>
-  <http://www.ajan.de/ajan-ns#variables> _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b944 .
-
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b944 rdf:first _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b927 .
-
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b927 a <http://www.ajan.de/ajan-ns#Variable>;
-  <http://spinrdf.org/sp#varName> "part";
-  <http://www.ajan.de/ajan-ns#dataType> rdfs:Resource .
-
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b944 rdf:rest _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b928 .
-
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b928 rdf:first _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b929 .
-
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b929 a <http://www.ajan.de/ajan-ns#Variable>;
-  <http://spinrdf.org/sp#varName> "tool";
-  <http://www.ajan.de/ajan-ns#dataType> rdfs:Resource .
-
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b928 rdf:rest _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b930 .
-
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b930 rdf:first _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b931 .
-
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b931 a <http://www.ajan.de/ajan-ns#Variable>;
-  <http://spinrdf.org/sp#varName> "operation";
-  <http://www.ajan.de/ajan-ns#dataType> xsd:string .
-
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b930 rdf:rest _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b932 .
-
-<http://localhost:8090/rdf4j/repositories/agents#GO_2b42076e-603d-46ba-9e48-7f1e742fd9bb>
   rdfs:label "UseTool Goal" .
 
 <http://localhost:8090/rdf4j/repositories/agents#GO_51d334cd-67a0-45f8-a145-22b4a26d46ea>
   a <http://www.ajan.de/ajan-ns#Goal>;
   <http://www.ajan.de/ajan-ns#condition> "ASK WHERE { ?s ?p ?o }";
-  <http://www.ajan.de/ajan-ns#variables> _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b940 .
-
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b940 rdf:first _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b941 .
-
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b941 a <http://www.ajan.de/ajan-ns#Variable>;
-  <http://spinrdf.org/sp#varName> "target";
-  <http://www.ajan.de/ajan-ns#dataType> rdfs:Resource .
-
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b940 rdf:rest _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b942 .
-
-<http://localhost:8090/rdf4j/repositories/agents#GO_51d334cd-67a0-45f8-a145-22b4a26d46ea>
   rdfs:label "Wave Goal" .
 
 <http://localhost:8090/rdf4j/repositories/agents#GO_e9cd7e59-90eb-475d-9b65-296dc95c1eeb>
   a <http://www.ajan.de/ajan-ns#Goal>;
   <http://www.ajan.de/ajan-ns#condition> "ASK WHERE { ?s ?p ?o }";
-  <http://www.ajan.de/ajan-ns#variables> _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b936 .
-
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b936 rdf:first _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b935 .
-
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b935 a <http://www.ajan.de/ajan-ns#Variable>;
-  <http://spinrdf.org/sp#varName> "target";
-  <http://www.ajan.de/ajan-ns#dataType> rdfs:Resource .
-
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b936 rdf:rest _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b937 .
-
-<http://localhost:8090/rdf4j/repositories/agents#GO_e9cd7e59-90eb-475d-9b65-296dc95c1eeb>
   rdfs:label "Check Goal" .
 
 <http://localhost:8090/rdf4j/repositories/agents#EP_3604d00b-8ed2-454a-8d60-cd80a4533e3a>
@@ -228,7 +176,7 @@ _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b936 rdf:rest _:genid-5eaf5c2283714f13a
   <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#EV_4006fc0d-cc64-4b28-80c3-2dbc00409c54>,
     <http://localhost:8090/rdf4j/repositories/agents#ExecuteEvent>;
   <http://www.ajan.de/ajan-ns#finalBehavior> <http://localhost:8090/rdf4j/repositories/agents#FinalBehavior>;
-  <http://www.ajan.de/ajan-ns#initialBehavior> <http://localhost:8090/rdf4j/repositories/agents#InitialBehavior>;
+  <http://www.ajan.de/ajan-ns#initialBehavior> <http://localhost:8090/rdf4j/repositories/agents#IB_7ec56040-08da-45c6-bddc-9e7a29071234>;
   rdfs:label "Blocks_A1 Agent" .
 
 <http://localhost:8090/rdf4j/repositories/agents#BE_1b7ebbe4-4f03-44e2-b68d-8028f6c1202d>
@@ -246,21 +194,21 @@ _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b936 rdf:rest _:genid-5eaf5c2283714f13a
   <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#EV_4006fc0d-cc64-4b28-80c3-2dbc00409c54>,
     <http://localhost:8090/rdf4j/repositories/agents#ExecuteEvent>;
   <http://www.ajan.de/ajan-ns#finalBehavior> <http://localhost:8090/rdf4j/repositories/agents#FinalBehavior>;
-  <http://www.ajan.de/ajan-ns#initialBehavior> <http://localhost:8090/rdf4j/repositories/agents#InitialBehavior>;
+  <http://www.ajan.de/ajan-ns#initialBehavior> <http://localhost:8090/rdf4j/repositories/agents#IB_7ec56040-08da-45c6-bddc-9e7a29071234>;
   rdfs:label "Blocks_A2 Agent" .
 
 <http://localhost:8090/rdf4j/repositories/agents#GO_a0f7a155-8c96-4979-a0a2-ba20f3b70adb>
   a <http://www.ajan.de/ajan-ns#Goal>;
   <http://www.ajan.de/ajan-ns#condition> "ASK WHERE { ?s ?p ?o }";
-  <http://www.ajan.de/ajan-ns#variables> _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b925 .
+  <http://www.ajan.de/ajan-ns#variables> _:genid-da88f466e2614029b7d100d7c0793669-b1003 .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b925 rdf:first _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b924 .
+_:genid-da88f466e2614029b7d100d7c0793669-b1003 rdf:first _:genid-da88f466e2614029b7d100d7c0793669-b1002 .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b924 a <http://www.ajan.de/ajan-ns#Variable>;
+_:genid-da88f466e2614029b7d100d7c0793669-b1002 a <http://www.ajan.de/ajan-ns#Variable>;
   <http://spinrdf.org/sp#varName> "target";
   <http://www.ajan.de/ajan-ns#dataType> rdfs:Resource .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b925 rdf:rest _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b926 .
+_:genid-da88f466e2614029b7d100d7c0793669-b1003 rdf:rest _:genid-da88f466e2614029b7d100d7c0793669-b1004 .
 
 <http://localhost:8090/rdf4j/repositories/agents#GO_a0f7a155-8c96-4979-a0a2-ba20f3b70adb>
   rdfs:label "SideStep Goal" .
@@ -278,40 +226,91 @@ _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b925 rdf:rest _:genid-5eaf5c2283714f13a
     <http://localhost:8090/rdf4j/repositories/agents#GO_a0f7a155-8c96-4979-a0a2-ba20f3b70adb>,
     <http://localhost:8090/rdf4j/repositories/agents#GO_e9cd7e59-90eb-475d-9b65-296dc95c1eeb> .
 
-<http://localhost:8090/rdf4j/repositories/agents#PositionGoal> <http://www.ajan.de/ajan-ns#variables>
-    _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b945 .
+<http://localhost:8090/rdf4j/repositories/agents#GO_2b42076e-603d-46ba-9e48-7f1e742fd9bb>
+  a <http://www.ajan.de/ajan-ns#Goal>;
+  <http://www.ajan.de/ajan-ns#condition> "ASK WHERE { ?s ?p ?o }";
+  <http://www.ajan.de/ajan-ns#variables> _:genid-da88f466e2614029b7d100d7c0793669-b1015 .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b945 rdf:first _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b943 .
+_:genid-da88f466e2614029b7d100d7c0793669-b1015 rdf:first _:genid-da88f466e2614029b7d100d7c0793669-b1016 .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b943 a <http://www.ajan.de/ajan-ns#Variable>;
+_:genid-da88f466e2614029b7d100d7c0793669-b1016 a <http://www.ajan.de/ajan-ns#Variable>;
   <http://spinrdf.org/sp#varName> "part";
   <http://www.ajan.de/ajan-ns#dataType> rdfs:Resource .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b945 rdf:rest _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b946 .
+_:genid-da88f466e2614029b7d100d7c0793669-b1015 rdf:rest _:genid-da88f466e2614029b7d100d7c0793669-b1017 .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b946 rdf:first _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b939 .
+_:genid-da88f466e2614029b7d100d7c0793669-b1017 rdf:first _:genid-da88f466e2614029b7d100d7c0793669-b1018 .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b939 a <http://www.ajan.de/ajan-ns#Variable>;
+_:genid-da88f466e2614029b7d100d7c0793669-b1018 a <http://www.ajan.de/ajan-ns#Variable>;
   <http://spinrdf.org/sp#varName> "tool";
   <http://www.ajan.de/ajan-ns#dataType> rdfs:Resource .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b946 rdf:rest _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b947 .
+_:genid-da88f466e2614029b7d100d7c0793669-b1017 rdf:rest _:genid-da88f466e2614029b7d100d7c0793669-b1019 .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b947 rdf:first _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b938 .
+_:genid-da88f466e2614029b7d100d7c0793669-b1019 rdf:first _:genid-da88f466e2614029b7d100d7c0793669-b1020 .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b938 a <http://www.ajan.de/ajan-ns#Variable>;
+_:genid-da88f466e2614029b7d100d7c0793669-b1020 a <http://www.ajan.de/ajan-ns#Variable>;
   <http://spinrdf.org/sp#varName> "operation";
   <http://www.ajan.de/ajan-ns#dataType> xsd:string .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b947 rdf:rest _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b948 .
+_:genid-da88f466e2614029b7d100d7c0793669-b1019 rdf:rest _:genid-da88f466e2614029b7d100d7c0793669-b1021 .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b948 rdf:first _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b934 .
+<http://localhost:8090/rdf4j/repositories/agents#GO_51d334cd-67a0-45f8-a145-22b4a26d46ea>
+  <http://www.ajan.de/ajan-ns#variables> _:genid-da88f466e2614029b7d100d7c0793669-b1011 .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b934 a <http://www.ajan.de/ajan-ns#Variable>;
+_:genid-da88f466e2614029b7d100d7c0793669-b1011 rdf:first _:genid-da88f466e2614029b7d100d7c0793669-b1012 .
+
+_:genid-da88f466e2614029b7d100d7c0793669-b1012 a <http://www.ajan.de/ajan-ns#Variable>;
+  <http://spinrdf.org/sp#varName> "target";
+  <http://www.ajan.de/ajan-ns#dataType> rdfs:Resource .
+
+_:genid-da88f466e2614029b7d100d7c0793669-b1011 rdf:rest _:genid-da88f466e2614029b7d100d7c0793669-b1013 .
+
+<http://localhost:8090/rdf4j/repositories/agents#GO_e9cd7e59-90eb-475d-9b65-296dc95c1eeb>
+  <http://www.ajan.de/ajan-ns#variables> _:genid-da88f466e2614029b7d100d7c0793669-b1007 .
+
+_:genid-da88f466e2614029b7d100d7c0793669-b1007 rdf:first _:genid-da88f466e2614029b7d100d7c0793669-b1006 .
+
+_:genid-da88f466e2614029b7d100d7c0793669-b1006 a <http://www.ajan.de/ajan-ns#Variable>;
+  <http://spinrdf.org/sp#varName> "target";
+  <http://www.ajan.de/ajan-ns#dataType> rdfs:Resource .
+
+_:genid-da88f466e2614029b7d100d7c0793669-b1007 rdf:rest _:genid-da88f466e2614029b7d100d7c0793669-b1008 .
+
+<http://localhost:8090/rdf4j/repositories/agents#PositionGoal> <http://www.ajan.de/ajan-ns#variables>
+    _:genid-da88f466e2614029b7d100d7c0793669-b1023 .
+
+_:genid-da88f466e2614029b7d100d7c0793669-b1023 rdf:first _:genid-da88f466e2614029b7d100d7c0793669-b1014 .
+
+_:genid-da88f466e2614029b7d100d7c0793669-b1014 a <http://www.ajan.de/ajan-ns#Variable>;
+  <http://spinrdf.org/sp#varName> "part";
+  <http://www.ajan.de/ajan-ns#dataType> rdfs:Resource .
+
+_:genid-da88f466e2614029b7d100d7c0793669-b1023 rdf:rest _:genid-da88f466e2614029b7d100d7c0793669-b1024 .
+
+_:genid-da88f466e2614029b7d100d7c0793669-b1024 rdf:first _:genid-da88f466e2614029b7d100d7c0793669-b1010 .
+
+_:genid-da88f466e2614029b7d100d7c0793669-b1010 a <http://www.ajan.de/ajan-ns#Variable>;
+  <http://spinrdf.org/sp#varName> "tool";
+  <http://www.ajan.de/ajan-ns#dataType> rdfs:Resource .
+
+_:genid-da88f466e2614029b7d100d7c0793669-b1024 rdf:rest _:genid-da88f466e2614029b7d100d7c0793669-b1025 .
+
+_:genid-da88f466e2614029b7d100d7c0793669-b1025 rdf:first _:genid-da88f466e2614029b7d100d7c0793669-b1009 .
+
+_:genid-da88f466e2614029b7d100d7c0793669-b1009 a <http://www.ajan.de/ajan-ns#Variable>;
+  <http://spinrdf.org/sp#varName> "operation";
+  <http://www.ajan.de/ajan-ns#dataType> xsd:string .
+
+_:genid-da88f466e2614029b7d100d7c0793669-b1025 rdf:rest _:genid-da88f466e2614029b7d100d7c0793669-b1026 .
+
+_:genid-da88f466e2614029b7d100d7c0793669-b1026 rdf:first _:genid-da88f466e2614029b7d100d7c0793669-b1005 .
+
+_:genid-da88f466e2614029b7d100d7c0793669-b1005 a <http://www.ajan.de/ajan-ns#Variable>;
   <http://spinrdf.org/sp#varName> "position";
   <http://www.ajan.de/ajan-ns#dataType> rdfs:Resource .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b948 rdf:rest rdf:nil .
+_:genid-da88f466e2614029b7d100d7c0793669-b1026 rdf:rest rdf:nil .
 
 <http://localhost:8090/rdf4j/repositories/agents#WalkGoal> a <http://www.ajan.de/ajan-ns#Goal>;
   <http://www.ajan.de/ajan-ns#condition> """
@@ -319,24 +318,34 @@ _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b948 rdf:rest rdf:nil .
 		WHERE {
 			?s ?p ?o .
 		}""";
-  <http://www.ajan.de/ajan-ns#variables> _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b949 .
+  <http://www.ajan.de/ajan-ns#variables> _:genid-da88f466e2614029b7d100d7c0793669-b1027 .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b949 rdf:first _:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b933 .
+_:genid-da88f466e2614029b7d100d7c0793669-b1027 rdf:first _:genid-da88f466e2614029b7d100d7c0793669-b1022 .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b933 a <http://www.ajan.de/ajan-ns#Variable>;
+_:genid-da88f466e2614029b7d100d7c0793669-b1022 a <http://www.ajan.de/ajan-ns#Variable>;
   <http://spinrdf.org/sp#varName> "target";
   <http://www.ajan.de/ajan-ns#dataType> rdfs:Resource .
 
-_:genid-5eaf5c2283714f13ab27e6dd90f0e67b-b949 rdf:rest rdf:nil .
+_:genid-da88f466e2614029b7d100d7c0793669-b1027 rdf:rest rdf:nil .
 
 <http://localhost:8090/rdf4j/repositories/agents#WalkGoal> rdfs:label "Walk Goal" .
 
-<http://localhost:8090/rdf4j/repositories/agents#GO_2b42076e-603d-46ba-9e48-7f1e742fd9bb>
-  a <http://www.ajan.de/ajan-ns#Goal>;
-  <http://www.ajan.de/ajan-ns#condition> "ASK WHERE { ?s ?p ?o }" .
+<http://localhost:8090/rdf4j/repositories/agents#AG_ea4a6417-58e1-4f95-816b-9f0b64a9a2e2>
+  <http://www.ajan.de/ajan-ns#initialBehavior> <http://localhost:8090/rdf4j/repositories/agents#IB_7ec56040-08da-45c6-bddc-9e7a29071234> .
+
+<http://localhost:8090/rdf4j/repositories/agents#IB_7ec56040-08da-45c6-bddc-9e7a29071234>
+  a <http://www.ajan.de/ajan-ns#InitialBehavior>;
+  <http://www.ajan.de/ajan-ns#bt> <http://localhost:8090/rdf4j/repositories/behaviors#BT_87f1dd2f-c0c6-4a3a-ad7e-63cf89bf8d31>;
+  rdfs:label "Initial_GS Behavior" .
+
+<http://localhost:8090/rdf4j/repositories/agents#ExampleAgent> <http://www.ajan.de/ajan-ns#initialBehavior>
+    <http://localhost:8090/rdf4j/repositories/agents#IB_7ec56040-08da-45c6-bddc-9e7a29071234> .
 
 <http://localhost:8090/rdf4j/repositories/agents#BE_213a434f-3858-4e79-b422-80759b7c4432>
   a <http://www.ajan.de/ajan-ns#Behavior>;
   <http://www.ajan.de/ajan-ns#bt> <http://localhost:8090/rdf4j/repositories/behaviors#BT_83935427-49a9-41d6-81f1-6d7a1bd2701a>;
   <http://www.ajan.de/ajan-ns#trigger> <http://localhost:8090/rdf4j/repositories/agents#GO_a0f7a155-8c96-4979-a0a2-ba20f3b70adb>;
   rdfs:label "SideStep Behavior" .
+
+<http://localhost:8090/rdf4j/repositories/agents#ExamplePositionAgent> <http://www.ajan.de/ajan-ns#initialBehavior>
+    <http://localhost:8090/rdf4j/repositories/agents#IB_7ec56040-08da-45c6-bddc-9e7a29071234> .
