@@ -20,10 +20,16 @@ package de.dfki.asr.ajan.pluginsystem.mlplugin.extensions;
 
 import com.badlogic.gdx.ai.btree.Task.Status;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
+import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
+import de.dfki.asr.ajan.pluginsystem.mlplugin.exeptions.MLMappingException;
 import de.dfki.asr.ajan.pluginsystem.mlplugin.test.WeatherNominal;
+import de.dfki.asr.ajan.pluginsystem.mlplugin.utils.TrainingTable;
+import java.net.URISyntaxException;
+import java.util.List;
 import java.util.stream.IntStream;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,10 +37,11 @@ import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Resource;
-import static org.junit.Assert.*;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import ro.fortsoft.pf4j.Extension;
 import smile.classification.NaiveBayes;
 import smile.math.MathEx;
@@ -51,7 +58,6 @@ import smile.validation.LOOCV;
  */
 
 @Extension
-@Component
 @RDFBean("ml:NaiveBayes")
 public class NaiveBayes_Node extends AbstractTDBLeafTask implements NodeExtension {
 	@RDFSubject
@@ -61,6 +67,18 @@ public class NaiveBayes_Node extends AbstractTDBLeafTask implements NodeExtensio
 	@RDF("rdfs:label")
 	@Getter @Setter
 	private String label;
+
+	@RDF("ml:objective")
+	@Setter @Getter
+	private String objective;
+
+	@RDF("ml:trainingTbl")
+	@Setter @Getter
+	private BehaviorSelectQuery trainingTbl;
+
+	@RDF("ml:stateTbl")
+	@Setter @Getter
+	private BehaviorSelectQuery stateTbl;
 
 	protected static final Logger LOG = LoggerFactory.getLogger(NaiveBayes_Node.class);
 
@@ -99,45 +117,63 @@ public class NaiveBayes_Node extends AbstractTDBLeafTask implements NodeExtensio
 	
 	@Override
 	public LeafStatus executeLeaf() {
-		System.out.println("Weather");
+		try {
+			TrainingTable table = getTrainingTable();		
+			int p = table.getData()[0].length;
+			int k = MathEx.max(table.getObjectives()) + 1;
 
-        int p = WeatherNominal.level[0].length;
-        int k = MathEx.max(WeatherNominal.y) + 1;
+			ClassificationMetrics metrics = LOOCV.classification(table.getData(), table.getObjectives(), (x, y) -> {
+				return getModel(k, p, x, y);
+			});
 
-        ClassificationMetrics metrics = LOOCV.classification(WeatherNominal.level, WeatherNominal.y, (x, y) -> {
-            int n = x.length;
-            double[] priori = new double[k];
-            Distribution[][] condprob = new Distribution[k][p];
-            for (int i = 0; i < k; i++) {
-                priori[i] = 1.0 / k;
-                final int c = i;
-                for (int j = 0; j < p; j++) {
-                    final int f = j;
-                    int[] xij = IntStream.range(0, n).filter(l -> y[l] == c).map(l -> (int) x[l][f]).toArray();
-                    int[] xj = IntStream.range(0, n).map(l -> (int) x[l][f]).toArray();
-                    // xij may miss some valid values after filtering. Use xj to capture all the values.
-                    condprob[i][j] = EmpiricalDistribution.fit(xij, IntSet.of(xj));
-                }
-            }
-			NaiveBayes model = new NaiveBayes(priori, condprob);
+			LOG.info("Metrics: " + metrics);
+			
+			NaiveBayes model = getModel(k, p, table.getData(), table.getObjectives());
 			
 			double[] shhf = {0,0,0,0};
 			double[] omht = {1,1,0,0};
-			
+
 			double[] test = {2,1,0,1};
-			
+
 			LOG.info("sunny,hot,high,FALSE -> no: " + model.predict(shhf));
 			LOG.info("overcast,mild,high,TRUE -> yes: " + model.predict(omht));
-			
-			LOG.info("rainy,mild,high,FALSE -> ?: " + model.predict(omht));
-			
-            return model;
-        });
 
-        System.out.println(metrics);
-		
-		String report = toString() + " SUCCEEDED";
-		return new LeafStatus(Status.SUCCEEDED, report);
+			LOG.info("rainy,mild,high,FALSE -> ?: " + model.predict(omht));
+
+			String report = toString() + " SUCCEEDED";
+			return new LeafStatus(Status.SUCCEEDED, report);
+		} catch (Exception ex) {
+			LOG.info(toString() + " FAILED due to problem evaluation error", ex);
+			String report = toString() + " FAILED";
+			return new LeafStatus(Status.FAILED, report);
+		}
+	}
+
+	private TrainingTable getTrainingTable() throws QueryEvaluationException, URISyntaxException, MLMappingException {
+		Repository repo = BTUtil.getInitializedRepository(getObject(), trainingTbl.getOriginBase());
+		List<BindingSet> result = trainingTbl.getResult(repo);
+		if (result.isEmpty()) {
+			throw new MLMappingException("No ?trainingTbl is defined!");
+		}
+
+		return new TrainingTable(result, objective);
+	}
+
+	private NaiveBayes getModel(int k, int p, double[][] x, int[] y) {
+		int n = x.length;
+		double[] priori = new double[k];
+		Distribution[][] condprob = new Distribution[k][p];
+		for (int i = 0; i < k; i++) {
+			priori[i] = 1.0 / k;
+			final int c = i;
+			for (int j = 0; j < p; j++) {
+				final int f = j;
+				int[] xij = IntStream.range(0, n).filter(l -> y[l] == c).map(l -> (int) x[l][f]).toArray();
+				int[] xj = IntStream.range(0, n).map(l -> (int) x[l][f]).toArray();
+				condprob[i][j] = EmpiricalDistribution.fit(xij, IntSet.of(xj));
+			}
+		}
+		return new NaiveBayes(priori, condprob);
 	}
 
 	@Override
