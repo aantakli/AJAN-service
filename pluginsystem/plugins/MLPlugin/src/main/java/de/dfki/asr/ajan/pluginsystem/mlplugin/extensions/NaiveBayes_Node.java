@@ -18,18 +18,21 @@
  */
 package de.dfki.asr.ajan.pluginsystem.mlplugin.extensions;
 
-import com.badlogic.gdx.ai.btree.Task.Status;
-import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
+import com.badlogic.gdx.ai.btree.Task;
+import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
+import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBBranchTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mlplugin.exeptions.MLMappingException;
-import de.dfki.asr.ajan.pluginsystem.mlplugin.test.WeatherNominal;
+import de.dfki.asr.ajan.pluginsystem.mlplugin.exeptions.NaiveBayesException;
 import de.dfki.asr.ajan.pluginsystem.mlplugin.utils.TrainingTable;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,6 +40,7 @@ import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.query.Binding;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
@@ -59,7 +63,7 @@ import smile.validation.LOOCV;
 
 @Extension
 @RDFBean("ml:NaiveBayes")
-public class NaiveBayes_Node extends AbstractTDBLeafTask implements NodeExtension {
+public class NaiveBayes_Node extends AbstractTDBBranchTask implements NodeExtension {
 	@RDFSubject
 	@Getter @Setter
 	private String url;
@@ -80,6 +84,18 @@ public class NaiveBayes_Node extends AbstractTDBLeafTask implements NodeExtensio
 	@Setter @Getter
 	private BehaviorSelectQuery stateTbl;
 
+	@RDF("bt:hasChildren")
+	public List<Task<AgentTaskInformation>> getChildren() {
+		return Arrays.asList(children.items);
+	}
+
+	public void setChildren(final List<Task<AgentTaskInformation>> newChildren) {
+		children.clear();
+		newChildren.forEach((task) -> {
+			children.add(task);
+		});
+	}
+
 	protected static final Logger LOG = LoggerFactory.getLogger(NaiveBayes_Node.class);
 
 	@Override
@@ -87,36 +103,44 @@ public class NaiveBayes_Node extends AbstractTDBLeafTask implements NodeExtensio
 		return vf.createIRI("http://www.ajan.de/behavior/ml-ns#NaiveBayes");
 	}
 
-	/*
-	
-	@relation weather.symbolic
-
-	@attribute outlook {sunny, overcast, rainy}
-	@attribute temperature {hot, mild, cool}
-	@attribute humidity {high, normal}
-	@attribute windy {TRUE, FALSE}
-	@attribute play {yes, no}
-
-	@data
-	sunny,hot,high,FALSE,no
-	sunny,hot,high,TRUE,no
-	overcast,hot,high,FALSE,yes
-	rainy,mild,high,FALSE,yes
-	rainy,cool,normal,FALSE,yes
-	rainy,cool,normal,TRUE,no
-	overcast,cool,normal,TRUE,yes
-	sunny,mild,high,FALSE,no
-	sunny,cool,normal,FALSE,yes
-	rainy,mild,normal,FALSE,yes
-	sunny,mild,normal,TRUE,yes
-	overcast,mild,high,TRUE,yes
-	overcast,hot,normal,FALSE,yes
-	rainy,mild,high,TRUE,no
-	
-	*/
-	
 	@Override
-	public LeafStatus executeLeaf() {
+	public void run () {
+		try {
+			if (runningChild == null) {
+				runChildByIndex();
+			} else {
+				runningChild.run();
+			}
+		} catch (NaiveBayesException ex) {
+			LOG.info(ex.toString());
+			fail();
+		}
+	}
+
+	@Override
+	public void childSuccess (final Task<AgentTaskInformation> runningTask) {
+		super.childSuccess(runningTask);
+		success();
+	}
+
+	@Override
+	public void childFail (final Task<AgentTaskInformation> runningTask) {
+		super.childFail(runningTask);
+		fail();
+	}
+
+	private void runChildByIndex() throws NaiveBayesException {
+		int child = getChildId();
+		if (child < 0 || child > children.size) {
+			LOG.info(toString() + "FAILED");
+			LOG.info("No matching child found!");
+			fail();
+		} else {
+			runChild(child);
+		}
+	}
+
+	public int getChildId() throws NaiveBayesException {
 		try {
 			TrainingTable table = getTrainingTable();		
 			int p = table.getData()[0].length;
@@ -125,27 +149,12 @@ public class NaiveBayes_Node extends AbstractTDBLeafTask implements NodeExtensio
 			ClassificationMetrics metrics = LOOCV.classification(table.getData(), table.getObjectives(), (x, y) -> {
 				return getModel(k, p, x, y);
 			});
-
 			LOG.info("Metrics: " + metrics);
 			
 			NaiveBayes model = getModel(k, p, table.getData(), table.getObjectives());
-			
-			double[] shhf = {0,0,0,0};
-			double[] omht = {1,1,0,0};
-
-			double[] test = {2,1,0,1};
-
-			LOG.info("sunny,hot,high,FALSE -> no: " + model.predict(shhf));
-			LOG.info("overcast,mild,high,TRUE -> yes: " + model.predict(omht));
-
-			LOG.info("rainy,mild,high,FALSE -> ?: " + model.predict(omht));
-
-			String report = toString() + " SUCCEEDED";
-			return new LeafStatus(Status.SUCCEEDED, report);
+			return getState(table, model);
 		} catch (Exception ex) {
-			LOG.info(toString() + " FAILED due to problem evaluation error", ex);
-			String report = toString() + " FAILED";
-			return new LeafStatus(Status.FAILED, report);
+			throw new NaiveBayesException(toString() + " FAILED due to problem evaluation error", ex);
 		}
 	}
 
@@ -176,13 +185,99 @@ public class NaiveBayes_Node extends AbstractTDBLeafTask implements NodeExtensio
 		return new NaiveBayes(priori, condprob);
 	}
 
-	@Override
-	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+	private int getState(final TrainingTable table, final NaiveBayes model) throws URISyntaxException {
+		Map<String,Set<String>> options = table.getOptions();
+		Set<String> map = options.keySet();
+		double[] input = new double[map.size() - 1];
+		
+		Repository repo = BTUtil.getInitializedRepository(getObject(), stateTbl.getOriginBase());
+		List<BindingSet> result = stateTbl.getResult(repo);
+		BindingSet bindings =  result.get(0);
+		
+		Iterator<String> iter = map.iterator();
+		int i = 0;
+		while(iter.hasNext()) {
+			String attr = iter.next();
+			if (!attr.equals(objective)) {
+				Binding value = bindings.getBinding(attr);
+				input[i] = getValue(value, options.get(attr));
+				i++;
+			}
+		}
+		
+		int prediction = model.predict(input);
+		printResult(table, bindings, input, prediction);
+		
+		return prediction;
+	}
+
+	private double getValue(final Binding binding, final Set<String> options) {
+		Iterator<String> iter = options.iterator();
+		double i = 0;
+		while(iter.hasNext()) {
+			String value = iter.next();
+			if (value.equals(binding.getValue().stringValue()))
+				return i;
+			else i++;
+		}
+		return i;
+	}
+
+	private void printResult(final TrainingTable table, final BindingSet bindings, final double[] input, final int prediction) {
+		Map<String,Set<String>> options = table.getOptions();
+		StringBuilder builder = new StringBuilder();
+		StringBuilder inputStr = new StringBuilder();
+
+		setAttributesLog(builder, inputStr, bindings, options);
+		setInputLog(builder, inputStr);
+		setSateLog(builder, input);
+		setObecjtivesLog(builder, options.get(objective));
+		setPredictionLog(builder, prediction);
+		LOG.info(builder.toString());
+	}
+
+	private void setAttributesLog(final StringBuilder builder, final StringBuilder inputStr, final BindingSet bindings, final Map<String,Set<String>> options) {
+		builder.append("\r Attributes: ");
+		Set<String> attrs = options.keySet();
+		Iterator<String> atIter = attrs.iterator();
+		while(atIter.hasNext()) {
+			String attr = atIter.next();
+			if(!attr.equals(objective)) {
+				builder.append(attr + " ");
+				inputStr.append(bindings.getBinding(attr).getValue().stringValue() + " ");
+			}
+		}
+	}
+	
+	private void setInputLog(final StringBuilder builder, final StringBuilder inputStr) {
+		builder.append("\r Input: ");
+		builder.append(inputStr.toString());
+	}
+
+	private void setSateLog(final StringBuilder builder, final double[] input) {
+		builder.append("\r State: ");
+		for(int i=0; i < input.length; i++) {
+			builder.append(input[i]);
+			builder.append(" ");
+		}
+	}
+
+	private void setObecjtivesLog(final StringBuilder builder, final Set<String> objectives) {
+		Iterator<String> obIter = objectives.iterator();
+		int i = 0;
+		builder.append("\r Objectives: ");
+		while(obIter.hasNext()) {
+			builder.append(obIter.next() + " -> " + i + " ");
+			i++;
+		}
+	}
+	
+	private void setPredictionLog(final StringBuilder builder, final int prediction) {
+		builder.append("\r Predicition: " + prediction);
 	}
 
 	@Override
-	public EvaluationResult.Result simulateNodeLogic(EvaluationResult result, Resource root) {
-		return EvaluationResult.Result.UNCLEAR;
+	public void end() {
+		LOG.info("Status (" + getStatus() + ")");
 	}
 }

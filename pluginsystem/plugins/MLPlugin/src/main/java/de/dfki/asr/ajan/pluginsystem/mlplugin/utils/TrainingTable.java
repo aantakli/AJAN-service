@@ -57,6 +57,10 @@ public class TrainingTable {
 		setOptions(input);
 	}
 
+	public Map<String,Set<String>> getOptions() {
+		return options;
+	}
+
 	private void setOptions(final List<BindingSet> input) {
 		Iterator<String> nameItr = bindingNames.iterator();
 		
@@ -68,12 +72,13 @@ public class TrainingTable {
 		Iterator<BindingSet> sets = input.iterator();
 		while (sets.hasNext()) {
 			BindingSet set = sets.next();
-			Iterator<Binding> bindItr = set.iterator();
+			Iterator<String> iter = options.keySet().iterator();
 			int j = 0;
-			while(bindItr.hasNext()) {
-				Binding binding = bindItr.next();
+			while(iter.hasNext()) {
+				String attr = iter.next();
+				Binding binding = set.getBinding(attr);
+				Set<String> values = options.get(attr);
 				String value = binding.getValue().stringValue();
-				Set<String> values = options.get(binding.getName());
 				values.add(value);
 				List<String> stringsList = new ArrayList<>(values);
 				
@@ -89,8 +94,8 @@ public class TrainingTable {
 							data[i][j] = k;
 						}
 					}
+					j++;
 				}
-				j++;
 			}
 			i++;
 		}
