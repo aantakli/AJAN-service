@@ -111,7 +111,7 @@ public class NaiveBayes_Node extends AbstractTDBBranchTask implements NodeExtens
 			} else {
 				runningChild.run();
 			}
-		} catch (NaiveBayesException ex) {
+		} catch (NaiveBayesException | MLMappingException| URISyntaxException | QueryEvaluationException ex) {
 			LOG.info(ex.toString());
 			fail();
 		}
@@ -129,7 +129,7 @@ public class NaiveBayes_Node extends AbstractTDBBranchTask implements NodeExtens
 		fail();
 	}
 
-	private void runChildByIndex() throws NaiveBayesException {
+	private void runChildByIndex() throws NaiveBayesException, URISyntaxException, QueryEvaluationException, MLMappingException {
 		int child = getChildId();
 		if (child < 0 || child > children.size) {
 			LOG.info(toString() + "FAILED");
@@ -140,25 +140,21 @@ public class NaiveBayes_Node extends AbstractTDBBranchTask implements NodeExtens
 		}
 	}
 
-	public int getChildId() throws NaiveBayesException {
-		try {
-			TrainingTable table = getTrainingTable();		
-			int p = table.getData()[0].length;
-			int k = MathEx.max(table.getObjectives()) + 1;
+	public int getChildId() throws NaiveBayesException, URISyntaxException, QueryEvaluationException, MLMappingException {
+		TrainingTable table = getTrainingTable();		
+		int p = table.getData()[0].length;
+		int k = MathEx.max(table.getObjectives()) + 1;
 
-			ClassificationMetrics metrics = LOOCV.classification(table.getData(), table.getObjectives(), (x, y) -> {
-				return getModel(k, p, x, y);
-			});
-			LOG.info("Metrics: " + metrics);
-			
-			NaiveBayes model = getModel(k, p, table.getData(), table.getObjectives());
-			return getState(table, model);
-		} catch (Exception ex) {
-			throw new NaiveBayesException(toString() + " FAILED due to problem evaluation error", ex);
-		}
+		ClassificationMetrics metrics = LOOCV.classification(table.getData(), table.getObjectives(), (x, y) -> {
+			return getModel(k, p, x, y);
+		});
+		LOG.info("Metrics: " + metrics);
+
+		NaiveBayes model = getModel(k, p, table.getData(), table.getObjectives());
+		return getState(table, model);
 	}
 
-	private TrainingTable getTrainingTable() throws QueryEvaluationException, URISyntaxException, MLMappingException {
+	private TrainingTable getTrainingTable() throws QueryEvaluationException, URISyntaxException, MLMappingException, NaiveBayesException {
 		Repository repo = BTUtil.getInitializedRepository(getObject(), trainingTbl.getOriginBase());
 		List<BindingSet> result = trainingTbl.getResult(repo);
 		if (result.isEmpty()) {

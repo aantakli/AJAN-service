@@ -18,21 +18,26 @@
  */
 package de.dfki.asr.ajan.pluginsystem.mlplugin.extensions;
 
-import com.badlogic.gdx.ai.btree.Task.Status;
-import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
+import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
-import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
+import de.dfki.asr.ajan.pluginsystem.mlplugin.exeptions.MLMappingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import ro.fortsoft.pf4j.Extension;
+import smile.clustering.XMeans;
 
 /**
  *
@@ -41,8 +46,8 @@ import ro.fortsoft.pf4j.Extension;
  */
 
 @Extension
-@RDFBean("ml:MDP_VI")
-public class MDP_VI_Node extends AbstractTDBLeafTask implements NodeExtension {
+@RDFBean("ml:XMeans")
+public class XMeans_Node extends KMeans_Node {
 	@RDFSubject
 	@Getter @Setter
 	private String url;
@@ -51,17 +56,32 @@ public class MDP_VI_Node extends AbstractTDBLeafTask implements NodeExtension {
 	@Getter @Setter
 	private String label;
 
-	protected static final Logger LOG = LoggerFactory.getLogger(MDP_VI_Node.class);
+	@RDF("ml:maxIterations")
+	@Setter @Getter
+	private int maxIterations;
+
+	@RDF("bt:targetBase")
+	@Getter @Setter
+	private URI targetBase;
+
+	@RDF("ml:inputTbl")
+	@Setter @Getter
+	private BehaviorSelectQuery inputTbl;
+
+	protected static final Logger LOG = LoggerFactory.getLogger(XMeans_Node.class);
 	
 	@Override
 	public Resource getType() {
-		return vf.createIRI("http://www.ajan.de/behavior/ml-ns#MDP_VI");
+		return vf.createIRI("http://www.ajan.de/behavior/ml-ns#XMeans");
 	}
-	
+
 	@Override
-	public LeafStatus executeLeaf() {
-		String report = toString() + " SUCCEEDED";
-		return new LeafStatus(Status.SUCCEEDED, report);
+	protected void getClusters() throws IllegalArgumentException, URISyntaxException, MLMappingException, ConditionEvaluationException {
+		double[][] x = getInputTable(this.getInputTbl());
+		XMeans result = XMeans.fit(x, maxIterations);
+		System.out.println("XMeans: \r");
+        System.out.println(result);
+		saveClusters(result.y);
 	}
 
 	@Override

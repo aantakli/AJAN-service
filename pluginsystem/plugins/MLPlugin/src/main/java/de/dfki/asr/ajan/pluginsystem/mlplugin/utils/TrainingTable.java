@@ -18,6 +18,7 @@
  */
 package de.dfki.asr.ajan.pluginsystem.mlplugin.utils;
 
+import de.dfki.asr.ajan.pluginsystem.mlplugin.exeptions.NaiveBayesException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,7 +46,7 @@ public class TrainingTable {
 	private final Set<String> bindingNames;
 	private final Map<String,Set<String>> options = new HashMap();
 
-	public TrainingTable (final List<BindingSet> input, final String objective) {
+	public TrainingTable (final List<BindingSet> input, final String objective) throws NaiveBayesException {
 		bindingNames = input.get(0).getBindingNames();
 		objectives = new int[input.size()];
 		data = new double[input.size()][bindingNames.size() - 1];
@@ -53,7 +54,7 @@ public class TrainingTable {
 		readInput(input);
 	}
 
-	private void readInput(List<BindingSet> input) {
+	private void readInput(List<BindingSet> input) throws NaiveBayesException {
 		setOptions(input);
 	}
 
@@ -61,7 +62,7 @@ public class TrainingTable {
 		return options;
 	}
 
-	private void setOptions(final List<BindingSet> input) {
+	private void setOptions(final List<BindingSet> input) throws NaiveBayesException {
 		Iterator<String> nameItr = bindingNames.iterator();
 		
 		while(nameItr.hasNext()) {
@@ -84,6 +85,10 @@ public class TrainingTable {
 				
 				if (binding.getName().equals(objective)) {
 					for (int k = 0; k < values.size(); k++) {
+						if (!value.matches("-?\\d+")) {
+							throw new NaiveBayesException("Objective value MUST be of type integer");
+						}
+							
 						if(stringsList.get(k).equals(value)) {
 							objectives[i] = k;
 						}
