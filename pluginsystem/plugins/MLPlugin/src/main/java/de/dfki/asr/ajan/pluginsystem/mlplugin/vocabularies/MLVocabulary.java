@@ -27,6 +27,14 @@ public class MLVocabulary {
 
 	private static final ValueFactory FACTORY = SimpleValueFactory.getInstance();
 	public final static IRI CLUSTER = FACTORY.createIRI("http://www.ajan.de/behavior/ml-ns#Cluster");
+	public final static IRI ITEMSET = FACTORY.createIRI("http://www.ajan.de/behavior/ml-ns#Itemset");
+	public final static IRI ASSOCIATION_RULE = FACTORY.createIRI("http://www.ajan.de/behavior/ml-ns#AssociationRule");
 
-	public final static IRI HAS_CONTAINS = FACTORY.createIRI("http://www.ajan.de/behavior/ml-ns#contains");
+	public final static IRI HAS_MEMBER = FACTORY.createIRI("http://www.ajan.de/behavior/ml-ns#member");
+	public final static IRI HAS_ITEM = FACTORY.createIRI("http://www.ajan.de/behavior/ml-ns#item");
+	public final static IRI HAS_CONFIDENCE = FACTORY.createIRI("http://www.ajan.de/behavior/ml-ns#confidence");
+	public final static IRI HAS_SUPPORT = FACTORY.createIRI("http://www.ajan.de/behavior/ml-ns#support");
+	public final static IRI HAS_LIFT = FACTORY.createIRI("http://www.ajan.de/behavior/ml-ns#lift");
+	public final static IRI HAS_ANTECENDENT = FACTORY.createIRI("http://www.ajan.de/behavior/ml-ns#antecendent");
+	public final static IRI HAS_CONSEQUENT = FACTORY.createIRI("http://www.ajan.de/behavior/ml-ns#consequent");
 }

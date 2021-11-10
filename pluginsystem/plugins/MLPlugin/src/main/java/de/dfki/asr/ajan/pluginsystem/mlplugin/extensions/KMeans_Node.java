@@ -25,26 +25,21 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
-import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mlplugin.exeptions.MLMappingException;
 import de.dfki.asr.ajan.pluginsystem.mlplugin.utils.MLUtil;
 import de.dfki.asr.ajan.pluginsystem.mlplugin.vocabularies.MLVocabulary;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
-import org.eclipse.rdf4j.IsolationLevels;
-import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
@@ -53,16 +48,11 @@ import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.Binding;
 import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.Extension;
-import smile.clustering.GMeans;
 import smile.clustering.KMeans;
-import smile.clustering.XMeans;
 
 /**
  *
@@ -82,7 +72,7 @@ public class KMeans_Node extends AbstractTDBLeafTask implements NodeExtension {
 	private String label;
 
 	@RDF("ml:clusters")
-	@Setter @Getter
+	@Setter
 	private int clusters;
 
 	@RDF("bt:targetBase")
@@ -172,7 +162,7 @@ public class KMeans_Node extends AbstractTDBLeafTask implements NodeExtension {
 		for (int i = 0; i < y.length; i++) {
 			IRI cluster = VF.createIRI("http://www.ajan.de/behavior/ml-ns#Cluster" + y[i]);
 			model.add(cluster, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MLVocabulary.CLUSTER);
-			model.add(cluster, MLVocabulary.HAS_CONTAINS, VF.createIRI(resourceMap.get(i)));
+			model.add(cluster, MLVocabulary.HAS_MEMBER, VF.createIRI(resourceMap.get(i)));
 		}
 		MLUtil.performWrite(this.getObject(), this.getTargetBase(), model);
 	}

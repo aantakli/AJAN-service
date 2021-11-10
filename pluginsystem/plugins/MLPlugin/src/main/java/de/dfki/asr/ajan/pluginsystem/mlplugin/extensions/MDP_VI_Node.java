@@ -18,6 +18,19 @@
  */
 package de.dfki.asr.ajan.pluginsystem.mlplugin.extensions;
 
+import burlap.behavior.policy.Policy;
+import burlap.behavior.policy.PolicyUtils;
+import burlap.behavior.singleagent.Episode;
+import burlap.behavior.singleagent.planning.Planner;
+import burlap.behavior.singleagent.planning.stochastic.valueiteration.ValueIteration;
+import burlap.domain.singleagent.gridworld.GridWorldDomain;
+import burlap.domain.singleagent.gridworld.state.GridAgent;
+import burlap.domain.singleagent.gridworld.state.GridLocation;
+import burlap.domain.singleagent.gridworld.state.GridWorldState;
+import burlap.mdp.core.action.Action;
+import burlap.mdp.core.state.State;
+import burlap.mdp.singleagent.oo.OOSADomain;
+import burlap.statehashing.simple.SimpleHashableStateFactory;
 import com.badlogic.gdx.ai.btree.Task.Status;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
@@ -31,7 +44,6 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import ro.fortsoft.pf4j.Extension;
 
 /**
@@ -60,8 +72,24 @@ public class MDP_VI_Node extends AbstractTDBLeafTask implements NodeExtension {
 	
 	@Override
 	public LeafStatus executeLeaf() {
+		valueIterationExample();
 		String report = toString() + " SUCCEEDED";
 		return new LeafStatus(Status.SUCCEEDED, report);
+	}
+
+	private void valueIterationExample(){
+		GridWorldDomain gw = new GridWorldDomain(11,11);
+		gw.setMapToFourRooms();
+		gw.setProbSucceedTransitionDynamics(1.0);
+		OOSADomain domain = gw.generateDomain();
+		
+		State initialState = new GridWorldState(new GridAgent(0, 0), new GridLocation(10, 10, "location0"));
+		
+		SimpleHashableStateFactory hashingFactory = new SimpleHashableStateFactory();
+		
+		Planner planner = new ValueIteration(domain, 0.99, hashingFactory, 0.001, 100);
+		Policy p = planner.planFromState(initialState);
+		Action a = p.action(initialState);
 	}
 
 	@Override

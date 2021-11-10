@@ -77,6 +77,13 @@
         </dependency>
 
         <dependency>
+            <groupId>ml.dmlc</groupId>
+            <artifactId>xgboost-jvm_2.12</artifactId>
+            <version>1.5.0</version>
+            <type>pom</type>
+        </dependency>
+
+        <dependency>
             <groupId>com.github.haifengl</groupId>
             <artifactId>smile-core</artifactId>
             <version>2.6.0</version>
