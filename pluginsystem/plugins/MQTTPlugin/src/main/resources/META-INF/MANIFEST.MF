@@ -4,6 +4,6 @@ Created-By: Apache Maven
 Built-By: Bhuvaneshwaran Ilanthirayan
 Build-Jdk: 1.8.0_91
 Plugin-Class: de.dfki.asr.ajan.pluginsystem.mqttplugin.MQTTPlugin
-Plugin-Id: MOSIMPlugin
+Plugin-Id: MQTTPlugin
 Plugin-Provider: Bhuvaneshwaran Ilanthirayan
 Plugin-Version: 0.0.1

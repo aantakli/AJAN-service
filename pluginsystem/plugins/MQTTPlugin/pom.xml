@@ -22,12 +22,12 @@ MA 02110-1301  USA
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>plugins</artifactId>
         <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
+        <artifactId>plugins</artifactId>
         <version>0.1</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>MQTTPlugin</artifactId>
     <name>MQTTPlugin</name>
@@ -75,11 +75,19 @@ MA 02110-1301  USA
             <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
             <version>1.2.5</version>
         </dependency>
+        <dependency>
+            <groupId>io.moquette</groupId>
+            <artifactId>moquette-broker</artifactId>
+            <version>0.15</version>
+<!--            <scope>test</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>de.dfki.asr.ajan</groupId>
+            <artifactId>executionservice</artifactId>
+            <version>0.1</version>
+            <type>jar</type>
+        </dependency>
+
     </dependencies>
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-        <netbeans.hint.license>licenseheader</netbeans.hint.license>
-    </properties>
 
 </project>
