@@ -19,16 +19,20 @@
 package de.dfki.asr.ajan.pluginsystem.mlplugin.extensions;
 
 import burlap.behavior.policy.Policy;
-import burlap.behavior.policy.PolicyUtils;
-import burlap.behavior.singleagent.Episode;
 import burlap.behavior.singleagent.planning.Planner;
 import burlap.behavior.singleagent.planning.stochastic.valueiteration.ValueIteration;
-import burlap.domain.singleagent.gridworld.GridWorldDomain;
 import burlap.domain.singleagent.gridworld.state.GridAgent;
 import burlap.domain.singleagent.gridworld.state.GridLocation;
 import burlap.domain.singleagent.gridworld.state.GridWorldState;
+import burlap.mdp.auxiliary.common.NullTermination;
 import burlap.mdp.core.action.Action;
+import burlap.mdp.core.action.UniversalActionType;
+import burlap.mdp.core.oo.OODomain;
+import burlap.mdp.core.oo.propositional.PropositionalFunction;
 import burlap.mdp.core.state.State;
+import burlap.mdp.singleagent.common.UniformCostRF;
+import burlap.mdp.singleagent.model.FactoredModel;
+import burlap.mdp.singleagent.model.statemodel.FullStateModel;
 import burlap.mdp.singleagent.oo.OOSADomain;
 import burlap.statehashing.simple.SimpleHashableStateFactory;
 import com.badlogic.gdx.ai.btree.Task.Status;
@@ -36,6 +40,15 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
+import de.dfki.asr.ajan.pluginsystem.mlplugin.test.GridWorldDomain;
+import de.dfki.asr.ajan.pluginsystem.mlplugin.utils.AJANStateModel;
+import de.dfki.asr.ajan.pluginsystem.mlplugin.utils.AJANPropositionalFunction;
+import de.dfki.asr.ajan.pluginsystem.mlplugin.utils.AgentInstance;
+import de.dfki.asr.ajan.pluginsystem.mlplugin.utils.OOInstance;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -83,6 +96,9 @@ public class MDP_VI_Node extends AbstractTDBLeafTask implements NodeExtension {
 		gw.setProbSucceedTransitionDynamics(1.0);
 		OOSADomain domain = gw.generateDomain();
 		
+		AgentInstance agent = createAgent();
+		OOInstance instance = createInstance();
+
 		State initialState = new GridWorldState(new GridAgent(0, 0), new GridLocation(10, 10, "location0"));
 		
 		SimpleHashableStateFactory hashingFactory = new SimpleHashableStateFactory();
@@ -90,6 +106,57 @@ public class MDP_VI_Node extends AbstractTDBLeafTask implements NodeExtension {
 		Planner planner = new ValueIteration(domain, 0.99, hashingFactory, 0.001, 100);
 		Policy p = planner.planFromState(initialState);
 		Action a = p.action(initialState);
+	}
+
+	private OOSADomain createDomain() {
+		OOSADomain domain = new OOSADomain();
+		int[][] cmap = {
+			{0, 0, 0},
+			{0, 0, 0},
+			{0, 0, 0}
+		};
+
+		Map<String,double[][]> actions = new HashMap<>();
+		
+		actions.put("ACTION_WAIT", new double[][]{{0.1, 0.9, 0.},{0.1, 0., 0.9},{0.1, 0., 0.9}});
+		actions.put("ACTION_CUT", new double[][]{{1., 0., 0.},{1., 0., 0.},{1., 0., 0.}});
+
+		domain.addStateClass("AGENT_CLASS", AgentInstance.class)
+				.addStateClass("INSTANCE_CLASS", OOInstance.class);
+		
+		FullStateModel smodel = new AJANStateModel(cmap, actions);
+	
+		FactoredModel model = new FactoredModel(smodel, new UniformCostRF(), new NullTermination());
+		domain.setModel(model);
+		
+		domain.addActionTypes(
+				new UniversalActionType("ACTION_WAIT"),
+				new UniversalActionType("ACTION_CUT"));
+		
+		OODomain.Helper.addPfsToDomain(domain, this.generatePfs());
+		return domain;
+	}
+
+	private AgentInstance createAgent() {
+		HashMap<String,Object> variabels = new HashMap();
+		variabels.put("VAR_X", 0);
+		variabels.put("VAR_Y", 0);
+		return new AgentInstance(variabels);
+	}
+
+	private OOInstance createInstance() {
+		HashMap<String,Object> variabels = new HashMap();
+		variabels.put("VAR_X", 0);
+		variabels.put("VAR_Y", 1);
+		return new OOInstance("location1", "CLASS_LOCATION", variabels);
+	}
+
+	public List<PropositionalFunction> generatePfs(){
+		List<PropositionalFunction> pfs = Arrays.asList(
+				new AJANPropositionalFunction("atLocation", new String[]{"CLASS_AGENT", "CLASS_LOCATION"})
+		);
+
+		return pfs;
 	}
 
 	@Override

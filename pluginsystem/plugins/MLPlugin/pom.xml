@@ -78,15 +78,20 @@
 
         <dependency>
             <groupId>ml.dmlc</groupId>
-            <artifactId>xgboost-jvm_2.12</artifactId>
+            <artifactId>xgboost4j_2.12</artifactId>
             <version>1.5.0</version>
-            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.esotericsoftware.kryo</groupId>
+            <artifactId>kryo</artifactId>
+            <version>2.16</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.haifengl</groupId>
             <artifactId>smile-core</artifactId>
             <version>2.6.0</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>com.github.haifengl</groupId>
@@ -110,6 +115,12 @@
             <groupId>com.github.haifengl</groupId>
             <artifactId>smile-math</artifactId>
             <version>2.6.0</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.8</version>
             <type>jar</type>
         </dependency>
     </dependencies>

@@ -164,24 +164,21 @@ public class ARM_Node extends AbstractTDBLeafTask implements NodeExtension {
 
 	private int[][] transformMap(final List<Set<String>> list, final Set<String> itemRegister) {
 		List<List<Integer>> sets = new ArrayList();
-		Iterator<Set<String>> iter = list.iterator();
-		while(iter.hasNext()) {
+		list.stream().map((entryset) -> {
 			List<Integer> entries = new ArrayList();
-			Set<String> entryset = iter.next();
-			Iterator<String> regIter = itemRegister.iterator();
 			int i = 1;
-			while(regIter.hasNext()) {
-				Iterator<String> entriesIter = entryset.iterator();
-				String registerItem = regIter.next();
-				while(entriesIter.hasNext()) {
-					if(registerItem.equals(entriesIter.next())) {
+			for (String registerItem : itemRegister) {
+				for (String value : entryset) {
+					if(registerItem.equals(value)) {
 						entries.add(i);
 					}
 				}
 				i++;
 			}
+			return entries;
+		}).forEachOrdered((entries) -> {
 			sets.add(entries);
-		}
+		});
 		return sets.stream().map(u -> u.stream().mapToInt(i->i).toArray()).toArray(int[][]::new);
 	}
 
