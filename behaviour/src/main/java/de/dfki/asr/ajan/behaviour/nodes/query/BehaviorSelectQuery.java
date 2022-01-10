@@ -42,6 +42,8 @@ import org.eclipse.rdf4j.query.resultio.QueryResultIO;
 import org.eclipse.rdf4j.query.resultio.TupleQueryResultFormat;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RDFBean("bt:SelectQuery")
 @Data
@@ -52,6 +54,7 @@ public class BehaviorSelectQuery implements BehaviorQuery {
 	private String sparql;
 	private List<BindingSet> bindings;
 
+	protected static final Logger LOG = LoggerFactory.getLogger(BehaviorSelectQuery.class);
 	private final ValueFactory vf = SimpleValueFactory.getInstance();
 	private Boolean reset = false;
 
@@ -62,8 +65,8 @@ public class BehaviorSelectQuery implements BehaviorQuery {
 			TupleQuery query = conn.prepareTupleQuery(getSparql());
 			TupleQueryResult result = query.evaluate();
 			bindings = new ArrayList();
-			while (result.hasNext()) {
-				bindings.add(result.next());
+			for (BindingSet set : result) {
+				bindings.add(set);
 			}
 			return bindings;
 		}
@@ -74,7 +77,7 @@ public class BehaviorSelectQuery implements BehaviorQuery {
 			TupleQuery query = conn.prepareTupleQuery(getSparql());
 			TupleQueryResult result = query.evaluate();
 			ByteArrayOutputStream output = new ByteArrayOutputStream();
-			QueryResultIO.writeTuple(result, TupleQueryResultFormat.SPARQL, output);
+			QueryResultIO.writeTuple(result, format, output);
 			return new String(output.toByteArray(), StandardCharsets.UTF_8);
 		}
 	}

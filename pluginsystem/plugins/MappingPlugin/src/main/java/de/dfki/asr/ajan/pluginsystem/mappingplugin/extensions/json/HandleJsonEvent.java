@@ -33,6 +33,7 @@ import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.*;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.utils.MappingUtil;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -94,14 +95,14 @@ public class HandleJsonEvent extends AbstractTDBLeafTask implements NodeExtensio
 						LOG.info(report);
 						return new LeafStatus(Status.FAILED, report);
                     }
-            } catch (JSONMappingException ex) {
+            } catch (JSONMappingException | IOException ex) {
                     LOG.debug(toString() + ex);
                     LOG.info(toString() + " FAILED due to mapping errors");
                     return  new LeafStatus(Status.FAILED, toString() + " FAILED due to mapping errors");
             }
     }
 
-    protected boolean handleEvent() throws JSONMappingException {
+    protected boolean handleEvent() throws JSONMappingException, IOException {
             boolean result = false;
             try {
                     Model model = getModel();

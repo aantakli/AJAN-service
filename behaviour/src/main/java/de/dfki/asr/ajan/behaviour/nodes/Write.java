@@ -55,6 +55,10 @@ public class Write extends AbstractTDBLeafTask {
 	@Getter @Setter
 	private String label;
 
+	@RDF("bt:useW3C")
+	@Getter @Setter
+	private boolean useW3C;
+
 	@RDF("bt:query")
 	@Getter @Setter
 	private BehaviorConstructQuery query;

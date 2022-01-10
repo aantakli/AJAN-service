@@ -143,12 +143,12 @@ MA 02110-1301  USA
             <version>2.9.4</version>
             <type>jar</type>
         </dependency>
-		<dependency>
-			<groupId>net.minidev</groupId>
-			<artifactId>json-smart</artifactId>
-			<version>2.3</version>
-		</dependency>
-		<dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>2.3</version>
+        </dependency>
+        <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>asm</artifactId>
             <version>1.0.2</version>
