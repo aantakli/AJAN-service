@@ -29,6 +29,7 @@ nbactions.xml
 /pluginsystem/plugins/ThriftPlugin/target/
 /pluginsystem/endpoints/target/
 /pluginsystem/plugins/MOSIMPlugin/target/
+/pluginsystem/plugins/MQTTPlugin/target/
 /pluginsystem/target/
 /pluginsystem/plugins/target/
 /target/
