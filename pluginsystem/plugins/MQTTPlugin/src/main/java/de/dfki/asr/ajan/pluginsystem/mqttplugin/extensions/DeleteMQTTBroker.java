@@ -8,11 +8,6 @@ import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mqttplugin.endpoint.MQTTPluginServer;
 import de.dfki.asr.ajan.pluginsystem.mqttplugin.utils.MessageService;
-import io.moquette.broker.Server;
-import io.moquette.broker.config.ClasspathResourceLoader;
-import io.moquette.broker.config.IConfig;
-import io.moquette.broker.config.IResourceLoader;
-import io.moquette.broker.config.ResourceLoaderConfig;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -25,14 +20,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ro.fortsoft.pf4j.Extension;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 @Extension
 @Component
-@RDFBean("bt-mqtt:CreateMQTTBroker")
-public class CreateMQTTBroker extends AbstractTDBLeafTask implements NodeExtension {
+@RDFBean("bt-mqtt:DeleteMQTTBroker")
+public class DeleteMQTTBroker extends AbstractTDBLeafTask implements NodeExtension {
+
     @RDFSubject
     @Getter @Setter
     private String url;
@@ -41,48 +33,33 @@ public class CreateMQTTBroker extends AbstractTDBLeafTask implements NodeExtensi
     @Getter @Setter
     private String label;
 
-//    @RDF("bt-mqtt:callback")
-//    @Getter @Setter
-//    private BehaviorSelectQuery callback;
-//    private int clPort;
-
-    protected static final Logger LOG = LoggerFactory.getLogger(CreateMQTTBroker.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(DeleteMQTTBroker.class);
 
     @Override
     public Resource getType() {
-        return vf.createIRI("http://www.ajan.de/behavior/mqtt-ns#CreateMQTTBroker");
+        return vf.createIRI("http://www.ajan.de/behavior/mqtt-ns#DeleteMQTTBroker");
     }
 
     @Override
     public LeafStatus executeLeaf() {
-        String report = toString();
-        try {
-            LOG.info("Starting the MQTT Server");
-            startBroker();
-        } catch (Exception e){
-            report += "FAILED";
-            LOG.info(report);
-            return new LeafStatus(Status.FAILED, report);
-        }
-//        System.out.println("Port"+clPort);
-        report += "SUCCEEDED";
+        stopBroker();
+        String report = toString() + "SUCCEEDED";
         LOG.info(report);
         return new LeafStatus(Status.SUCCEEDED, report);
     }
 
-    private void startBroker() throws URISyntaxException {
-        MQTTPluginServer.initServer();
-        MQTTPluginServer.testConnection();
+    private void stopBroker() {
+        MQTTPluginServer.destroyServer();
     }
 
     @Override
     public void end() {
-    LOG.info("Status ("+ getStatus() + ")");
+        LOG.info("Status ("+ getStatus() + ")");
     }
 
     @Override
     public String toString() {
-        return "CreateMQTTBroker (" + getLabel() + ")";
+        return "DeleteMQTTBroker (" + getLabel() + ")";
     }
 
     @Override

@@ -24,16 +24,45 @@ public final class MQTTUtil {
     }
 
     public static Map<String,String> getHostInfos(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
+        return getStringStringMap(query, info, "host", "port");
+    }
+
+    private static Map<String, String> getStringStringMap(BehaviorSelectQuery query, AgentTaskInformation info, String hostString, String port) throws URISyntaxException {
         Map<String,String> host = new HashMap();
         if (query != null) {
             Repository repo = BTUtil.getInitializedRepository(info, query.getOriginBase());
             List<BindingSet> result = query.getResult(repo);
             if (!result.isEmpty()) {
                 BindingSet bindings = result.get(0);
-                host.put(bindings.getValue("host").stringValue(), bindings.getValue("port").stringValue());
+                host.put(bindings.getValue(hostString).stringValue(), bindings.getValue(port).stringValue());
             }
         }
         return host;
+    }
+
+    public static  Map<String, String> getPublishInfo(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
+        return getStringStringMap(query, info, "topic", "message");
+    }
+
+    public  static String getServerUrlInfo(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
+        return getStringMap(query, info, "serverUrl");
+    }
+    public  static String getTopic(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
+        return getStringMap(query, info, "topic");
+    }
+
+
+
+    public static String getStringMap(BehaviorSelectQuery query, AgentTaskInformation info, String stringNameToFetch) throws URISyntaxException {
+        if(query != null){
+            Repository repo = BTUtil.getInitializedRepository(info, query.getOriginBase());
+            List<BindingSet> result = query.getResult(repo);
+            if(!result.isEmpty()){
+                BindingSet bindings = result.get(0);
+                return bindings.getValue(stringNameToFetch).stringValue();
+            }
+        }
+        return null;
     }
 
 }

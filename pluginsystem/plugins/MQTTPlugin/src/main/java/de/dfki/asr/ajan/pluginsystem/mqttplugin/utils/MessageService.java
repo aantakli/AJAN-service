@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 import java.util.UUID;
 
 public class MessageService {
-    private static MemoryPersistence persistence = new MemoryPersistence();
+    private static final MemoryPersistence persistence = new MemoryPersistence();
     private static IMqttAsyncClient _mqttClient;
-    private static Integer client_qos = 2;
+    private static final Integer client_qos = 2;
     private static MessageService messageServiceInstance;
     String clientId = UUID.randomUUID().toString();
 
@@ -21,7 +21,7 @@ public class MessageService {
             IMqttAsyncClient client = new MqttAsyncClient(broker, clientId, persistence);
             MqttConnectOptions options = getOptions();
 
-            client.connect().waitForCompletion();
+            client.connect(options).waitForCompletion();
             _mqttClient = client;
             LOG.info("Client Connected Successfully");
         } catch (MqttException e) {
@@ -30,6 +30,7 @@ public class MessageService {
     }
 
     public static MessageService getMessageService(String broker) {
+
         if(messageServiceInstance == null){
             messageServiceInstance = new MessageService(broker);
         } else if (!_mqttClient.getServerURI().equals(broker)){
@@ -39,15 +40,23 @@ public class MessageService {
                 LOG.error("Error while disconnecting existing client:"+e.getMessage());
             }
             messageServiceInstance = new MessageService(broker);
+        } else if(!_mqttClient.isConnected()){
+            try {
+                _mqttClient.connect(getOptions()).waitForCompletion();
+            } catch (MqttException e) {
+                LOG.error("Error while reconnecting"+e.getMessage());
+            }
         }
+
         return messageServiceInstance;
     }
 
-    private MqttConnectOptions getOptions() {
+    private static MqttConnectOptions getOptions() {
         MqttConnectOptions _options = new MqttConnectOptions();
         _options.setCleanSession(true);
         _options.setAutomaticReconnect(true);
         _options.setConnectionTimeout(10);
+
         return _options;
     }
 
@@ -58,13 +67,10 @@ public class MessageService {
     public String subscribe(String topic){
         final String[] message = new String[1];
         try{
-            _mqttClient.subscribe(topic, client_qos, new IMqttMessageListener() {
-                @Override
-                public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
-                    message[0] = new String(mqttMessage.getPayload());
-                    LOG.info(message[0]);
-                    _mqttClient.unsubscribe(topic).waitForCompletion();
-                }
+            _mqttClient.subscribe(topic, client_qos, (s, mqttMessage) -> {
+                message[0] = new String(mqttMessage.getPayload());
+                LOG.info(message[0]);
+                _mqttClient.unsubscribe(topic).waitForCompletion();
             }).waitForCompletion();
         } catch (MqttException e){
             LOG.error(e.getMessage());
@@ -78,12 +84,9 @@ public class MessageService {
         final IMqttMessageListener[] messageListeners = new IMqttMessageListener[topics.length];
         for (int i = 0; i<topics.length; i++) {
             qos[i] = client_qos;
-            messageListeners[i] = new IMqttMessageListener() {
-                @Override
-                public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
-                    message[0] = new String(mqttMessage.getPayload());
-                    LOG.info(String.format("Received a message from %s:%s",s,message[0]));
-                }
+            messageListeners[i] = (s, mqttMessage) -> {
+                message[0] = new String(mqttMessage.getPayload());
+                LOG.info(String.format("Received a message from %s:%s",s,message[0]));
             };
         }
 
@@ -99,7 +102,8 @@ public class MessageService {
 
     public boolean publish(String topic, String message){
         try {
-            _mqttClient.publish(topic,getMessage(message)).waitForCompletion();
+            _mqttClient.publish(topic, message.getBytes(),1,true);
+//            _mqttClient.publish(topic,getMessage(message)).waitForCompletion();
             return true;
         } catch (MqttException e) {
             LOG.error(e.getMessage());
