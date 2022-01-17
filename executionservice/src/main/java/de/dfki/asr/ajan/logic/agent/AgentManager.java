@@ -48,6 +48,8 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ws.rs.core.UriBuilder;
+
+import de.dfki.asr.ajan.stopwatch.Stopwatch;
 import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
@@ -142,8 +144,12 @@ public class AgentManager {
 		agentRDFBuilder.setBaseURI(baseURI);
 		agentRDFBuilder.setInitModel(initAgentsRDF);
 		agentRDFBuilder.setAgentResource(initAgentRsc);
+		Stopwatch stopwatch = new Stopwatch();
+		stopwatch.start();
 		Agent agent = agentRDFBuilder.build();
-                initiateAgent(agent);
+		initiateAgent(agent);
+		stopwatch.stop();
+		LOG.info(stopwatch.toString());
 		return agent;
 	}
 
@@ -153,8 +159,12 @@ public class AgentManager {
                 agentParamBuilder.setAgentTemplate(template);
 		agentParamBuilder.setAgentKnowledge(knowledge, format);
                 agentParamBuilder.setManageAgentTDB(manageTDB);
+				Stopwatch stopwatch = new Stopwatch();
+				stopwatch.start();
 		Agent agent = agentParamBuilder.build();
                 initiateAgent(agent);
+				stopwatch.stop();
+				LOG.info(stopwatch.toString());
 		return agent;
 	}
 
