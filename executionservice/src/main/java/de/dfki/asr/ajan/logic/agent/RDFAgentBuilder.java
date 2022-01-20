@@ -190,8 +190,8 @@ public class RDFAgentBuilder extends AgentBuilder {
             event = createGoal(resource);
         } else if (type.get().equals(AJANVocabulary.STRING_EVENT_TYPE)) {
             event = new StringEvent();
-        } else if (type.get().equals(AJANVocabulary.JSON_EVENT_TYPE)) {
-            event = new JsonEvent();
+        } else if (type.get().equals(AJANVocabulary.MAPPING_EVENT_TYPE)) {
+            event = new MappingEvent();
         } else if (type.get().equals(AJANVocabulary.DEFAULT_EVENT_TYPE)) {
             event = new DefaultEvent();
         } else {

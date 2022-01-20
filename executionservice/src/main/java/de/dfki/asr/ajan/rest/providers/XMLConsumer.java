@@ -18,9 +18,6 @@
  */
 package de.dfki.asr.ajan.rest.providers;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -32,34 +29,46 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
+import org.apache.xerces.parsers.DOMParser;
 import org.springframework.stereotype.Component;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 @Provider
-@Consumes("application/json")
+@Consumes({"application/xml", "text/xml"})
 @SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.AvoidPrefixingMethodParameters"})
 @Component
-public class JsonConsumer implements MessageBodyReader<JsonNode> {
+public class XMLConsumer implements MessageBodyReader<Document> {
 
     @Override
     public boolean isReadable(final Class<?> type, final Type type1, final Annotation[] antns, final MediaType mt) {
-        if (!type.isAssignableFrom(ObjectNode.class)) {
+        if (!type.isAssignableFrom(Document.class)) {
             return false;
         }
-        return mt.toString().equals("application/json");
+        return mt.toString().equals("application/xml") || mt.toString().equals("text/xml") ;
     }
 
     @Override
-    public JsonNode readFrom(final Class<JsonNode> t, final Type type, final Annotation[] annts, final MediaType mt, final MultivaluedMap<String, String> mm, final InputStream in) throws IOException, WebApplicationException {
-        if (!mt.toString().equals("application/json")) {
+    public Document readFrom(final Class<Document> t, final Type type, final Annotation[] annts, final MediaType mt, final MultivaluedMap<String, String> mm, final InputStream in) throws IOException, WebApplicationException {
+        if (!mt.toString().equals("application/xml") && !mt.toString().equals("text/xml")) {
             createErrorMsg(mt);
         }
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readTree(in);
+        try {
+            DOMParser parser = new DOMParser();
+            parser.parse(new InputSource(in));
+            return parser.getDocument();
+        }
+        catch (SAXException ex) {
+            createErrorMsg(mt);
+        }
+        return null;
     }
 
     private void createErrorMsg(final MediaType mt) {
-        String msg = "Can not consume JSON of mimetype + " + mt.toString();
+        String msg = "Can not consume XML of mimetype + " + mt.toString();
         Response response = Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN).entity(msg).build();
         throw new WebApplicationException(response);
     }
+
 }
