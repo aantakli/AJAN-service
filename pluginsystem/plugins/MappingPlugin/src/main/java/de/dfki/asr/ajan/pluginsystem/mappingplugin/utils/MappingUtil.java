@@ -33,7 +33,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.RMLMapperException;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
