@@ -16,12 +16,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-
 package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.json;
 
 import be.ugent.rml.store.RDF4JStore;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
@@ -54,114 +52,121 @@ import ro.fortsoft.pf4j.Extension;
 @Extension
 @RDFBean("bt:QueryJsonDomain")
 public class QueryJsonDomain extends SyncMessage implements NodeExtension {
-	@RDFSubject
-	@Getter @Setter
-	private String url;
 
-	@RDF("rdfs:label")
-	@Getter @Setter
-	private String label;
+    @RDFSubject
+    @Getter
+    @Setter
+    private String url;
 
-	@RDF("bt:mapping")
-	@Getter @Setter
-	private URI mapping;
+    @RDF("rdfs:label")
+    @Getter
+    @Setter
+    private String label;
 
-	@RDF("bt:mappings")
-	@Getter @Setter
-	private List<URI> mappings;
+    @RDF("bt:mapping")
+    @Getter
+    @Setter
+    private URI mapping;
 
-	@RDF("bt:targetBase")
-	@Getter @Setter
-	private URI targetBase;
+    @RDF("bt:mappings")
+    @Getter
+    @Setter
+    private List<URI> mappings;
 
-	@RDF("bt:queryUri")
-	@Getter @Setter
-	private BehaviorSelectQuery queryURI;
-	private Model domainResponse;
+    @RDF("bt:targetBase")
+    @Getter
+    @Setter
+    private URI targetBase;
 
-	@Override
-	public Status execute() {
-		HttpBinding bng = new HttpBinding();
-		try {
-			bng.setMethod(new URI(AJANVocabulary.HTTP_METHOD_GET.toString()));
-			bng.setHeaders(getHeaders());
-			super.setUrl(url);
-			super.setQueryURI(queryURI);
-			super.setBinding(bng);
-		} catch (URISyntaxException ex) {
-			Logger.getLogger(QueryDomain.class.getName()).log(Level.SEVERE, null, ex);
-		}
-		return super.execute();
-	}
+    @RDF("bt:queryUri")
+    @Getter
+    @Setter
+    private BehaviorSelectQuery queryURI;
+    private Model domainResponse;
 
-	private List<HttpHeader> getHeaders() throws URISyntaxException {
-		List list = new ArrayList();
-		HttpHeader accept = new HttpHeader();
-		accept.setHeaderName(new URI(AJANVocabulary.HTTP_HEADER_ACCEPT.toString()));
-		accept.setHeaderValue("application/json");
-		list.add(accept);
-		return list;
-	}
+    @Override
+    public Status execute() {
+        HttpBinding bng = new HttpBinding();
+        try {
+            bng.setMethod(new URI(AJANVocabulary.HTTP_METHOD_GET.toString()));
+            bng.setHeaders(getHeaders());
+            super.setUrl(url);
+            super.setQueryURI(queryURI);
+            super.setBinding(bng);
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(QueryDomain.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return super.execute();
+    }
 
-	@Override
-	protected boolean checkResponse(final Object response) {
-		if (response instanceof JsonNode) {
-			try {
-				domainResponse = getModel((JsonNode)response);
-			} catch (URISyntaxException | RMLMapperException ex) {
-				LOG.error("Malformed response!");
-				return false;
-			}
-		} else if (response instanceof Model) {
-			domainResponse = (Model)response;
-		} else {
-			LOG.error("Mime Type is not supported!");
-			return false;
-		}
-		return updateBeliefs(modifyResponse(domainResponse), targetBase);
-	}
+    private List<HttpHeader> getHeaders() throws URISyntaxException {
+        List list = new ArrayList();
+        HttpHeader accept = new HttpHeader();
+        accept.setHeaderName(new URI(AJANVocabulary.HTTP_HEADER_ACCEPT.toString()));
+        accept.setHeaderValue("application/json");
+        list.add(accept);
+        return list;
+    }
 
-	protected Model getModel(final JsonNode input) throws RMLMapperException, URISyntaxException {
-		Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
-		RDF4JStore rmlStore;
-		if (mapping == null) {
-			rmlStore = new RDF4JStore(MappingUtil.getTriplesMaps(repo, mappings));
-		} else {
-			rmlStore = new RDF4JStore(MappingUtil.getTriplesMaps(repo, mapping));
-		}
-		Model model = MappingUtil.loadJsonMapping(input, rmlStore);
-		return model;
-	}
+    @Override
+    protected boolean checkResponse(final Object response) {
+        if (response instanceof JsonNode) {
+            try {
+                domainResponse = getModel((JsonNode) response);
+            } catch (URISyntaxException | RMLMapperException ex) {
+                LOG.error("Malformed response!");
+                return false;
+            }
+        } else if (response instanceof Model) {
+            domainResponse = (Model) response;
+        } else {
+            LOG.error("Mime Type is not supported!");
+            return false;
+        }
+        return updateBeliefs(modifyResponse(domainResponse), targetBase);
+    }
 
-	@Override
-	protected Model modifyResponse(final Model model) {
-		return AgentUtil.setNamedGraph(model.iterator(), super.requestURI);
-	}
+    protected Model getModel(final JsonNode input) throws RMLMapperException, URISyntaxException {
+        Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
+        RDF4JStore rmlStore;
+        if (mapping == null) {
+            rmlStore = new RDF4JStore(MappingUtil.getTriplesMaps(repo, mappings));
+        } else {
+            rmlStore = new RDF4JStore(MappingUtil.getTriplesMaps(repo, mapping));
+        }
+        Model model = MappingUtil.loadJsonMapping(input, rmlStore);
+        return model;
+    }
 
-	@Override
-	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
-	}
+    @Override
+    protected Model modifyResponse(final Model model) {
+        return AgentUtil.setNamedGraph(model.iterator(), super.requestURI);
+    }
 
-	@Override
-	public String toString() {
-		return "QueryJsonDomain (" + getLabel() + ")";
-	}
+    @Override
+    public void end() {
+        LOG.info("Status (" + getStatus() + ")");
+    }
 
-	@Override
-	public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
-		if (mode.equals(BTUtil.ModelMode.DETAIL)) {
-			Resource resource = getInstance(root.getInstance());
-			queryURI.setResultModel(resource, BTVocabulary.QUERY_URI_RESULT, model);
-			if (domainResponse != null && !domainResponse.isEmpty()) {
-				Resource resultNode = vf.createBNode();
-				model.add(resource, BTVocabulary.HAS_ACTION_RESULT, resultNode);
-				model.add(resultNode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, BTVocabulary.RESPONSE_RESULT);
-				model.add(resultNode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, BTVocabulary.GRAPH_RESULT);
-				Resource resultGraph = BTUtil.setGraphResultModel(model, domainResponse);
-				model.add(resultNode, BTVocabulary.HAS_RESULT, resultGraph);
-			}
-		}
-		return super.getModel(model, root, mode);
-	}
+    @Override
+    public String toString() {
+        return "QueryJsonDomain (" + getLabel() + ")";
+    }
+
+    @Override
+    public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
+        if (mode.equals(BTUtil.ModelMode.DETAIL)) {
+            Resource resource = getInstance(root.getInstance());
+            queryURI.setResultModel(resource, BTVocabulary.QUERY_URI_RESULT, model);
+            if (domainResponse != null && !domainResponse.isEmpty()) {
+                Resource resultNode = vf.createBNode();
+                model.add(resource, BTVocabulary.HAS_ACTION_RESULT, resultNode);
+                model.add(resultNode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, BTVocabulary.RESPONSE_RESULT);
+                model.add(resultNode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, BTVocabulary.GRAPH_RESULT);
+                Resource resultGraph = BTUtil.setGraphResultModel(model, domainResponse);
+                model.add(resultNode, BTVocabulary.HAS_RESULT, resultGraph);
+            }
+        }
+        return super.getModel(model, root, mode);
+    }
 }

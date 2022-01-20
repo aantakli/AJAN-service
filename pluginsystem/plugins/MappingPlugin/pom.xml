@@ -35,8 +35,70 @@ MA 02110-1301  USA
             <url>file:///${project.basedir}/lib</url>
         </repository>
     </repositories>
+   
+   <properties>
+        <netbeans.hint.license>licenseheader</netbeans.hint.license>
+        <carml.version>0.3.2</carml.version>
+    </properties>
 
     <dependencies>
+        
+        <dependency>
+            <groupId>com.taxonic.carml</groupId>
+            <artifactId>carml-engine</artifactId>
+            <version>${carml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.taxonic.carml</groupId>
+            <artifactId>carml-commons</artifactId>
+            <version>${carml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.taxonic.carml</groupId>
+            <artifactId>carml-model</artifactId>
+            <version>${carml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.taxonic.carml</groupId>
+            <artifactId>carml-rdf-mapper</artifactId>
+            <version>${carml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.taxonic.carml</groupId>
+            <artifactId>carml-logical-source-resolver-jsonpath</artifactId>
+            <version>${carml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.taxonic.carml</groupId>
+            <artifactId>carml-logical-source-resolver-xpath</artifactId>
+            <version>${carml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.taxonic.carml</groupId>
+            <artifactId>carml-logical-source-resolver-csv</artifactId>
+            <version>${carml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.8</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+            <version>9.8.0-12</version>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.12.1</version>
+        </dependency>
+        
         <dependency>
             <groupId>rmlmapper</groupId>
             <artifactId>rmlmapper</artifactId>
@@ -67,11 +129,6 @@ MA 02110-1301  USA
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <version>2.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.xml.parsers</groupId>
-            <artifactId>jaxp-api</artifactId>
-            <version>1.4.5</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -143,12 +200,12 @@ MA 02110-1301  USA
             <version>2.9.4</version>
             <type>jar</type>
         </dependency>
-		<dependency>
-			<groupId>net.minidev</groupId>
-			<artifactId>json-smart</artifactId>
-			<version>2.3</version>
-		</dependency>
-		<dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>2.3</version>
+        </dependency>
+        <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>asm</artifactId>
             <version>1.0.2</version>
@@ -161,40 +218,39 @@ MA 02110-1301  USA
         </dependency>
     </dependencies>
 
-	<build>
-	  <plugins>
-		<plugin>
-		  <artifactId>maven-dependency-plugin</artifactId>
-                  <version>3.0.0</version>
-		  <executions>
-			<execution>
-			  <phase>install</phase>
-			  <goals>
-				<goal>copy-dependencies</goal>
-			  </goals>
-			  <configuration>
-				<excludeArtifactIds>
-					rdfbeans,
-					gdx-ai,
-					behaviour,
-					loader,
-					common,
-					lombok,
-					jackson-databind,
-					pf4j,
-					rdf4j-model,
-					rdf4j-repository-api</excludeArtifactIds>
-				<outputDirectory>${project.build.directory}/lib</outputDirectory>
-				<overWriteReleases>false</overWriteReleases>
-				<overWriteSnapshots>true</overWriteSnapshots>
-				<excludeTransitive>true</excludeTransitive>
-			  </configuration>
-			</execution>
-		  </executions>
-		</plugin>
-	  </plugins>
-	</build>
-    <properties>
-        <netbeans.hint.license>licenseheader</netbeans.hint.license>
-    </properties>
+    <build>
+      <plugins>
+            <plugin>
+              <artifactId>maven-dependency-plugin</artifactId>
+              <version>3.0.0</version>
+              <executions>
+                    <execution>
+                      <phase>install</phase>
+                      <goals>
+                            <goal>copy-dependencies</goal>
+                      </goals>
+                      <configuration>
+                            <excludeArtifactIds>
+                                    rdfbeans,
+                                    gdx-ai,
+                                    behaviour,
+                                    loader,
+                                    common,
+                                    lombok,         
+                                    jackson-databind,
+                                    xercesImpl,
+                                    pf4j,
+                                    rdf4j-model,
+                                    rdf4j-model-compiance,
+                                    rdf4j-repository-api</excludeArtifactIds>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <excludeTransitive>true</excludeTransitive>
+                      </configuration>
+                    </execution>
+              </executions>
+            </plugin>
+      </plugins>
+    </build>
 </project>
