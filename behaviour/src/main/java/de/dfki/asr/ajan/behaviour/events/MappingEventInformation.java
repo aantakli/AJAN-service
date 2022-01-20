@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 see AJAN-service/AUTHORS.txt (German Research Center for Artificial Intelligence, DFKI).
+ * Copyright (C) 2021 Andre Antakli (German Research Center for Artificial Intelligence, DFKI).
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,36 +16,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-
 package de.dfki.asr.ajan.behaviour.events;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import org.cyberborean.rdfbeans.annotations.RDF;
-import org.cyberborean.rdfbeans.annotations.RDFBean;
-import org.cyberborean.rdfbeans.annotations.RDFSubject;
 
-@RDFBean("ajan:JsonEvent")
-public class JsonEvent extends DefaultEvent {
-
-	@RDFSubject
+/**
+ *
+ * @author Andre Antakli (German Research Center for Artificial Intelligence,
+ * DFKI)
+ */
+@Data
+public class MappingEventInformation {
 	@Getter @Setter
-	private String url;
+	private String event;
 
-	@RDF("rdfs:label")
 	@Getter @Setter
-	private String name;
-
-	@Override
-	public void setEventInformation(final Object information) {
-		this.information = ((ObjectNode)information).put("AJAN_EVENT", url);
-		notifyListeners();
-	}
-
-	@Override
-	public void setEventInformation(final String id, final Object information) {
-		this.information = ((ObjectNode)information).put("AJAN_EVENT", url);
-		notifyListeners(id);
-	}
+	private Object object;
 }

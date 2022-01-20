@@ -43,11 +43,15 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class AgentResource {
 	private static final String TEXT = "text/plain";
 	private static final String JSON = "application/json";
+	private static final String XML = "application/xml";
+	private static final String XML_OLD = "text/xml";
+	private static final String CSV = "text/csv";
         private static final String TRIG = "application/trig";
 	private static final String TURTLE = "text/turtle";
 	private static final String JSONLD = "application/ld+json";
@@ -103,6 +107,22 @@ public class AgentResource {
 	@Produces({TURTLE,JSONLD})
 	@ApiOperation("Receive Json")
 	public Agent jsonPostAgent(@QueryParam("capability") final String capability, final JsonNode json) {
+            return setEvent(capability, json);
+	}
+
+	@POST
+	@Consumes({XML, XML_OLD})
+	@Produces({TURTLE,JSONLD})
+	@ApiOperation("Receive XML")
+	public Agent xmlPostAgent(@QueryParam("capability") final String capability, final Document xml) {
+            return setEvent(capability, xml);
+	}
+
+	@POST
+	@Consumes(CSV)
+	@Produces({TURTLE,JSONLD})
+	@ApiOperation("Receive CSV")
+	public Agent csvPostAgent(@QueryParam("capability") final String capability, final JsonNode json) {
             return setEvent(capability, json);
 	}
 
