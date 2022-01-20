@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-
 package de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.instructions;
 
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
@@ -52,21 +51,23 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractInstruction extends ThriftAction {
 
-	@Getter @Setter
+    @Getter
+    @Setter
     private ModelEvent event;
-	private Thread thread;
-	protected String url;
-	protected String instID;
+    private Thread thread;
+    protected String url;
+    protected String instID;
 
-	protected abstract String getSPARQLConsumes();
-	protected abstract String getSPARQLProduces();
+    protected abstract String getSPARQLConsumes();
+
+    protected abstract String getSPARQLProduces();
 
     @Override
     public Action.Communication getCommunication() {
         return Action.Communication.SYNCHRONOUS;
     }
 
-	@Override
+    @Override
     public abstract List<ActionVariable> getVariables();
 
     @Override
@@ -82,56 +83,58 @@ public abstract class AbstractInstruction extends ThriftAction {
         producible.setSparql(getSPARQLProduces());
         return producible;
     }
-	
+
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractInstruction.class);
     protected final ValueFactory vf = SimpleValueFactory.getInstance();
 
     @Override
     public ResultModel run(InputModel inputModel, AgentTaskInformation info, String url) {
-		this.url = url;
-		String id = UUID.randomUUID().toString();
+        this.url = url;
+        String id = UUID.randomUUID().toString();
         LOG.info("Run " + this.getLable() + " with ID: " + UUID.randomUUID().toString());
         readInput(inputModel, info);
-		try {
-			executeOperation(id);
-		} catch (ConditionEvaluationException | URISyntaxException | LoadPredicateException ex) {
-			java.util.logging.Logger.getLogger(AbstractInstruction.class.getName()).log(Level.SEVERE, null, ex);
-		}
-		ResultModel result = new ResultModel();
-		setResponse(id,result);
+        try {
+            executeOperation(id);
+        } catch (ConditionEvaluationException | URISyntaxException | LoadPredicateException ex) {
+            java.util.logging.Logger.getLogger(AbstractInstruction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        ResultModel result = new ResultModel();
+        setResponse(id, result);
         return result;
     }
 
     @Override
     public void run(InputModel inputModel, ModelEvent _event, UUID id, AgentTaskInformation info, String url) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-	protected abstract void readInput(final InputModel inputModel, final AgentTaskInformation info);
+    protected abstract void readInput(final InputModel inputModel, final AgentTaskInformation info);
 
     protected void executeOperation(String actionID) throws ConditionEvaluationException, URISyntaxException, LoadPredicateException {
         try {
-            try (TTransport transport = new TSocket(getCosimHost(),getCosimPort())) {
-				transport.open();
-				TProtocol protocol = new TCompactProtocol(transport);
-				MCoSimulationAccess.Client client = new MCoSimulationAccess.Client(protocol);
-				instID = UUID.randomUUID().toString();
-				performOperation(client, actionID);
-				transport.close();
-			}
+            try (TTransport transport = new TSocket(getCosimHost(), getCosimPort())) {
+                transport.open();
+                TProtocol protocol = new TCompactProtocol(transport);
+                MCoSimulationAccess.Client client = new MCoSimulationAccess.Client(protocol);
+                instID = UUID.randomUUID().toString();
+                performOperation(client, actionID);
+                transport.close();
+            }
         } catch (TException ex) {
             LOG.info("Cannot connect to MCoSimulationAccess", ex);
         }
     }
 
-	protected abstract boolean performOperation(final MCoSimulationAccess.Client client, final String actionID) throws TException;
-	protected abstract String getCosimHost();
-	protected abstract int getCosimPort();
-	
+    protected abstract boolean performOperation(final MCoSimulationAccess.Client client, final String actionID) throws TException;
+
+    protected abstract String getCosimHost();
+
+    protected abstract int getCosimPort();
+
     @Override
     public ResultModel abort(InputModel inputModel) {
         LOG.info("Abort ThriftAsyncAction");
-		instID = "";
+        instID = "";
         thread.interrupt();
         ResultModel model = new ResultModel();
         model.add(vf.createBNode(), vf.createIRI("http://nullinger.de/abort"), vf.createBNode());
@@ -143,6 +146,6 @@ public abstract class AbstractInstruction extends ThriftAction {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-	@Override
-	public abstract void setResponse(final String id, final Object response);
+    @Override
+    public abstract void setResponse(final String id, final Object response);
 }
