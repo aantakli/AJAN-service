@@ -26,17 +26,37 @@ import be.ugent.rml.store.RDF4JStore;
 import be.ugent.rml.term.BlankNode;
 import be.ugent.rml.term.Literal;
 import be.ugent.rml.term.Term;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.taxonic.carml.engine.RmlMapper;
+import com.taxonic.carml.logical_source_resolver.CsvResolver;
+import com.taxonic.carml.logical_source_resolver.JsonPathResolver;
+import com.taxonic.carml.logical_source_resolver.XPathResolver;
+import com.taxonic.carml.model.TriplesMap;
+import com.taxonic.carml.util.RmlMappingLoader;
+import com.taxonic.carml.vocab.Rdf;
 import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.RMLMapperException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.apache.xerces.dom.DeferredDocumentImpl;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
@@ -53,6 +73,16 @@ public final class MappingUtil {
     private MappingUtil() {
 
 }
+
+    public static  InputStream getResourceStream(final Object input) throws JsonProcessingException, IOException, TransformerException {
+        if (input instanceof JsonNode) {
+            return MappingUtil.getJsonResourceStream(input);
+        }
+		if (input instanceof DeferredDocumentImpl) {
+			return MappingUtil.getXMLResourceStream(input);
+        }
+        return null;
+    }
 
     public static Model loadJsonMapping(final JsonNode input, final RDF4JStore rmlStore) throws RMLMapperException {
         ObjectNode node = JsonNodeFactory.instance.objectNode();;
@@ -96,6 +126,19 @@ public final class MappingUtil {
         else return VALUE_FACTORY.createIRI(term.getValue());
     }
 
+	public static Model getMappedModel(final Model mapping, final InputStream resourceStream) {
+		Set<TriplesMap> mappingInput;
+		mappingInput = RmlMappingLoader.build().load(mapping);
+		RmlMapper mapper = RmlMapper.newBuilder()
+			.setLogicalSourceResolver(Rdf.Ql.JsonPath, new JsonPathResolver())
+			.setLogicalSourceResolver(Rdf.Ql.XPath, new XPathResolver())
+			.setLogicalSourceResolver(Rdf.Ql.Csv, new CsvResolver())
+			.build();
+
+		mapper.bindInputStream(resourceStream);
+		return mapper.map(mappingInput);
+	}
+
     public static Model getTriplesMaps(final Repository repo, final List<URI> mappings) throws URISyntaxException {
         if (mappings == null) {
                 throw new URISyntaxException("bt:mappings", "Cannot be null");
@@ -117,6 +160,28 @@ public final class MappingUtil {
 		context.append("<").append(mapping.toString()).append("> { ?s ?p ?o }}");
         return SPARQLUtil.queryRepository(repo, context.toString());
     }
+
+
+    public static InputStream getJsonResourceStream(final Object eventInfo) throws JsonProcessingException, IOException {
+        JsonNode input = (JsonNode) eventInfo;
+		ObjectMapper om = new ObjectMapper();
+		ObjectWriter writer = om.writer();
+        return new ByteArrayInputStream(writer.writeValueAsBytes(input));
+    }
+
+    public static InputStream getXMLResourceStream(final Object eventInfo) throws IOException, TransformerException {
+		DeferredDocumentImpl input = (DeferredDocumentImpl) eventInfo;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		Transformer transformer = TransformerFactory.newInstance().newTransformer();
+		DOMSource source = new DOMSource(input);
+		StreamResult console = new StreamResult(baos);
+		transformer.transform(source, console);
+		return new ByteArrayInputStream(baos.toByteArray());
+    }
+
+    /*private InputStream getCsvResourceStream(final Object eventInfo) throws JsonProcessingException {
+        return new ByteArrayInputStream(objectMapper.writeValueAsBytes(input));
+    }*/
 
     private static IRI getGraph(final ObjectNode node) {
         JsonNode context = node.findValue("AJAN_EVENT");

@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.json;
+package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.mapping;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -81,11 +81,6 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
     @Setter
     private URI mapping;
 
-    @RDF("bt:mappings")
-    @Getter
-    @Setter
-    private List<URI> mappings;
-
     @RDF("bt:validate")
     @Getter
     @Setter
@@ -100,7 +95,7 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
 
     @Override
     public Resource getType() {
-        return vf.createIRI("http://www.ajan.de/behavior/mapping#ValidateJsonEvent");
+        return vf.createIRI("http://www.ajan.de/behavior/mapping#HandleMappingEvent");
     }
 
     @Override
@@ -141,58 +136,18 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
     }
 
     protected Model getModel() throws RMLMapperException, URISyntaxException, JsonProcessingException, IOException, TransformerException {
-        InputStream resourceStream = getResourceStream();
+        InputStream resourceStream = MappingUtil.getResourceStream(this.getObject().getEventInformation());
         if (resourceStream != null) {
             Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
-            Set<TriplesMap> mappingInput;
-            if (mapping == null) {
-                mappingInput = RmlMappingLoader.build().load(MappingUtil.getTriplesMaps(repo, mappings));
-            } else {
-                mappingInput = RmlMappingLoader.build().load(MappingUtil.getTriplesMaps(repo, mapping));
+            if (mapping != null) {
+                return MappingUtil.getMappedModel(MappingUtil.getTriplesMaps(repo, mapping), resourceStream);
             }
-            RmlMapper mapper = RmlMapper.newBuilder()
-                .setLogicalSourceResolver(Rdf.Ql.JsonPath, new JsonPathResolver())
-                .setLogicalSourceResolver(Rdf.Ql.XPath, new XPathResolver())
-                .setLogicalSourceResolver(Rdf.Ql.Csv, new CsvResolver())
-                .build();
-
-            mapper.bindInputStream(resourceStream);
-            return mapper.map(mappingInput);
+			else {
+				throw new RMLMapperException("no mapping file selected!");
+			}
         }
         return new LinkedHashModel();
     }
-
-    private InputStream getResourceStream() throws JsonProcessingException, IOException, TransformerException {
-        Object eventInfo =  this.getObject().getEventInformation();
-        if (eventInfo instanceof JsonNode) {
-            return getJsonResourceStream(eventInfo);
-        }
-		if (eventInfo instanceof DeferredDocumentImpl) {
-			return getXMLResourceStream(eventInfo);
-        }
-        return null;
-    }
-
-    private InputStream getJsonResourceStream(final Object eventInfo) throws JsonProcessingException, IOException {
-        JsonNode input = (JsonNode) eventInfo;
-		ObjectMapper om = new ObjectMapper();
-		ObjectWriter writer = om.writer();
-        return new ByteArrayInputStream(writer.writeValueAsBytes(input));
-    }
-
-    private InputStream getXMLResourceStream(final Object eventInfo) throws IOException, TransformerException {
-		DeferredDocumentImpl input = (DeferredDocumentImpl) eventInfo;
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		Transformer transformer = TransformerFactory.newInstance().newTransformer();
-		DOMSource source = new DOMSource(input);
-		StreamResult console = new StreamResult(baos);
-		transformer.transform(source, console);
-		return new ByteArrayInputStream(baos.toByteArray());
-    }
-
-    /*private InputStream getCsvResourceStream(final Object eventInfo) throws JsonProcessingException {
-        return new ByteArrayInputStream(objectMapper.writeValueAsBytes(input));
-    }*/
 
     @Override
     public void end() {

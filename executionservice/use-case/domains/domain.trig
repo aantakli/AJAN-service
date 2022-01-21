@@ -14,6 +14,8 @@
 @prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
 @prefix mosim: <http://www.dfki.de/mosim-ns#> .
 @prefix suite: <http://www.dfki.de/suite-ns#> .
+@prefix aml: <https://w3id.org/i40/aml#> .
+@prefix test: <http://test.de#> .
 
 @prefix rr: <http://www.w3.org/ns/r2rml#>.
 @prefix rml: <http://semweb.mmlab.be/ns/rml#> .
@@ -21,7 +23,7 @@
 @prefix ex:     <http://www.example.com/>.
 @prefix carml: <http://carml.taxonic.com/carml/> .
 
-@prefix aml: <https://w3id.org/i40/aml#> .
+
 
 # --------------------------------------------
 # --------------- RML Mappings ---------------
@@ -167,6 +169,113 @@ ajan:ASP {
 			_t(U,"rdfs:subPropertyOf","rdfs:Literal") :- _t(U,"rdf:type","rdfs:Datatype") .
 		"""^^xsd:string .
 }
+
+# --------------------------------
+# JsonTest -----------------------
+# --------------------------------
+
+:JsonTestMapping {
+
+	:JsonFile a rr:TriplesMap;
+		rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:iterator "$.Persons[*]";
+			rml:referenceFormulation ql:JSONPath;
+		];
+
+		rr:subjectMap [
+			rr:template "http://test/Persons/{ID}";
+			rr:class aml:JsonFile 
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate test:age ;
+			rr:objectMap [
+				rr:template "{Age}" ;
+				rr:datatype xsd:decimal
+			]
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate test:name ;
+			rr:objectMap [
+				rr:template "{Name}" ;
+				rr:datatype xsd:string
+			]
+		] .
+}
+
+# --------------------------------
+# SM -----------------------------
+# --------------------------------
+
+:SMMapping {
+
+	:PowerHistory
+		rml:logicalSource [
+			rml:referenceFormulation ql:JSONInput;
+			rml:iterator "$.array[*]"
+		] ;
+
+		rr:subjectMap [
+			rr:template "http://www.ajan.de/ajan-mapping-ns#Timeseries/{time}" ;
+			rr:class suite:DataPoint ;
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate suite:time ;
+			rr:objectMap [
+				rml:reference "time" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		rr:predicateObjectMap [
+			rr:predicate suite:power ;
+			rr:objectMap [
+				rml:reference "power" ;
+				rr:datatype xsd:float
+			]
+		] .
+}
+
+# --------------------------------
+# Muaz ---------------------------
+# --------------------------------
+
+:MuazMapping {
+
+	:PredictionHistory
+		rml:logicalSource [
+			rml:referenceFormulation ql:JSONInput;
+			rml:iterator "$.array[*]"
+		] ;
+
+		rr:subjectMap [
+			rr:template "http://www.ajan.de/ajan-mapping-ns#Predictions/{time}" ;
+			rr:class suite:DataPoint ;
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate suite:time ;
+			rr:objectMap [
+				rml:reference "time" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		rr:predicateObjectMap [
+			rr:predicate suite:value ;
+			rr:objectMap [
+				rml:reference "value" ;
+				rr:datatype xsd:float
+			]
+		] .
+}
+
+# --------------------------------
+# AML ----------------------------
+# --------------------------------
 
 :AMLMapping {
 
@@ -698,63 +807,9 @@ ajan:ASP {
 		] .
 }
 
-:SMMapping {
-
-	:PowerHistory
-		rml:logicalSource [
-			rml:referenceFormulation ql:JSONInput;
-			rml:iterator "$.array[*]"
-		] ;
-
-		rr:subjectMap [
-			rr:template "http://www.ajan.de/ajan-mapping-ns#Timeseries/{time}" ;
-			rr:class suite:DataPoint ;
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate suite:time ;
-			rr:objectMap [
-				rml:reference "time" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		rr:predicateObjectMap [
-			rr:predicate suite:power ;
-			rr:objectMap [
-				rml:reference "power" ;
-				rr:datatype xsd:float
-			]
-		] .
-}
-
-:MuazMapping {
-
-	:PredictionHistory
-		rml:logicalSource [
-			rml:referenceFormulation ql:JSONInput;
-			rml:iterator "$.array[*]"
-		] ;
-
-		rr:subjectMap [
-			rr:template "http://www.ajan.de/ajan-mapping-ns#Predictions/{time}" ;
-			rr:class suite:DataPoint ;
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate suite:time ;
-			rr:objectMap [
-				rml:reference "time" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		rr:predicateObjectMap [
-			rr:predicate suite:value ;
-			rr:objectMap [
-				rml:reference "value" ;
-				rr:datatype xsd:float
-			]
-		] .
-}
+# --------------------------------
+# MOSIM --------------------------
+# --------------------------------
 
 mosim:Mapping {
 
