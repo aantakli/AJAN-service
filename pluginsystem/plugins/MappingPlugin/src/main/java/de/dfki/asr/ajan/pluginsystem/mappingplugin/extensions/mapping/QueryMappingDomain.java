@@ -16,9 +16,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.json;
+package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.mapping;
 
 import be.ugent.rml.store.RDF4JStore;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -33,12 +34,15 @@ import de.dfki.asr.ajan.common.AgentUtil;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.RMLMapperException;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.utils.MappingUtil;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.transform.TransformerException;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -50,8 +54,8 @@ import org.eclipse.rdf4j.repository.Repository;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-@RDFBean("bt:QueryJsonDomain")
-public class QueryJsonDomain extends SyncMessage implements NodeExtension {
+@RDFBean("bt:QueryMappingDomain")
+public class QueryMappingDomain extends SyncMessage implements NodeExtension {
 
     @RDFSubject
     @Getter
@@ -68,11 +72,6 @@ public class QueryJsonDomain extends SyncMessage implements NodeExtension {
     @Setter
     private URI mapping;
 
-    @RDF("bt:mappings")
-    @Getter
-    @Setter
-    private List<URI> mappings;
-
     @RDF("bt:targetBase")
     @Getter
     @Setter
@@ -83,6 +82,11 @@ public class QueryJsonDomain extends SyncMessage implements NodeExtension {
     @Setter
     private BehaviorSelectQuery queryURI;
     private Model domainResponse;
+
+    @Override
+    public Resource getType() {
+        return vf.createIRI("http://www.ajan.de/behavior/mapping#QueryMappingDomain");
+    }
 
     @Override
     public Status execute() {
@@ -103,39 +107,36 @@ public class QueryJsonDomain extends SyncMessage implements NodeExtension {
         List list = new ArrayList();
         HttpHeader accept = new HttpHeader();
         accept.setHeaderName(new URI(AJANVocabulary.HTTP_HEADER_ACCEPT.toString()));
-        accept.setHeaderValue("application/json");
+        accept.setHeaderValue("application/json, application/xml, application/csv");
         list.add(accept);
         return list;
     }
 
     @Override
     protected boolean checkResponse(final Object response) {
-        if (response instanceof JsonNode) {
-            try {
-                domainResponse = getModel((JsonNode) response);
-            } catch (URISyntaxException | RMLMapperException ex) {
-                LOG.error("Malformed response!");
-                return false;
-            }
-        } else if (response instanceof Model) {
+        if (response instanceof Model) {
             domainResponse = (Model) response;
         } else {
-            LOG.error("Mime Type is not supported!");
-            return false;
+			try {
+                domainResponse = getModel(response);
+            } catch (URISyntaxException | RMLMapperException | TransformerException | IOException ex) {
+                LOG.error("Malformed response!");
+				LOG.error("Mime Type is not supported!");
+                return false;
+            }
         }
         return updateBeliefs(modifyResponse(domainResponse), targetBase);
     }
 
-    protected Model getModel(final JsonNode input) throws RMLMapperException, URISyntaxException {
+    protected Model getModel(final Object response) throws RMLMapperException, URISyntaxException, IOException, JsonProcessingException, TransformerException {
         Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
-        RDF4JStore rmlStore;
-        if (mapping == null) {
-            rmlStore = new RDF4JStore(MappingUtil.getTriplesMaps(repo, mappings));
-        } else {
-            rmlStore = new RDF4JStore(MappingUtil.getTriplesMaps(repo, mapping));
-        }
-        Model model = MappingUtil.loadJsonMapping(input, rmlStore);
-        return model;
+		InputStream resourceStream = MappingUtil.getResourceStream(response);
+        if (mapping != null) {
+			return MappingUtil.getMappedModel(MappingUtil.getTriplesMaps(repo, mapping), resourceStream);
+		}
+		else {
+			throw new RMLMapperException("no mapping file selected!");
+		}
     }
 
     @Override
@@ -150,7 +151,7 @@ public class QueryJsonDomain extends SyncMessage implements NodeExtension {
 
     @Override
     public String toString() {
-        return "QueryJsonDomain (" + getLabel() + ")";
+        return "QueryMappingDomain (" + getLabel() + ")";
     }
 
     @Override
@@ -160,7 +161,7 @@ public class QueryJsonDomain extends SyncMessage implements NodeExtension {
             queryURI.setResultModel(resource, BTVocabulary.QUERY_URI_RESULT, model);
             if (domainResponse != null && !domainResponse.isEmpty()) {
                 Resource resultNode = vf.createBNode();
-                model.add(resource, BTVocabulary.HAS_ACTION_RESULT, resultNode);
+                model.add(resource, BTVocabulary.VALIDATE_RESULT, resultNode);
                 model.add(resultNode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, BTVocabulary.RESPONSE_RESULT);
                 model.add(resultNode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, BTVocabulary.GRAPH_RESULT);
                 Resource resultGraph = BTUtil.setGraphResultModel(model, domainResponse);
