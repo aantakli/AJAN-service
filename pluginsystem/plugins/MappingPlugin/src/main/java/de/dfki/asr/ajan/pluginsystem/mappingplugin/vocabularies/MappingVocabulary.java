@@ -36,4 +36,7 @@ public class MappingVocabulary {
 	public final static IRI MP_HAS_Y = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#y");
 	public final static IRI MP_HAS_Z = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#z");
 	public final static IRI HAS_TIMEFORMAT = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#timeFormat");
+
+	// RML Vocabulary
+	public final static IRI RML_REFERENCE_FORMULATION = FACTORY.createIRI("http://semweb.mmlab.be/ns/rml#referenceFormulation");
 }
