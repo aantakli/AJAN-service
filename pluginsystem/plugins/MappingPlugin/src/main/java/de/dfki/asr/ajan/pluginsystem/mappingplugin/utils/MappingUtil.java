@@ -19,20 +19,10 @@
 
 package de.dfki.asr.ajan.pluginsystem.mappingplugin.utils;
 
-import be.ugent.rml.Executor;
-import be.ugent.rml.records.RecordsFactory;
-import be.ugent.rml.store.QuadStore;
-import be.ugent.rml.store.RDF4JStore;
-import be.ugent.rml.term.BlankNode;
-import be.ugent.rml.term.Literal;
-import be.ugent.rml.term.Term;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.taxonic.carml.engine.RmlMapper;
 import com.taxonic.carml.logical_source_resolver.CsvResolver;
 import com.taxonic.carml.logical_source_resolver.JsonPathResolver;
@@ -41,14 +31,12 @@ import com.taxonic.carml.model.TriplesMap;
 import com.taxonic.carml.util.RmlMappingLoader;
 import com.taxonic.carml.vocab.Rdf;
 import de.dfki.asr.ajan.common.SPARQLUtil;
-import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.RMLMapperException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.xml.transform.Transformer;
@@ -57,22 +45,14 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.xerces.dom.DeferredDocumentImpl;
-import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.repository.Repository;
 
 public final class MappingUtil {
 
-    private static final ValueFactory VALUE_FACTORY = SimpleValueFactory.getInstance();
-
     private MappingUtil() {
 
-}
+	}
 
     public static  InputStream getResourceStream(final Object input) throws JsonProcessingException, IOException, TransformerException {
         if (input instanceof JsonNode) {
@@ -82,48 +62,6 @@ public final class MappingUtil {
 			return MappingUtil.getXMLResourceStream(input);
         }
         return null;
-    }
-
-    public static Model loadJsonMapping(final JsonNode input, final RDF4JStore rmlStore) throws RMLMapperException {
-        ObjectNode node = JsonNodeFactory.instance.objectNode();;
-		if (input.isArray()) {
-			node.set("array", (ArrayNode)input);
-		} else {
-			node.setAll((ObjectNode)input);
-		}
-		try {
-            boolean removeDuplicates = false;
-            List<Term> triplesMaps = new ArrayList<>();
-            RecordsFactory rf = new RecordsFactory(node, "http://www.ajan.de/ajan-ns#EventInformation");
-            Executor executor = new Executor(rmlStore, rf);
-            return readOutQuads(executor.execute(triplesMaps, removeDuplicates), getGraph(node));
-        } catch ( Error | UnsupportedOperationException | IOException ex) {
-            throw new RMLMapperException(ex);
-        }
-    }
-
-    private static Model readOutQuads(final QuadStore store, final IRI graph) {
-        Model model = new LinkedHashModel();
-        store.getQuads(null,null,null,null).stream().forEach((quad) -> {
-			Resource subject = getSubject(quad.getSubject());
-			IRI predicate = VALUE_FACTORY.createIRI(quad.getPredicate().getValue());
-                model.add(subject,predicate,getValue(quad.getObject()), graph);
-        });
-        return model ;
-    }
-
-	private static Resource getSubject(final Term term) {
-        if (term instanceof BlankNode) return VALUE_FACTORY.createBNode(term.getValue());
-        else return VALUE_FACTORY.createIRI(term.getValue());
-    }
-
-    private static Value getValue(final Term term) {
-        if (term instanceof Literal) {
-                Literal lit = (Literal)term;
-                return VALUE_FACTORY.createLiteral(lit.getValue(), VALUE_FACTORY.createIRI(lit.getDatatype().getValue()));
-        } 
-		else if (term instanceof BlankNode) return VALUE_FACTORY.createBNode(term.getValue());
-        else return VALUE_FACTORY.createIRI(term.getValue());
     }
 
 	public static Model getMappedModel(final Model mapping, final InputStream resourceStream) {
@@ -182,12 +120,4 @@ public final class MappingUtil {
     /*private InputStream getCsvResourceStream(final Object eventInfo) throws JsonProcessingException {
         return new ByteArrayInputStream(objectMapper.writeValueAsBytes(input));
     }*/
-
-    private static IRI getGraph(final ObjectNode node) {
-        JsonNode context = node.findValue("AJAN_EVENT");
-        if (context == null) {
-                return null;
-        }
-        return VALUE_FACTORY.createIRI(context.textValue());
-    }
 }
