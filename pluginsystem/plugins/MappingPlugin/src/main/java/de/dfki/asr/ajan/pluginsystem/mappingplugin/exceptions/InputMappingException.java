@@ -19,16 +19,16 @@
 
 package de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions;
 
-public class JSONMappingException extends Exception {
-	public JSONMappingException(final String message) {
+public class InputMappingException extends Exception {
+	public InputMappingException(final String message) {
 		super(message);
 	}
 
-	public JSONMappingException(final String message, final Throwable cause) {
+	public InputMappingException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 
-	public JSONMappingException(final Throwable cause) {
+	public InputMappingException(final Throwable cause) {
 		super(cause);
 	}
 }

@@ -33,6 +33,7 @@ import de.dfki.asr.ajan.behaviour.nodes.action.TaskStep;
 import de.dfki.asr.ajan.behaviour.service.impl.IConnection;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ServiceActionDefinition;
 import java.net.URISyntaxException;
+import org.xml.sax.SAXException;
 
 public abstract class AbstractPerformRequest extends AbstractChainStep {
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractPerformRequest.class);
@@ -50,14 +51,14 @@ public abstract class AbstractPerformRequest extends AbstractChainStep {
 		try {
 			ResultModel output = issueRequest(getConnection(context));
 			context.put(output);
-		} catch (URISyntaxException | IOException | ActionBindingException ex) {
+		} catch (URISyntaxException | IOException | ActionBindingException | SAXException ex) {
 			LOG.error("Failed to perform Action request", ex);
 			return Task.Status.FAILED;
 		}
 		return executeNext(context);
 	}
 
-	private ResultModel issueRequest(final IConnection connection) throws IOException, ActionBindingException {
+	private ResultModel issueRequest(final IConnection connection) throws IOException, ActionBindingException, SAXException {
 		connection.setPayload(getInput(inputModel));
 		ResultModel output = new ResultModel();
 		Object response = connection.execute();

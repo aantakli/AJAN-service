@@ -47,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
+import org.xml.sax.SAXException;
 
 @SuppressWarnings("PMD.SignatureDeclareThrowsException")
 public class PerformRequestTest extends AbstractTaskStepTest {
@@ -89,7 +90,7 @@ public class PerformRequestTest extends AbstractTaskStepTest {
 		testServer.register(PATH, dumbResponse);
 	}
 
-	private void setupService() throws IOException {
+	private void setupService() throws IOException, SAXException {
 		Mockito.doReturn(service).when(context).get(ServiceActionDefinition.class);
 		Mockito.doReturn(new InputModel()).when(context).get(InputModel.class);
 		Mockito.doReturn(connection).when(context).get(HttpConnection.class);

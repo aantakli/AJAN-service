@@ -91,14 +91,14 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
                 LOG.info(report);
                 return new LeafStatus(Status.FAILED, report);
             }
-        } catch (JSONMappingException ex) {
-            LOG.debug(toString() + ex);
+        } catch (InputMappingException ex) {
+            LOG.info(toString() + ex);
             LOG.info(toString() + " FAILED due to mapping errors");
             return new LeafStatus(Status.FAILED, toString() + " FAILED due to mapping errors");
         }
     }
 
-    protected boolean handleEvent() throws JSONMappingException {
+    protected boolean handleEvent() throws InputMappingException {
         boolean result = false;
         try {
             Model model = getModel();
@@ -111,11 +111,11 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
                 result = true;
             }
         } catch (URISyntaxException | RMLMapperException | TransformerException | IOException ex) {
-            throw new JSONMappingException(ex);
+            throw new InputMappingException(ex);
         }catch (RuntimeException ex) {
             LOG.error("CARML Mapping Error!");
 			LOG.error("Malformed mapping file!");
-            throw new JSONMappingException(ex);
+            throw new InputMappingException(ex);
         }
         return result;
     }

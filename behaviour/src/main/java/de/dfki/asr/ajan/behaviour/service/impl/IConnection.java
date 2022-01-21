@@ -22,6 +22,7 @@ package de.dfki.asr.ajan.behaviour.service.impl;
 import de.dfki.asr.ajan.behaviour.events.Event;
 import java.io.IOException;
 import java.util.UUID;
+import org.xml.sax.SAXException;
 
 public interface IConnection {
 	String BASE_URI = "http://www.ajan.de";
@@ -34,7 +35,7 @@ public interface IConnection {
 	void setPayload(final String payload);
 	void setEvent(final Event event);
 
-	Object execute() throws IOException;
+	Object execute() throws IOException, SAXException;
 	void response(final Object info);
 	void response(final Object info, final String id);
 }

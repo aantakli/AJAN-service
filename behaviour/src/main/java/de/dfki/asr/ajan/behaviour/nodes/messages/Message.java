@@ -53,6 +53,7 @@ import org.eclipse.rdf4j.query.resultio.TupleQueryResultFormat;
 import org.eclipse.rdf4j.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 @RDFBean("bt:Message")
 @SuppressWarnings("PMD.ExcessiveImports")
@@ -103,7 +104,7 @@ public class Message extends AbstractTDBLeafTask {
 			}
 			LOG.info(toString() + " SUCCEEDED");
 			return new LeafStatus(Status.SUCCEEDED, toString() + " SUCCEEDED");
-		} catch (IOException | URISyntaxException | MessageEvaluationException ex) {
+		} catch (IOException | URISyntaxException | MessageEvaluationException | SAXException ex) {
 			LOG.info(toString() + " FAILED due to query evaluation error", ex);
 			return new LeafStatus(Status.FAILED, toString() + " FAILED");
 		}
