@@ -187,7 +187,7 @@ ajan:ASP {
 
 		rr:subjectMap [
 			rr:template "http://test/Persons/{ID}";
-			rr:class aml:JsonFile 
+			rr:class test:Preson 
 		] ;
 
 		rr:predicateObjectMap [
@@ -273,539 +273,6 @@ ajan:ASP {
 		] .
 }
 
-# --------------------------------
-# AML ----------------------------
-# --------------------------------
-
-:AMLMapping {
-
-	:CAEXFile a rr:TriplesMap;
-		rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:iterator "/CAEXFile";
-			rml:referenceFormulation ql:XPath;
-		];
-
-		rr:subjectMap [
-			rr:template "http://test/aml/CAEXFile";
-			rr:class aml:CAEXFile 
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasSchemaVersion ;
-			rr:objectMap [
-				rr:template "{@SchemaVersion}" ;
-				rr:datatype xsd:decimal
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasAdditionalInformation  ;
-			rr:objectMap [
-				rr:parentTriplesMap :AdditionalInformation ;
-				rr:joinCondition [
-					rr:child "AdditionalInformation" ;
-					rr:parent "../AdditionalInformation"
-				]
-			]
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate aml::hasExternalReference  ;
-			rr:objectMap [
-				rr:parentTriplesMap :ExternalReference ;
-				rr:joinCondition [
-					rr:child "ExternalReference" ;
-					rr:parent "../ExternalReference"
-				]
-			]
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate aml:hasInstanceHierarchy   ;
-			rr:objectMap [
-				rr:parentTriplesMap :InstanceHierarchy ;
-				rr:joinCondition [
-					rr:child "InstanceHierarchy" ;
-					rr:parent "../InstanceHierarchy"
-				]
-			]
-		] .
-
-
-
-
-	# ------------------------------------
-	# AdditionalInformation --------------------
-	# ------------------------------------
-
-	:AdditionalInformation rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:iterator "//*[local-name()='AdditionalInformation']" ;
-			rml:referenceFormulation ql:XPath;
-		];
-
-		rr:subjectMap [
-			rr:template "http://test/aml/CAEXFile/AdditionalInformation";
-			rr:class aml:AdditionalInformation 
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasAMLVersion ;
-			rr:objectMap [
-				rr:template "{@AutomationMLVersion}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasWriterId ;
-			rr:objectMap [
-				rr:template "{WriterHeader/WriterID}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasWriterName ;
-			rr:objectMap [
-				rr:template "{WriterHeader/WriterName}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate aml:hasWriterRelease ;
-			rr:objectMap [
-				rr:template "{WriterHeader/WriterRelease}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasWriterVendor ;
-			rr:objectMap [
-				rr:template "{WriterHeader/WriterVendor}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasWriterVendorURL ;
-			rr:objectMap [
-				rr:template "{WriterHeader/WriterVendorURL}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasWriterVersion ;
-			rr:objectMap [
-				rr:template "{WriterHeader/WriterVersion}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate aml:hasLastWritingDateTime ;
-			rr:objectMap [
-				rr:template "{WriterHeader/LastWritingDateTime}" ;
-				rr:datatype xsd:string
-			]
-		] .
-		
-
-
-
-	# ------------------------------------
-	# ExternalReference --------------------
-	# ------------------------------------
-
-	:ExternalReference rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:iterator "//*[local-name()='ExternalReference']" ;
-			rml:referenceFormulation ql:XPath;
-		];
-
-		rr:subjectMap [
-			rr:template "http://test/aml/CAEXFile/ExternalReference";
-			rr:class aml:ExternalReference 
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasExternalReferenceAlias  ;
-			rr:objectMap [
-				rr:template "{@Alias}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate aml:hasExternalReferencePath  ;
-			rr:objectMap [
-				rr:template "{@Path}" ;
-				rr:datatype xsd:string
-			]
-		] .
-
-
-
-	# ------------------------------------
-	# InstanceHierarchy --------------------
-	# ------------------------------------
-
-	:InstanceHierarchy rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:iterator "/CAEXFile/InstanceHierarchy";
-			rml:referenceFormulation ql:XPath;
-		];
-
-		rr:subjectMap [
-			rr:template "http://test/aml/InstanceHierarchy";
-			rr:class aml:InstanceHierarchy
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasNameIH ;
-			rr:objectMap [
-				rr:template "{@Name}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate aml:hasInternalElement ;
-			rr:objectMap [
-				rr:parentTriplesMap :InternalElement ;
-				rr:joinCondition [
-					rr:child "@ID" ;
-					rr:parent "../@ID"
-				]
-			]
-		] .
-
-
-
-	# ------------------------------------
-	# InternalElement --------------------
-	# ------------------------------------
-
-	:InternalElement rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:iterator "//*[local-name()='InternalElement']" ;
-			rml:referenceFormulation ql:XPath;
-		];
-
-		rr:subjectMap [
-			rr:template "http://test/aml/InternalElement/{@ID}";
-			rr:class aml:InternalElement 
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasIDIE ;
-			rr:objectMap [
-				rr:template "{@ID}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		  
-		rr:predicateObjectMap [
-			rr:predicate aml:hasNameIE;
-			rr:objectMap [
-				rr:template "{@Name}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasRefBaseSystemUnitPath;
-			rr:objectMap [
-				rml:reference "@RefBaseSystemUnitPath" ;
-				rr:datatype xsd:string
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasSupportedRoleClassIE;
-			rr:objectMap [
-				rml:reference "SupportedRoleClass/@RefRoleClassPath" ;
-				rr:datatype xsd:string
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasRoleRequirementIE;
-			rr:objectMap [
-				rr:parentTriplesMap :RoleRequirement ;
-				rr:joinCondition [
-					rr:child "@ID" ;
-					rr:parent "../@ID"
-				]
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasAttributeIE ;
-			rr:objectMap [
-				rr:parentTriplesMap :Attribute ;
-				rr:joinCondition [
-					rr:child "@ID" ;
-					rr:parent "../@ID"
-				]
-			]
-		] ; 
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasPartIE ;
-			rr:objectMap [
-				rr:parentTriplesMap :InternalElement ;
-				rr:joinCondition [
-					rr:child "@ID" ;
-					rr:parent "../@ID"
-				]
-			]
-		] ; 
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasInterfaceIE ;
-			rr:objectMap [
-				rr:parentTriplesMap :ExternalInterface ;
-				rr:joinCondition [
-					rr:child "@ID" ;
-					rr:parent "../@ID"
-				]
-			]
-		] .
-
-
-
-	# ------------------------------------
-	# Attribute --------------------------
-	# ------------------------------------
-
-	:Attribute a rr:TriplesMap;
-		rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:iterator "//*[local-name()='Attribute']";
-			rml:referenceFormulation ql:XPath;
-		];
-
-		rr:subjectMap [
-			rr:template "http://test/aml/Attribute/{../@ID}";
-			rr:class aml:Attribute
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate aml:hasAttribute ;
-			rr:objectMap [
-				rr:parentTriplesMap :Attribute ;
-				rr:joinCondition [
-					rr:child "@ID" ;
-					rr:parent "../@ID"
-				]
-			]
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate aml:hasNameAttribute ;
-			rr:objectMap [
-				rr:template "{@Name}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate aml:hasAttributeDataType;
-			rr:objectMap [
-				rr:template "{@AttributeDataType}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasUnit;
-			rr:objectMap [
-				rr:template "{@Unit}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasAttributeDescription ;
-			rr:objectMap [
-				rml:reference "Description" ;
-				rr:datatype xsd:string
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasVersion;
-			rr:objectMap [
-				rml:reference "Version" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate aml:hasAttributeValue;
-			rr:objectMap [
-				rml:reference "Value" ;
-				rr:datatype xsd:string
-			]
-		] .
-
-
-
-
-
-	# ------------------------------------
-	# ExternalInterface --------------------
-	# ------------------------------------
-
-	:ExternalInterface a rr:TriplesMap;
-		rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:iterator "//*[local-name()='ExternalInterface']";
-			rml:referenceFormulation ql:XPath;
-		];
-
-		rr:subjectMap [
-			rr:template "http://test/aml/ExternalInterface/{../@ID}";
-			rr:class aml:ExternalInterface
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasICID;
-			rr:objectMap [
-				rr:template "{@ID}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate aml:hasNameIC;
-			rr:objectMap [
-				rr:template "{@Name}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate aml:hasRefBaseClassPathIC;
-			rr:objectMap [
-				rr:template "{@RefBaseClassPath}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate aml:hasAttribute ;
-			rr:objectMap [
-				rr:parentTriplesMap :Attribute ;
-				rr:joinCondition [
-					rr:child "@ID" ;
-					rr:parent "../@ID"
-				]
-			]
-		] .
-
-
-
-
-	# ------------------------------------
-	# InternalLink --------------------
-	# ------------------------------------
-		
-	:InternalLink a rr:TriplesMap;
-		rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:iterator "//*[local-name()='InternalLink']";
-			rml:referenceFormulation ql:XPath;
-		];
-
-		rr:subjectMap [
-			rr:template "http://test/aml/InternalLink/{../@ID}";
-			rr:class aml:InternalLink
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate rdfs:label;
-			rr:objectMap [
-				rr:template "{@Name}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate aml:hasRefPartnerSideA ;
-			rr:objectMap [
-			#	rr:parentTriplesMap "[replace({@RefPartnerSideA},(?:(?!:).)*,)]"
-				rr:template "http://test/aml/ExternalInterface/{@RefPartnerSideA}"
-			]
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate aml:hasRefPartnerSideB ;
-			rr:objectMap [
-				rr:template "http://test/aml/ExternalInterface/{@RefPartnerSideB}"
-			]
-		] .
-
-
-
-	# ------------------------------------
-	# RoleRequirement --------------------
-	# ------------------------------------
-		
-	:RoleRequirement a rr:TriplesMap;
-		rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:iterator "//*[local-name()='RoleRequirements']";
-			rml:referenceFormulation ql:XPath;
-		];
-
-		rr:subjectMap [
-			rr:template "http://test/aml/InternalElements/{../@ID}/RoleRequirement";
-			rr:class aml:RoleClass
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate aml:hasRefBaseClassPathRC;
-			rr:objectMap [
-				rr:template "{@RefBaseRoleClassPath}" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate aml:hasAttributeRC ;
-			rr:objectMap [
-				rr:parentTriplesMap :Attribute ;
-				rr:joinCondition [
-					rr:child "../@ID" ;
-					rr:parent "../../@ID"
-				]
-			]
-		] .
-}
 
 # --------------------------------
 # MOSIM --------------------------
@@ -977,6 +444,503 @@ mosim:Mapping {
 			rr:objectMap [
 				rml:reference "position.id" ;
 				rr:datatype xsd:string
+			]
+		] .
+}
+
+# --------------------------------
+# AML ----------------------------
+# --------------------------------
+
+:AMLMapping {
+
+	:CAEXFile a rr:TriplesMap;
+		rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:iterator "/";
+			rml:referenceFormulation ql:XPath;
+		];
+
+		rr:subjectMap [
+			rr:template "http://test/aml/CAEXFile";
+			rr:class aml:CAEXFile 
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasSchemaVersion ;
+			rr:objectMap [
+				rr:template "{@SchemaVersion}" ;
+				rr:datatype xsd:decimal
+			]
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasAdditionalInformation  ;
+			rr:objectMap [
+				rr:parentTriplesMap :AdditionalInformation ;
+				rr:joinCondition [
+					rr:child "AdditionalInformation" ;
+					rr:parent "../AdditionalInformation"
+				]
+			]
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate aml:hasExternalReference  ;
+			rr:objectMap [
+				rr:parentTriplesMap :ExternalReference ;
+				rr:joinCondition [
+					rr:child "ExternalReference" ;
+					rr:parent "../ExternalReference"
+				]
+			]
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate aml:hasInstanceHierarchy   ;
+			rr:objectMap [
+				rr:parentTriplesMap :InstanceHierarchy ;
+				rr:joinCondition [
+					rr:child "InstanceHierarchy" ;
+					rr:parent "../InstanceHierarchy"
+				]
+			]
+		] .
+
+	# AdditionalInformation --------------------
+
+	:AdditionalInformation rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:iterator "//*[local-name()='AdditionalInformation']" ;
+			rml:referenceFormulation ql:XPath;
+		];
+
+		rr:subjectMap [
+			rr:template "http://test/aml/CAEXFile/AdditionalInformation";
+			rr:class aml:AdditionalInformation 
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasAMLVersion ;
+			rr:objectMap [
+				rr:template "{@AutomationMLVersion}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasWriterId ;
+			rr:objectMap [
+				rr:template "{WriterHeader/WriterID}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasWriterName ;
+			rr:objectMap [
+				rr:template "{WriterHeader/WriterName}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate aml:hasWriterRelease ;
+			rr:objectMap [
+				rr:template "{WriterHeader/WriterRelease}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasWriterVendor ;
+			rr:objectMap [
+				rr:template "{WriterHeader/WriterVendor}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasWriterVendorURL ;
+			rr:objectMap [
+				rr:template "{WriterHeader/WriterVendorURL}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasWriterVersion ;
+			rr:objectMap [
+				rr:template "{WriterHeader/WriterVersion}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate aml:hasLastWritingDateTime ;
+			rr:objectMap [
+				rr:template "{WriterHeader/LastWritingDateTime}" ;
+				rr:datatype xsd:string
+			]
+		] .
+	
+	# ExternalReference --------------------
+
+	:ExternalReference rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:iterator "//*[local-name()='ExternalReference']" ;
+			rml:referenceFormulation ql:XPath;
+		];
+
+		rr:subjectMap [
+			rr:template "http://test/aml/CAEXFile/ExternalReference";
+			rr:class aml:ExternalReference 
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasExternalReferenceAlias  ;
+			rr:objectMap [
+				rr:template "{@Alias}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate aml:hasExternalReferencePath  ;
+			rr:objectMap [
+				rr:template "{@Path}" ;
+				rr:datatype xsd:string
+			]
+		] .
+
+	# InstanceHierarchy --------------------
+
+	:InstanceHierarchy rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:iterator "//*[local-name()='InstanceHierarchy']";
+			rml:referenceFormulation ql:XPath;
+		];
+
+		rr:subjectMap [
+			rr:template "http://test/aml/InstanceHierarchy";
+			rr:class aml:InstanceHierarchy
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasNameIH ;
+			rr:objectMap [
+				rr:template "{@Name}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate aml:hasInternalElement ;
+			rr:objectMap [
+				rr:parentTriplesMap :InternalElement ;
+				rr:joinCondition [
+					rr:child "@ID" ;
+					rr:parent "../@ID"
+				]
+			]
+		] .
+
+	# InternalElement --------------------
+
+	:InternalElement rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:iterator "//*[local-name()='InternalElement']" ;
+			rml:referenceFormulation ql:XPath;
+		];
+
+		rr:subjectMap [
+			rr:template "http://test/aml/InternalElement/{@ID}";
+			rr:class aml:InternalElement 
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasIDIE ;
+			rr:objectMap [
+				rr:template "{@ID}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		  
+		rr:predicateObjectMap [
+			rr:predicate aml:hasNameIE;
+			rr:objectMap [
+				rr:template "{@Name}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasRefBaseSystemUnitPath;
+			rr:objectMap [
+				rml:reference "@RefBaseSystemUnitPath" ;
+				rr:datatype xsd:string
+			]
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasSupportedRoleClassIE;
+			rr:objectMap [
+				rml:reference "SupportedRoleClass/@RefRoleClassPath" ;
+				rr:datatype xsd:string
+			]
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasRoleRequirementIE;
+			rr:objectMap [
+				rr:parentTriplesMap :RoleRequirement ;
+				rr:joinCondition [
+					rr:child "@ID" ;
+					rr:parent "../@ID"
+				]
+			]
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasAttributeIE ;
+			rr:objectMap [
+				rr:parentTriplesMap :Attribute ;
+				rr:joinCondition [
+					rr:child "@ID" ;
+					rr:parent "../@ID"
+				]
+			]
+		] ; 
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasPartIE ;
+			rr:objectMap [
+				rr:parentTriplesMap :InternalElement ;
+				rr:joinCondition [
+					rr:child "@ID" ;
+					rr:parent "../@ID"
+				]
+			]
+		] ; 
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasInterfaceIE ;
+			rr:objectMap [
+				rr:parentTriplesMap :ExternalInterface ;
+				rr:joinCondition [
+					rr:child "@ID" ;
+					rr:parent "../@ID"
+				]
+			]
+		] .
+
+	# Attribute --------------------------
+
+	:Attribute a rr:TriplesMap;
+		rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:iterator "//*[local-name()='Attribute']";
+			rml:referenceFormulation ql:XPath;
+		];
+
+		rr:subjectMap [
+			rr:template "http://test/aml/Attribute/{../@ID}";
+			rr:class aml:Attribute
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate aml:hasAttribute ;
+			rr:objectMap [
+				rr:parentTriplesMap :Attribute ;
+				rr:joinCondition [
+					rr:child "@ID" ;
+					rr:parent "../@ID"
+				]
+			]
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate aml:hasNameAttribute ;
+			rr:objectMap [
+				rr:template "{@Name}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate aml:hasAttributeDataType;
+			rr:objectMap [
+				rr:template "{@AttributeDataType}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasUnit;
+			rr:objectMap [
+				rr:template "{@Unit}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasAttributeDescription ;
+			rr:objectMap [
+				rml:reference "Description" ;
+				rr:datatype xsd:string
+			]
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasVersion;
+			rr:objectMap [
+				rml:reference "Version" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate aml:hasAttributeValue;
+			rr:objectMap [
+				rml:reference "Value" ;
+				rr:datatype xsd:string
+			]
+		] .
+
+	# ExternalInterface --------------------
+
+	:ExternalInterface a rr:TriplesMap;
+		rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:iterator "//*[local-name()='ExternalInterface']";
+			rml:referenceFormulation ql:XPath;
+		];
+
+		rr:subjectMap [
+			rr:template "http://test/aml/ExternalInterface/{../@ID}";
+			rr:class aml:ExternalInterface
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasICID;
+			rr:objectMap [
+				rr:template "{@ID}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate aml:hasNameIC;
+			rr:objectMap [
+				rr:template "{@Name}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate aml:hasRefBaseClassPathIC;
+			rr:objectMap [
+				rr:template "{@RefBaseClassPath}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate aml:hasAttribute ;
+			rr:objectMap [
+				rr:parentTriplesMap :Attribute ;
+				rr:joinCondition [
+					rr:child "@ID" ;
+					rr:parent "../@ID"
+				]
+			]
+		] .
+
+	# InternalLink --------------------
+
+	:InternalLink a rr:TriplesMap;
+		rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:iterator "//*[local-name()='InternalLink']";
+			rml:referenceFormulation ql:XPath;
+		];
+
+		rr:subjectMap [
+			rr:template "http://test/aml/InternalLink/{../@ID}";
+			rr:class aml:InternalLink
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate rdfs:label;
+			rr:objectMap [
+				rr:template "{@Name}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate aml:hasRefPartnerSideA ;
+			rr:objectMap [
+			#	rr:parentTriplesMap "[replace({@RefPartnerSideA},(?:(?!:).)*,)]"
+				rr:template "http://test/aml/ExternalInterface/{@RefPartnerSideA}"
+			]
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate aml:hasRefPartnerSideB ;
+			rr:objectMap [
+				rr:template "http://test/aml/ExternalInterface/{@RefPartnerSideB}"
+			]
+		] .
+
+	# RoleRequirement --------------------
+
+	:RoleRequirement a rr:TriplesMap;
+		rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:iterator "//*[local-name()='RoleRequirements']";
+			rml:referenceFormulation ql:XPath;
+		];
+
+		rr:subjectMap [
+			rr:template "http://test/aml/InternalElements/{../@ID}/RoleRequirement";
+			rr:class aml:RoleClass
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate aml:hasRefBaseClassPathRC;
+			rr:objectMap [
+				rr:template "{@RefBaseRoleClassPath}" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate aml:hasAttributeRC ;
+			rr:objectMap [
+				rr:parentTriplesMap :Attribute ;
+				rr:joinCondition [
+					rr:child "../@ID" ;
+					rr:parent "../../@ID"
+				]
 			]
 		] .
 }

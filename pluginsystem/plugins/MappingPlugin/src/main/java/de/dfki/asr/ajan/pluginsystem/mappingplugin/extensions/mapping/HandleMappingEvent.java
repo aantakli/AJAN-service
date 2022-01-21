@@ -19,16 +19,6 @@
 package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.mapping;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.taxonic.carml.engine.RmlMapper;
-import com.taxonic.carml.logical_source_resolver.JsonPathResolver;
-import com.taxonic.carml.logical_source_resolver.XPathResolver;
-import com.taxonic.carml.logical_source_resolver.CsvResolver;
-import com.taxonic.carml.model.TriplesMap;
-import com.taxonic.carml.util.RmlMappingLoader;
-import com.taxonic.carml.vocab.Rdf;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -40,22 +30,13 @@ import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.*;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.utils.MappingUtil;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Set;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.xerces.dom.DeferredDocumentImpl;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
@@ -131,11 +112,15 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
             }
         } catch (URISyntaxException | RMLMapperException | TransformerException | IOException ex) {
             throw new JSONMappingException(ex);
+        }catch (RuntimeException ex) {
+            LOG.error("CARML Mapping Error!");
+			LOG.error("Malformed mapping file!");
+            throw new JSONMappingException(ex);
         }
         return result;
     }
 
-    protected Model getModel() throws RMLMapperException, URISyntaxException, JsonProcessingException, IOException, TransformerException {
+    protected Model getModel() throws RMLMapperException, URISyntaxException, JsonProcessingException, RuntimeException, IOException, TransformerException {
         InputStream resourceStream = MappingUtil.getResourceStream(this.getObject().getEventInformation());
         if (resourceStream != null) {
             Repository repo = this.getObject().getDomainTDB().getInitializedRepository();

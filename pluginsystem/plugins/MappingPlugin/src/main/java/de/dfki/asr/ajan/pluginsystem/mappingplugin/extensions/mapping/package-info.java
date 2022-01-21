@@ -17,7 +17,12 @@
  * MA 02110-1301  USA
  */
 
-@RDFNamespaces({"ajan = http://www.ajan.de/ajan-ns#", "bt = http://www.ajan.de/behavior/bt-ns#", "rdfs = http://www.w3.org/2000/01/rdf-schema#"})
+@RDFNamespaces({
+	"ajan = http://www.ajan.de/ajan-ns#",
+	"poser = http://www.ajan.de/poser-ns#",  
+	"bt = http://www.ajan.de/behavior/bt-ns#", 
+	"rdfs = http://www.w3.org/2000/01/rdf-schema#"
+})
 package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.mapping;
 
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
