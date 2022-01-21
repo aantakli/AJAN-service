@@ -98,7 +98,18 @@ MA 02110-1301  USA
             <artifactId>xercesImpl</artifactId>
             <version>2.12.1</version>
         </dependency>
-        
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>4.6</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.univocity</groupId>
+            <artifactId>univocity-parsers</artifactId>
+            <version>2.9.1</version>
+        </dependency>
+
         <dependency>
             <groupId>rmlmapper</groupId>
             <artifactId>rmlmapper</artifactId>
@@ -239,6 +250,7 @@ MA 02110-1301  USA
                                     lombok,         
                                     jackson-databind,
                                     xercesImpl,
+                                    opencsv,
                                     pf4j,
                                     rdf4j-model,
                                     rdf4j-model-compiance,

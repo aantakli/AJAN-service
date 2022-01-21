@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.opencsv.CSVWriter;
 import com.taxonic.carml.engine.RmlMapper;
 import com.taxonic.carml.logical_source_resolver.CsvResolver;
 import com.taxonic.carml.logical_source_resolver.JsonPathResolver;
@@ -30,11 +31,13 @@ import com.taxonic.carml.logical_source_resolver.XPathResolver;
 import com.taxonic.carml.model.TriplesMap;
 import com.taxonic.carml.util.RmlMappingLoader;
 import com.taxonic.carml.vocab.Rdf;
+import de.dfki.asr.ajan.common.CSVInput;
 import de.dfki.asr.ajan.common.SPARQLUtil;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -56,10 +59,13 @@ public final class MappingUtil {
 
     public static  InputStream getResourceStream(final Object input) throws JsonProcessingException, IOException, TransformerException {
         if (input instanceof JsonNode) {
-            return MappingUtil.getJsonResourceStream(input);
+            return MappingUtil.getJSONResourceStream(input);
         }
 		if (input instanceof DeferredDocumentImpl) {
 			return MappingUtil.getXMLResourceStream(input);
+        }
+		if (input instanceof CSVInput) {
+			return MappingUtil.getCSVResourceStream(input);
         }
         return null;
     }
@@ -99,15 +105,14 @@ public final class MappingUtil {
         return SPARQLUtil.queryRepository(repo, context.toString());
     }
 
-
-    public static InputStream getJsonResourceStream(final Object eventInfo) throws JsonProcessingException, IOException {
+    private static InputStream getJSONResourceStream(final Object eventInfo) throws JsonProcessingException, IOException {
         JsonNode input = (JsonNode) eventInfo;
 		ObjectMapper om = new ObjectMapper();
 		ObjectWriter writer = om.writer();
         return new ByteArrayInputStream(writer.writeValueAsBytes(input));
     }
 
-    public static InputStream getXMLResourceStream(final Object eventInfo) throws IOException, TransformerException {
+    private static InputStream getXMLResourceStream(final Object eventInfo) throws IOException, TransformerException {
 		DeferredDocumentImpl input = (DeferredDocumentImpl) eventInfo;
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -117,7 +122,15 @@ public final class MappingUtil {
 		return new ByteArrayInputStream(baos.toByteArray());
     }
 
-    /*private InputStream getCsvResourceStream(final Object eventInfo) throws JsonProcessingException {
-        return new ByteArrayInputStream(objectMapper.writeValueAsBytes(input));
-    }*/
+    private static InputStream getCSVResourceStream(final Object eventInfo) throws JsonProcessingException, IOException {
+		CSVInput input = (CSVInput) eventInfo;
+		String out = "";
+		try (StringWriter sw = new StringWriter(); CSVWriter csvWriter = new CSVWriter(sw)) {
+			for (String[] rowData: input.getContent()) {
+				csvWriter.writeNext(rowData);
+				out = sw.toString();
+			}
+		}
+        return new ByteArrayInputStream(out.getBytes());
+    }
 }

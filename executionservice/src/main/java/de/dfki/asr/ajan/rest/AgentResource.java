@@ -22,6 +22,7 @@ package de.dfki.asr.ajan.rest;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.DebugMode;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.ModelMode;
+import de.dfki.asr.ajan.common.CSVInput;
 import de.dfki.asr.ajan.logic.agent.AgentManager;
 import de.dfki.asr.ajan.model.Agent;
 import de.dfki.asr.ajan.model.Behavior;
@@ -122,8 +123,8 @@ public class AgentResource {
 	@Consumes(CSV)
 	@Produces({TURTLE,JSONLD})
 	@ApiOperation("Receive CSV")
-	public Agent csvPostAgent(@QueryParam("capability") final String capability, final JsonNode json) {
-            return setEvent(capability, json);
+	public Agent csvPostAgent(@QueryParam("capability") final String capability, final CSVInput csv) {
+            return setEvent(capability, csv);
 	}
 
 	private Agent setEvent(final String capability, final Object input) {
