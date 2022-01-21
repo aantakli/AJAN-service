@@ -46,6 +46,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.*;
+import org.xml.sax.SAXException;
 
 @SuppressWarnings("PMD.SignatureDeclareThrowsException")
 public class ServiceClientTest {
@@ -102,7 +103,7 @@ public class ServiceClientTest {
 	}
 
 	@Test
-	public void shouldIncludeAcceptHeader() throws RDFBeanException, URISyntaxException, IOException, HttpException {
+	public void shouldIncludeAcceptHeader() throws RDFBeanException, URISyntaxException, IOException, HttpException, SAXException {
 		HttpRequest request = performRequest("POSTAcceptTurtle");
 		assertThat(request.getFirstHeader("accept").getValue(), is(TURTLE));
 		assertThat(request.getRequestLine().getMethod(), is("POST"));
@@ -113,14 +114,14 @@ public class ServiceClientTest {
 	}
 
 	@Test
-	public void shouldModifyRequestLine() throws RDFBeanException, URISyntaxException, IOException, HttpException {
+	public void shouldModifyRequestLine() throws RDFBeanException, URISyntaxException, IOException, HttpException, SAXException {
 		HttpRequest request = performRequest("GETviaHTTP10");
 		assertThat(request.getRequestLine().getMethod(), is("GET"));
 		assertThat(request.getRequestLine().getProtocolVersion().toString(), is("HTTP/1.0"));
 		assertThat(request.getFirstHeader("accept").getValue(), is(TURTLE));
 	}
 
-	private HttpRequest performRequest(final String serviceName) throws HttpException, URISyntaxException, RDFBeanException, IOException {
+	private HttpRequest performRequest(final String serviceName) throws HttpException, URISyntaxException, RDFBeanException, IOException, SAXException {
 		ServiceActionDefinition s = getService(serviceName);
 		HttpConnection client = new HttpConnection(s.getRun());
 		client.setPayload("test");

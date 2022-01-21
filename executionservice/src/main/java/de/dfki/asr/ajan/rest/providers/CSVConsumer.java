@@ -18,11 +18,10 @@
  */
 package de.dfki.asr.ajan.rest.providers;
 
-import com.opencsv.CSVReader;
+import de.dfki.asr.ajan.common.AgentUtil;
 import de.dfki.asr.ajan.common.CSVInput;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import javax.ws.rs.Consumes;
@@ -55,11 +54,7 @@ public class CSVConsumer implements MessageBodyReader<CSVInput> {
             Response response = Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN).entity(msg).build();
             throw new WebApplicationException(response);
         }
-        CSVReader reader = new CSVReader(new InputStreamReader(in));
-        CSVInput input = new CSVInput();
-        input.setContent(reader.readAll());
-	reader.close();
-        return input;
+        return AgentUtil.getCSVFromStream(in);
     }
 
 }

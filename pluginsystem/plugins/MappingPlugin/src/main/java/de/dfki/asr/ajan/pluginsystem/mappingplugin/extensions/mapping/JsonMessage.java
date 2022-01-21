@@ -29,7 +29,7 @@ import de.dfki.asr.ajan.behaviour.service.impl.HttpBinding;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpConnection;
 import de.dfki.asr.ajan.common.AgentUtil;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.JSONMappingException;
+import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.InputMappingException;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.RMLMapperException;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.utils.MappingUtil;
 import de.dfki.asr.poser.Converter.RdfToJson;
@@ -47,6 +47,7 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.repository.Repository;
+import org.xml.sax.SAXException;
 import ro.fortsoft.pf4j.Extension;
 
 /**
@@ -112,16 +113,16 @@ public class JsonMessage extends Message implements NodeExtension {
 			}
 			LOG.info(toString() + " SUCCEEDED");
 			return new LeafStatus(Task.Status.SUCCEEDED, toString() + " SUCCEEDED");
-		} catch (IOException | URISyntaxException | MessageEvaluationException | JSONMappingException ex) {
+		} catch (IOException | URISyntaxException | MessageEvaluationException | InputMappingException | SAXException ex) {
 			LOG.info(toString() + " FAILED due to query evaluation error", ex);
 			return new LeafStatus(Task.Status.FAILED, toString() + " FAILED");
 		}
 	}
 
-	private String createPayload() throws URISyntaxException, UnsupportedEncodingException, JSONMappingException {
+	private String createPayload() throws URISyntaxException, UnsupportedEncodingException, InputMappingException {
 		String payload = "";
 		if (getBinding().getPayload() == null || dataMapping == null || apiMapping == null) {
-			throw new JSONMappingException("No payload or Mapping defined!");
+			throw new InputMappingException("No payload or Mapping defined!");
 		}
 		Model inputModel = getInputModel(binding);
 		Repository dataRepo =  BTUtil.getInitializedRepository(getObject(), dataMapping.getOriginBase());

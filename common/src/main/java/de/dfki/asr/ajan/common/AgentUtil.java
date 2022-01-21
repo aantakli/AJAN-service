@@ -16,15 +16,21 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-
 package de.dfki.asr.ajan.common;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opencsv.CSVReader;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.Optional;
 import org.apache.commons.validator.UrlValidator;
+import org.apache.xerces.parsers.DOMParser;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
@@ -35,6 +41,9 @@ import org.eclipse.rdf4j.query.GraphQueryResult;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFWriterRegistry;
 import org.eclipse.rdf4j.rio.Rio;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public final class AgentUtil {
 
@@ -81,9 +90,9 @@ public final class AgentUtil {
 		while (itr.hasNext()) {
 			Statement stmt = itr.next();
 			if (context instanceof String) {
-				addNamedStatement(builder, stmt, (String)context);
+				addNamedStatement(builder, stmt, (String) context);
 			} else if (context instanceof Resource) {
-				addNamedStatement(builder, stmt, (Resource)context);
+				addNamedStatement(builder, stmt, (Resource) context);
 			} else {
 				addNamedStatement(builder, stmt);
 			}
@@ -98,20 +107,20 @@ public final class AgentUtil {
 
 	private static void addNamedStatement(final ModelBuilder builder, final Statement stmt, final String iri) {
 		builder.namedGraph(iri)
-				.subject(stmt.getSubject())
-					.add(stmt.getPredicate(), stmt.getObject());
+			.subject(stmt.getSubject())
+			.add(stmt.getPredicate(), stmt.getObject());
 	}
 
 	private static void addNamedStatement(final ModelBuilder builder, final Statement stmt, final Resource resource) {
 		builder.namedGraph(resource)
-				.subject(stmt.getSubject())
-					.add(stmt.getPredicate(), stmt.getObject());
+			.subject(stmt.getSubject())
+			.add(stmt.getPredicate(), stmt.getObject());
 	}
 
 	private static void addNamedStatement(final ModelBuilder builder, final Statement stmt) {
 		builder.defaultGraph()
-				.subject(stmt.getSubject())
-					.add(stmt.getPredicate(), stmt.getObject());
+			.subject(stmt.getSubject())
+			.add(stmt.getPredicate(), stmt.getObject());
 	}
 
 	public static RDFFormat formatForMimeType(final String mimeType) {
@@ -132,5 +141,24 @@ public final class AgentUtil {
 			subject = vf.createBNode();
 		}
 		return subject;
+	}
+
+	public static JsonNode getJsonFromStream(final InputStream is) throws IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		return mapper.readTree(is);
+	}
+
+	public static Document getXMLFromStream(final InputStream is) throws SAXException, IOException {
+		DOMParser parser = new DOMParser();
+		parser.parse(new InputSource(is));
+		return parser.getDocument();
+	}
+
+	public static CSVInput getCSVFromStream(final InputStream is) throws IOException {
+		CSVReader reader = new CSVReader(new InputStreamReader(is));
+		CSVInput input = new CSVInput();
+		input.setContent(reader.readAll());
+		reader.close();
+		return input;
 	}
 }

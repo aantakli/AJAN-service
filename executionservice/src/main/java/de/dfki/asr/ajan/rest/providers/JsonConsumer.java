@@ -19,8 +19,8 @@
 package de.dfki.asr.ajan.rest.providers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import de.dfki.asr.ajan.common.AgentUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -53,8 +53,7 @@ public class JsonConsumer implements MessageBodyReader<JsonNode> {
         if (!mt.toString().equals("application/json")) {
             createErrorMsg(mt);
         }
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readTree(in);
+        return AgentUtil.getJsonFromStream(in);
     }
 
     private void createErrorMsg(final MediaType mt) {

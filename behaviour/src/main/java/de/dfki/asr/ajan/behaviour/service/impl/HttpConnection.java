@@ -22,7 +22,9 @@ package de.dfki.asr.ajan.behaviour.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.dfki.asr.ajan.behaviour.events.Event;
+import de.dfki.asr.ajan.common.AgentUtil;
 import static de.dfki.asr.ajan.common.AgentUtil.formatForMimeType;
+import de.dfki.asr.ajan.common.CSVInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -44,6 +46,8 @@ import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.rio.Rio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 public class HttpConnection implements IConnection {
 	private static final Logger LOG = LoggerFactory.getLogger(HttpConnection.class);
@@ -95,12 +99,12 @@ public class HttpConnection implements IConnection {
 	}
 
 	@Override
-	public Object execute() throws IOException {
+	public Object execute() throws IOException, SAXException {
 		LOG.info("Executing request {}", request.toString());
 		return sendRequest();
 	}
 
-	private Object sendRequest() throws HttpResponseException, IOException {
+	private Object sendRequest() throws HttpResponseException, IOException, SAXException {
 		try (CloseableHttpClient httpClient = HttpClientBuilder.create()
 				.setDefaultRequestConfig(requestConfig)
 				.setRetryHandler(new DefaultHttpRequestRetryHandler(2, false)).build();
@@ -129,11 +133,15 @@ public class HttpConnection implements IConnection {
 		return null;
 	}
 
-	private Object readContent(final InputStream response, final String mimeType) throws IOException {
+	private Object readContent(final InputStream response, final String mimeType) throws IOException, SAXException {
 		if (mimeType == null) {
 			return createModelFromResponse(response, "text/turtle");
 		} else if (mimeType.contains("application/json")) {
 			return createJsonFromResponse(response);
+		} else if (mimeType.contains("application/xml") || mimeType.contains("text/xml")) {
+			return createXMLFromResponse(response);
+		} else if (mimeType.contains("text/csv")) {
+			return createCSVFromResponse(response);
 		}
 		return createModelFromResponse(response, mimeType);
 	}
@@ -164,6 +172,14 @@ public class HttpConnection implements IConnection {
 	private JsonNode createJsonFromResponse(final InputStream response) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper.readTree(response);
+	}
+
+	private Document createXMLFromResponse(final InputStream response) throws IOException, SAXException {
+		return AgentUtil.getXMLFromStream(response);
+	}
+
+	private CSVInput createCSVFromResponse(final InputStream response) throws IOException {
+		return AgentUtil.getCSVFromStream(response);
 	}
 
 	@Override

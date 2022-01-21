@@ -18,6 +18,7 @@
  */
 package de.dfki.asr.ajan.rest.providers;
 
+import de.dfki.asr.ajan.common.AgentUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -29,10 +30,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
-import org.apache.xerces.parsers.DOMParser;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 @Provider
@@ -55,9 +54,7 @@ public class XMLConsumer implements MessageBodyReader<Document> {
             createErrorMsg(mt);
         }
         try {
-            DOMParser parser = new DOMParser();
-            parser.parse(new InputSource(in));
-            return parser.getDocument();
+            return AgentUtil.getXMLFromStream(in);
         }
         catch (SAXException ex) {
             createErrorMsg(mt);
