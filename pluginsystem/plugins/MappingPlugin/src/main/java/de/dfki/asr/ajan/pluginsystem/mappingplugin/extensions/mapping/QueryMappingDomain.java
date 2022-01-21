@@ -18,9 +18,7 @@
  */
 package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.mapping;
 
-import be.ugent.rml.store.RDF4JStore;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
@@ -34,6 +32,7 @@ import de.dfki.asr.ajan.common.AgentUtil;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.RMLMapperException;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.utils.MappingUtil;
+import de.dfki.asr.ajan.pluginsystem.mappingplugin.vocabularies.MappingVocabulary;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -50,6 +49,7 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.repository.Repository;
 import ro.fortsoft.pf4j.Extension;
 
@@ -81,7 +81,9 @@ public class QueryMappingDomain extends SyncMessage implements NodeExtension {
     @Getter
     @Setter
     private BehaviorSelectQuery queryURI;
+
     private Model domainResponse;
+	private Model mappingFile;
 
     @Override
     public Resource getType() {
@@ -93,24 +95,57 @@ public class QueryMappingDomain extends SyncMessage implements NodeExtension {
         HttpBinding bng = new HttpBinding();
         try {
             bng.setMethod(new URI(AJANVocabulary.HTTP_METHOD_GET.toString()));
+			setMappingFile();
             bng.setHeaders(getHeaders());
             super.setUrl(url);
             super.setQueryURI(queryURI);
             super.setBinding(bng);
-        } catch (URISyntaxException ex) {
+        } catch (URISyntaxException | RMLMapperException ex) {
             Logger.getLogger(QueryDomain.class.getName()).log(Level.SEVERE, null, ex);
         }
         return super.execute();
     }
 
+	protected void setMappingFile() throws URISyntaxException, RMLMapperException {
+		if (mapping != null) {
+			Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
+			mappingFile = MappingUtil.getTriplesMaps(repo, mapping);
+		}
+		else {
+			throw new RMLMapperException("no mapping file selected!");
+		}
+	}
+
     private List<HttpHeader> getHeaders() throws URISyntaxException {
         List list = new ArrayList();
         HttpHeader accept = new HttpHeader();
         accept.setHeaderName(new URI(AJANVocabulary.HTTP_HEADER_ACCEPT.toString()));
-        accept.setHeaderValue("application/json, application/xml, application/csv");
+        accept.setHeaderValue(readePossibleAcceptHeaders());
         list.add(accept);
         return list;
     }
+
+	private String readePossibleAcceptHeaders() {
+		StringBuilder accepts = new StringBuilder();
+		Model filtered = mappingFile.filter(null, MappingVocabulary.RML_REFERENCE_FORMULATION, null);
+		for (Value objects: filtered.objects()) {
+			switch(objects.stringValue()) {
+				case "http://semweb.mmlab.be/ns/ql#JSONPath":
+					accepts.append("application/json");
+					break;
+				case "http://semweb.mmlab.be/ns/ql#XPath":
+					accepts.append("application/xml, text/xml");
+					break;
+				case "http://semweb.mmlab.be/ns/ql#CSV":
+					accepts.append("text/csv");
+					break;
+				default: 
+					accepts.append("text/turtle");
+					break;
+			}
+		}
+		return accepts.toString();
+	}
 
     @Override
     protected boolean checkResponse(final Object response) {
@@ -119,24 +154,22 @@ public class QueryMappingDomain extends SyncMessage implements NodeExtension {
         } else {
 			try {
                 domainResponse = getModel(response);
-            } catch (URISyntaxException | RMLMapperException | TransformerException | IOException ex) {
+            } catch (URISyntaxException | TransformerException | IOException ex) {
                 LOG.error("Malformed response!");
 				LOG.error("Mime Type is not supported!");
+                return false;
+            } catch (RuntimeException ex) {
+                LOG.error("CARML Mapping Error!");
+				LOG.error("Malformed mapping file!");
                 return false;
             }
         }
         return updateBeliefs(modifyResponse(domainResponse), targetBase);
     }
 
-    protected Model getModel(final Object response) throws RMLMapperException, URISyntaxException, IOException, JsonProcessingException, TransformerException {
-        Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
+    protected Model getModel(final Object response) throws URISyntaxException, IOException, RuntimeException, JsonProcessingException, TransformerException {
 		InputStream resourceStream = MappingUtil.getResourceStream(response);
-        if (mapping != null) {
-			return MappingUtil.getMappedModel(MappingUtil.getTriplesMaps(repo, mapping), resourceStream);
-		}
-		else {
-			throw new RMLMapperException("no mapping file selected!");
-		}
+        return MappingUtil.getMappedModel(mappingFile, resourceStream);
     }
 
     @Override
