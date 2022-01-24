@@ -85,7 +85,7 @@ public final class MappingUtil {
 
     public static Model getTriplesMaps(final Repository repo, final List<URI> mappings) throws URISyntaxException {
         if (mappings == null) {
-                throw new URISyntaxException("bt:mappings", "Cannot be null");
+                throw new URISyntaxException("bt:mapping", "Cannot be null");
         }
 		StringBuilder context = new StringBuilder();
 		context.append("DESCRIBE ");

@@ -110,6 +110,9 @@ public class QueryMappingDomain extends SyncMessage implements NodeExtension {
 		if (mapping != null) {
 			Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
 			mappingFile = MappingUtil.getTriplesMaps(repo, mapping);
+			if (mappingFile == null) {
+				throw new RMLMapperException("Mapping file could not be read!");
+			}
 		}
 		else {
 			throw new RMLMapperException("no mapping file selected!");
