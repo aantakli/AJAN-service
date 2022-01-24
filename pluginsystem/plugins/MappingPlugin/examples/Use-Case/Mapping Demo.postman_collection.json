@@ -1,0 +1,76 @@
+{
+	"info": {
+		"_postman_id": "f96f3964-8de6-4a1f-9692-17d6c781117a",
+		"name": "Mapping Demo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Run Test Agent",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "text/xml",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "<transport>\r\n    <bus id=\"26\">\r\n        <route>\r\n            <stop id=\"645\">International Airport</stop>\r\n            <!--<stop id=\"651\">Conference center</stop>-->\r\n        </route>\r\n    </bus>\r\n</transport>"
+				},
+				"url": {
+					"raw": "http://localhost:8080/ajan/agents/test?capability=default",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ajan",
+						"agents",
+						"test"
+					],
+					"query": [
+						{
+							"key": "capability",
+							"value": "default"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Test Agent",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "text/turtle",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix ajan: <http://www.ajan.de/ajan-ns#> .\r\n@prefix inv: <http://www.dfki.de/inversiv#> .\r\n@prefix : <http://www.dfki.de/inversiv#> .\r\n@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .\r\n@prefix http: <http://www.w3.org/2006/http#> .\r\n@prefix test: <http://test/> .\r\n\r\n:initialization rdf:type ajan:AgentInitialisation ;\r\n\t\t\t\tajan:agentId \"test\"^^xsd:string ;\r\n\t\t\t\tajan:agentTemplate <http://localhost:8090/rdf4j/repositories/agents#AG_27bc46d5-2829-41e6-988b-79deb165ed34> ;\r\n\t\t\t\tajan:agentInitKnowledge test:Subject  .\r\n\r\ntest:Subject rdf:type test:Resource .\r\ntest:Subject test:predicate \"Geh weg!\" ."
+				},
+				"url": {
+					"raw": "http://localhost:8080/ajan/agents",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ajan",
+						"agents"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
