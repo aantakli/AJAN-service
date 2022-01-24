@@ -40,7 +40,6 @@ import org.springframework.stereotype.Component;
 @Provider
 @Consumes({
 				"application/rdf+xml",
-				"application/xml",
 				"application/n-triples",
 				"text/turtle",
 				"application/x-turtle",

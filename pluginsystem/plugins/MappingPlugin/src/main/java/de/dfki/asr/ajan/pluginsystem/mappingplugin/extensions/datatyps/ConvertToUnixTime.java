@@ -19,8 +19,6 @@
 
 package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.datatyps;
 
-import be.ugent.rml.store.RDF4JStore;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -28,10 +26,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
-import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.*;
-import de.dfki.asr.ajan.pluginsystem.mappingplugin.utils.MappingUtil;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.vocabularies.MappingVocabulary;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -40,7 +35,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.logging.Level;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;

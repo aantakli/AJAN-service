@@ -2,6 +2,30 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
+# ----------- Endpoint ------------
+
+# localhost:8080/ajan/agents/ | POST | text/turtle
+
+# ------------- Body --------------
+
+#@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+#@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+#@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+#@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+#@prefix inv: <http://www.dfki.de/inversiv#> .
+#@prefix : <http://www.dfki.de/inversiv#> .
+#@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+#@prefix http: <http://www.w3.org/2006/http#> .
+#@prefix test: <http://test/> .
+#
+#:initialization rdf:type ajan:AgentInitialisation ;
+#				ajan:agentId "Agento"^^xsd:string ;
+#				ajan:agentTemplate <http://localhost:8090/rdf4j/repositories/agents#AG_27bc46d5-2829-41e6-988b-79deb165ed34> ;
+#				ajan:agentInitKnowledge test:Subject  .
+#
+#test:Subject rdf:type test:Resource .
+#test:Subject test:predicate "Geh weg!" .
+
 <http://localhost:8090/rdf4j/repositories/agents#AG_27bc46d5-2829-41e6-988b-79deb165ed34>
   a <http://www.ajan.de/ajan-ns#AgentTemplate>;
   <http://www.ajan.de/ajan-ns#behavior> <http://localhost:8090/rdf4j/repositories/agents#BE_af9a94b3-d7ed-43e8-ab8b-af5e9a7337fb>;

@@ -16,11 +16,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.json;
+package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.mapping;
 
-import be.ugent.rml.store.RDF4JStore;
 import com.badlogic.gdx.ai.btree.Task;
-import com.fasterxml.jackson.databind.JsonNode;
 import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
@@ -31,15 +29,17 @@ import de.dfki.asr.ajan.behaviour.service.impl.HttpBinding;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpConnection;
 import de.dfki.asr.ajan.common.AgentUtil;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.JSONMappingException;
+import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.InputMappingException;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.RMLMapperException;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.utils.MappingUtil;
 import de.dfki.asr.poser.Converter.RdfToJson;
 import de.dfki.asr.poser.Namespace.JSON;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import javax.xml.transform.TransformerException;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -47,6 +47,7 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.repository.Repository;
+import org.xml.sax.SAXException;
 import ro.fortsoft.pf4j.Extension;
 
 /**
@@ -77,11 +78,11 @@ public class JsonMessage extends Message implements NodeExtension {
 	@Getter @Setter
 	private URI targetBase;
 
-	@RDF("bt:dataMapping")
+	@RDF("poser:dataMapping")
 	@Getter @Setter
 	private BehaviorConstructQuery dataMapping;
 
-	@RDF("bt:apiMapping")
+	@RDF("poser:apiMapping")
 	@Getter @Setter
 	private BehaviorConstructQuery apiMapping;
 	
@@ -112,16 +113,16 @@ public class JsonMessage extends Message implements NodeExtension {
 			}
 			LOG.info(toString() + " SUCCEEDED");
 			return new LeafStatus(Task.Status.SUCCEEDED, toString() + " SUCCEEDED");
-		} catch (IOException | URISyntaxException | MessageEvaluationException | JSONMappingException ex) {
+		} catch (IOException | URISyntaxException | MessageEvaluationException | InputMappingException | SAXException ex) {
 			LOG.info(toString() + " FAILED due to query evaluation error", ex);
 			return new LeafStatus(Task.Status.FAILED, toString() + " FAILED");
 		}
 	}
 
-	private String createPayload() throws URISyntaxException, UnsupportedEncodingException, JSONMappingException {
+	private String createPayload() throws URISyntaxException, UnsupportedEncodingException, InputMappingException {
 		String payload = "";
 		if (getBinding().getPayload() == null || dataMapping == null || apiMapping == null) {
-			throw new JSONMappingException("No payload or Mapping defined!");
+			throw new InputMappingException("No payload or Mapping defined!");
 		}
 		Model inputModel = getInputModel(binding);
 		Repository dataRepo =  BTUtil.getInitializedRepository(getObject(), dataMapping.getOriginBase());
@@ -142,18 +143,16 @@ public class JsonMessage extends Message implements NodeExtension {
 
 	@Override
 	protected boolean checkResponse(final Object response) {
-		if (response instanceof JsonNode) {
-			try {
-				domainResponse = getModel((JsonNode)response);
-			} catch (URISyntaxException | RMLMapperException ex) {
-				LOG.error("Malformed response!");
-				return false;
-			}
-		} else if (response instanceof Model) {
+		if (response instanceof Model) {
 			domainResponse = (Model)response;
 		} else {
-			LOG.error("Mime Type is not supported!");
-			return false;
+			try {
+				domainResponse = getModel(response);
+			} catch (URISyntaxException | RMLMapperException | IOException | TransformerException ex) {
+				LOG.error("Malformed response!");
+				LOG.error("Mime Type is not supported!");
+				return false;
+			}
 		}
 		return updateBeliefs(modifyResponse(domainResponse, super.requestURI), targetBase);
 	}
@@ -162,11 +161,14 @@ public class JsonMessage extends Message implements NodeExtension {
 		return AgentUtil.setNamedGraph(model.iterator(), uri);
 	}
 
-	protected Model getModel(final JsonNode input) throws RMLMapperException, URISyntaxException {
+	protected Model getModel(final Object response) throws RMLMapperException, URISyntaxException, IOException, TransformerException {
 		Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
-		RDF4JStore rmlStore;
-		rmlStore = new RDF4JStore(MappingUtil.getTriplesMaps(repo, mapping));
-		Model model = MappingUtil.loadJsonMapping(input, rmlStore);
-		return model;
+		InputStream resourceStream = MappingUtil.getResourceStream(response);
+        if (mapping != null) {
+			return MappingUtil.getMappedModel(MappingUtil.getTriplesMaps(repo, mapping), resourceStream);
+		}
+		else {
+			throw new RMLMapperException("no mapping file selected!");
+		}
 	}
 }

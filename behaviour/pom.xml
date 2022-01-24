@@ -134,6 +134,12 @@ MA 02110-1301  USA
             <artifactId>rdf4j-repository-sail</artifactId>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.12.1</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

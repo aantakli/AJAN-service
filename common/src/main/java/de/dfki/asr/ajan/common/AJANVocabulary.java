@@ -64,7 +64,7 @@ public class AJANVocabulary {
 	public final static IRI BEHAVIOR_TYPE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#Behavior");
 	public final static IRI DEFAULT_EVENT_TYPE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#DefaultEvent");
 	public final static IRI STRING_EVENT_TYPE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#StringEvent");
-	public final static IRI JSON_EVENT_TYPE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#JsonEvent");
+	public final static IRI MAPPING_EVENT_TYPE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#MappingEvent");
 	public final static IRI MODEL_EVENT_TYPE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#ModelEvent");
 	public final static IRI MODEL_QUEUE_EVENT_TYPE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#ModelQueueEvent");
 	public final static IRI GOAL_TYPE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#Goal");
