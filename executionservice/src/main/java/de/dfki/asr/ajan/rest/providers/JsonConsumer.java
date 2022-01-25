@@ -25,6 +25,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -53,7 +57,19 @@ public class JsonConsumer implements MessageBodyReader<JsonNode> {
         if (!mt.toString().equals("application/json")) {
             createErrorMsg(mt);
         }
-        return AgentUtil.getJsonFromStream(in);
+        return setMessageInformation(AgentUtil.getJsonFromStream(in), mm);
+    }
+
+    private JsonNode setMessageInformation(final JsonNode input, final MultivaluedMap<String, String> mm) {
+        ObjectNode info = (ObjectNode)input;
+        info.put("utc", OffsetDateTime.now(ZoneOffset.UTC).toString());
+        for (Map.Entry<String, List<String>> entry: mm.entrySet()) {
+            info.put(entry.getKey(), OffsetDateTime.now(ZoneOffset.UTC).toString());
+            for (String value: entry.getValue()) {
+                info.put(entry.getKey(), value);
+            }
+        }
+        return info;
     }
 
     private void createErrorMsg(final MediaType mt) {
