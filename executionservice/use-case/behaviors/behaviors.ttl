@@ -11,26 +11,81 @@
   <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-0712defb-c6e3-4beb-8ff6-9df4067e4b3f>;
   rdfs:label "test" .
 
-_:genid-a0c4582f31cb40d2ae9cdb27e56b78dd-b187 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+_:genid-2b54eb64cc544862a7942ac08d3fdb7f-42399F28BD7FB733C85B16A0DCBE6D42 a <http://www.w3.org/2006/http#Header>;
+  <http://www.w3.org/2006/http#hdrName> <http://www.w3.org/2008/http-headers#content-type>;
+  <http://www.w3.org/2006/http#fieldValue> "text/turtle" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Logging-e7fe5fbd-82db-4009-a8f3-e97cb6a31381>
+  a <http://www.ajan.de/myWelcome-ns#Logging>;
+  <http://www.ajan.de/myWelcome-ns#msg> "Halloele";
+  <http://www.ajan.de/myWelcome-ns#lvl> <http://www.ajan.de/myWelcome-ns/logging#Info>;
+  <http://www.ajan.de/myWelcome-ns#comp> "http://www.ajan.de/myWelcome-ns#Logging";
+  rdfs:comment "";
+  <http://www.ajan.de/myWelcome-ns#correlatorId> _:genid-2b54eb64cc544862a7942ac08d3fdb7f-b208;
+  rdfs:label "Logging" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#WelcomeMessage-ab7a9b62-b916-407a-8e0e-0074cb355f56>
+  a <http://www.ajan.de/myWelcome-ns#Message>;
+  rdfs:label "WelcomeMessage";
+  rdfs:comment "";
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/myWelcome-ns#correlatorId> _:genid-2b54eb64cc544862a7942ac08d3fdb7f-A6E3A43F60F49905676935A3A60A80E0;
+  <http://www.ajan.de/behavior/bt-ns#queryUri> _:genid-2b54eb64cc544862a7942ac08d3fdb7f-A01DAACA08DA4CE433EE4E3AED874E41;
+  <http://www.ajan.de/behavior/bt-ns#binding> _:genid-2b54eb64cc544862a7942ac08d3fdb7f-5EB76DBAB58BC20A428605FC2CB8315C .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Sequence-0712defb-c6e3-4beb-8ff6-9df4067e4b3f>
+  a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  rdfs:label "defaultSequence";
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-2b54eb64cc544862a7942ac08d3fdb7f-b209 .
+
+_:genid-2b54eb64cc544862a7942ac08d3fdb7f-457C527C7E51E791F3EAA74CC9509859 rdf:first
+    <http://localhost:8090/rdf4j/repositories/behaviors#WelcomeMessage-ab7a9b62-b916-407a-8e0e-0074cb355f56>;
+  rdf:rest rdf:nil .
+
+_:genid-2b54eb64cc544862a7942ac08d3fdb7f-b208 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
   <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
   <http://www.ajan.de/behavior/bt-ns#sparql> """SELECT ?correlatorId
 WHERE {
   VALUES ?correlatorId {\"12345\"}
 }""" .
 
-<http://localhost:8090/rdf4j/repositories/behaviors#Logging-e7fe5fbd-82db-4009-a8f3-e97cb6a31381>
-  a <http://www.ajan.de/myWelcome-ns#Logging>;
-  <http://www.ajan.de/myWelcome-ns#correlatorId> _:genid-a0c4582f31cb40d2ae9cdb27e56b78dd-b187;
-  <http://www.ajan.de/myWelcome-ns#msg> "Halloele";
-  <http://www.ajan.de/myWelcome-ns#lvl> <http://www.ajan.de/myWelcome-ns/logging#Info>;
-  <http://www.ajan.de/myWelcome-ns#comp> "http://www.ajan.de/myWelcome-ns#Logging";
-  rdfs:label "defaultLogging";
-  rdfs:comment "" .
+_:genid-2b54eb64cc544862a7942ac08d3fdb7f-b209 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#Logging-e7fe5fbd-82db-4009-a8f3-e97cb6a31381>;
+  rdf:rest _:genid-2b54eb64cc544862a7942ac08d3fdb7f-457C527C7E51E791F3EAA74CC9509859 .
 
-<http://localhost:8090/rdf4j/repositories/behaviors#Sequence-0712defb-c6e3-4beb-8ff6-9df4067e4b3f>
-  a <http://www.ajan.de/behavior/bt-ns#Sequence>;
-  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-a0c4582f31cb40d2ae9cdb27e56b78dd-b188;
-  rdfs:label "defaultSequence" .
+_:genid-2b54eb64cc544862a7942ac08d3fdb7f-A6E3A43F60F49905676935A3A60A80E0 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """SELECT ?correlatorId
+WHERE {
+  VALUES ?correlatorId {\"12345\"}
+}""";
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge> .
 
-_:genid-a0c4582f31cb40d2ae9cdb27e56b78dd-b188 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#Logging-e7fe5fbd-82db-4009-a8f3-e97cb6a31381>;
+_:genid-2b54eb64cc544862a7942ac08d3fdb7f-A01DAACA08DA4CE433EE4E3AED874E41 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>,
+    <http://www.ajan.de/behavior/bt-ns#QueryUri>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """SELECT ?requestURI
+WHERE {
+  VALUES ?requestURI{\"http://localhost:3000/test\"}
+}""";
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge> .
+
+_:genid-2b54eb64cc544862a7942ac08d3fdb7f-5EB76DBAB58BC20A428605FC2CB8315C a <http://www.w3.org/2006/http#Request>;
+  <http://www.ajan.de/behavior/bt-ns#headers> _:genid-2b54eb64cc544862a7942ac08d3fdb7f-8CCAC5946D85B3299136109987FE1389;
+  <http://www.w3.org/2006/http#httpVersion> "1.1";
+  <http://www.w3.org/2006/http#mthd> <http://www.w3.org/2008/http-methods#POST>;
+  <http://www.w3.org/2006/http#body> _:genid-2b54eb64cc544862a7942ac08d3fdb7f-CE90578879D5C45755B7C0AD7D9D8DFF;
+  <http://www.w3.org/2006/http#headers> _:genid-2b54eb64cc544862a7942ac08d3fdb7f-DD37325DD3C159D0AAF103FD075BEA5F .
+
+_:genid-2b54eb64cc544862a7942ac08d3fdb7f-8CCAC5946D85B3299136109987FE1389 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> "";
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge> .
+
+_:genid-2b54eb64cc544862a7942ac08d3fdb7f-CE90578879D5C45755B7C0AD7D9D8DFF a <http://www.ajan.de/actn#Payload>;
+  <http://www.ajan.de/behavior/bt-ns#query> _:genid-2b54eb64cc544862a7942ac08d3fdb7f-BE8FBA06E904BC6259CB97D320A5E492 .
+
+_:genid-2b54eb64cc544862a7942ac08d3fdb7f-BE8FBA06E904BC6259CB97D320A5E492 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """CONSTRUCT {?s ?p ?o}
+WHERE {?s ?p ?o}""";
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge> .
+
+_:genid-2b54eb64cc544862a7942ac08d3fdb7f-DD37325DD3C159D0AAF103FD075BEA5F rdf:first
+    _:genid-2b54eb64cc544862a7942ac08d3fdb7f-42399F28BD7FB733C85B16A0DCBE6D42;
   rdf:rest rdf:nil .
