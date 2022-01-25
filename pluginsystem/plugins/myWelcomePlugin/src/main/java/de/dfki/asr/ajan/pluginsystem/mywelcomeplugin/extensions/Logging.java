@@ -32,6 +32,7 @@ import de.dfki.asr.ajan.pluginsystem.mywelcomeplugin.utils.MyWelcomeUtil;
 import de.dfki.asr.ajan.pluginsystem.mywelcomeplugin.vocabularies.MyWelcomeVocabulary;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -129,7 +130,7 @@ public class Logging extends AbstractTDBLeafTask implements NodeExtension, TreeN
 			String report = toString() + " SUCCEEDED";
 			LOG.info(report);
 			return new LeafStatus(Status.SUCCEEDED, report);
-		} catch (URISyntaxException | MessageEvaluationException ex) {
+		} catch (URISyntaxException | UnknownHostException | MessageEvaluationException ex) {
 			String report = toString() + " FAILED";
 			LOG.info(report);
 			return new LeafStatus(Status.FAILED, report);

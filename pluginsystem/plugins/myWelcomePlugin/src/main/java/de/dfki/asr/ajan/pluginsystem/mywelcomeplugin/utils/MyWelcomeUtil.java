@@ -25,6 +25,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -50,7 +51,11 @@ public final class MyWelcomeUtil {
 	}
 
 	@SuppressWarnings({"PMD.ExcessiveParameterList","PMD.ConsecutiveLiteralAppends","PMD.SystemPrintln"})
-	public static void logInfo(final Object node, final UUID id, final String corr, final LogLevel lvl, final String msg) {
+	public static void logInfo(final Object node, final UUID id, final String corr, final LogLevel lvl, final String msg) throws UnknownHostException {
+		logInfo(node, id, corr, lvl, msg, InetAddress.getLocalHost().getHostAddress());
+	}
+
+	public static void logInfo(final Object node, final UUID id, final String corr, final LogLevel lvl, final String msg, final String host) {
 		StringBuilder sb = new StringBuilder(2048);
 		String del = " | ";
 		OffsetDateTime now = OffsetDateTime.now( ZoneOffset.UTC );
@@ -58,11 +63,11 @@ public final class MyWelcomeUtil {
 		sb.append("trans=").append(id.toString()).append(del);
 		sb.append("corr=").append(corr).append(del);
 		sb.append("lvl=").append(lvl).append(del);
-		sb.append("from=").append(InetAddress.getLoopbackAddress().getHostAddress()).append(del);
+		sb.append("from=").append(host).append(del);
 		sb.append("srv=").append("AJAN").append(del);
 		sb.append("subsrv=").append("default").append(del);
 		sb.append("comp=").append(node.getClass()).append(del);
-		sb.append("op=").append("de.dfki.asr.ajan.myWelcomeApp.myWelcomeUtil").append(del);
+		sb.append("op=").append("class de.dfki.asr.ajan.myWelcomeApp.myWelcomeUtil").append(del);
 		sb.append("msg=").append(msg);
 		System.out.println(sb.toString());
 	}

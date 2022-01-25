@@ -26,6 +26,7 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 public class MyWelcomeVocabulary {
 	private static final ValueFactory FACTORY = SimpleValueFactory.getInstance();
 	public final static IRI LOGGING = FACTORY.createIRI("http://www.ajan.de/myWelcome-ns#Logging");
+	public final static IRI WELCOME_MESSAGE = FACTORY.createIRI("http://www.ajan.de/myWelcome-ns#Message");
 
 	// Logging Levels
 	public final static IRI LOG_INFO = FACTORY.createIRI("http://www.ajan.de/myWelcome-ns/logging#Info");

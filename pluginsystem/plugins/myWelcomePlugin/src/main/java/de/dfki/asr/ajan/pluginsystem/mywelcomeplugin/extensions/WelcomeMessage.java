@@ -33,9 +33,12 @@ import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorQuery;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpHeader;
 import de.dfki.asr.ajan.common.AgentUtil;
+import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mywelcomeplugin.utils.MyWelcomeUtil;
+import de.dfki.asr.ajan.pluginsystem.mywelcomeplugin.vocabularies.MyWelcomeVocabulary;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -48,18 +51,18 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.resultio.TupleQueryResultFormat;
 import org.eclipse.rdf4j.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+import ro.fortsoft.pf4j.Extension;
 
+@Extension
 @RDFBean("welcome:Message")
 @SuppressWarnings("PMD.ExcessiveImports")
-public class WelcomeMessage extends AbstractTDBLeafTask {
+public class WelcomeMessage extends AbstractTDBLeafTask implements NodeExtension, TreeNode {
 	@Getter @Setter
 	@RDFSubject
 	private String url;
@@ -84,6 +87,7 @@ public class WelcomeMessage extends AbstractTDBLeafTask {
 	@Getter @Setter
 	private URI targetBase;
 
+	protected String payload;
 	protected String correlatorId = "";
 	protected String requestURI;
 	protected HttpConnection request;
@@ -91,12 +95,11 @@ public class WelcomeMessage extends AbstractTDBLeafTask {
 
 	@Override
 	public Resource getType() {
-		return BTVocabulary.MESSAGE;
+		return MyWelcomeVocabulary.WELCOME_MESSAGE;
 	}
 
 	@Override
 	public LeafStatus executeLeaf() {
-		UUID id = UUID.randomUUID();
 		try {
 			setRequestUri();
 			correlatorId = MyWelcomeUtil.getCorrelationId(this.getObject(), queryCorrId);
@@ -106,10 +109,11 @@ public class WelcomeMessage extends AbstractTDBLeafTask {
 			binding.setRequestURI(new URI(requestURI));
 			request = new HttpConnection(binding);
 			prepareRequest();
-			LOG.info("Executing request {}", request.toString());
-			MyWelcomeUtil.logInfo(this, id, correlatorId, MyWelcomeUtil.LogLevel.INFO, "Executing request:" + request.toString());
+			LOG.info("Executing request {}", binding.toString());
+			String host = InetAddress.getLocalHost().getHostAddress();
+			MyWelcomeUtil.logInfo(this, request.getId(), correlatorId, MyWelcomeUtil.LogLevel.INFO, getLogginMessage(), host);
 			if (!checkResponse(request.execute())) {
-				MyWelcomeUtil.logInfo(this, id, correlatorId, MyWelcomeUtil.LogLevel.ERROR, toString() + " FAILED due to malformed response model");
+				MyWelcomeUtil.logInfo(this, request.getId(), correlatorId, MyWelcomeUtil.LogLevel.ERROR, toString() + " FAILED due to malformed response model", host);
 				LOG.info(toString() + " FAILED due to malformed response model");
 				return new LeafStatus(Status.FAILED, toString() + " FAILED");
 			}
@@ -117,7 +121,7 @@ public class WelcomeMessage extends AbstractTDBLeafTask {
 			correlatorId = "";
 			return new LeafStatus(Status.SUCCEEDED, toString() + " SUCCEEDED");
 		} catch (IOException | URISyntaxException | MessageEvaluationException | SAXException ex) {
-			MyWelcomeUtil.logInfo(this, id, correlatorId, MyWelcomeUtil.LogLevel.ERROR, toString() + " FAILED due to query evaluation error");
+			MyWelcomeUtil.logInfo(this, request.getId(), correlatorId, MyWelcomeUtil.LogLevel.ERROR, toString() + " FAILED due to query evaluation error", null);
 			LOG.info(toString() + " FAILED due to query evaluation error", ex);
 			correlatorId = "";
 			return new LeafStatus(Status.FAILED, toString() + " FAILED");
@@ -125,11 +129,20 @@ public class WelcomeMessage extends AbstractTDBLeafTask {
 	}
 
 	protected void prepareRequest() throws URISyntaxException, IOException, MessageEvaluationException {
-		String payload = null;
+		payload = null;
 		if (binding.getPayload() != null) {
 			payload = getInput(binding);
 		}
 		request.setPayload(payload);
+	}
+
+	protected String getLogginMessage() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("HTTP Method: ").append(binding.getMethod().getFragment()).append("\n");
+		sb.append("HTTP Headers: ").append(ACTNUtil.getMimeTypeFromHeaders(binding.getHeaders())).append("\n");
+		sb.append("Request URI: ").append(requestURI).append("\n");
+		sb.append("HTTP Payload: ").append(payload);
+		return sb.toString();
 	}
 
 	protected boolean checkResponse(final Object response) throws URISyntaxException {
