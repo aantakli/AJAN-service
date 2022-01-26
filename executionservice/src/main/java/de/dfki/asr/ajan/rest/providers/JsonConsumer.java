@@ -25,6 +25,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -53,7 +57,7 @@ public class JsonConsumer implements MessageBodyReader<JsonNode> {
         if (!mt.toString().equals("application/json")) {
             createErrorMsg(mt);
         }
-        return AgentUtil.getJsonFromStream(in);
+        return AgentUtil.setMessageInformation(AgentUtil.getJsonFromStream(in), mm);
     }
 
     private void createErrorMsg(final MediaType mt) {

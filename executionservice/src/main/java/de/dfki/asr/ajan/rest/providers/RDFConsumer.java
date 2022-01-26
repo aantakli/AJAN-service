@@ -19,6 +19,7 @@
 
 package de.dfki.asr.ajan.rest.providers;
 
+import de.dfki.asr.ajan.common.AgentUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -57,28 +58,29 @@ import org.springframework.stereotype.Component;
 @Component
 public class RDFConsumer implements MessageBodyReader<Model> {
 
-	private static final String TURTLE_BASE_URI = "http://www.ajan.de";
+    private static final String TURTLE_BASE_URI = "http://www.ajan.de";
 
-	@Override
-	public boolean isReadable(final Class<?> type, final Type type1, final Annotation[] antns, final MediaType mt) {
-		if (!type.isAssignableFrom(Model.class)) {
-			return false;
-		}
-		RDFParserRegistry registry = RDFParserRegistry.getInstance();
-		Optional<RDFFormat> format = registry.getFileFormatForMIMEType(mt.toString());
-		return format.isPresent();
-	}
+    @Override
+    public boolean isReadable(final Class<?> type, final Type type1, final Annotation[] antns, final MediaType mt) {
+            if (!type.isAssignableFrom(Model.class)) {
+                    return false;
+            }
+            RDFParserRegistry registry = RDFParserRegistry.getInstance();
+            Optional<RDFFormat> format = registry.getFileFormatForMIMEType(mt.toString());
+            return format.isPresent();
+    }
 
-	@Override
-	public Model readFrom(final Class<Model> t, final Type type, final Annotation[] annts, final MediaType mt, final MultivaluedMap<String, String> mm, final InputStream in) throws IOException, WebApplicationException {
-		RDFParserRegistry registry = RDFParserRegistry.getInstance();
-		Optional<RDFFormat> format = registry.getFileFormatForMIMEType(mt.toString());
-		if (!format.isPresent()) {
-			String msg = "Can not consume RDF of mimetype + " + mt.toString();
-			Response response = Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN).entity(msg).build();
-			throw new WebApplicationException(response);
-		}
-		return Rio.parse(in, TURTLE_BASE_URI, format.get());
-	}
+    @Override
+    public Model readFrom(final Class<Model> t, final Type type, final Annotation[] annts, final MediaType mt, final MultivaluedMap<String, String> mm, final InputStream in) throws IOException, WebApplicationException {
+        RDFParserRegistry registry = RDFParserRegistry.getInstance();
+        Optional<RDFFormat> format = registry.getFileFormatForMIMEType(mt.toString());
+        if (!format.isPresent()) {
+                String msg = "Can not consume RDF of mimetype + " + mt.toString();
+                Response response = Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN).entity(msg).build();
+                throw new WebApplicationException(response);
+        }
+        Model input = Rio.parse(in, TURTLE_BASE_URI, format.get());
+        return AgentUtil.setMessageInformation(input, mm);
+    }
 
 }
