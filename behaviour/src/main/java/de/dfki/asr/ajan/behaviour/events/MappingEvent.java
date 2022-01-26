@@ -16,10 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-
 package de.dfki.asr.ajan.behaviour.events;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -27,25 +25,34 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 
 @RDFBean("ajan:JsonEvent")
-public class JsonEvent extends DefaultEvent {
+public class MappingEvent extends DefaultEvent {
 
 	@RDFSubject
-	@Getter @Setter
+	@Getter
+	@Setter
 	private String url;
 
 	@RDF("rdfs:label")
-	@Getter @Setter
+	@Getter
+	@Setter
 	private String name;
 
 	@Override
 	public void setEventInformation(final Object information) {
-		this.information = ((ObjectNode)information).put("AJAN_EVENT", url);
+		this.information = information;
 		notifyListeners();
 	}
 
 	@Override
 	public void setEventInformation(final String id, final Object information) {
-		this.information = ((ObjectNode)information).put("AJAN_EVENT", url);
+		this.information = getEventInfo(information);
 		notifyListeners(id);
+	}
+
+	private MappingEventInformation getEventInfo(final Object information) {
+		MappingEventInformation info = new MappingEventInformation();
+		info.setEvent(url);
+		info.setObject(information);
+		return info;
 	}
 }

@@ -22,13 +22,17 @@ package de.dfki.asr.ajan.behaviour.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.dfki.asr.ajan.behaviour.events.Event;
+import de.dfki.asr.ajan.common.AgentUtil;
 import static de.dfki.asr.ajan.common.AgentUtil.formatForMimeType;
+import de.dfki.asr.ajan.common.CSVInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import lombok.Getter;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -44,7 +48,10 @@ import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.rio.Rio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
+@SuppressWarnings("PMD.ExcessiveImports")
 public class HttpConnection implements IConnection {
 	private static final Logger LOG = LoggerFactory.getLogger(HttpConnection.class);
 
@@ -95,12 +102,12 @@ public class HttpConnection implements IConnection {
 	}
 
 	@Override
-	public Object execute() throws IOException {
+	public Object execute() throws IOException, SAXException {
 		LOG.info("Executing request {}", request.toString());
 		return sendRequest();
 	}
 
-	private Object sendRequest() throws HttpResponseException, IOException {
+	private Object sendRequest() throws HttpResponseException, IOException, SAXException {
 		try (CloseableHttpClient httpClient = HttpClientBuilder.create()
 				.setDefaultRequestConfig(requestConfig)
 				.setRetryHandler(new DefaultHttpRequestRetryHandler(2, false)).build();
@@ -112,9 +119,7 @@ public class HttpConnection implements IConnection {
 			}
 			HttpEntity entity = response.getEntity();
 			if (entity != null && entity.getContentLength() != 0) {
-				InputStream responseContent = entity.getContent();
-				String entityFormat = getFormatFromResponse(entity);
-				return readContent(responseContent, entityFormat);
+				return readContent(response);
 			}
 			return new LinkedHashModel();
 		}
@@ -129,13 +134,20 @@ public class HttpConnection implements IConnection {
 		return null;
 	}
 
-	private Object readContent(final InputStream response, final String mimeType) throws IOException {
+	private Object readContent(final CloseableHttpResponse response) throws IOException, SAXException {
+		String mimeType = getFormatFromResponse(response.getEntity());
+		InputStream content = response.getEntity().getContent();
+		MultivaluedMap mm = getReadHeaders(response.getAllHeaders());
 		if (mimeType == null) {
-			return createModelFromResponse(response, "text/turtle");
+			return createModelFromResponse(mm, content, "text/turtle");
 		} else if (mimeType.contains("application/json")) {
-			return createJsonFromResponse(response);
+			return createJsonFromResponse(mm, content);
+		} else if (mimeType.contains("application/xml") || mimeType.contains("text/xml")) {
+			return createXMLFromResponse(mm, content);
+		} else if (mimeType.contains("text/csv")) {
+			return createCSVFromResponse(mm, content);
 		}
-		return createModelFromResponse(response, mimeType);
+		return createModelFromResponse(mm, content, mimeType);
 	}
 
 	private void checkExpectedMimeType(final String value) {
@@ -153,17 +165,40 @@ public class HttpConnection implements IConnection {
 		}
 	}
 
-	private Model createModelFromResponse(final InputStream response, final String entityFormat) throws IOException {
+	@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+	private MultivaluedMap getReadHeaders(final Header... headers) {
+		MultivaluedMap<String,String> map = new MultivaluedHashMap<>();
+		for (Header header: headers) {
+			List list = new ArrayList<String>();
+			list.add(header.getValue());
+			map.put(header.getName(), list);
+		}
+		return map;
+	}
+
+	private Model createModelFromResponse(final MultivaluedMap mm, final InputStream response, final String entityFormat) throws IOException {
 		String mime = entityFormat;
 		if (entityFormat.contains("charset")) {
 			mime = entityFormat.split(";")[0];
 		}
-		return Rio.parse(response, BASE_URI, formatForMimeType(mime));
+		Model model = Rio.parse(response, BASE_URI, formatForMimeType(mime));
+		return AgentUtil.setMessageInformation(model, mm);
 	}
 
-	private JsonNode createJsonFromResponse(final InputStream response) throws IOException {
+	private JsonNode createJsonFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
-		return mapper.readTree(response);
+		JsonNode input =  mapper.readTree(response);
+		return AgentUtil.setMessageInformation(input, mm);
+	}
+
+	private Document createXMLFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException, SAXException {
+		Document input = AgentUtil.getXMLFromStream(response);
+		return AgentUtil.setMessageInformation(input, mm);
+	}
+
+	private CSVInput createCSVFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException {
+		CSVInput input = AgentUtil.getCSVFromStream(response);
+		return AgentUtil.setMessageInformation(input, mm);
 	}
 
 	@Override

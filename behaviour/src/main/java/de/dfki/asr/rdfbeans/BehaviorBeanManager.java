@@ -22,7 +22,7 @@ package de.dfki.asr.rdfbeans;
 import de.dfki.asr.ajan.behaviour.events.AJANGoal;
 import de.dfki.asr.ajan.behaviour.nodes.common.Bound;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.*;
-import de.dfki.asr.ajan.behaviour.events.JsonEvent;
+import de.dfki.asr.ajan.behaviour.events.MappingEvent;
 import de.dfki.asr.ajan.behaviour.events.ModelEvent;
 import de.dfki.asr.ajan.behaviour.service.impl.*;
 import de.dfki.asr.ajan.behaviour.nodes.query.*;
@@ -133,7 +133,7 @@ public class BehaviorBeanManager extends RDFBeanManager {
 		registerType(HandleModelEvent.class);
 		registerType(HandleModelQueueEvent.class);
 		registerType(ModelEvent.class);
-		registerType(JsonEvent.class);
+		registerType(MappingEvent.class);
 		registerType(AJANGoal.class);
 	}
 

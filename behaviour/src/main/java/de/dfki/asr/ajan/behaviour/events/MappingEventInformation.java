@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Andre Antakli (German Research Center for Artificial Intelligence, DFKI).
+ * Copyright (C) 2021 Andre Antakli (German Research Center for Artificial Intelligence, DFKI).
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
+package de.dfki.asr.ajan.behaviour.events;
 
-@RDFNamespaces({"ajan = http://www.ajan.de/ajan-ns#", "bt = http://www.ajan.de/behavior/bt-ns#", "rdfs = http://www.w3.org/2000/01/rdf-schema#"})
-package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.json;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
+/**
+ *
+ * @author Andre Antakli (German Research Center for Artificial Intelligence,
+ * DFKI)
+ */
+@Data
+public class MappingEventInformation {
+	@Getter @Setter
+	private String event;
+
+	@Getter @Setter
+	private Object object;
+}

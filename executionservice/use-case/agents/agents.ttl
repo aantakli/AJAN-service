@@ -24,3 +24,4 @@
   <http://www.ajan.de/ajan-ns#endpoint> <http://localhost:8090/rdf4j/repositories/agents#EP_a4acaf40-be60-492c-930f-3a7823bf7221>;
   <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#EV_1a7d9583-bf37-433f-a77f-484db73973f4>;
   rdfs:label "Default AgentTemplate" .
+

@@ -18,9 +18,8 @@
  */
 package de.dfki.asr.ajan.rest.providers;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.dfki.asr.ajan.common.AgentUtil;
+import de.dfki.asr.ajan.common.CSVInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -35,30 +34,28 @@ import javax.ws.rs.ext.Provider;
 import org.springframework.stereotype.Component;
 
 @Provider
-@Consumes("application/json")
+@Consumes("text/csv")
 @SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.AvoidPrefixingMethodParameters"})
 @Component
-public class JsonConsumer implements MessageBodyReader<JsonNode> {
+public class CSVConsumer implements MessageBodyReader<CSVInput> {
 
     @Override
     public boolean isReadable(final Class<?> type, final Type type1, final Annotation[] antns, final MediaType mt) {
-        if (!type.isAssignableFrom(ObjectNode.class)) {
+        if (!type.isAssignableFrom(CSVInput.class)) {
             return false;
         }
-        return mt.toString().equals("application/json");
+        return mt.toString().equals("text/csv") ;
     }
 
     @Override
-    public JsonNode readFrom(final Class<JsonNode> t, final Type type, final Annotation[] annts, final MediaType mt, final MultivaluedMap<String, String> mm, final InputStream in) throws IOException, WebApplicationException {
-        if (!mt.toString().equals("application/json")) {
-            createErrorMsg(mt);
+    public CSVInput readFrom(final Class<CSVInput> t, final Type type, final Annotation[] annts, final MediaType mt, final MultivaluedMap<String, String> mm, final InputStream in) throws IOException, WebApplicationException {
+        if (!mt.toString().equals("text/csv")) {
+            String msg = "Can not consume XML of mimetype + " + mt.toString();
+            Response response = Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN).entity(msg).build();
+            throw new WebApplicationException(response);
         }
-        return AgentUtil.setMessageInformation(AgentUtil.getJsonFromStream(in), mm);
+        CSVInput input = AgentUtil.getCSVFromStream(in);
+        return AgentUtil.setMessageInformation(input, mm);
     }
 
-    private void createErrorMsg(final MediaType mt) {
-        String msg = "Can not consume JSON of mimetype + " + mt.toString();
-        Response response = Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN).entity(msg).build();
-        throw new WebApplicationException(response);
-    }
 }

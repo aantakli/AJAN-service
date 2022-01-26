@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 see AJAN-service/AUTHORS.txt (German Research Center for Artificial Intelligence, DFKI).
+ * Copyright (C) 2020 Andre Antakli (German Research Center for Artificial Intelligence, DFKI).
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,25 +17,18 @@
  * MA 02110-1301  USA
  */
 
-package de.dfki.asr.ajan.behaviour.service.impl;
+package de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions;
 
-import de.dfki.asr.ajan.behaviour.events.Event;
-import java.io.IOException;
-import java.util.UUID;
-import org.xml.sax.SAXException;
+public class InputMappingException extends Exception {
+	public InputMappingException(final String message) {
+		super(message);
+	}
 
-public interface IConnection {
-	String BASE_URI = "http://www.ajan.de";
+	public InputMappingException(final String message, final Throwable cause) {
+		super(message, cause);
+	}
 
-	boolean addProcessId(final String id);
-	boolean removeProcessId(final String id);
-
-	UUID getId();
-	Event getEvent();
-	void setPayload(final String payload);
-	void setEvent(final Event event);
-
-	Object execute() throws IOException, SAXException;
-	void response(final Object info);
-	void response(final Object info, final String id);
+	public InputMappingException(final Throwable cause) {
+		super(cause);
+	}
 }
