@@ -54,7 +54,8 @@ public class XMLConsumer implements MessageBodyReader<Document> {
             createErrorMsg(mt);
         }
         try {
-            return AgentUtil.getXMLFromStream(in);
+            Document input = AgentUtil.getXMLFromStream(in);
+            return AgentUtil.setMessageInformation(input, mm);
         }
         catch (SAXException ex) {
             createErrorMsg(mt);
