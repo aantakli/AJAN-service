@@ -54,7 +54,8 @@ public class CSVConsumer implements MessageBodyReader<CSVInput> {
             Response response = Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN).entity(msg).build();
             throw new WebApplicationException(response);
         }
-        return AgentUtil.getCSVFromStream(in);
+        CSVInput input = AgentUtil.getCSVFromStream(in);
+        return AgentUtil.setMessageInformation(input, mm);
     }
 
 }

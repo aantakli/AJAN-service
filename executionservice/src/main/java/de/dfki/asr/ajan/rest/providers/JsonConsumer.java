@@ -57,19 +57,7 @@ public class JsonConsumer implements MessageBodyReader<JsonNode> {
         if (!mt.toString().equals("application/json")) {
             createErrorMsg(mt);
         }
-        return setMessageInformation(AgentUtil.getJsonFromStream(in), mm);
-    }
-
-    private JsonNode setMessageInformation(final JsonNode input, final MultivaluedMap<String, String> mm) {
-        ObjectNode info = (ObjectNode)input;
-        info.put("utc", OffsetDateTime.now(ZoneOffset.UTC).toString());
-        for (Map.Entry<String, List<String>> entry: mm.entrySet()) {
-            info.put(entry.getKey(), OffsetDateTime.now(ZoneOffset.UTC).toString());
-            for (String value: entry.getValue()) {
-                info.put(entry.getKey(), value);
-            }
-        }
-        return info;
+        return AgentUtil.setMessageInformation(AgentUtil.getJsonFromStream(in), mm);
     }
 
     private void createErrorMsg(final MediaType mt) {

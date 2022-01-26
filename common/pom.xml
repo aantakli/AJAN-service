@@ -118,6 +118,12 @@ MA 02110-1301  USA
             <version>4.6</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>jaxrs-api</artifactId>
+            <version>3.0.9.Final</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
