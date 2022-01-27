@@ -6,41 +6,146 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix fn: <http://www.w3.org/2005/xpath-functions#> .
 
-
 <http://localhost:8090/rdf4j/repositories/behaviors#BT_4becbd2f-2f7b-41fa-9803-fc2f7855e090>
   a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>, <http://www.ajan.de/behavior/bt-ns#Root>;
-  <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-356d2296-cd05-4ee2-a920-221950965f53>;
-  rdfs:label "ML_NaiveBayes_BT" .
+  rdfs:label "ML_NaiveBayes_BT";
+  <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-b07c0ad4-768f-4acd-81ed-38e584223313> .
 
-<http://localhost:8090/rdf4j/repositories/behaviors#Sequence-356d2296-cd05-4ee2-a920-221950965f53>
-  a <http://www.ajan.de/behavior/bt-ns#Sequence>;
-  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-edb0cfcd37d446e7aa7a086c46e623e6-b184 .
+_:genid-1eeb4afaddc14e5699654a1bb27f5005-b216 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """SELECT ?resource ?x ?y ?z
+WHERE {
+	VALUES (?resource ?x ?y ?z) {
+		(<http://test1> 0.0 0.0 0.0)
+		(<http://test2> 1.0 0.0 0.0)
+		(<http://test3> 1.0 1.0 0.0)
+		(<http://test4> 1.0 1.0 1.0)
+		(<http://test5> 0.0 0.0 1.0)
+		(<http://test6> 0.0 1.0 1.0)
+		(<http://test7> 0.5 0.5 0.0)
+		(<http://test8> 0.0 1.0 0.0)
+		(<http://test9> 1.0 0.0 1.0)
+		(<http://test10> 0.9 0.1 0.9)
+		(<http://test11> 0.92 0.11 0.91)
+		(<http://test12> 0.95 0.11 0.95)
+	}
+}""" .
 
-_:genid-edb0cfcd37d446e7aa7a086c46e623e6-b184 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#NaiveBayes-e78fdb79-3e2f-4e5d-b8ba-c673f96c7ed8>;
-  rdf:rest rdf:nil .
-
-<http://localhost:8090/rdf4j/repositories/behaviors#Sequence-356d2296-cd05-4ee2-a920-221950965f53>
-  rdfs:label "defaultSequence" .
-
-<http://localhost:8090/rdf4j/repositories/behaviors#NaiveBayes-e78fdb79-3e2f-4e5d-b8ba-c673f96c7ed8>
-  a <http://www.ajan.de/behavior/ml-ns#NaiveBayes>;
-  <http://www.ajan.de/behavior/ml-ns#objective> "play";
-  <http://www.ajan.de/behavior/ml-ns#trainingTbl> _:genid-edb0cfcd37d446e7aa7a086c46e623e6-b183 .
-
-_:genid-edb0cfcd37d446e7aa7a086c46e623e6-b183 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+_:genid-1eeb4afaddc14e5699654a1bb27f5005-b217 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
   <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
   <http://www.ajan.de/behavior/bt-ns#sparql> """SELECT ?outlook ?temperature ?humidity ?windy ?play
 WHERE {
 	VALUES (?outlook ?temperature ?humidity ?windy ?play) {
-		(\"sunny\" \"hot\" \"high\" \"FALSE\" \"no\")
-		(\"sunny\" \"hot\" \"high\" \"TRUE\" \"no\")
-		(\"overcast\" \"hot\" \"high\" \"FALSE\" \"yes\")
-		(\"rainy\" \"mild\" \"high\" \"FALSE\" \"yes\")
-		(\"rainy\" \"cool\" \"normal\" \"FALSE\" \"yes\")
-		(\"rainy\" \"cool\" \"normal\" \"TRUE\" \"no\")
+		(\"sunny\" \"hot\" \"high\" \"FALSE\" 1)
+		(\"sunny\" \"hot\" \"high\" \"TRUE\" 1)
+		(\"overcast\" \"hot\" \"high\" \"FALSE\" 0)
+		(\"rainy\" \"mild\" \"high\" \"FALSE\" 0)
+		(\"rainy\" \"cool\" \"normal\" \"FALSE\" 0)
+		(\"rainy\" \"cool\" \"normal\" \"TRUE\" 1)
+		(\"overcast\" \"cool\" \"normal\" \"TRUE\" 0)
+		(\"sunny\" \"mild\" \"high\" \"FALSE\" 1)
+		(\"sunny\" \"cool\" \"normal\" \"FALSE\" 0)
+		(\"rainy\" \"mild\" \"normal\" \"FALSE\" 0)
+		(\"sunny\" \"mild\" \"normal\" \"TRUE\" 0)
+		(\"overcast\" \"mild\" \"high\" \"TRUE\" 0)
+		(\"overcast\" \"hot\" \"normal\" \"FALSE\" 0)
+		(\"rainy\" \"mild\" \"high\" \"TRUE\" 1)
 	}
 }""" .
 
-<http://localhost:8090/rdf4j/repositories/behaviors#NaiveBayes-e78fdb79-3e2f-4e5d-b8ba-c673f96c7ed8>
+_:genid-1eeb4afaddc14e5699654a1bb27f5005-b218 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """SELECT ?outlook ?temperature ?humidity ?windy ?play
+WHERE {
+	VALUES (?outlook ?temperature ?humidity ?windy) {
+		(\"rainy\" \"mild\" \"high\" \"TRUE\")
+	}
+}""" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Sequence-b07c0ad4-768f-4acd-81ed-38e584223313>
+  a <http://www.ajan.de/behavior/bt-ns#Sequence>;
   rdfs:comment "";
-  rdfs:label "defaultNaiveBayes" .
+  rdfs:label "Sequence";
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-1eeb4afaddc14e5699654a1bb27f5005-b222 .
+
+_:genid-1eeb4afaddc14e5699654a1bb27f5005-b219 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX ml: <http://www.ajan.de/behavior/ml-ns#>
+PREFIX ex: <http://www.example.org/>
+
+CONSTRUCT {
+	ex:1 a ml:Itemset ;
+		ml:item ex:I1 , ex:I3 .
+	ex:2 a ml:Itemset ;
+		ml:item ex:I2 .
+	ex:3 a ml:Itemset ;
+		ml:item ex:I4 .
+	ex:4 a ml:Itemset ;
+		ml:item ex:I2 , ex:I3 , ex:I4 .
+	ex:5 a ml:Itemset ;
+		ml:item ex:I2 , ex:I3 .
+	ex:6 a ml:Itemset ;
+		ml:item ex:I2 , ex:I3 .
+	ex:7 a ml:Itemset ;
+		ml:item ex:I1 , ex:I2 , ex:I3 , ex:I4 .
+	ex:8 a ml:Itemset ;
+		ml:item ex:I1 , ex:I3 .
+	ex:9 a ml:Itemset ;
+		ml:item ex:I1 , ex:I2 , ex:I3 .
+	ex:0 a ml:Itemset ;
+		ml:item ex:I1 , ex:I2 , ex:I3 .
+}
+WHERE { 
+	?s ?p ?o 
+}""" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Success-b13564b8-5d11-4e5d-b199-af1863d98322>
+  a <http://www.ajan.de/behavior/bt-ns#Success>;
+  rdfs:comment "";
+  rdfs:label "Success" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#ARM-f3d7e67a-1a0d-4175-8c9e-f5d76923b788>
+  a <http://www.ajan.de/behavior/ml-ns#ARM>;
+  <http://www.ajan.de/behavior/ml-ns#itemsets> _:genid-1eeb4afaddc14e5699654a1bb27f5005-b219;
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/ml-ns#confidence> 5.0E-1;
+  <http://www.ajan.de/behavior/ml-ns#minSupport> "3"^^xsd:int;
+  rdfs:comment "";
+  rdfs:label "ARM" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#KMeans-b0e7b628-757b-4d35-aebf-cfad7adaf7ff>
+  a <http://www.ajan.de/behavior/ml-ns#KMeans>;
+  <http://www.ajan.de/behavior/ml-ns#inputTbl> _:genid-1eeb4afaddc14e5699654a1bb27f5005-b216;
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/ml-ns#clusters> "9"^^xsd:int;
+  rdfs:comment "";
+  rdfs:label "KMeans" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#NaiveBayes-faeb1ae3-ee7b-4a86-9c7b-a20a8cfc1a7c>
+  a <http://www.ajan.de/behavior/ml-ns#NaiveBayes>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-1eeb4afaddc14e5699654a1bb27f5005-b220;
+  <http://www.ajan.de/behavior/ml-ns#stateTbl> _:genid-1eeb4afaddc14e5699654a1bb27f5005-b218;
+  <http://www.ajan.de/behavior/ml-ns#trainingTbl> _:genid-1eeb4afaddc14e5699654a1bb27f5005-b217;
+  rdfs:label "NaiveBayes";
+  <http://www.ajan.de/behavior/ml-ns#objective> "play";
+  rdfs:comment "" .
+
+_:genid-1eeb4afaddc14e5699654a1bb27f5005-b220 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#Success-b13564b8-5d11-4e5d-b199-af1863d98322>;
+  rdf:rest _:genid-1eeb4afaddc14e5699654a1bb27f5005-b221 .
+
+_:genid-1eeb4afaddc14e5699654a1bb27f5005-b221 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#Fail-63afadba-7da3-42a9-9d3a-be3ee9f633b3>;
+  rdf:rest rdf:nil .
+
+_:genid-1eeb4afaddc14e5699654a1bb27f5005-b222 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#NaiveBayes-faeb1ae3-ee7b-4a86-9c7b-a20a8cfc1a7c>;
+  rdf:rest _:genid-1eeb4afaddc14e5699654a1bb27f5005-b223 .
+
+_:genid-1eeb4afaddc14e5699654a1bb27f5005-b223 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#KMeans-b0e7b628-757b-4d35-aebf-cfad7adaf7ff>;
+  rdf:rest _:genid-1eeb4afaddc14e5699654a1bb27f5005-b224 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Fail-63afadba-7da3-42a9-9d3a-be3ee9f633b3>
+  a <http://www.ajan.de/behavior/bt-ns#Fail>;
+  rdfs:comment "";
+  rdfs:label "Fail" .
+
+_:genid-1eeb4afaddc14e5699654a1bb27f5005-b224 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#ARM-f3d7e67a-1a0d-4175-8c9e-f5d76923b788>;
+  rdf:rest rdf:nil .

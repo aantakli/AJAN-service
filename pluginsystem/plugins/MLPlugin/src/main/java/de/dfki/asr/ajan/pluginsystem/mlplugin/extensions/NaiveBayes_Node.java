@@ -120,13 +120,21 @@ public class NaiveBayes_Node extends AbstractTDBBranchTask implements NodeExtens
 	@Override
 	public void childSuccess (final Task<AgentTaskInformation> runningTask) {
 		super.childSuccess(runningTask);
+		resetSkipedChilds();
 		success();
 	}
 
 	@Override
 	public void childFail (final Task<AgentTaskInformation> runningTask) {
 		super.childFail(runningTask);
+		resetSkipedChilds();
 		fail();
+	}
+
+	private void resetSkipedChilds() {
+		for (int i = 0; i < children.size; i++) {
+			getChild(i).resetTask();
+		}
 	}
 
 	private void runChildByIndex() throws NaiveBayesException, URISyntaxException, QueryEvaluationException, MLMappingException {
@@ -199,8 +207,7 @@ public class NaiveBayes_Node extends AbstractTDBBranchTask implements NodeExtens
 				input[i] = getValue(value, options.get(attr));
 				i++;
 			}
-		}
-		
+		}		
 		int prediction = model.predict(input);
 		printResult(table, bindings, input, prediction);
 		

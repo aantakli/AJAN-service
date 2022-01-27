@@ -24,16 +24,12 @@ import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.mlplugin.exeptions.MLMappingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.Extension;
@@ -56,9 +52,9 @@ public class XMeans_Node extends KMeans_Node {
 	@Getter @Setter
 	private String label;
 
-	@RDF("ml:maxIterations")
+	@RDF("ml:maxClusters")
 	@Setter @Getter
-	private int maxIterations;
+	private int maxClusters;
 
 	@RDF("bt:targetBase")
 	@Getter @Setter
@@ -78,7 +74,7 @@ public class XMeans_Node extends KMeans_Node {
 	@Override
 	protected void getClusters() throws IllegalArgumentException, URISyntaxException, MLMappingException, ConditionEvaluationException {
 		double[][] x = getInputTable(this.getInputTbl());
-		XMeans result = XMeans.fit(x, maxIterations);
+		XMeans result = XMeans.fit(x, maxClusters);
 		System.out.println("XMeans: \r");
         System.out.println(result);
 		saveClusters(result.y);

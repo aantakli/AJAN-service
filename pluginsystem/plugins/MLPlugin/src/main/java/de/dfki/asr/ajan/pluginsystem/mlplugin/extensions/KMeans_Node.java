@@ -24,9 +24,11 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.TreeNode;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mlplugin.exeptions.MLMappingException;
+import de.dfki.asr.ajan.pluginsystem.mlplugin.test.USPS;
 import de.dfki.asr.ajan.pluginsystem.mlplugin.utils.MLUtil;
 import de.dfki.asr.ajan.pluginsystem.mlplugin.vocabularies.MLVocabulary;
 import java.net.URI;
@@ -48,6 +50,7 @@ import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.Binding;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +65,7 @@ import smile.clustering.KMeans;
 
 @Extension
 @RDFBean("ml:KMeans")
-public class KMeans_Node extends AbstractTDBLeafTask implements NodeExtension {
+public class KMeans_Node extends AbstractTDBLeafTask implements NodeExtension, TreeNode {
 	@RDFSubject
 	@Getter @Setter
 	private String url;
@@ -100,27 +103,32 @@ public class KMeans_Node extends AbstractTDBLeafTask implements NodeExtension {
 			getClusters();
 			String report = toString() + " SUCCEEDED";
 			return new LeafStatus(Status.SUCCEEDED, report);
-		} catch (IllegalArgumentException | ConditionEvaluationException | URISyntaxException | MLMappingException ex) {
+		} catch (IllegalArgumentException | ConditionEvaluationException | URISyntaxException | MLMappingException | QueryEvaluationException ex) {
 			LOG.info(ex.toString());
 			String report = toString() + " FAILED";
 			return new LeafStatus(Status.FAILED, report);
 		}
 	}
 
-	protected void getClusters() throws IllegalArgumentException, URISyntaxException, MLMappingException, ConditionEvaluationException {
+	protected void getClusters() throws IllegalArgumentException, URISyntaxException, MLMappingException, ConditionEvaluationException, QueryEvaluationException {
 		double[][] x = getInputTable(inputTbl);
 		KMeans result = KMeans.fit(x, clusters);
 		System.out.println("KMeans: \r");
         System.out.println(result);
 		saveClusters(result.y);
+
+		// Test Input
+		/*double[][] x = USPS.x;
+        KMeans model = KMeans.fit(x, 10, 100, 4);
+        System.out.println(model);*/
 	}
 
-	protected double[][] getInputTable(final BehaviorSelectQuery query) throws URISyntaxException, MLMappingException {
-		if (query == null) {
+	protected double[][] getInputTable(final BehaviorSelectQuery query) throws URISyntaxException, MLMappingException, QueryEvaluationException {
+		if (query == null || query.getSparql().isEmpty()) {
 			throw new MLMappingException("Empty input table!");
 		}
 		
-		Repository repo = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
+		Repository repo = BTUtil.getInitializedRepository(this.getObject(), query.getOriginBase());
 		List<BindingSet> result = query.getResult(repo);
 		
 		if (result.isEmpty() || !result.get(0).hasBinding("resource")) {
