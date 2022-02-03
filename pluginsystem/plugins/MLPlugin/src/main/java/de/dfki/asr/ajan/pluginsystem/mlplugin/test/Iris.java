@@ -37,7 +37,7 @@ public class Iris {
 
     static {
         try {
-            data = Read.arff("D:\\Projects\\AJAN\\github\\AJAN-service\\pluginsystem\\plugins\\MLPlugin\\src\\main\\resources\\iris.arff");
+            data = Read.arff("C:\\Users\\anan02-admin\\Documents\\Playground\\AJAN\\github\\AJAN-service\\pluginsystem\\plugins\\MLPlugin\\src\\main\\resources\\iris.arff");
 
             x = formula.x(data).toArray(false, CategoricalEncoder.DUMMY);
             y = formula.y(data).toIntArray();

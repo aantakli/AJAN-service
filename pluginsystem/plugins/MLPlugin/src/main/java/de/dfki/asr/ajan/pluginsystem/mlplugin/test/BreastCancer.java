@@ -39,7 +39,7 @@ public class BreastCancer {
 
     static {
         try {
-            data = Read.csv("D:\\Projects\\AJAN\\github\\AJAN-service\\pluginsystem\\plugins\\MLPlugin\\src\\main\\resources\\breastcancer.csv", CSVFormat.DEFAULT.withFirstRecordAsHeader());
+            data = Read.csv("C:\\Users\\anan02-admin\\Documents\\Playground\\AJAN\\github\\AJAN-service\\pluginsystem\\plugins\\MLPlugin\\src\\main\\resources\\breastcancer.csv", CSVFormat.DEFAULT.withFirstRecordAsHeader());
             data = data.drop("id").factorize("diagnosis");
             x = formula.x(data).toArray(false, CategoricalEncoder.DUMMY);
             y = formula.y(data).toIntArray();

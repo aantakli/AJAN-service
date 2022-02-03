@@ -39,7 +39,7 @@ public class WeatherNominal {
 
     static {
         try {
-            data = Read.arff("D:\\Projects\\AJAN\\github\\AJAN-service\\pluginsystem\\plugins\\MLPlugin\\src\\main\\resources\\weather.nominal.arff");
+            data = Read.arff("C:\\Users\\anan02-admin\\Documents\\Playground\\AJAN\\github\\AJAN-service\\pluginsystem\\plugins\\MLPlugin\\src\\main\\resources\\weather.nominal.arff");
 
             level = formula.x(data).toArray(false, CategoricalEncoder.LEVEL);
             dummy = formula.x(data).toArray(false, CategoricalEncoder.DUMMY);
