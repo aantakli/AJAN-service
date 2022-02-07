@@ -30,7 +30,6 @@ import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.*;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Direction;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
-import java.math.BigInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
@@ -145,13 +144,12 @@ public class Repeater extends LoopDecorator<AgentTaskInformation> implements Tre
 	}
 
 	private IntegerDistribution updateTimes() throws SelectEvaluationException {
-		BigInteger number = intValue.getIntValue(this.getObject()).get(0);
-		return new ConstantIntegerDistribution(number.intValue());
+		return new ConstantIntegerDistribution(intValue.getIntValue(this.getObject()).get(0));
 	}
 
 	private IntegerDistribution updateTimes(final Repository repo) throws SelectEvaluationException {
-		BigInteger number = intValue.getIntValue(repo).get(0);
-		return new ConstantIntegerDistribution(number.intValue());
+		Integer number = intValue.getIntValue(repo).get(0);
+		return new ConstantIntegerDistribution(number);
 	}
 
 	@Override

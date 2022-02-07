@@ -27,7 +27,6 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Direction;
 import de.dfki.asr.ajan.behaviour.nodes.common.TreeNode;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,7 +62,7 @@ public class Executor extends AbstractTDBBranchTask {
 	@Setter @Getter
 	private IntValue selectedChild;
 
-	private List<BigInteger> executionOrder = new ArrayList<>();
+	private List<Integer> executionOrder = new ArrayList<>();
 	private int childIndex;
 
 	@RDF("bt:hasChildren")
@@ -112,7 +111,7 @@ public class Executor extends AbstractTDBBranchTask {
 	}
 
 	private void runChildByIndex() {
-		int child = executionOrder.get(childIndex).intValueExact();
+		int child = executionOrder.get(childIndex);
 		if (child < 0 || child > children.size) {
 			LOG.info(toString() + "FAILED");
 			LOG.info("No matching child found!");
@@ -150,7 +149,7 @@ public class Executor extends AbstractTDBBranchTask {
 
 	private void resetSkipedChilds() {
 		for (int i = childIndex; i < executionOrder.size(); i++) {
-			getChild(executionOrder.get(i).intValueExact()).resetTask();
+			getChild(executionOrder.get(i)).resetTask();
 		}
 	}
 
@@ -162,7 +161,7 @@ public class Executor extends AbstractTDBBranchTask {
 		} else {
 			try {
 				Repository evalRepo = result.getRepo().initialize();
-				int childIndex = selectedChild.getIntValue(evalRepo).get(0).intValueExact();
+				int childIndex = selectedChild.getIntValue(evalRepo).get(0);
 				((TreeNode)this.getChild(childIndex)).evaluate(result.setDirection(Direction.Down));
 			} catch (SelectEvaluationException ex) {
 				LOG.error("Problems with the Select Query", ex);

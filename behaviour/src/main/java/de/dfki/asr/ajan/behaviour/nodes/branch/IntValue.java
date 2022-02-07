@@ -23,8 +23,6 @@ import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.exception.SelectEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
-import java.math.BigInteger;
-import static java.math.BigInteger.ZERO;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,13 +42,13 @@ public class IntValue {
 
 	@RDF("bt:intValue")
 	@Getter @Setter
-	private List<BigInteger> value;
+	private List<Integer> value;
 
 	@RDF("bt:query")
 	@Getter @Setter
 	private BehaviorSelectQuery query;
 
-	public List<BigInteger> getIntValue(final AgentTaskInformation info) throws SelectEvaluationException {
+	public List<Integer> getIntValue(final AgentTaskInformation info) throws SelectEvaluationException {
 		try {
 			if (query == null || query.getSparql().equals("")) {
 				return returnValue();
@@ -62,7 +60,7 @@ public class IntValue {
 	}
 
 	@SuppressWarnings({"PMD.AvoidCatchingGenericException","PMD.AvoidInstantiatingObjectsInLoops"})
-	public List<BigInteger> getIntValue(final Repository repo) throws SelectEvaluationException {
+	public List<Integer> getIntValue(final Repository repo) throws SelectEvaluationException {
 		try {
 			if (query == null) {
 				return returnValue();
@@ -72,11 +70,11 @@ public class IntValue {
 					return returnValue();
 				}
 				Value strValue;
-				List<BigInteger> values = new ArrayList<>();
+				List<Integer> values = new ArrayList<>();
 				for (BindingSet set: result) {
 					strValue = set.getValue("intValue");
 					if (strValue != null) {
-						values.add(new BigInteger(strValue.stringValue().replace(" ","")));
+						values.add(Integer.parseInt(strValue.stringValue().replace(" ","")));
 					}
 				}
 				return values;
@@ -86,10 +84,10 @@ public class IntValue {
 		}
 	}
 
-	private List<BigInteger> returnValue() {
-		List<BigInteger> values = new ArrayList<>();
+	private List<Integer> returnValue() {
+		List<Integer> values = new ArrayList<>();
 		if (value == null) {
-			values.add(ZERO);
+			values.add(0);
 			return values;
 		} else {
 			return value;
