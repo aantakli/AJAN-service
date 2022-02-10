@@ -20,18 +20,26 @@ package de.dfki.asr.ajan.pluginsystem.mlplugin.extensions;
 
 import com.badlogic.gdx.ai.btree.Task.Status;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
+import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
+import de.dfki.asr.ajan.pluginsystem.mlplugin.exeptions.MLMappingException;
+import de.dfki.asr.ajan.pluginsystem.mlplugin.vocabularies.MLVocabulary;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import opennlp.tools.doccat.DoccatFactory;
@@ -53,9 +61,11 @@ import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.Extension;
@@ -77,9 +87,9 @@ public class NGram_Node extends AbstractTDBLeafTask implements NodeExtension {
 	@Getter @Setter
 	private String label;
 
-	@RDF("bt:context")
-	@Getter @Setter
-	private URI context;
+	@RDF("ml:itemsets")
+	@Setter @Getter
+	private BehaviorConstructQuery query;
 
 	@RDF("ml:input")
 	@Getter @Setter
@@ -89,9 +99,17 @@ public class NGram_Node extends AbstractTDBLeafTask implements NodeExtension {
 	@Getter @Setter
 	private URI targetBase;
 
+	@RDF("ml:bigram")
+	@Setter @Getter
+	private BehaviorConstructQuery bigram;
+
+	@RDF("ml:trigram")
+	@Setter @Getter
+	private BehaviorConstructQuery trigram;
+
 	@RDF("ml:sentence")
 	@Setter @Getter
-	private BehaviorConstructQuery query;
+	private BehaviorConstructQuery sentence;
 
 	private IRI type = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
 	private final ValueFactory VF = SimpleValueFactory.getInstance();
@@ -105,15 +123,39 @@ public class NGram_Node extends AbstractTDBLeafTask implements NodeExtension {
 	@Override
 	public LeafStatus executeLeaf() {
 		try {
-			runTest();
-			//runTest3();
+			Collection<StringList> set = readItemsets();
 			String report = toString() + " SUCCEEDED";
 			return new LeafStatus(Status.SUCCEEDED, report);
-		} catch (Exception ex) {
+		} catch (URISyntaxException | MLMappingException ex) {
 			LOG.info(ex.toString());
 			String report = toString() + " FAILED";
 			return new LeafStatus(Status.FAILED, report);
 		}
+	}
+
+	private Collection<StringList> readItemsets() throws URISyntaxException, MLMappingException {
+		Collection<StringList> set = new LinkedList<>();
+		if (query != null) {
+			Repository repo = BTUtil.getInitializedRepository(this.getObject(), query.getOriginBase());
+			Model result = query.getResult(repo);
+			return getItemsets(result, set);
+		} else {
+			throw new MLMappingException("No itemset query defined!");
+		}
+
+	}
+
+	private Collection<StringList> getItemsets(final Model result, final Collection<StringList> set) {
+		List<Set<String>> list = new ArrayList();
+		Model filter = result.filter(null, type, MLVocabulary.ORDERED_ITEMSET);
+        Set<Resource> resources = filter.subjects();
+		if(!resources.isEmpty()) {
+			Iterator<Resource> iter = resources.iterator();
+			while(iter.hasNext()) {
+				list.add(getItems(result, iter.next(), itemRegister));
+			}
+		}
+		return transformMap(list, itemRegister);
 	}
 
 	private void runTest() {
