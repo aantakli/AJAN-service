@@ -43,6 +43,8 @@ import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,6 +110,9 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 			long before = System.currentTimeMillis();
 			this.step();
 			if (this.getObject() != null) {
+				if (status != Status.RUNNING && this.getObject().isClearEKB()) {
+					cleareEKB();
+				}
 				Debug debug = this.getObject().getDebug();
 				long time = System.currentTimeMillis() - before;
 				LeafStatus leafStatus = new LeafStatus(null, "BTRoot(" + label + "), time = " + time + "ms, FINISHED");
@@ -119,6 +124,15 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 			if (goalProducer != null) {
 				goalProducer.reportGoalStatus(status);
 			}
+		}
+	}
+
+	private void cleareEKB() {
+		Repository repo = this.getObject().getExecutionBeliefs().initialize();
+		try (RepositoryConnection conn = repo.getConnection()) {
+			conn.clear();
+			conn.clearNamespaces();
+			conn.close();
 		}
 	}
 
