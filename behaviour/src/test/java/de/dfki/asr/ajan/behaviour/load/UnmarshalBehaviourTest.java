@@ -116,7 +116,7 @@ public class UnmarshalBehaviourTest {
 	@Test(dependsOnMethods = {"loadRoot"})
 	public void rootCanStep() {
 		Map<URI,Event> events = new ConcurrentHashMap();
-		AgentTaskInformation info = new AgentTaskInformation(new BTRoot(), new AgentBeliefBase(beliefsTDB), new ExecutionBeliefBase(Inferencing.NONE), behaviorTDB, domainTDB, servicesTDB, events, new ConcurrentHashMap<>(), extensions, new LinkedHashMap(), "", new Debug());
+		AgentTaskInformation info = new AgentTaskInformation(new BTRoot(), true, new AgentBeliefBase(beliefsTDB), new ExecutionBeliefBase(Inferencing.NONE), behaviorTDB, domainTDB, servicesTDB, events, new ConcurrentHashMap<>(), extensions, new LinkedHashMap(), "", new Debug());
 		root.setObject(info);
 		root.step();
 	}

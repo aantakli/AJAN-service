@@ -110,9 +110,7 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 			long before = System.currentTimeMillis();
 			this.step();
 			if (this.getObject() != null) {
-				if (status != Status.RUNNING && this.getObject().isClearEKB()) {
-					cleareEKB();
-				}
+				cleareEKB();
 				Debug debug = this.getObject().getDebug();
 				long time = System.currentTimeMillis() - before;
 				LeafStatus leafStatus = new LeafStatus(null, "BTRoot(" + label + "), time = " + time + "ms, FINISHED");
@@ -128,11 +126,13 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 	}
 
 	private void cleareEKB() {
-		Repository repo = this.getObject().getExecutionBeliefs().initialize();
-		try (RepositoryConnection conn = repo.getConnection()) {
-			conn.clear();
-			conn.clearNamespaces();
-			conn.close();
+		if (status != Status.RUNNING && this.getObject().isClearEKB()) {
+			Repository repo = this.getObject().getExecutionBeliefs().initialize();
+			try (RepositoryConnection conn = repo.getConnection()) {
+				conn.clear();
+				conn.clearNamespaces();
+				conn.close();
+			}
 		}
 	}
 
