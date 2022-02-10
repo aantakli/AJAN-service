@@ -57,8 +57,6 @@ public class AgentBuilder {
 	@Getter @Setter
 	protected String id;
         @Getter @Setter
-	protected boolean clearEKB;
-        @Getter @Setter
 	protected Repository agentRepo;
 	@Getter @Setter
 	protected Resource template;
@@ -157,7 +155,7 @@ public class AgentBuilder {
                 bt.setInstance(vf.createIRI(getBTInstance(behaviorIRI)));
                 bt.setObject(new AgentTaskInformation(
                     bt,
-                    clearEKB,
+                    false,
                     beliefs,
                     new ExecutionBeliefBase(inferencing),
                     tdbManager.getBehaviorTDB(),
