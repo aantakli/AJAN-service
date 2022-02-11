@@ -34,6 +34,7 @@ public class Behavior {
 	private final String name;
 	private final Resource resource;
 	private final BTRoot behaviorTree;
+        private final boolean clearEKB;
 	private final List<Resource> events;
 
 	public Model getStatus(final String btURL, final ModelMode mode) {
