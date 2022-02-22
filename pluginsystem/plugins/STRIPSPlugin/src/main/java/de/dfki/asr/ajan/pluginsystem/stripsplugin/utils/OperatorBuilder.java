@@ -20,6 +20,7 @@
 package de.dfki.asr.ajan.pluginsystem.stripsplugin.utils;
 
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
+import de.dfki.asr.ajan.behaviour.events.AJANGoal;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.AbstractActionDefinition;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ServiceActionDefinition;
 import de.dfki.asr.ajan.common.SPARQLUtil;
@@ -52,7 +53,7 @@ public class OperatorBuilder {
 	private final AgentTaskInformation taskInfos;
 	private final Map<String, String> variables = new HashMap();
 
-	public OperatorBuilder(URIManager uriManager, URI actionURI, AgentTaskInformation taskInfos) {
+	public OperatorBuilder(final URIManager uriManager, final URI actionURI, final AgentTaskInformation taskInfos) {
 		this.uriManager = uriManager;
 		this.actionURI = actionURI;
 		this.taskInfos = taskInfos;
@@ -60,19 +61,47 @@ public class OperatorBuilder {
 
 	public Operator build()
 			throws RDFBeanException, VariableEvaluationException, TermEvaluationException {
-		Repository repo = taskInfos.getServiceTDB().getInitializedRepository();
-		AbstractActionDefinition action = loadActionDescription(repo);
+		Repository serviceRepo = taskInfos.getServiceTDB().getInitializedRepository();
+		Repository agentRepo = taskInfos.getAgentTemplatesTDB().getInitializedRepository();
+		AJANOperator action = loadActionDescription(serviceRepo);
+		if (action.getClazz() == null) {
+			action = loadGoalDescription(agentRepo);
+		}
+		action.setUri(actionURI);
 		return createOperator(action);
 	}
 
-	private AbstractActionDefinition loadActionDescription(Repository repo) throws RDFBeanException {
+	private AJANOperator loadActionDescription(final Repository repo) throws RDFBeanException {
+		AJANOperator action = new AJANOperator();
 		try (RepositoryConnection conn = repo.getConnection()) {
 			RDFBeanManager manager = new BehaviorBeanManager(conn);
-			return manager.get(repo.getValueFactory().createIRI(actionURI.toString()), ServiceActionDefinition.class);
+			ServiceActionDefinition actn = manager.get(repo.getValueFactory().createIRI(actionURI.toString()), ServiceActionDefinition.class);
+			if (actn != null) {
+				action.setClazz(ServiceActionDefinition.class);
+				action.setVariables(actn.getVariables());
+				action.setConsumable(actn.getConsumable());
+				action.setProducible(actn.getProducible());
+			}
 		}
+		return action;
 	}
 
-	private Operator createOperator(AbstractActionDefinition action)
+	private AJANOperator loadGoalDescription(final Repository repo) throws RDFBeanException {
+		AJANOperator action = new AJANOperator();
+		try (RepositoryConnection conn = repo.getConnection()) {
+			RDFBeanManager manager = new BehaviorBeanManager(conn);
+			AJANGoal goal = manager.get(repo.getValueFactory().createIRI(actionURI.toString()), AJANGoal.class);
+			if (goal != null) {
+				action.setClazz(AJANGoal.class);
+				action.setVariables(goal.getVariables());
+				action.setConsumable(goal.getConsumable());
+				action.setProducible(goal.getProducible());
+			}
+		}
+		return action;
+	}
+
+	private Operator createOperator(final AJANOperator action)
 			throws VariableEvaluationException, RDFBeanException, TermEvaluationException {
 		List<Proposition> preconds = getPropositions(action.getConsumable().getSparql());
 		List<Proposition> effects = getPropositions(action.getProducible().getSparql());
@@ -89,7 +118,7 @@ public class OperatorBuilder {
 		return struct;
 	}
 
-	private List<Proposition> getPropositions(String query)
+	private List<Proposition> getPropositions(final String query)
 			throws RDFBeanException, VariableEvaluationException, TermEvaluationException {
 		List<Proposition> props = new ArrayList();
 		TupleExpr tuple = SPARQLUtil.getTupleExpr(query);

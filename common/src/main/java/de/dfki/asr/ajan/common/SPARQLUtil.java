@@ -220,9 +220,7 @@ public final class SPARQLUtil {
 			StringBuilder select = new StringBuilder();
 			select.append("SELECT DISTINCT ");
 			for (String variableName: variables) {
-				if (variableName.charAt(0) == '?') {
-					select.append(variableName).append(' ');
-				}
+				select.append('?').append(variableName).append(' ');
 			}
 			String minInsert = query;
 			return minInsert.replaceAll("ASK", select.toString());

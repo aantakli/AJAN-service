@@ -203,7 +203,7 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 
 	private ModelEvent createEvent() throws URISyntaxException {
 		ModelEvent event = new ModelEvent();
-		String eventName = "e_" + label;
+		String eventName = "g_" + label;
 		event.setName(eventName);
 		event.setUrl(url + "#" + eventName);
 		event.register(this.getObject().getBt());

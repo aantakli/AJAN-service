@@ -40,6 +40,7 @@ public class AgentTaskInformation {
 	private final boolean clearEKB;
 	private final AgentBeliefBase agentBeliefs;
 	private final ExecutionBeliefBase executionBeliefs;
+	private final TripleDataBase agentTemplatesTDB;
 	private final TripleDataBase behaviorTDB;
 	private final TripleDataBase domainTDB;
 	private final TripleDataBase serviceTDB;
