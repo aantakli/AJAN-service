@@ -80,18 +80,6 @@ public class OperatorBuilder {
 		return new OperatorImpl(struct, preconds, effects);
 	}
 
-	private void printPropositions(List<Proposition> props, String type) {
-		LOG.info(type);
-		for (Proposition prop: props) {
-			LOG.info(prop.toString());
-		}
-	}
-
-	private void printOperators(Operator op, String type) {
-		LOG.info(type);
-		LOG.info(op.toString());
-	}
-
 	private Structure createOperatorStruct()
 			throws VariableEvaluationException {
 		Structure struct = new Structure(uriManager.setActSignatureHash(actionURI.toString()));
