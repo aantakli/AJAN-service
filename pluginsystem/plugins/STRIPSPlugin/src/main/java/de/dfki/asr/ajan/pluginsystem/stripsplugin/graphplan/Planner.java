@@ -31,6 +31,13 @@ import graphplan.graph.planning.PlanningGraphException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
 
+
+/**
+ * Main class and accessor for the Graphplan algorithm
+ * Adapted from https://github.com/pucrs-automated-planning/javagp/blob/master/src/graphplan/Graphplan.java
+ *
+ * Main @author Felipe Meneguzzi
+ */
 public class Planner {
 	private boolean extractAllPossibleSolutions; // Extract all solutions with minimum length
 	private int maxLength; // Extract all solutions with (minimum length + extractAllPossibleWithMaxLength, respective to graph level)
