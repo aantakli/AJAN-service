@@ -30,6 +30,7 @@ import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.VariableEvaluationEx
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.extensions.GraphPlanConfig;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.extensions.Problem;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.graphplan.Planner;
+import graphplan.PlanResult;
 import graphplan.PlanSolution;
 import graphplan.domain.DomainDescription;
 import graphplan.domain.Operator;
@@ -40,13 +41,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.slf4j.LoggerFactory;
 
 public class PlanBuilder {
 
-	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Problem.class);
+	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(PlanBuilder.class);
 	private final URIManager uriManager = new URIManager();
 
 	private final List<URI> actions;
@@ -74,7 +76,7 @@ public class PlanBuilder {
 		GraphPlanConfig config = configs.get(0);
 		Planner planner = new Planner(config.getMaxLevels(), config.getMaxLength(), config.getTimeout(), config.getAllSolutions(), domain);     
 		PlanSolution solution = planner.plan();
-		return createSubTree(new ArrayList<>(solution.getAllPlans()));
+		return createSubTree(solution.getAllHighlevelPlans());
 	}
 
 	private DomainDescription getDomainDescription()
@@ -83,6 +85,7 @@ public class PlanBuilder {
 		List<Proposition> init = StateLoader.getState(initials, taskInfo, uriManager);
 		List<Proposition> goal = StateLoader.getState(goals, taskInfo, uriManager);
 		List<Operator> ops = getOperators();
+		prindProblemDomain(init, goal, ops);
 		return new DomainDescription(ops, init, goal);
 	}
 
@@ -97,18 +100,40 @@ public class PlanBuilder {
 		return operators;
 	}
 
-	private Task<AgentTaskInformation> createSubTree(List<List<Operator>> planList) throws URISyntaxException, TermEvaluationException {
+	private void prindProblemDomain(List<Proposition> init, List<Proposition> goal, List<Operator> ops) {
+		printPropositions(init, "State:");
+		printPropositions(goal, "Goal:");
+		for (Operator op: ops) {
+			printOperator(op, "Operator:");
+			printPropositions(op.getPreconds(), "Preconds:");
+			printPropositions(op.getEffects(), "Effects:");
+		}
+	}
+
+	private void printPropositions(List<Proposition> props, String type) {
+		LOG.info(type);
+		for (Proposition prop: props) {
+			LOG.info(prop.toString());
+		}
+	}
+
+	private void printOperator(Operator op, String type) {
+		LOG.info(type);
+		LOG.info(op.toString());
+	}
+
+	private Task<AgentTaskInformation> createSubTree(Set<PlanResult> planResults) throws URISyntaxException, TermEvaluationException {
 		Sequence sequence = new Sequence();
-		if(!planList.get(0).isEmpty()) {
-			int planNumber = PlannerUtil.getRandomNumber(randomExecute, planList.size());
-			PlannerUtil.printPlan(planList.get(planNumber), LOG, uriManager);
-			return createSequenceTree(planList.get(planNumber), sequence);
+		if(!planResults.isEmpty()) {
+			PlanResult plan = PlannerUtil.getRandomNumber(randomExecute, planResults, LOG);
+			PlannerUtil.printPlan(plan, LOG, uriManager);
+			return createSequenceTree(plan, sequence);
 		}
 		else
 			return sequence;
 	}
 
-	private Task<AgentTaskInformation> createSequenceTree(List<Operator> plan, Sequence sequence) throws URISyntaxException {
+	private Task<AgentTaskInformation> createSequenceTree(PlanResult plan, Sequence sequence) throws URISyntaxException {
 		for(Operator operator: plan) {
 			sequence.addChild(createActionNode(operator));
 		}
@@ -120,6 +145,7 @@ public class PlanBuilder {
 		builder.setServiceUrl(url);
 		builder.setServiceDescription(operator);
 		builder.setActionInputs(operator);
+		builder.setServiceLabel("PlannedAction");
 		return builder.build();
 	}
 }

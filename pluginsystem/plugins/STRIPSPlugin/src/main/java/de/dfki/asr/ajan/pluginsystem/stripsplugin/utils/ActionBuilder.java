@@ -40,6 +40,7 @@ public final class ActionBuilder {
 
 	private String url;
 	private URI actionUri;
+	private String label;
 	List<BehaviorQuery> inputs;
 
 	private final URIManager uriManager;
@@ -53,6 +54,11 @@ public final class ActionBuilder {
 
 	public ActionBuilder setServiceUrl(String url) {
 		this.url = url;
+		return this;
+	}
+
+	public ActionBuilder setServiceLabel(String label) {
+		this.label = label;
 		return this;
 	}
 
@@ -97,6 +103,7 @@ public final class ActionBuilder {
 		action.setUrl(url);
 		action.setDefinition(actionUri);
 		action.setInputs(inputs);
+		action.setLabel(label);
 		return action;
 	}
 }

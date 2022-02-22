@@ -48,7 +48,6 @@ public class Planner {
 		if(maxLength < 0) {
 			throw new IllegalStateException("extractAllPossibleSolutionsWithMaxLength must be greater than or equal to 0");
 		}
-
 		this.timeout = timeout;
 		this.maxLevels = maxLevels;
 		this.extractAllPossibleSolutions = extractAllPossibleSolutions;
@@ -57,47 +56,17 @@ public class Planner {
 	}
 
 	public PlanSolution plan() throws PlanningGraphException, OperatorFactoryException, TimeoutException {
-		createPlaningGraph();
+		PropositionLevel initialLevel = createPlaningGraph();
 		extractSolutions();
+		this.planningGraph = new PlanningGraph(initialLevel, new StaticMutexesTable(new ArrayList<>(domain.getOperators())));
 		prepareOperators();
 		return calculatePlan();
 	}
 
-	private PlanSolution calculatePlan() throws TimeoutException, PlanningGraphException {
-		boolean planFound = false;
-
-		while ((!planFound && (this.planningGraph.size() <= maxLevels)) || maxLength >= 0) {
-			try {
-				this.planningGraph.expandGraph();
-			} catch (PlanningGraphException e) {
-				System.err.println(e.getMessage());
-				return new PlanSolution();
-			}
-			if (this.planningGraph.goalsPossible(domain.getGoalState(), this.planningGraph.size() - 1)) {
-				planFound = this.planningGraph.accept(this.solutionExtraction);
-				if (planFound) {
-					maxLength--;
-				} else {
-					if(timeout > 0 && ((TimeoutSolutionExtractionVisitor) solutionExtraction).timedOut()) {
-						throw new TimeoutException("No plan possible in " + timeout + " milliseconds");
-					}
-					if (!planPossible()) {
-						throw new PlanningGraphException("Graph has levelled off, plan is not possible.", this.planningGraph.levelOffIndex());
-					}
-				}
-			} else {
-				if (this.planningGraph.levelledOff()) {
-					throw new PlanningGraphException("Goals are not possible and graph has levelled off, plan is not possible.", this.planningGraph.levelOffIndex());
-				}
-			}
-		}
-		return this.solutionExtraction.getPlanSolution();
-	}
-
-	private void createPlaningGraph() {
+	private PropositionLevel createPlaningGraph() {
 		PropositionLevel initialLevel = new PropositionLevel();
 		initialLevel.addPropositions(domain.getInitialState());
-		this.planningGraph = new PlanningGraph(initialLevel, new StaticMutexesTable(new ArrayList<>(domain.getOperators())));
+		return initialLevel;
 	}
 
 	private void extractSolutions() {
@@ -107,6 +76,47 @@ public class Planner {
 		} else {
 			this.solutionExtraction = new SolutionExtractionVisitor(domain.getGoalState(), this);
 		}
+	}
+
+	private void prepareOperators() throws OperatorFactoryException {
+		OperatorFactory.getInstance().resetOperatorTemplates();
+		for (Operator operator : domain.getOperators()) {
+			OperatorFactory.getInstance().addOperatorTemplate(operator);
+		}
+	}
+
+	private PlanSolution calculatePlan() throws TimeoutException, PlanningGraphException {
+		boolean planFound = false;
+		while ((!planFound && (this.planningGraph.size() <= maxLevels)) || maxLength >= 0) {
+			try {
+				planningGraph.expandGraph();
+			} catch (PlanningGraphException e) {
+				System.err.println(e.getMessage());
+				return new PlanSolution();
+			}
+			if (this.planningGraph.goalsPossible(domain.getGoalState(), this.planningGraph.size() - 1)) {
+				planFound = this.planningGraph.accept(this.solutionExtraction);
+				if (planFound) {
+					System.out.println("Plan found with " + (this.planningGraph.size() / 2) + " steps");
+					maxLength--;
+				} else {
+					if(timeout > 0 && ((TimeoutSolutionExtractionVisitor) solutionExtraction).timedOut()) {
+						System.out.println("Planner timed out after " + timeout + " milliseconds");
+						throw new TimeoutException("No plan possible in " + timeout + " milliseconds");
+					}
+					System.out.println("Plan not found with " + (this.planningGraph.size() / 2) + " steps");
+					if (!planPossible()) {
+						throw new PlanningGraphException("Graph has levelled off, plan is not possible.", this.planningGraph.levelOffIndex());
+					}
+				}
+			} else {
+				System.out.println("Goals not possible with " + (this.planningGraph.size() / 2) + " steps");
+				if (this.planningGraph.levelledOff()) {
+					throw new PlanningGraphException("Goals are not possible and graph has levelled off, plan is not possible.", this.planningGraph.levelOffIndex());
+				}
+			}
+		}
+		return this.solutionExtraction.getPlanSolution();
 	}
 
 	public boolean isExtractAllPossibleSolutions() {
@@ -119,13 +129,6 @@ public class Planner {
 
 	public void setMaxLength(int maxLength) {
 		this.maxLength = maxLength;
-	}
-	
-	private void prepareOperators() throws OperatorFactoryException {
-		OperatorFactory.getInstance().resetOperatorTemplates();
-		for (Operator operator : domain.getOperators()) {
-			OperatorFactory.getInstance().addOperatorTemplate(operator);
-		}
 	}
 
 	private boolean planPossible() {
