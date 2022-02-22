@@ -55,20 +55,16 @@
 	]
 	[ 
 		a actn:ActionVariable;
-		sp:varName "p"
-	]
-	[ 
-		a actn:ActionVariable;
 		sp:varName "o"
 	]
   );
   actn:consumes [ 
 	a actn:Consumable;
-	actn:sparql "ASK WHERE {?s ?p ?o}"
+	actn:sparql "ASK WHERE {?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?o}"
   ];
   actn:produces [ 
 	a actn:Producible;
-	actn:sparql "ASK WHERE {?s ?p ?o}"
+	actn:sparql "ASK WHERE {?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?o}"
   ] .
 
 
