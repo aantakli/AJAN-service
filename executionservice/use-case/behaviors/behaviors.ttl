@@ -12,134 +12,9 @@
   rdfs:label "QueryCSVDomain";
   rdfs:comment "";
   <http://www.ajan.de/behavior/bt-ns#mapping> <http://localhost:8090/rdf4j/repositories/domain#CSVTestMapping>;
-  <http://www.ajan.de/behavior/bt-ns#queryUri> _:genid-77121db4d6f240edbafdf7053d91c681-b217 .
+  <http://www.ajan.de/behavior/bt-ns#queryUri> _:genid-be6d698f0adf413dac288deaa89ecd58-b226 .
 
-<http://localhost:8090/rdf4j/repositories/behaviors#QueryMappingDomain-a366ab1c-6f55-487a-9083-f3d6f6579cec>
-  a <http://www.ajan.de/behavior/bt-ns#QueryMappingDomain>;
-  <http://www.ajan.de/behavior/bt-ns#mapping> <http://localhost:8090/rdf4j/repositories/domain#JsonTestMapping>;
-  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
-  rdfs:label "QueryJsonDomain";
-  rdfs:comment "";
-  <http://www.ajan.de/behavior/bt-ns#queryUri> _:genid-77121db4d6f240edbafdf7053d91c681-b219 .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-b224 rdf:first <http://localhost:8090/rdf4j/repositories/services#SA_113ffed8-de69-4cd1-b5f8-5e8cd7f2921a>;
-  rdf:rest _:genid-77121db4d6f240edbafdf7053d91c681-b225 .
-
-<http://localhost:8090/rdf4j/repositories/behaviors#QueryMappingDomain-dd0752e0-47a6-4dec-a5c2-9d4022f7a921>
-  a <http://www.ajan.de/behavior/bt-ns#QueryMappingDomain>;
-  rdfs:comment "";
-  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
-  rdfs:label "QueryXMLDomain";
-  <http://www.ajan.de/behavior/bt-ns#mapping> <http://localhost:8090/rdf4j/repositories/domain#XMLTestMapping>;
-  <http://www.ajan.de/behavior/bt-ns#queryUri> _:genid-77121db4d6f240edbafdf7053d91c681-b221 .
-
-<http://localhost:8090/rdf4j/repositories/behaviors#Sequence-0712defb-c6e3-4beb-8ff6-9df4067e4b3f>
-  a <http://www.ajan.de/behavior/bt-ns#Sequence>;
-  rdfs:label "defaultSequence";
-  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-77121db4d6f240edbafdf7053d91c681-b231 .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-b225 rdf:first <http://localhost:8090/rdf4j/repositories/services#SA_2736900e-0ad9-44e9-9095-45893357cba5>;
-  rdf:rest _:genid-77121db4d6f240edbafdf7053d91c681-b226 .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-b226 rdf:first <http://localhost:8090/rdf4j/repositories/services#SA_515d3564-6939-455a-87be-cb9cb873fcfd>;
-  rdf:rest _:genid-77121db4d6f240edbafdf7053d91c681-b227 .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-b227 rdf:first <http://localhost:8090/rdf4j/repositories/services#SA_94ad273b-2d31-487c-ae41-976591276cd9>;
-  rdf:rest rdf:nil .
-
-<http://localhost:8090/rdf4j/repositories/behaviors#Plan-13004016-d207-4d72-be3c-7e7c84620cb3>
-  a <http://www.ajan.de/behavior/strips-ns#Problem>;
-  <http://www.ajan.de/behavior/strips-ns#config> _:genid-77121db4d6f240edbafdf7053d91c681-b220;
-  <http://www.ajan.de/behavior/strips-ns#goalStates> _:genid-77121db4d6f240edbafdf7053d91c681-b228;
-  <http://www.ajan.de/behavior/strips-ns#initStates> _:genid-77121db4d6f240edbafdf7053d91c681-b229;
-  <http://www.ajan.de/behavior/bt-ns#resetBehavior> true;
-  <http://www.ajan.de/behavior/strips-ns#randomExecute> false;
-  rdfs:label "StackPlan";
-  rdfs:comment "";
-  <http://www.ajan.de/behavior/strips-ns#actions> _:genid-77121db4d6f240edbafdf7053d91c681-b224 .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-b228 rdf:first _:genid-77121db4d6f240edbafdf7053d91c681-b218;
-  rdf:rest rdf:nil .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-b229 rdf:first _:genid-77121db4d6f240edbafdf7053d91c681-b223;
-  rdf:rest rdf:nil .
-
-<http://localhost:8090/rdf4j/repositories/behaviors#Priority-8e97d930-8d69-4c0a-a70a-05a384e6cea4>
-  a <http://www.ajan.de/behavior/bt-ns#Priority>;
-  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-77121db4d6f240edbafdf7053d91c681-44F05A92E6B98D03DA1C27F0534C83C6;
-  rdfs:comment "";
-  rdfs:label "defaultPriority" .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-b230 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#Plan-13004016-d207-4d72-be3c-7e7c84620cb3>;
-  rdf:rest rdf:nil .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-b231 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#HandleJsonEvent-ce337379-e9e3-4b12-b36c-e88b4acd0b43>;
-  rdf:rest _:genid-77121db4d6f240edbafdf7053d91c681-b232 .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-b232 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#QueryMappingDomain-6aca1698-5113-4cee-9635-db2506326bd0>;
-  rdf:rest _:genid-77121db4d6f240edbafdf7053d91c681-b233 .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-b233 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#QueryMappingDomain-dd0752e0-47a6-4dec-a5c2-9d4022f7a921>;
-  rdf:rest _:genid-77121db4d6f240edbafdf7053d91c681-b234 .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-b234 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#QueryMappingDomain-a366ab1c-6f55-487a-9083-f3d6f6579cec>;
-  rdf:rest rdf:nil .
-
-<http://localhost:8090/rdf4j/repositories/behaviors#Plan-d558b8b1-e2de-4101-b2f0-b347c6883189>
-  a <http://www.ajan.de/behavior/strips-ns#Problem>;
-  <http://www.ajan.de/behavior/bt-ns#resetBehavior> true;
-  <http://www.ajan.de/behavior/strips-ns#randomExecute> true;
-  <http://www.ajan.de/behavior/strips-ns#config> _:genid-77121db4d6f240edbafdf7053d91c681-AFC0EEEAE5CFE2050E91E2A94648E5CF;
-  <http://www.ajan.de/behavior/strips-ns#actions> _:genid-77121db4d6f240edbafdf7053d91c681-931BCE41B8BF0AFE6DE7FB1387AAC0AE;
-  <http://www.ajan.de/behavior/strips-ns#goalStates> _:genid-77121db4d6f240edbafdf7053d91c681-72F3B0DCC872731FB241F8E8BEE9B0A7;
-  <http://www.ajan.de/behavior/strips-ns#initStates> _:genid-77121db4d6f240edbafdf7053d91c681-EE06E007A2BFECE736254EFA30028204;
-  rdfs:label "WalkPlan";
-  rdfs:comment "" .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-AFC0EEEAE5CFE2050E91E2A94648E5CF a <http://www.ajan.de/behavior/strips-ns#GraphPlanConfig>;
-  <http://www.ajan.de/behavior/strips-ns#allSolutions> true;
-  <http://www.ajan.de/behavior/strips-ns#maxLength> "0"^^xsd:int;
-  <http://www.ajan.de/behavior/strips-ns#maxLevels> "1"^^xsd:int;
-  <http://www.ajan.de/behavior/strips-ns#timeout> "5000"^^xsd:long .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-931BCE41B8BF0AFE6DE7FB1387AAC0AE rdf:first
-    <http://localhost:8090/rdf4j/repositories/services#SA_2e296822-d5ee-4183-a725-e283caa25db5>;
-  rdf:rest rdf:nil .
-
-<http://localhost:8090/rdf4j/repositories/behaviors#BT_c04f4e55-c712-4ba9-b996-2e146d9248ed>
-  a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>, <http://www.ajan.de/behavior/bt-ns#Root>;
-  rdfs:label "planningBT";
-  <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#Priority-8e97d930-8d69-4c0a-a70a-05a384e6cea4> .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-72F3B0DCC872731FB241F8E8BEE9B0A7 rdf:first
-    _:genid-77121db4d6f240edbafdf7053d91c681-AF8D89DF1CD0017589AEC20995B82FCD;
-  rdf:rest rdf:nil .
-
-<http://localhost:8090/rdf4j/repositories/behaviors#BT_95e69482-7309-463f-a353-78ce87d73a79>
-  a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>, <http://www.ajan.de/behavior/bt-ns#Root>;
-  <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-0712defb-c6e3-4beb-8ff6-9df4067e4b3f>;
-  rdfs:label "mappingBT";
-  rdfs:comment "" .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-AF8D89DF1CD0017589AEC20995B82FCD a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
-    <http://www.ajan.de/behavior/strips-ns#State>;
-  <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX inv: <http://www.dfki.de/inversiv-ns#>
-
-CONSTRUCT { 
-	?avatar rdf:type inv:Avatar .
-	?avatar inv:locatedNextTo inv:Dispenser .
-}
-
-WHERE {
-	?avatar rdf:type inv:Avatar .
-}""";
-  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge> .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-EE06E007A2BFECE736254EFA30028204 rdf:first
-    _:genid-77121db4d6f240edbafdf7053d91c681-050CECFAB27013978132C3492F3D1D12;
-  rdf:rest rdf:nil .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-050CECFAB27013978132C3492F3D1D12 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+_:genid-be6d698f0adf413dac288deaa89ecd58-b230 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
     <http://www.ajan.de/behavior/strips-ns#State>;
   <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX inv: <http://www.dfki.de/inversiv-ns#>
 
@@ -160,58 +35,15 @@ WHERE {
 }""";
   <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge> .
 
-_:genid-77121db4d6f240edbafdf7053d91c681-44F05A92E6B98D03DA1C27F0534C83C6 rdf:first
-    <http://localhost:8090/rdf4j/repositories/behaviors#Plan-d558b8b1-e2de-4101-b2f0-b347c6883189>;
-  rdf:rest _:genid-77121db4d6f240edbafdf7053d91c681-b230 .
-
-<http://localhost:8090/rdf4j/repositories/behaviors#HandleJsonEvent-ce337379-e9e3-4b12-b36c-e88b4acd0b43>
-  a <http://www.ajan.de/behavior/bt-ns#HandleMappingEvent>;
-  <http://www.ajan.de/ajan-ns#event> <http://www.ajan.de/ajan-ns#All>;
-  rdfs:comment "";
+<http://localhost:8090/rdf4j/repositories/behaviors#QueryMappingDomain-a366ab1c-6f55-487a-9083-f3d6f6579cec>
+  a <http://www.ajan.de/behavior/bt-ns#QueryMappingDomain>;
   <http://www.ajan.de/behavior/bt-ns#mapping> <http://localhost:8090/rdf4j/repositories/domain#JsonTestMapping>;
-  rdfs:label "HandleJsonEvent";
-  <http://www.ajan.de/behavior/bt-ns#validate> _:genid-77121db4d6f240edbafdf7053d91c681-b222 .
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  rdfs:label "QueryJsonDomain";
+  rdfs:comment "";
+  <http://www.ajan.de/behavior/bt-ns#queryUri> _:genid-be6d698f0adf413dac288deaa89ecd58-b228 .
 
-_:genid-77121db4d6f240edbafdf7053d91c681-b217 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>,
-    <http://www.ajan.de/behavior/bt-ns#QueryUri>;
-  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
-  <http://www.ajan.de/behavior/bt-ns#sparql> """SELECT ?requestURI
-WHERE {
-  VALUES ?requestURI {\"http://127.0.0.1:3000/longitude\"}
-}""" .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-b218 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
-    <http://www.ajan.de/behavior/strips-ns#State>;
-  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
-  <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX inv: <http://www.dfki.de/inversiv-ns#>
-
-CONSTRUCT { 
-	inv:BlockB inv:on inv:BlockA .
-	inv:BlockC inv:on inv:BlockB .
-	inv:BlockD inv:on inv:BlockC .
-	inv:BlockE inv:on inv:BlockD .
-	inv:BlockF inv:on inv:BlockE .
-}
-
-WHERE {
-	?avatar rdf:type inv:Avatar .
-}""" .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-b219 a <http://www.ajan.de/behavior/bt-ns#QueryUri>,
-    <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
-  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
-  <http://www.ajan.de/behavior/bt-ns#sparql> """SELECT ?requestURI
-WHERE {
-  VALUES ?requestURI {\"http://127.0.0.1:3000/venue\"}
-}""" .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-b220 a <http://www.ajan.de/behavior/strips-ns#GraphPlanConfig>;
-  <http://www.ajan.de/behavior/strips-ns#allSolutions> true;
-  <http://www.ajan.de/behavior/strips-ns#maxLength> "0"^^xsd:int;
-  <http://www.ajan.de/behavior/strips-ns#maxLevels> "15"^^xsd:int;
-  <http://www.ajan.de/behavior/strips-ns#timeout> "100000"^^xsd:long .
-
-_:genid-77121db4d6f240edbafdf7053d91c681-b221 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>,
+_:genid-be6d698f0adf413dac288deaa89ecd58-b231 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>,
     <http://www.ajan.de/behavior/bt-ns#QueryUri>;
   <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
   <http://www.ajan.de/behavior/bt-ns#sparql> """SELECT ?requestURI
@@ -219,12 +51,25 @@ WHERE {
   VALUES ?requestURI {\"http://127.0.0.1:3000/transport\"}
 }""" .
 
-_:genid-77121db4d6f240edbafdf7053d91c681-b222 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>;
+<http://localhost:8090/rdf4j/repositories/behaviors#QueryMappingDomain-dd0752e0-47a6-4dec-a5c2-9d4022f7a921>
+  a <http://www.ajan.de/behavior/bt-ns#QueryMappingDomain>;
+  rdfs:comment "";
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  rdfs:label "QueryXMLDomain";
+  <http://www.ajan.de/behavior/bt-ns#mapping> <http://localhost:8090/rdf4j/repositories/domain#XMLTestMapping>;
+  <http://www.ajan.de/behavior/bt-ns#queryUri> _:genid-be6d698f0adf413dac288deaa89ecd58-b231 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Sequence-0712defb-c6e3-4beb-8ff6-9df4067e4b3f>
+  a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  rdfs:label "defaultSequence";
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-be6d698f0adf413dac288deaa89ecd58-b245 .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b232 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>;
   <http://www.ajan.de/behavior/bt-ns#sparql> """CONSTRUCT { ?s ?p ?o }
 WHERE { ?s ?p ?o }""";
   <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge> .
 
-_:genid-77121db4d6f240edbafdf7053d91c681-b223 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+_:genid-be6d698f0adf413dac288deaa89ecd58-b233 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
     <http://www.ajan.de/behavior/strips-ns#State>;
   <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
   <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -250,3 +95,209 @@ CONSTRUCT {
 WHERE {
     ?s ?p ?o .
 }""" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Plan-13004016-d207-4d72-be3c-7e7c84620cb3>
+  a <http://www.ajan.de/behavior/strips-ns#Problem>;
+  <http://www.ajan.de/behavior/bt-ns#resetBehavior> true;
+  <http://www.ajan.de/behavior/strips-ns#randomExecute> false;
+  rdfs:label "StackPlan";
+  rdfs:comment "";
+  <http://www.ajan.de/behavior/strips-ns#actions> _:genid-be6d698f0adf413dac288deaa89ecd58-b234;
+  <http://www.ajan.de/behavior/strips-ns#config> _:genid-be6d698f0adf413dac288deaa89ecd58-b229;
+  <http://www.ajan.de/behavior/strips-ns#goalStates> _:genid-be6d698f0adf413dac288deaa89ecd58-b238;
+  <http://www.ajan.de/behavior/strips-ns#initStates> _:genid-be6d698f0adf413dac288deaa89ecd58-b239 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#BT_3ad487c8-aaaa-4281-a923-451339a99bb7>
+  a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>, <http://www.ajan.de/behavior/bt-ns#Root>;
+  <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-263ebbe7-d782-4593-b0cf-a02adf2a4b2c>;
+  rdfs:label "goalBT" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#BT_cdf47ff4-902c-466d-9529-d23a7e574f89>
+  a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>, <http://www.ajan.de/behavior/bt-ns#Root>;
+  <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-66251aee-57cb-4ec8-893c-de37f0f8db40>;
+  rdfs:comment "";
+  rdfs:label "testBT" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Priority-8e97d930-8d69-4c0a-a70a-05a384e6cea4>
+  a <http://www.ajan.de/behavior/bt-ns#Priority>;
+  rdfs:comment "";
+  rdfs:label "defaultPriority";
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-be6d698f0adf413dac288deaa89ecd58-b243 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#GoalProducer-7f238792-ef0d-4d42-9736-5cfdf4d7f91d>
+  a <http://www.ajan.de/behavior/bt-ns#GoalProducer>;
+  <http://www.ajan.de/ajan-ns#goal> <http://localhost:8090/rdf4j/repositories/agents#GO_6914c47d-1f34-49ae-ba70-3449ea8dazhj>;
+  <http://www.ajan.de/behavior/bt-ns#content> _:genid-be6d698f0adf413dac288deaa89ecd58-b223;
+  rdfs:comment "";
+  rdfs:label "GoalProducer" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#HandleEvent-ba562855-1f0b-4a8f-990b-8cdbbc0bf304>
+  a <http://www.ajan.de/behavior/bt-ns#HandleEvent>;
+  <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#GO_6914c47d-1f34-49ae-ba70-3449ea8dazhj>;
+  <http://www.ajan.de/behavior/bt-ns#validate> _:genid-be6d698f0adf413dac288deaa89ecd58-b222;
+  rdfs:comment "";
+  rdfs:label "HandleEvent" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Plan-d558b8b1-e2de-4101-b2f0-b347c6883189>
+  a <http://www.ajan.de/behavior/strips-ns#Problem>;
+  <http://www.ajan.de/behavior/bt-ns#resetBehavior> true;
+  <http://www.ajan.de/behavior/strips-ns#randomExecute> true;
+  rdfs:label "WalkPlan";
+  rdfs:comment "";
+  <http://www.ajan.de/behavior/strips-ns#actions> _:genid-be6d698f0adf413dac288deaa89ecd58-b240;
+  <http://www.ajan.de/behavior/strips-ns#config> _:genid-be6d698f0adf413dac288deaa89ecd58-b225;
+  <http://www.ajan.de/behavior/strips-ns#goalStates> _:genid-be6d698f0adf413dac288deaa89ecd58-b241;
+  <http://www.ajan.de/behavior/strips-ns#initStates> _:genid-be6d698f0adf413dac288deaa89ecd58-b242 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#HandleJsonEvent-ce337379-e9e3-4b12-b36c-e88b4acd0b43>
+  a <http://www.ajan.de/behavior/bt-ns#HandleMappingEvent>;
+  <http://www.ajan.de/behavior/bt-ns#validate> _:genid-be6d698f0adf413dac288deaa89ecd58-b232;
+  <http://www.ajan.de/ajan-ns#event> <http://www.ajan.de/ajan-ns#All>;
+  rdfs:comment "";
+  <http://www.ajan.de/behavior/bt-ns#mapping> <http://localhost:8090/rdf4j/repositories/domain#JsonTestMapping>;
+  rdfs:label "HandleJsonEvent" .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b234 rdf:first <http://localhost:8090/rdf4j/repositories/services#SA_113ffed8-de69-4cd1-b5f8-5e8cd7f2921a>;
+  rdf:rest _:genid-be6d698f0adf413dac288deaa89ecd58-b235 .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b235 rdf:first <http://localhost:8090/rdf4j/repositories/services#SA_2736900e-0ad9-44e9-9095-45893357cba5>;
+  rdf:rest _:genid-be6d698f0adf413dac288deaa89ecd58-b236 .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b236 rdf:first <http://localhost:8090/rdf4j/repositories/services#SA_515d3564-6939-455a-87be-cb9cb873fcfd>;
+  rdf:rest _:genid-be6d698f0adf413dac288deaa89ecd58-b237 .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b237 rdf:first <http://localhost:8090/rdf4j/repositories/services#SA_94ad273b-2d31-487c-ae41-976591276cd9>;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#BT_c04f4e55-c712-4ba9-b996-2e146d9248ed>
+  a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>, <http://www.ajan.de/behavior/bt-ns#Root>;
+  rdfs:label "planningBT";
+  <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#Priority-8e97d930-8d69-4c0a-a70a-05a384e6cea4> .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b238 rdf:first _:genid-be6d698f0adf413dac288deaa89ecd58-b227;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#BT_95e69482-7309-463f-a353-78ce87d73a79>
+  a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>, <http://www.ajan.de/behavior/bt-ns#Root>;
+  <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-0712defb-c6e3-4beb-8ff6-9df4067e4b3f>;
+  rdfs:label "mappingBT";
+  rdfs:comment "" .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b239 rdf:first _:genid-be6d698f0adf413dac288deaa89ecd58-b233;
+  rdf:rest rdf:nil .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b240 rdf:first <http://localhost:8090/rdf4j/repositories/services#SA_2e296822-d5ee-4183-a725-e283caa25db5>;
+  rdf:rest rdf:nil .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b241 rdf:first _:genid-be6d698f0adf413dac288deaa89ecd58-b224;
+  rdf:rest rdf:nil .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b242 rdf:first _:genid-be6d698f0adf413dac288deaa89ecd58-b230;
+  rdf:rest rdf:nil .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b243 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#Plan-d558b8b1-e2de-4101-b2f0-b347c6883189>;
+  rdf:rest _:genid-be6d698f0adf413dac288deaa89ecd58-b244 .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b244 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#Plan-13004016-d207-4d72-be3c-7e7c84620cb3>;
+  rdf:rest rdf:nil .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b245 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#HandleJsonEvent-ce337379-e9e3-4b12-b36c-e88b4acd0b43>;
+  rdf:rest _:genid-be6d698f0adf413dac288deaa89ecd58-b246 .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b246 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#QueryMappingDomain-6aca1698-5113-4cee-9635-db2506326bd0>;
+  rdf:rest _:genid-be6d698f0adf413dac288deaa89ecd58-b247 .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b247 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#QueryMappingDomain-dd0752e0-47a6-4dec-a5c2-9d4022f7a921>;
+  rdf:rest _:genid-be6d698f0adf413dac288deaa89ecd58-b248 .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b248 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#QueryMappingDomain-a366ab1c-6f55-487a-9083-f3d6f6579cec>;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Sequence-263ebbe7-d782-4593-b0cf-a02adf2a4b2c>
+  a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-be6d698f0adf413dac288deaa89ecd58-b249;
+  rdfs:label "defaultSequence" .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b249 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#GoalProducer-7f238792-ef0d-4d42-9736-5cfdf4d7f91d>;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Sequence-66251aee-57cb-4ec8-893c-de37f0f8db40>
+  a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-be6d698f0adf413dac288deaa89ecd58-b250;
+  rdfs:label "defaultSequence" .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b250 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#HandleEvent-ba562855-1f0b-4a8f-990b-8cdbbc0bf304>;
+  rdf:rest rdf:nil .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b222 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> "";
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge> .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b223 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/bt-ns#QueryUri>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """CONSTRUCT {
+?s ?p ?o
+}
+WHERE {
+?s ?p ?o
+}""" .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b224 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/strips-ns#State>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX inv: <http://www.dfki.de/inversiv-ns#>
+
+CONSTRUCT { 
+	?avatar rdf:type inv:Avatar .
+	?avatar inv:locatedNextTo inv:Dispenser .
+}
+
+WHERE {
+	?avatar rdf:type inv:Avatar .
+}""" .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b225 a <http://www.ajan.de/behavior/strips-ns#GraphPlanConfig>;
+  <http://www.ajan.de/behavior/strips-ns#allSolutions> true;
+  <http://www.ajan.de/behavior/strips-ns#maxLength> "0"^^xsd:int;
+  <http://www.ajan.de/behavior/strips-ns#maxLevels> "1"^^xsd:int;
+  <http://www.ajan.de/behavior/strips-ns#timeout> "5000"^^xsd:long .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b226 a <http://www.ajan.de/behavior/bt-ns#QueryUri>,
+    <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """SELECT ?requestURI
+WHERE {
+  VALUES ?requestURI {\"http://127.0.0.1:3000/longitude\"}
+}""" .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b227 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>,
+    <http://www.ajan.de/behavior/strips-ns#State>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX inv: <http://www.dfki.de/inversiv-ns#>
+
+CONSTRUCT { 
+	inv:BlockB inv:on inv:BlockA .
+	inv:BlockC inv:on inv:BlockB .
+	inv:BlockD inv:on inv:BlockC .
+	inv:BlockE inv:on inv:BlockD .
+	inv:BlockF inv:on inv:BlockE .
+}
+
+WHERE {
+	?avatar rdf:type inv:Avatar .
+}""" .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b228 a <http://www.ajan.de/behavior/bt-ns#QueryUri>,
+    <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """SELECT ?requestURI
+WHERE {
+  VALUES ?requestURI {\"http://127.0.0.1:3000/venue\"}
+}""" .
+
+_:genid-be6d698f0adf413dac288deaa89ecd58-b229 a <http://www.ajan.de/behavior/strips-ns#GraphPlanConfig>;
+  <http://www.ajan.de/behavior/strips-ns#allSolutions> true;
+  <http://www.ajan.de/behavior/strips-ns#maxLength> "0"^^xsd:int;
+  <http://www.ajan.de/behavior/strips-ns#maxLevels> "15"^^xsd:int;
+  <http://www.ajan.de/behavior/strips-ns#timeout> "100000"^^xsd:long .

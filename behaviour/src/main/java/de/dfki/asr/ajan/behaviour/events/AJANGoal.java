@@ -19,7 +19,9 @@
 
 package de.dfki.asr.ajan.behaviour.events;
 
-import de.dfki.asr.ajan.behaviour.nodes.common.Variable;
+import de.dfki.asr.ajan.behaviour.nodes.action.definition.ActionVariable;
+import de.dfki.asr.ajan.behaviour.nodes.action.definition.Consumable;
+import de.dfki.asr.ajan.behaviour.nodes.action.definition.Producible;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,13 +40,17 @@ public class AJANGoal extends ModelCallback {
 	@Getter @Setter
 	private String name;
 
-	@RDF("ajan:variables")
+	@RDF("actn:variables")
 	@Getter @Setter
-	private List<Variable> variables;
+	private List<ActionVariable> variables;
 
-	@RDF("ajan:condition")
+	@RDF("actn:consumes")
 	@Getter @Setter
-	private String condition;
+	private Consumable consumable;
+
+	@RDF("actn:produces")
+	@Getter @Setter
+	private Producible producible;
 
 	@Override
 	public void setEventInformation(final Producer producer, final Object information) {

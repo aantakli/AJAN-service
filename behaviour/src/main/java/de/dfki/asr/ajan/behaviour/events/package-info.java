@@ -21,7 +21,8 @@
 				"bt = http://www.ajan.de/behavior/bt-ns#",
 				"sp = http://spinrdf.org/sp#",
 				"rdf = http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-				"rdfs = http://www.w3.org/2000/01/rdf-schema#"})
+				"rdfs = http://www.w3.org/2000/01/rdf-schema#",
+				"actn = http://www.ajan.de/actn#"})
 package de.dfki.asr.ajan.behaviour.events;
 
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
