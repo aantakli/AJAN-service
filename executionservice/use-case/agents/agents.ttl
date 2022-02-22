@@ -51,15 +51,15 @@
   actn:variables (
 	[ 
 		a actn:ActionVariable;
-		sp:varName "?s"
+		sp:varName "s"
 	]
 	[ 
 		a actn:ActionVariable;
-		sp:varName "?p"
+		sp:varName "p"
 	]
 	[ 
 		a actn:ActionVariable;
-		sp:varName "?o"
+		sp:varName "o"
 	]
   );
   actn:consumes [ 

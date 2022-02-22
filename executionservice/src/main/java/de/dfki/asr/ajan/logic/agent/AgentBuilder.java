@@ -159,6 +159,7 @@ public class AgentBuilder {
                     clearEKB,
                     beliefs,
                     new ExecutionBeliefBase(inferencing),
+                    tdbManager.getAgentTemplatesTDB(),
                     tdbManager.getBehaviorTDB(),
                     tdbManager.getDomainTDB(),
                     tdbManager.getServiceTDB(),
