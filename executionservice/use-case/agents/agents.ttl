@@ -6,26 +6,70 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix fn: <http://www.w3.org/2005/xpath-functions#> .
 
-<http://localhost:8090/rdf4j/repositories/agents#EV_6914c47d-1f34-49ae-ba70-3449ea8a123b>
-  a <http://www.ajan.de/ajan-ns#ModelEvent>;
-  rdfs:label "Default Event" .
+@prefix : <http://localhost:8090/rdf4j/repositories/agents#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix actn: <http://www.ajan.de/actn#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+@prefix behaviors: <http://localhost:8090/rdf4j/repositories/behaviors#> .
 
-<http://localhost:8090/rdf4j/repositories/agents#EP_419cf38e-efa4-4732-868a-e4ac1ca1b43e>
-  a <http://www.ajan.de/ajan-ns#Endpoint>;
-  rdfs:label "Default Endpoint";
-  <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#EV_6914c47d-1f34-49ae-ba70-3449ea8a123b>;
-  <http://www.ajan.de/ajan-ns#capability> "default" .
-
-<http://localhost:8090/rdf4j/repositories/agents#BE_6ab4468a-ceb6-4880-bc4b-529476a1bc68>
-  a <http://www.ajan.de/ajan-ns#Behavior>;
-  rdfs:label "Default Behavior";
-  <http://www.ajan.de/ajan-ns#clearEKB> false;
-  <http://www.ajan.de/ajan-ns#trigger> <http://localhost:8090/rdf4j/repositories/agents#EV_6914c47d-1f34-49ae-ba70-3449ea8a123b>;
-  <http://www.ajan.de/ajan-ns#bt> <http://localhost:8090/rdf4j/repositories/behaviors#BT_c04f4e55-c712-4ba9-b996-2e146d9248ed> .
-
-<http://localhost:8090/rdf4j/repositories/agents#AG_94012638-e398-4751-a0a8-d4df081902f9>
-  a <http://www.ajan.de/ajan-ns#AgentTemplate>;
+:AG_94012638-e398-4751-a0a8-d4df081902f9
+  a ajan:AgentTemplate;
   rdfs:label "Default AgentTemplate";
-  <http://www.ajan.de/ajan-ns#behavior> <http://localhost:8090/rdf4j/repositories/agents#BE_6ab4468a-ceb6-4880-bc4b-529476a1bc68>;
-  <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#EV_6914c47d-1f34-49ae-ba70-3449ea8a123b>;
-  <http://www.ajan.de/ajan-ns#endpoint> <http://localhost:8090/rdf4j/repositories/agents#EP_419cf38e-efa4-4732-868a-e4ac1ca1b43e> .
+  ajan:behavior :BE_6ab4468a-ceb6-4880-bc4b-529476a1bc68;
+  ajan:behavior :BE_6ab4468a-ceb6-4880-bc4b-529476a1bzz8;
+  ajan:event :EV_6914c47d-1f34-49ae-ba70-3449ea8a123b;
+  ajan:event :GO_6914c47d-1f34-49ae-ba70-3449ea8dazhj;
+  ajan:endpoint :EP_419cf38e-efa4-4732-868a-e4ac1ca1b43e .
+
+:BE_6ab4468a-ceb6-4880-bc4b-529476a1bc68
+  a ajan:Behavior;
+  rdfs:label "Default Behavior";
+  ajan:clearEKB false;
+  ajan:trigger :EV_6914c47d-1f34-49ae-ba70-3449ea8a123b;
+  ajan:bt behaviors:BT_3ad487c8-aaaa-4281-a923-451339a99bb7 .
+  
+:BE_6ab4468a-ceb6-4880-bc4b-529476a1bzz8
+  a ajan:Behavior;
+  rdfs:label "Goal Behavior";
+  ajan:clearEKB false;
+  ajan:trigger :GO_6914c47d-1f34-49ae-ba70-3449ea8dazhj;
+  ajan:bt behaviors:BT_cdf47ff4-902c-466d-9529-d23a7e574f89 .
+
+:EP_419cf38e-efa4-4732-868a-e4ac1ca1b43e
+  a ajan:Endpoint;
+  rdfs:label "Default Endpoint";
+  ajan:event :EV_6914c47d-1f34-49ae-ba70-3449ea8a123b;
+  ajan:capability "default" .
+  
+:EV_6914c47d-1f34-49ae-ba70-3449ea8a123b
+  a ajan:ModelEvent;
+  rdfs:label "Default Event" .
+  
+:GO_6914c47d-1f34-49ae-ba70-3449ea8dazhj
+  a ajan:Goal;
+  rdfs:label "Default Goal";
+  actn:variables (
+	[ 
+		a actn:ActionVariable;
+		sp:varName "?s"
+	]
+	[ 
+		a actn:ActionVariable;
+		sp:varName "?p"
+	]
+	[ 
+		a actn:ActionVariable;
+		sp:varName "?o"
+	]
+  );
+  actn:consumes [ 
+	a actn:Consumable;
+	actn:sparql "ASK WHERE {?s ?p ?o}"
+  ];
+  actn:produces [ 
+	a actn:Producible;
+	actn:sparql "ASK WHERE {?s ?p ?o}"
+  ] .
+
+
+

@@ -62,7 +62,7 @@ public class BehaviorUpdateQuery implements BehaviorQuery {
 		result = true;
 		try (RepositoryConnection conn = repo.getConnection()) {
 			try {
-				String queryString = SPARQLUtil.getSelectQuery(this.getSparql());
+				String queryString = SPARQLUtil.getSelectQueryFromUpdate(this.getSparql());
 				TupleQueryResult list = conn.prepareTupleQuery(queryString).evaluate();
 				bindings = new ArrayList();
 				while (list.hasNext()) {
