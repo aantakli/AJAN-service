@@ -20,10 +20,12 @@
 package de.dfki.asr.ajan.pluginsystem.stripsplugin.utils;
 
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.NoActionAvailableException;
+import graphplan.PlanResult;
 import graphplan.domain.Operator;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 
 public final class PlannerUtil {
@@ -32,18 +34,48 @@ public final class PlannerUtil {
 
 	}
 
-	public static int getRandomNumber(boolean mode, int size) {
+	public static PlanResult getRandomNumber(boolean mode, Set<PlanResult> planResults, Logger logger) {
 		int planNumber = 0;
 		if(mode) {
-			planNumber = (int)(Math.random() * (size));
+			planNumber = (int)(Math.random() * (planResults.size()));
+			return getPlanByID(planNumber, planResults);
 		}
-		return planNumber;
+		return getShortestPlan(planResults, logger);
 	}
 
-	public static void printPlan(List<Operator> plan, Logger logger, URIManager uriManager) {
+	private static PlanResult getShortestPlan(Set<PlanResult> planResults, Logger logger) {
+		int i = 1;
+		int id = 0;
+		int length = 100;
+		PlanResult shortest = null;
+		for(PlanResult plan: planResults) {
+			if (plan.getPlanLength() <= length) {
+				length = plan.getPlanLength();
+				shortest = plan;
+				id = i;
+			}
+			i++;
+		}
+		logger.info("Plan #" + id + " with " + length + " steps is the shortest");
+		return shortest;
+	}
+
+	public static PlanResult getPlanByID(int id, Set<PlanResult> planResults) {
+		int i = 0;
+		for(PlanResult plan: planResults) {
+			if (i == id) {
+				return plan;
+			} else {
+				i++;
+			}
+		}
+		return planResults.iterator().next();
+	}
+
+	public static void printPlan(PlanResult plan, Logger logger, URIManager uriManager) {
 		logger.info("Plan: ");
-		plan.stream().map((operator) -> {
-			StringBuilder builder = new StringBuilder();
+		StringBuilder builder = new StringBuilder();
+		for (Operator operator: plan) {
 			builder.append(uriManager.getURIFromHash(operator.getFunctor()));
 			builder.append("(");
 			List terms = operator.getTerms();
@@ -56,13 +88,9 @@ public final class PlannerUtil {
 					i++;
 				}
 			}
-			return builder;
-		}).map((builder) -> {
-			builder.append(")");
-			return builder;
-		}).forEach((builder) -> {
-			logger.info(builder.toString());
-		});
+			builder.append(")\n");
+		}
+		logger.info(builder.toString());
 	}
 
 	public static void checkActionsAvailability(List<URI> actions) throws URISyntaxException, NoActionAvailableException {

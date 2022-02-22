@@ -21,6 +21,7 @@ package de.dfki.asr.ajan.pluginsystem.stripsplugin.utils;
 
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.AbstractActionDefinition;
+import de.dfki.asr.ajan.behaviour.nodes.action.definition.ServiceActionDefinition;
 import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.TermEvaluationException;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.VariableEvaluationException;
@@ -40,9 +41,12 @@ import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.eclipse.rdf4j.query.algebra.TupleExpr;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.slf4j.LoggerFactory;
 
 public class OperatorBuilder {
 	
+	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(OperatorBuilder.class);
+
 	private final URIManager uriManager;
 	private final URI actionURI;
 	private final AgentTaskInformation taskInfos;
@@ -64,7 +68,7 @@ public class OperatorBuilder {
 	private AbstractActionDefinition loadActionDescription(Repository repo) throws RDFBeanException {
 		try (RepositoryConnection conn = repo.getConnection()) {
 			RDFBeanManager manager = new BehaviorBeanManager(conn);
-			return manager.get(repo.getValueFactory().createIRI(actionURI.toString()), AbstractActionDefinition.class);
+			return manager.get(repo.getValueFactory().createIRI(actionURI.toString()), ServiceActionDefinition.class);
 		}
 	}
 
@@ -74,6 +78,18 @@ public class OperatorBuilder {
 		List<Proposition> effects = getPropositions(action.getProducible().getSparql());
 		Structure struct = createOperatorStruct();
 		return new OperatorImpl(struct, preconds, effects);
+	}
+
+	private void printPropositions(List<Proposition> props, String type) {
+		LOG.info(type);
+		for (Proposition prop: props) {
+			LOG.info(prop.toString());
+		}
+	}
+
+	private void printOperators(Operator op, String type) {
+		LOG.info(type);
+		LOG.info(op.toString());
 	}
 
 	private Structure createOperatorStruct()
