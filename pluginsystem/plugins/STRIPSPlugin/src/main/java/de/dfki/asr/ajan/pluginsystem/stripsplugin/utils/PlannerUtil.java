@@ -19,13 +19,21 @@
 
 package de.dfki.asr.ajan.pluginsystem.stripsplugin.utils;
 
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
+import de.dfki.asr.ajan.common.AJANVocabulary;
+import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.NoActionAvailableException;
 import graphplan.PlanResult;
 import graphplan.domain.Operator;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.query.parser.ParsedGraphQuery;
 import org.slf4j.Logger;
 
 public final class PlannerUtil {
@@ -100,4 +108,31 @@ public final class PlannerUtil {
 		} 
 	}
 
+	public static BehaviorConstructQuery getNodeQuery(final Operator operator, final URIManager uriManager) throws URISyntaxException {
+		ParsedGraphQuery parsedQuery = createQuery(operator, uriManager);
+		return createBehaviourQuery(parsedQuery);
+	}
+
+	private static ParsedGraphQuery createQuery(final Operator operator, final URIManager uriManager) {
+		ValueFactory factory = SimpleValueFactory.getInstance();
+		List terms = operator.getTerms();
+		Set<Resource> resourceSet = new HashSet();
+		for(Object term: terms) {
+			//----------------
+			// ToDo: NOT only URIs could be saved as Terms --> Integers, Strings ...
+			//----------------
+			String resourceURI = uriManager.getURIFromHash(term.toString());
+			Resource resource = factory.createIRI(resourceURI);
+			resourceSet.add(resource);
+		}
+		return SPARQLUtil.getDescribeQuery(resourceSet.iterator());
+	}
+
+	private static BehaviorConstructQuery createBehaviourQuery(ParsedGraphQuery parsedQuery) throws URISyntaxException {
+		BehaviorConstructQuery query = new BehaviorConstructQuery();
+		URI agentBeliefbase = new URI(AJANVocabulary.AGENT_KNOWLEDGE.toString());
+		query.setOriginBase(agentBeliefbase);
+		query.setSparql(SPARQLUtil.renderQuery(parsedQuery));
+		return query;
+	}
 }

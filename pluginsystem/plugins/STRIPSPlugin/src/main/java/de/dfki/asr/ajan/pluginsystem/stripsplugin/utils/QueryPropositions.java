@@ -69,7 +69,7 @@ public class QueryPropositions {
 			Var object = node.getObjectVar();
 			try {
 				checkPredicate(predicate);
-				PropositionImpl proposition = new PropositionImpl(pos,uriManager.setObjTermHash(predicate.getValue()));
+				PropositionImpl proposition = new PropositionImpl(pos,uriManager.setPrdTermHash(predicate.getValue()));
 				proposition.addTerm(getTerm(subject));
 				proposition.addTerm(getTerm(object));
 				props.add(proposition);

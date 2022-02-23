@@ -33,4 +33,5 @@ public class AJANOperator {
 	private List<ActionVariable> variables;
 	private Consumable consumable;
 	private Producible producible;
+	private String operatorId;
 }

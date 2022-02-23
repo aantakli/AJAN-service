@@ -21,7 +21,6 @@ package de.dfki.asr.ajan.pluginsystem.stripsplugin.utils;
 
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.events.AJANGoal;
-import de.dfki.asr.ajan.behaviour.nodes.action.definition.AbstractActionDefinition;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ServiceActionDefinition;
 import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.TermEvaluationException;
@@ -52,11 +51,13 @@ public class OperatorBuilder {
 	private final URI actionURI;
 	private final AgentTaskInformation taskInfos;
 	private final Map<String, String> variables = new HashMap();
+	private final Map<String, AJANOperator> operators;
 
-	public OperatorBuilder(final URIManager uriManager, final URI actionURI, final AgentTaskInformation taskInfos) {
+	public OperatorBuilder(final URIManager uriManager, final Map<String, AJANOperator> operators, final URI actionURI, final AgentTaskInformation taskInfos) {
 		this.uriManager = uriManager;
 		this.actionURI = actionURI;
 		this.taskInfos = taskInfos;
+		this.operators = operators;
 	}
 
 	public Operator build()
@@ -68,6 +69,7 @@ public class OperatorBuilder {
 			action = loadGoalDescription(agentRepo);
 		}
 		action.setUri(actionURI);
+		operators.put(action.getOperatorId(), action);
 		return createOperator(action);
 	}
 
@@ -81,6 +83,7 @@ public class OperatorBuilder {
 				action.setVariables(actn.getVariables());
 				action.setConsumable(actn.getConsumable());
 				action.setProducible(actn.getProducible());
+				action.setOperatorId(uriManager.setActSignatureHash(actionURI.toString()));
 			}
 		}
 		return action;
@@ -96,6 +99,7 @@ public class OperatorBuilder {
 				action.setVariables(goal.getVariables());
 				action.setConsumable(goal.getConsumable());
 				action.setProducible(goal.getProducible());
+				action.setOperatorId(uriManager.setGolSignatureHash(actionURI.toString()));
 			}
 		}
 		return action;
@@ -105,13 +109,13 @@ public class OperatorBuilder {
 			throws VariableEvaluationException, RDFBeanException, TermEvaluationException {
 		List<Proposition> preconds = getPropositions(action.getConsumable().getSparql());
 		List<Proposition> effects = getPropositions(action.getProducible().getSparql());
-		Structure struct = createOperatorStruct();
+		Structure struct = createOperatorStruct(action);
 		return new OperatorImpl(struct, preconds, effects);
 	}
 
-	private Structure createOperatorStruct()
+	private Structure createOperatorStruct(final AJANOperator action)
 			throws VariableEvaluationException {
-		Structure struct = new Structure(uriManager.setActSignatureHash(actionURI.toString()));
+		Structure struct = new Structure(action.getOperatorId());
 		variables.keySet().stream().map((var) -> new VarTerm(var)).forEach((term) -> {
 			struct.addTerm(term);
 		});

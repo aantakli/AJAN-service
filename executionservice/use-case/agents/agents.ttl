@@ -51,20 +51,42 @@
   actn:variables (
 	[ 
 		a actn:ActionVariable;
-		sp:varName "s"
+		sp:varName "avatar"
 	]
 	[ 
 		a actn:ActionVariable;
-		sp:varName "o"
+		sp:varName "start"
+	]
+	[ 
+		a actn:ActionVariable;
+		sp:varName "target"
 	]
   );
   actn:consumes [ 
 	a actn:Consumable;
-	actn:sparql "ASK WHERE {?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?o}"
+	actn:sparql """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX inv: <http://www.dfki.de/inversiv-ns#>
+			PREFIX actn: <http://www.ajan.de/actn#>
+			ASK
+			WHERE {
+				?avatar rdf:type inv:Avatar .
+				?avatar inv:locatedNextTo ?start .
+				?start rdf:type inv:LocationPosition .
+				?target rdf:type inv:LocationPosition .
+				FILTER (?target != ?start)
+			}"""^^xsd:string
   ];
   actn:produces [ 
 	a actn:Producible;
-	actn:sparql "ASK WHERE {?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?o}"
+	actn:sparql """PREFIX inv: <http://www.dfki.de/inversiv-ns#>
+			ASK
+			WHERE {
+				?avatar inv:locatedNextTo ?target .
+				FILTER ( NOT EXISTS {
+					?avatar inv:locatedNextTo ?start .
+					FILTER (?target != ?start)
+				} )
+			}"""^^xsd:string
   ] .
 
 
