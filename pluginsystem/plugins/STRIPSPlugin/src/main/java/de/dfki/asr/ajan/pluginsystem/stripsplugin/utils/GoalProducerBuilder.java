@@ -19,55 +19,51 @@
 
 package de.dfki.asr.ajan.pluginsystem.stripsplugin.utils;
 
-import de.dfki.asr.ajan.behaviour.nodes.Action;
-import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorQuery;
+import de.dfki.asr.ajan.behaviour.nodes.event.GoalProducer;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import graphplan.domain.Operator;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 
-public final class ActionBuilder {
+public final class GoalProducerBuilder {
 
 	private String url;
-	private URI actionUri;
+	private URI goalUri;
 	private String label;
-	List<BehaviorQuery> inputs;
+	BehaviorConstructQuery content;
 
 	private final URIManager uriManager;
 
-	public ActionBuilder(final URIManager uriManager) throws URISyntaxException {
+	public GoalProducerBuilder(final URIManager uriManager) throws URISyntaxException {
 		this.uriManager = uriManager;
-		this.inputs = new ArrayList();
 	}
 
-	public ActionBuilder setServiceUrl(String url) {
+	public GoalProducerBuilder setProducerUrl(String url) {
 		this.url = url;
 		return this;
 	}
 
-	public ActionBuilder setServiceLabel(String label) {
+	public GoalProducerBuilder setGoalUri(URI uri) throws URISyntaxException {
+		this.goalUri = uri;
+		return this;
+	}
+
+	public GoalProducerBuilder setProducerLabel(String label) {
 		this.label = label;
 		return this;
 	}
 
-	public ActionBuilder setServiceDescription(Operator operator) throws URISyntaxException {
-		String uri = uriManager.getURIFromHash(operator.getFunctor());
-		actionUri = new URI(uri);
+	public GoalProducerBuilder setProducerContent(Operator operator) throws URISyntaxException {
+		this.content = PlannerUtil.getNodeQuery(operator, uriManager);
 		return this;
 	}
 
-	public ActionBuilder setActionInputs(Operator operator) throws URISyntaxException {
-		inputs.add(PlannerUtil.getNodeQuery(operator, uriManager));
-		return this;
-	}
-
-	public Action build() {
-		Action action = new Action();
-		action.setUrl(url);
-		action.setDefinition(actionUri);
-		action.setInputs(inputs);
-		action.setLabel(label);
-		return action;
+	public GoalProducer build() {
+		GoalProducer goal = new GoalProducer();
+		goal.setLabel(label);
+        goal.setUrl(url);
+		goal.setGoalURI(goalUri);
+		goal.setContent(content);
+		return goal;
 	}
 }

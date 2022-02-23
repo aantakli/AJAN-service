@@ -22,7 +22,9 @@ package de.dfki.asr.ajan.pluginsystem.stripsplugin.utils;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.branch.Sequence;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
+import de.dfki.asr.ajan.behaviour.events.AJANGoal;
 import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
+import de.dfki.asr.ajan.behaviour.nodes.action.definition.ServiceActionDefinition;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorQuery;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.NoActionAvailableException;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.TermEvaluationException;
@@ -40,8 +42,11 @@ import graphplan.graph.planning.PlanningGraphException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.slf4j.LoggerFactory;
@@ -58,6 +63,8 @@ public class PlanBuilder {
 	private final Boolean randomExecute;
 	private final String url;
 	private final AgentTaskInformation taskInfo;
+
+	private final Map<String, AJANOperator> ajanOps = new HashMap();
 
 	public PlanBuilder(Problem problem){
 		actions = problem.getActions();
@@ -91,10 +98,10 @@ public class PlanBuilder {
 
 	private List<Operator> getOperators()
 			throws RDFBeanException, VariableEvaluationException, TermEvaluationException, NoActionAvailableException, URISyntaxException {
-		List<Operator> operators = new ArrayList();
 		PlannerUtil.checkActionsAvailability(actions);
+		List operators = new ArrayList();
 		for (URI actionURI: actions) {
-			OperatorBuilder builder = new OperatorBuilder(uriManager, actionURI, taskInfo);
+			OperatorBuilder builder = new OperatorBuilder(uriManager, ajanOps, actionURI, taskInfo);
 			operators.add(builder.build());
 		}
 		return operators;
@@ -135,17 +142,31 @@ public class PlanBuilder {
 
 	private Task<AgentTaskInformation> createSequenceTree(PlanResult plan, Sequence sequence) throws URISyntaxException {
 		for(Operator operator: plan) {
-			sequence.addChild(createActionNode(operator));
+			Class clazz = ajanOps.get(operator.getFunctor()).getClazz();
+			if (clazz == ServiceActionDefinition.class) {
+				sequence.addChild(createActionNode(operator));
+			} else if (clazz == AJANGoal.class) {
+				sequence.addChild(createProduceGoalNode(operator));
+			}
 		}
 		return sequence;
 	}
 
 	private Task<AgentTaskInformation> createActionNode(Operator operator) throws URISyntaxException {
 		ActionBuilder builder = new ActionBuilder(uriManager);
-		builder.setServiceUrl(url);
+		builder.setServiceUrl(url + "/actionNodes/" + UUID.randomUUID());
 		builder.setServiceDescription(operator);
 		builder.setActionInputs(operator);
 		builder.setServiceLabel("PlannedAction");
+		return builder.build();
+	}
+
+	private Task<AgentTaskInformation> createProduceGoalNode(Operator operator) throws URISyntaxException {
+		GoalProducerBuilder builder = new GoalProducerBuilder(uriManager);
+		builder.setProducerUrl(url + "/goalProducerNodes/" + UUID.randomUUID());
+		builder.setProducerContent(operator);
+		builder.setProducerLabel("PlannedGoalProducer");
+		builder.setGoalUri(ajanOps.get(operator.getFunctor()).getUri());
 		return builder.build();
 	}
 }
