@@ -24,7 +24,7 @@ import com.badlogic.gdx.ai.btree.branch.Sequence;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.events.AJANGoal;
 import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
-import de.dfki.asr.ajan.behaviour.nodes.action.definition.ServiceActionDefinition;
+import de.dfki.asr.ajan.behaviour.nodes.action.definition.AbstractActionDefinition;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorQuery;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.NoActionAvailableException;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.TermEvaluationException;
@@ -143,7 +143,7 @@ public class PlanBuilder {
 	private Task<AgentTaskInformation> createSequenceTree(PlanResult plan, Sequence sequence) throws URISyntaxException {
 		for(Operator operator: plan) {
 			Class clazz = ajanOps.get(operator.getFunctor()).getClazz();
-			if (clazz == ServiceActionDefinition.class) {
+			if (clazz == AbstractActionDefinition.class) {
 				sequence.addChild(createActionNode(operator));
 			} else if (clazz == AJANGoal.class) {
 				sequence.addChild(createProduceGoalNode(operator));

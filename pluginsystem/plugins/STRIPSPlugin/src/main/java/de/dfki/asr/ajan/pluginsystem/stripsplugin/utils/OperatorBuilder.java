@@ -21,6 +21,8 @@ package de.dfki.asr.ajan.pluginsystem.stripsplugin.utils;
 
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.events.AJANGoal;
+import de.dfki.asr.ajan.behaviour.nodes.action.definition.AbstractActionDefinition;
+import de.dfki.asr.ajan.behaviour.nodes.action.definition.PluginActionDefinition;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ServiceActionDefinition;
 import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.TermEvaluationException;
@@ -77,9 +79,12 @@ public class OperatorBuilder {
 		AJANOperator action = new AJANOperator();
 		try (RepositoryConnection conn = repo.getConnection()) {
 			RDFBeanManager manager = new BehaviorBeanManager(conn);
-			ServiceActionDefinition actn = manager.get(repo.getValueFactory().createIRI(actionURI.toString()), ServiceActionDefinition.class);
+			AbstractActionDefinition actn = manager.get(repo.getValueFactory().createIRI(actionURI.toString()), ServiceActionDefinition.class);
+			if (actn == null) {
+				actn = manager.get(repo.getValueFactory().createIRI(actionURI.toString()), PluginActionDefinition.class);
+			}
 			if (actn != null) {
-				action.setClazz(ServiceActionDefinition.class);
+				action.setClazz(AbstractActionDefinition.class);
 				action.setVariables(actn.getVariables());
 				action.setConsumable(actn.getConsumable());
 				action.setProducible(actn.getProducible());
