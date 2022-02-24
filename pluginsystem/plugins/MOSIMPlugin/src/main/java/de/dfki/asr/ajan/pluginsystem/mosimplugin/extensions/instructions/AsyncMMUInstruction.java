@@ -20,7 +20,6 @@
 package de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.instructions;
 
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
-import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.action.common.ACTNVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ActionVariable;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.InputModel;
@@ -28,7 +27,6 @@ import de.dfki.asr.ajan.behaviour.nodes.action.definition.ResultModel;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.constraints.MConstraint;
-import de.mosim.mmi.core.MBoolResponse;
 import de.mosim.mmi.mmu.MInstruction;
 import de.mosim.mmi.cosim.MCoSimulationAccess;
 import de.mosim.mmi.mmu.MSimulationEvent;
@@ -69,6 +67,7 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 	private ArrayList<Value> constraints;
 	private List<MConstraint> mConstraints = null;
 
+	private String avatarID = "";
 	private String startCond = "";
 	private String endCond = "";
 	private Resource instRoot = null;
@@ -90,6 +89,7 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 			"ASK\n" +
 			"WHERE {\n" +
 			"	?instruction mosim:mmu ?mmu .\n" +
+			"	?instruction mosim:avatarID ?avatarID .\n" +
 			"	OPTIONAL { \n" +
 			"		?instruction mosim:finalEvent ?event .\n" +
 			"		?instruction mosim:mmuProperty ?property .\n" +
@@ -150,6 +150,7 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
     protected void readInput(final InputModel inputModel, final AgentTaskInformation info) {
 		try {
 			mmu = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_MMU);
+			avatarID = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_AVATAR_ID);
 			finalEvent = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_FINAL_EVENT);
 			if (finalEvent.isEmpty())
 				finalEvent = "end";
@@ -175,7 +176,9 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 			return false;
 		MInstruction instruction = MOSIMUtil.createMInstruction(instID, actionID, mmu, instProps, mConstraints, startCond, endCond);
 		instructionDef = MOSIMUtil.getInstructionDef(instruction);
-		return client.AssignInstruction(instruction, new HashMap<>()).Successful;
+		Map<String, String> coSimProperties = new HashMap<>();
+		coSimProperties.put("AvatarID", avatarID);
+		return client.AssignInstruction(instruction, coSimProperties).Successful;
     }
 
 	@Override
