@@ -1,26 +1,93 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf4j: <http://rdf4j.org/schema/rdf4j#> .
+@prefix sesame: <http://www.openrdf.org/schema/sesame#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fn: <http://www.w3.org/2005/xpath-functions#> .
 
-<http://localhost:8090/rdf4j/repositories/agents#AG_27bc46d5-2829-41e6-988b-79deb165ed34>
-  a <http://www.ajan.de/ajan-ns#AgentTemplate>;
-  <http://www.ajan.de/ajan-ns#behavior> <http://localhost:8090/rdf4j/repositories/agents#BE_af9a94b3-d7ed-43e8-ab8b-af5e9a7337fb>;
-  <http://www.ajan.de/ajan-ns#endpoint> <http://localhost:8090/rdf4j/repositories/agents#EP_e7e3ecd6-195b-4549-b1e9-71fa6e5d60ee>;
-  <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#EV_902bb4cd-49a9-4846-ab82-3dc9ffd23514>;
-  rdfs:label "Default AgentTemplate" .
+@prefix : <http://localhost:8090/rdf4j/repositories/agents#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix actn: <http://www.ajan.de/actn#> .
+@prefix sp: <http://spinrdf.org/sp#> .
+@prefix behaviors: <http://localhost:8090/rdf4j/repositories/behaviors#> .
 
-<http://localhost:8090/rdf4j/repositories/agents#EP_e7e3ecd6-195b-4549-b1e9-71fa6e5d60ee>
-  a <http://www.ajan.de/ajan-ns#Endpoint>;
-  <http://www.ajan.de/ajan-ns#capability> "default";
-  <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#EV_902bb4cd-49a9-4846-ab82-3dc9ffd23514>;
-  rdfs:label "Default Endpoint" .
+:AG_94012638-e398-4751-a0a8-d4df081902f9
+  a ajan:AgentTemplate;
+  rdfs:label "Default AgentTemplate";
+  ajan:behavior :BE_6ab4468a-ceb6-4880-bc4b-529476a1bc68;
+  ajan:behavior :BE_6ab4468a-ceb6-4880-bc4b-529476a1bzz8;
+  ajan:event :EV_6914c47d-1f34-49ae-ba70-3449ea8a123b;
+  ajan:event :GO_6914c47d-1f34-49ae-ba70-3449ea8dazhj;
+  ajan:endpoint :EP_419cf38e-efa4-4732-868a-e4ac1ca1b43e .
 
-<http://localhost:8090/rdf4j/repositories/agents#BE_af9a94b3-d7ed-43e8-ab8b-af5e9a7337fb>
-  a <http://www.ajan.de/ajan-ns#Behavior>;
-  <http://www.ajan.de/ajan-ns#bt> <http://localhost:8090/rdf4j/repositories/behaviors#BT_95e69482-7309-463f-a353-78ce87d73a79>;
-  <http://www.ajan.de/ajan-ns#trigger> <http://localhost:8090/rdf4j/repositories/agents#EV_902bb4cd-49a9-4846-ab82-3dc9ffd23514>;
-  rdfs:label "Default Behavior" .
+:BE_6ab4468a-ceb6-4880-bc4b-529476a1bc68
+  a ajan:Behavior;
+  rdfs:label "Default Behavior";
+  ajan:clearEKB false;
+  ajan:trigger :EV_6914c47d-1f34-49ae-ba70-3449ea8a123b;
+  ajan:bt behaviors:BT_3ad487c8-aaaa-4281-a923-451339a99bb7 .
+  
+:BE_6ab4468a-ceb6-4880-bc4b-529476a1bzz8
+  a ajan:Behavior;
+  rdfs:label "Goal Behavior";
+  ajan:clearEKB false;
+  ajan:trigger :GO_6914c47d-1f34-49ae-ba70-3449ea8dazhj;
+  ajan:bt behaviors:BT_cdf47ff4-902c-466d-9529-d23a7e574f89 .
 
-<http://localhost:8090/rdf4j/repositories/agents#EV_902bb4cd-49a9-4846-ab82-3dc9ffd23514>
-  a <http://www.ajan.de/ajan-ns#MappingEvent>;
+:EP_419cf38e-efa4-4732-868a-e4ac1ca1b43e
+  a ajan:Endpoint;
+  rdfs:label "Default Endpoint";
+  ajan:event :EV_6914c47d-1f34-49ae-ba70-3449ea8a123b;
+  ajan:capability "default" .
+  
+:EV_6914c47d-1f34-49ae-ba70-3449ea8a123b
+  a ajan:ModelEvent;
   rdfs:label "Default Event" .
+  
+:GO_6914c47d-1f34-49ae-ba70-3449ea8dazhj
+  a ajan:Goal;
+  rdfs:label "Default Goal";
+  actn:variables (
+	[ 
+		a actn:ActionVariable;
+		sp:varName "avatar"
+	]
+	[ 
+		a actn:ActionVariable;
+		sp:varName "start"
+	]
+	[ 
+		a actn:ActionVariable;
+		sp:varName "target"
+	]
+  );
+  actn:consumes [ 
+	a actn:Consumable;
+	actn:sparql """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX inv: <http://www.dfki.de/inversiv-ns#>
+			PREFIX actn: <http://www.ajan.de/actn#>
+			ASK
+			WHERE {
+				?avatar rdf:type inv:Avatar .
+				?avatar inv:locatedNextTo ?start .
+				?start rdf:type inv:LocationPosition .
+				?target rdf:type inv:LocationPosition .
+				FILTER (?target != ?start)
+			}"""^^xsd:string
+  ];
+  actn:produces [ 
+	a actn:Producible;
+	actn:sparql """PREFIX inv: <http://www.dfki.de/inversiv-ns#>
+			ASK
+			WHERE {
+				?avatar inv:locatedNextTo ?target .
+				FILTER ( NOT EXISTS {
+					?avatar inv:locatedNextTo ?start .
+					FILTER (?target != ?start)
+				} )
+			}"""^^xsd:string
+  ] .
+
+
+

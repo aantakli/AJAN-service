@@ -17,19 +17,14 @@
  * MA 02110-1301  USA
  */
 
-package de.dfki.asr.ajan.behaviour.events;
+package de.dfki.asr.ajan.common.exceptions;
 
-import org.eclipse.rdf4j.model.Model;
-
-public class GoalInformation {
-
-	private final Model input;
-
-	public GoalInformation(final Model input) {
-		this.input = input;
+public class AdaptSPARQLQueryException extends RuntimeException {
+	public AdaptSPARQLQueryException(final String message, final Throwable cause) {
+		super(message, cause);
 	}
 
-	public Model getModel() {
-		return input;
+	public AdaptSPARQLQueryException(final String message) {
+		super(message);
 	}
 }

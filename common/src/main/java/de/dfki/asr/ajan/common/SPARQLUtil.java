@@ -19,6 +19,7 @@
 
 package de.dfki.asr.ajan.common;
 
+import de.dfki.asr.ajan.common.exceptions.AdaptSPARQLQueryException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,6 +88,20 @@ public final class SPARQLUtil {
 		}
 		repo.shutDown();
 		return result;
+	}
+
+	public static List<BindingSet> assignVariables(final Model model, final String askString, final List<String> variables) {
+		SailRepository repo = createRepository(model);
+		List<BindingSet> bindings = new ArrayList();
+		try (RepositoryConnection conn = repo.getConnection()) {
+			String selectString = SPARQLUtil.getSelectQueryFromAsk(askString, variables);
+			TupleQueryResult list = conn.prepareTupleQuery(selectString).evaluate();
+			while (list.hasNext()) {
+				bindings.add(list.next());
+			}
+		}
+		repo.shutDown();
+		return bindings;
 	}
 
 	public static Model queryModel(final Model model, final String query) throws QueryEvaluationException {
@@ -182,7 +197,7 @@ public final class SPARQLUtil {
 		return visitor.render();
 	}
 
-	public static String getSelectQuery(final String query) {
+	public static String getSelectQueryFromUpdate(final String query) {
 		String upper = query.toUpperCase();
 		if (upper.contains("CLEAR")) {
 			return "SELECT DISTINCT * WHERE { ?s ?p ?o }";
@@ -197,6 +212,21 @@ public final class SPARQLUtil {
 			minInsert = minInsert.replaceAll(INSERT,select);
 		}
 		return minInsert;
+	}
+
+	public static String getSelectQueryFromAsk(final String query, final List<String> variables) throws AdaptSPARQLQueryException {
+		String upper = query.toUpperCase();
+		if (upper.contains("ASK")) {
+			StringBuilder select = new StringBuilder();
+			select.append("SELECT DISTINCT ");
+			for (String variableName: variables) {
+				select.append('?').append(variableName).append(' ');
+			}
+			String minInsert = query;
+			return minInsert.replaceAll("ASK", select.toString());
+		} else {
+			throw new AdaptSPARQLQueryException("NO valid ASK Query: " + query);
+		}
 	}
 
 	@SuppressWarnings("PMD.SignatureDeclareThrowsException")

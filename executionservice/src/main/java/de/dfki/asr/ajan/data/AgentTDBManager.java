@@ -28,6 +28,8 @@ import lombok.Setter;
 public class AgentTDBManager {
 
 	@Getter @Setter
+	private TripleDataBase agentTemplatesTDB;
+	@Getter @Setter
 	private TripleDataBase behaviorTDB;
 	@Getter @Setter
 	private TripleDataBase domainTDB;

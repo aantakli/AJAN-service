@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 see AJAN-service/AUTHORS.txt (German Research Center for Artificial Intelligence, DFKI).
+ * Copyright (C) 2020 Andre Antakli (German Research Center for Artificial Intelligence, DFKI).
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,50 +17,21 @@
  * MA 02110-1301  USA
  */
 
-package de.dfki.asr.ajan.behaviour.events;
+package de.dfki.asr.ajan.pluginsystem.stripsplugin.utils;
 
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ActionVariable;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.Consumable;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.Producible;
+import java.net.URI;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
-import org.cyberborean.rdfbeans.annotations.RDF;
-import org.cyberborean.rdfbeans.annotations.RDFBean;
-import org.cyberborean.rdfbeans.annotations.RDFSubject;
+import lombok.Data;
 
-@RDFBean("ajan:Goal")
-public class AJANGoal extends ModelCallback {
-
-	@RDFSubject
-	@Getter @Setter
-	private String url;
-
-	@RDF("rdfs:label")
-	@Getter @Setter
-	private String name;
-
-	@RDF("actn:variables")
-	@Getter @Setter
+@Data
+public class AJANOperator {
+	private URI uri;
+	private Class clazz;
 	private List<ActionVariable> variables;
-
-	@RDF("actn:consumes")
-	@Getter @Setter
 	private Consumable consumable;
-
-	@RDF("actn:produces")
-	@Getter @Setter
 	private Producible producible;
-
-	@Override
-	public void setEventInformation(final Producer producer, final Object information) {
-		if (information instanceof GoalInformation) {
-			GoalInformation gInfo = (GoalInformation)information;
-			ModelEventInformation info = new ModelEventInformation();
-			info.setEvent(url);
-			info.setModel(gInfo.getModel());
-			this.information = info;
-			notifyListeners(producer);
-		}
-	}
+	private String operatorId;
 }

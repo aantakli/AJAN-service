@@ -19,11 +19,21 @@
 
 package de.dfki.asr.ajan.pluginsystem.stripsplugin.utils;
 
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
+import de.dfki.asr.ajan.common.AJANVocabulary;
+import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.NoActionAvailableException;
+import graphplan.PlanResult;
 import graphplan.domain.Operator;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.query.parser.ParsedGraphQuery;
 import org.slf4j.Logger;
 
 public final class PlannerUtil {
@@ -32,18 +42,48 @@ public final class PlannerUtil {
 
 	}
 
-	public static int getRandomNumber(boolean mode, int size) {
+	public static PlanResult getRandomNumber(boolean mode, Set<PlanResult> planResults, Logger logger) {
 		int planNumber = 0;
 		if(mode) {
-			planNumber = (int)(Math.random() * (size));
+			planNumber = (int)(Math.random() * (planResults.size()));
+			return getPlanByID(planNumber, planResults);
 		}
-		return planNumber;
+		return getShortestPlan(planResults, logger);
 	}
 
-	public static void printPlan(List<Operator> plan, Logger logger, URIManager uriManager) {
+	private static PlanResult getShortestPlan(Set<PlanResult> planResults, Logger logger) {
+		int i = 1;
+		int id = 0;
+		int length = 100;
+		PlanResult shortest = null;
+		for(PlanResult plan: planResults) {
+			if (plan.getPlanLength() <= length) {
+				length = plan.getPlanLength();
+				shortest = plan;
+				id = i;
+			}
+			i++;
+		}
+		logger.info("Plan #" + id + " with " + length + " steps is the shortest");
+		return shortest;
+	}
+
+	public static PlanResult getPlanByID(int id, Set<PlanResult> planResults) {
+		int i = 0;
+		for(PlanResult plan: planResults) {
+			if (i == id) {
+				return plan;
+			} else {
+				i++;
+			}
+		}
+		return planResults.iterator().next();
+	}
+
+	public static void printPlan(PlanResult plan, Logger logger, URIManager uriManager) {
 		logger.info("Plan: ");
-		plan.stream().map((operator) -> {
-			StringBuilder builder = new StringBuilder();
+		StringBuilder builder = new StringBuilder();
+		for (Operator operator: plan) {
 			builder.append(uriManager.getURIFromHash(operator.getFunctor()));
 			builder.append("(");
 			List terms = operator.getTerms();
@@ -56,13 +96,9 @@ public final class PlannerUtil {
 					i++;
 				}
 			}
-			return builder;
-		}).map((builder) -> {
-			builder.append(")");
-			return builder;
-		}).forEach((builder) -> {
-			logger.info(builder.toString());
-		});
+			builder.append(")\n");
+		}
+		logger.info(builder.toString());
 	}
 
 	public static void checkActionsAvailability(List<URI> actions) throws URISyntaxException, NoActionAvailableException {
@@ -72,4 +108,31 @@ public final class PlannerUtil {
 		} 
 	}
 
+	public static BehaviorConstructQuery getNodeQuery(final Operator operator, final URIManager uriManager) throws URISyntaxException {
+		ParsedGraphQuery parsedQuery = createQuery(operator, uriManager);
+		return createBehaviourQuery(parsedQuery);
+	}
+
+	private static ParsedGraphQuery createQuery(final Operator operator, final URIManager uriManager) {
+		ValueFactory factory = SimpleValueFactory.getInstance();
+		List terms = operator.getTerms();
+		Set<Resource> resourceSet = new HashSet();
+		for(Object term: terms) {
+			//----------------
+			// ToDo: NOT only URIs could be saved as Terms --> Integers, Strings ...
+			//----------------
+			String resourceURI = uriManager.getURIFromHash(term.toString());
+			Resource resource = factory.createIRI(resourceURI);
+			resourceSet.add(resource);
+		}
+		return SPARQLUtil.getDescribeQuery(resourceSet.iterator());
+	}
+
+	private static BehaviorConstructQuery createBehaviourQuery(ParsedGraphQuery parsedQuery) throws URISyntaxException {
+		BehaviorConstructQuery query = new BehaviorConstructQuery();
+		URI agentBeliefbase = new URI(AJANVocabulary.AGENT_KNOWLEDGE.toString());
+		query.setOriginBase(agentBeliefbase);
+		query.setSparql(SPARQLUtil.renderQuery(parsedQuery));
+		return query;
+	}
 }

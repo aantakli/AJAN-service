@@ -48,7 +48,7 @@ public final class StateLoader {
 		List<Proposition> state = new ArrayList();
 		LinkedHashModel model = getModel(queries, taskInfos);
 		model.stream().map((stat) -> {
-			PropositionImpl prop = new PropositionImpl(true,uriManager.setObjTermHash(stat.getPredicate()));
+			PropositionImpl prop = new PropositionImpl(true,uriManager.setPrdTermHash(stat.getPredicate()));
 			Term subj = new LiteralImpl(uriManager.setObjTermHash(stat.getSubject()));
 			Term obj = new LiteralImpl(uriManager.setObjTermHash(stat.getObject()));
 			prop.addTerm(subj);
