@@ -97,6 +97,7 @@ public class AgentBuilder {
 
 	public Agent build() throws URISyntaxException {
                 LOG.info("Creating agent with ID: " + id);
+                url = getAgentURI();
 		AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,manageTDB,inferencing));
 		addAgentInformationToKnowledge(beliefs);
 		beliefs.update(initialKnowledge);
@@ -108,6 +109,16 @@ public class AgentBuilder {
                 LOG.info("Agent with ID " + id + " is created: " + agent.getUrl());
 		return agent;
 	}
+        protected String getAgentURI() {
+            String ajanURI = baseURI.toString();
+            StringBuilder builder = new StringBuilder();
+            builder.append(ajanURI);
+            if (!ajanURI.substring(ajanURI.length() - 1).equals("/")) {
+                builder.append('/');
+            }
+            builder.append(id);
+            return builder.toString();
+        }
 
 	protected void addAgentInformationToKnowledge(final AgentBeliefBase beliefs) {
 		ValueFactory factory = SimpleValueFactory.getInstance();

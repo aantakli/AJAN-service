@@ -92,8 +92,8 @@ public class RDFAgentBuilder extends AgentBuilder {
         connections = new ConcurrentHashMap<>();
         id = getIdFromModel();
         LOG.info("Creating agent with ID: " + id);
+        url = getAgentURI();
         manageTDB = isTDBManagement();
-        url = (baseURI.toString() + id);
         template = setTemplateFromResource();
 	inferencing = Inferencing.NONE;
         AgentEndpoints agentEndpoints = new AgentEndpoints(modelManager, resourceManager, agentRepo);
