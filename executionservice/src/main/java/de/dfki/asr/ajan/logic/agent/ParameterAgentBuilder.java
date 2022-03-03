@@ -80,7 +80,7 @@ public class ParameterAgentBuilder extends RDFAgentBuilder {
             LOG.info("Creating agent with ID: " + id);
             inferencing = Inferencing.NONE;
             connections = new ConcurrentHashMap<>();
-            url = (baseURI.toString() + id);
+            url = getAgentURI();
             agentTemplateModel = modelManager.getTemplateFromTDB(agentRepo, template);
             extensions = pluginLoader.getNodeExtensions();
 
