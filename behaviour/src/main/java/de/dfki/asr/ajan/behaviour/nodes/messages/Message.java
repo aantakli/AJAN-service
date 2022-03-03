@@ -115,7 +115,9 @@ public class Message extends AbstractTDBLeafTask {
 		if (binding.getPayload() != null) {
 			payload = getInput(binding);
 		}
-		request.setPayload(payload);
+		if (payload != null) {
+			request.setPayload(payload);
+		}
 	}
 
 	protected boolean checkResponse(final Object response) throws URISyntaxException {
@@ -167,12 +169,12 @@ public class Message extends AbstractTDBLeafTask {
 	protected String getInput(final HttpBinding binding) throws URISyntaxException, UnsupportedEncodingException, IOException {
 		SelectQueryTemplate tmpl = binding.getPayload().getTemplate();
 		if (tmpl != null) {
-			Repository repo = BTUtil.getInitializedRepository(getObject(), tmpl.getBtQuery().getOriginBase());
-			BehaviorConstructQuery queryAll = new BehaviorConstructQuery();
-			queryAll.setSparql("CONSTRUCT {?s ?p ?o} WHERE {?s ?p ?o}");
-			return ACTNUtil.getTemplatePayload(queryAll.getResult(repo), tmpl);
+			return getQueryTemplate(tmpl);
 		}
 		BehaviorQuery query = binding.getPayload().getBtQuery();
+		if (query.getSparql().equals("")) {
+			return null;
+		}
 		Repository repo = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
 		List<HttpHeader> headers = binding.getHeaders();
 		String mimeType = ACTNUtil.getMimeTypeFromHeaders(headers);
@@ -185,6 +187,13 @@ public class Message extends AbstractTDBLeafTask {
 			construct.setSparql(query.getSparql());
 			return ACTNUtil.getModelPayload(construct.getResult(repo), mimeType);
 		}
+	}
+
+	protected String getQueryTemplate(final SelectQueryTemplate tmpl) throws URISyntaxException {
+		Repository repo = BTUtil.getInitializedRepository(getObject(), tmpl.getBtQuery().getOriginBase());
+		BehaviorConstructQuery queryAll = new BehaviorConstructQuery();
+		queryAll.setSparql("CONSTRUCT {?s ?p ?o} WHERE {?s ?p ?o}");
+		return ACTNUtil.getTemplatePayload(queryAll.getResult(repo), tmpl);
 	}
 
 	@Override
