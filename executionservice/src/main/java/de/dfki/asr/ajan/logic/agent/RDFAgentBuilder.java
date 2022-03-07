@@ -233,9 +233,11 @@ public class RDFAgentBuilder extends AgentBuilder {
     }
 
     private boolean getClearEKB(final Model model, final Resource resource, final IRI predicate) {
+        if (!model.filter(resource, predicate, null).objects().isEmpty()) {
         Value clearEKB = model.filter(resource, predicate, null).objects().stream().findFirst().get();
-        if(clearEKB.isLiteral()) {
-            return Boolean.parseBoolean(clearEKB.stringValue());
+            if(clearEKB.isLiteral()) {
+                return Boolean.parseBoolean(clearEKB.stringValue());
+            }
         }
         return false;
     }
