@@ -48,7 +48,7 @@ public abstract class AbstractBeliefBase {
 				removeStatementsSupersededBy(remove, connection, mode);
 				addStatementsWith(add,connection);
 				connection.commit();
-			} catch (Exception ex) { }
+			}
 		}
 	}
 
