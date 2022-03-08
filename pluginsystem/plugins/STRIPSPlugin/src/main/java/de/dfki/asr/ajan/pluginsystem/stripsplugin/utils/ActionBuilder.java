@@ -57,8 +57,8 @@ public final class ActionBuilder {
 		return this;
 	}
 
-	public ActionBuilder setActionInputs(Operator operator) throws URISyntaxException {
-		inputs.add(PlannerUtil.getNodeQuery(operator, uriManager));
+	public ActionBuilder setActionInputs(final AJANOperator ajanOp, final Operator operator) throws URISyntaxException {
+		inputs.add(PlannerUtil.getNodeQuery(operator, ajanOp, uriManager));
 		return this;
 	}
 

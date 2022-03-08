@@ -53,8 +53,8 @@ public final class GoalProducerBuilder {
 		return this;
 	}
 
-	public GoalProducerBuilder setProducerContent(Operator operator) throws URISyntaxException {
-		this.content = PlannerUtil.getNodeQuery(operator, uriManager);
+	public GoalProducerBuilder setProducerContent(final AJANOperator ajanOp, final Operator operator) throws URISyntaxException {
+		this.content = PlannerUtil.getNodeQuery(operator, ajanOp, uriManager);
 		return this;
 	}
 
