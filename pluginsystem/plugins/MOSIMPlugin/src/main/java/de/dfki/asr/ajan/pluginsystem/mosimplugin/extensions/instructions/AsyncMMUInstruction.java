@@ -89,8 +89,8 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 			"ASK\n" +
 			"WHERE {\n" +
 			"	?instruction mosim:mmu ?mmu .\n" +
-			"	?instruction mosim:avatarID ?avatarID .\n" +
 			"	OPTIONAL { \n" +
+			"		?instruction mosim:avatarID ?avatarID .\n" +
 			"		?instruction mosim:finalEvent ?event .\n" +
 			"		?instruction mosim:mmuProperty ?property .\n" +
 			"		?instruction mosim:actionName ?actionName .\n" +
@@ -151,6 +151,8 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 		try {
 			mmu = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_MMU);
 			avatarID = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_AVATAR_ID);
+			if (avatarID.isEmpty())
+				avatarID = "";
 			finalEvent = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_FINAL_EVENT);
 			if (finalEvent.isEmpty())
 				finalEvent = "end";

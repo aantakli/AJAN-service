@@ -77,8 +77,8 @@ public class MMUInstruction extends AbstractInstruction {
         + "ASK\n"
         + "WHERE {\n"
         + "	?instruction mosim:mmu ?mmu .\n"
-		+ "	?instruction mosim:avatarID ?avatarID .\n"
         + "	OPTIONAL { \n"
+		+ "		?instruction mosim:avatarID ?avatarID .\n"
         + "		?instruction mosim:mmuProperty ?property .\n"
         + "		?instruction mosim:actionName ?actionName .\n"
         + "		?instruction mosim:constraint ?constraint .\n"
@@ -138,6 +138,8 @@ public class MMUInstruction extends AbstractInstruction {
         try {
             mmu = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_MMU);
 			avatarID = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_AVATAR_ID);
+			if (avatarID.isEmpty())
+				avatarID = "";
             actionName = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_ACTION_NAME);
             properties = MOSIMUtil.getObjects(inputModel, null, MOSIMVocabulary.HAS_MMU_PROPERTY);
             instProps = MOSIMUtil.createGeneralProperties(properties, inputModel);
