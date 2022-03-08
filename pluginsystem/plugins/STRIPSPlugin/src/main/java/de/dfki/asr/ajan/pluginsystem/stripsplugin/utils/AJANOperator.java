@@ -24,6 +24,7 @@ import de.dfki.asr.ajan.behaviour.nodes.action.definition.Consumable;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.Producible;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import lombok.Data;
 
 @Data
@@ -34,4 +35,5 @@ public class AJANOperator {
 	private Consumable consumable;
 	private Producible producible;
 	private String operatorId;
+	private Map<String, String> operatorVars;
 }

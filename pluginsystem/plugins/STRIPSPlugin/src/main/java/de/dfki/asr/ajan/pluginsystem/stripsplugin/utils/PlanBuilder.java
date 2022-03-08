@@ -25,6 +25,7 @@ import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.events.AJANGoal;
 import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.AbstractActionDefinition;
+import de.dfki.asr.ajan.behaviour.nodes.action.definition.Consumable;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorQuery;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.NoActionAvailableException;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.TermEvaluationException;
@@ -92,7 +93,7 @@ public class PlanBuilder {
 		List<Proposition> init = StateLoader.getState(initials, taskInfo, uriManager);
 		List<Proposition> goal = StateLoader.getState(goals, taskInfo, uriManager);
 		List<Operator> ops = getOperators();
-		prindProblemDomain(init, goal, ops);
+		printProblemDomain(init, goal, ops);
 		return new DomainDescription(ops, init, goal);
 	}
 
@@ -107,7 +108,7 @@ public class PlanBuilder {
 		return operators;
 	}
 
-	private void prindProblemDomain(List<Proposition> init, List<Proposition> goal, List<Operator> ops) {
+	private void printProblemDomain(List<Proposition> init, List<Proposition> goal, List<Operator> ops) {
 		printPropositions(init, "State:");
 		printPropositions(goal, "Goal:");
 		for (Operator op: ops) {
@@ -142,29 +143,30 @@ public class PlanBuilder {
 
 	private Task<AgentTaskInformation> createSequenceTree(PlanResult plan, Sequence sequence) throws URISyntaxException {
 		for(Operator operator: plan) {
-			Class clazz = ajanOps.get(operator.getFunctor()).getClazz();
+			AJANOperator ajanOp = ajanOps.get(operator.getFunctor());
+			Class clazz = ajanOp.getClazz();
 			if (clazz == AbstractActionDefinition.class) {
-				sequence.addChild(createActionNode(operator));
+				sequence.addChild(createActionNode(ajanOp, operator));
 			} else if (clazz == AJANGoal.class) {
-				sequence.addChild(createProduceGoalNode(operator));
+				sequence.addChild(createProduceGoalNode(ajanOp, operator));
 			}
 		}
 		return sequence;
 	}
 
-	private Task<AgentTaskInformation> createActionNode(Operator operator) throws URISyntaxException {
+	private Task<AgentTaskInformation> createActionNode(final AJANOperator ajanOp, final Operator operator) throws URISyntaxException {
 		ActionBuilder builder = new ActionBuilder(uriManager);
 		builder.setServiceUrl(url + "/actionNodes/" + UUID.randomUUID());
 		builder.setServiceDescription(operator);
-		builder.setActionInputs(operator);
+		builder.setActionInputs(ajanOp, operator);
 		builder.setServiceLabel("PlannedAction");
 		return builder.build();
 	}
 
-	private Task<AgentTaskInformation> createProduceGoalNode(Operator operator) throws URISyntaxException {
+	private Task<AgentTaskInformation> createProduceGoalNode(final AJANOperator ajanOp, final Operator operator) throws URISyntaxException {
 		GoalProducerBuilder builder = new GoalProducerBuilder(uriManager);
 		builder.setProducerUrl(url + "/goalProducerNodes/" + UUID.randomUUID());
-		builder.setProducerContent(operator);
+		builder.setProducerContent(ajanOp, operator);
 		builder.setProducerLabel("PlannedGoalProducer");
 		builder.setGoalUri(ajanOps.get(operator.getFunctor()).getUri());
 		return builder.build();

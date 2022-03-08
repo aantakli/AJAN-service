@@ -22,17 +22,22 @@ package de.dfki.asr.ajan.pluginsystem.stripsplugin.utils;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.common.SPARQLUtil;
+import de.dfki.asr.ajan.common.exceptions.AdaptSPARQLQueryException;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.NoActionAvailableException;
 import graphplan.PlanResult;
 import graphplan.domain.Operator;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.parser.ParsedGraphQuery;
 import org.slf4j.Logger;
 
@@ -108,31 +113,57 @@ public final class PlannerUtil {
 		} 
 	}
 
-	public static BehaviorConstructQuery getNodeQuery(final Operator operator, final URIManager uriManager) throws URISyntaxException {
-		ParsedGraphQuery parsedQuery = createQuery(operator, uriManager);
-		return createBehaviourQuery(parsedQuery);
+	public static BehaviorConstructQuery getNodeQuery(final Operator operator, final AJANOperator ajanOp, final URIManager uriManager) throws URISyntaxException {
+		String parsedQuery = createQuery(operator, ajanOp, uriManager);
+		return createBehaviorQuery(parsedQuery);
 	}
 
-	private static ParsedGraphQuery createQuery(final Operator operator, final URIManager uriManager) {
-		ValueFactory factory = SimpleValueFactory.getInstance();
+	private static String createQuery(final Operator operator, final AJANOperator ajanOp, final URIManager uriManager) throws AdaptSPARQLQueryException {
+		Map<String, String> vars = ajanOp.getOperatorVars();
 		List terms = operator.getTerms();
-		Set<Resource> resourceSet = new HashSet();
-		for(Object term: terms) {
+		int i = 0;
+		Map<String,String> bindings = new HashMap();
+		for(String value: vars.values()) {
 			//----------------
 			// ToDo: NOT only URIs could be saved as Terms --> Integers, Strings ...
 			//----------------
+			Object term = terms.get(i);
 			String resourceURI = uriManager.getURIFromHash(term.toString());
-			Resource resource = factory.createIRI(resourceURI);
-			resourceSet.add(resource);
+			System.out.println(value + " -> " + resourceURI);
+			bindings.put(value,resourceURI);
+			i++;
 		}
-		return SPARQLUtil.getDescribeQuery(resourceSet.iterator());
+		System.out.println("---------");
+		String askQuery = setBindings(ajanOp.getConsumable().getSparql(), bindings);
+		return getConstructQueryFromAsk(askQuery);
 	}
 
-	private static BehaviorConstructQuery createBehaviourQuery(ParsedGraphQuery parsedQuery) throws URISyntaxException {
+	private static BehaviorConstructQuery createBehaviorQuery(String sparql) throws URISyntaxException {
 		BehaviorConstructQuery query = new BehaviorConstructQuery();
 		URI agentBeliefbase = new URI(AJANVocabulary.AGENT_KNOWLEDGE.toString());
 		query.setOriginBase(agentBeliefbase);
-		query.setSparql(SPARQLUtil.renderQuery(parsedQuery));
+		query.setSparql(sparql);
 		return query;
+	}
+
+	private static String setBindings(String query, Map<String,String> bindings) throws AdaptSPARQLQueryException {
+		for(Map.Entry<String, String> entry : bindings.entrySet()) {
+			String var = "\\?" + entry.getKey();
+			String uri = '<' + entry.getValue() + '>';
+			query = query.replaceAll(var, uri);
+		}
+		return query;
+	}
+
+	private static String getConstructQueryFromAsk(final String query) throws AdaptSPARQLQueryException {
+		String upper = query.toUpperCase();
+		if (upper.contains("ASK")) {
+			StringBuilder construct = new StringBuilder();
+			construct.append("CONSTRUCT");
+			String minInsert = query;
+			return minInsert.replaceAll("ASK", construct.toString());
+		} else {
+			throw new AdaptSPARQLQueryException("NO valid ASK Query: " + query);
+		}
 	}
 }

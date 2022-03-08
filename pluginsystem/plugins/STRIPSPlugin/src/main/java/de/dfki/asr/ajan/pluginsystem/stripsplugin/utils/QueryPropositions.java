@@ -89,7 +89,7 @@ public class QueryPropositions {
 			if (var.hasValue()) {
 				term = new LiteralImpl(uriManager.setObjTermHash(var.getValue()));
 			} else {
-				String varHash = uriManager.getVarTermHash(var.getName());
+				String varHash = uriManager.setVarTermHash(var.getName());
 				variables.put(varHash, var.getName());
 				term = new VarTerm(varHash);
 			}

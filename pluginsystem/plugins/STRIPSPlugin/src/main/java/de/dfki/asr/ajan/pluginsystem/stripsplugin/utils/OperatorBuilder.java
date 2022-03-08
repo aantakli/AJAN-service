@@ -115,12 +115,15 @@ public class OperatorBuilder {
 		List<Proposition> preconds = getPropositions(action.getConsumable().getSparql());
 		List<Proposition> effects = getPropositions(action.getProducible().getSparql());
 		Structure struct = createOperatorStruct(action);
-		return new OperatorImpl(struct, preconds, effects);
+		Operator operator = new OperatorImpl(struct, preconds, effects);
+		action.setOperatorVars(variables);
+		return operator;
 	}
 
 	private Structure createOperatorStruct(final AJANOperator action)
 			throws VariableEvaluationException {
 		Structure struct = new Structure(action.getOperatorId());
+		System.out.println(variables);
 		variables.keySet().stream().map((var) -> new VarTerm(var)).forEach((term) -> {
 			struct.addTerm(term);
 		});
