@@ -74,7 +74,7 @@ public class IntValue {
 				for (BindingSet set: result) {
 					strValue = set.getValue("intValue");
 					if (strValue != null) {
-						values.add(Integer.getInteger(strValue.stringValue().replace(" ","")));
+						values.add(Integer.parseInt(strValue.stringValue().replace(" ","")));
 					}
 				}
 				return values;
