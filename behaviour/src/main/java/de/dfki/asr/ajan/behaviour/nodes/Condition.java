@@ -63,22 +63,22 @@ public class Condition extends AbstractTDBLeafTask {
 	}
 
 	@Override
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		try {
 			Repository repo = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
 			if (performConditionLogic(repo)) {
 				String report = toString() + " SUCCEEDED";
 				LOG.info(report);
-				return new LeafStatus(Status.SUCCEEDED, report);
+				return new NodeStatus(Status.SUCCEEDED, report);
 			} else {
 				String report = toString() + " FAILED";
 				LOG.info(report);
-				return new LeafStatus(Status.FAILED, report);
+				return new NodeStatus(Status.FAILED, report);
 			}
 		} catch (URISyntaxException ex) {
 			String report = toString() + " FAILED due to evaluation error";
 			LOG.info(report, ex);
-			return new LeafStatus(Status.FAILED, report);
+			return new NodeStatus(Status.FAILED, report);
 		}
 	}
 

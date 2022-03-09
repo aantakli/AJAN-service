@@ -75,19 +75,19 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 	}
 
 	@Override
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		try {
 			constructQuery = query;
 			if (handleEvent()) {
 				LOG.info(toString() + " SUCCEEDED");
-				return new LeafStatus(Status.SUCCEEDED, toString() + " SUCCEEDED");
+				return new NodeStatus(Status.SUCCEEDED, toString() + " SUCCEEDED");
 			} else {
 				LOG.info(toString() + " FAILED");
-				return new LeafStatus(Status.FAILED, toString() + " FAILED");
+				return new NodeStatus(Status.FAILED, toString() + " FAILED");
 			}
 		} catch (ConditionEvaluationException ex) {
 			LOG.info(toString() + " FAILED due to query evaluation error", ex);
-			return new LeafStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, toString() + " FAILED");
 		}
 	}
 

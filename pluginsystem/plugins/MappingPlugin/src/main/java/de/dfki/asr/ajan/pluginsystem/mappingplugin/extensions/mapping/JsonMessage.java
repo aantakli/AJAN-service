@@ -21,7 +21,7 @@ package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.mapping;
 import com.badlogic.gdx.ai.btree.Task;
 import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.messages.Message;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
@@ -93,7 +93,7 @@ public class JsonMessage extends Message implements NodeExtension {
 	private Model domainResponse;
 	
 	@Override
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		super.setUrl(url);
 		super.setQueryURI(queryURI);
 		try {
@@ -109,13 +109,13 @@ public class JsonMessage extends Message implements NodeExtension {
 			LOG.info("Executing request {}", request.toString());
 			if (!checkResponse(request.execute())) {
 				LOG.info(toString() + " FAILED due to malformed response model");
-				return new LeafStatus(Task.Status.FAILED, toString() + " FAILED");
+				return new NodeStatus(Task.Status.FAILED, toString() + " FAILED");
 			}
 			LOG.info(toString() + " SUCCEEDED");
-			return new LeafStatus(Task.Status.SUCCEEDED, toString() + " SUCCEEDED");
+			return new NodeStatus(Task.Status.SUCCEEDED, toString() + " SUCCEEDED");
 		} catch (IOException | URISyntaxException | MessageEvaluationException | InputMappingException | SAXException ex) {
 			LOG.info(toString() + " FAILED due to query evaluation error", ex);
-			return new LeafStatus(Task.Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Task.Status.FAILED, toString() + " FAILED");
 		}
 	}
 

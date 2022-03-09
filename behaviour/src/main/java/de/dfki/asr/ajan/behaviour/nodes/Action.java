@@ -117,9 +117,9 @@ public class Action extends AbstractTDBLeafTask {
 	}
 
 	@Override
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		if (!loadDescription(getObject().getServiceTDB().getInitializedRepository())) {
-			return new LeafStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, toString() + " FAILED");
 		}
 		context.put(this);
 		context.put(actionDefinition);
@@ -127,15 +127,15 @@ public class Action extends AbstractTDBLeafTask {
 		try {
 			TaskStep workflow = actionDefinition.getWorkflow();
 			if (workflow == null) {
-				return new LeafStatus(Status.RUNNING, toString() + " RUNNING");
+				return new NodeStatus(Status.RUNNING, toString() + " RUNNING");
 			}
 			result = workflow.execute(context);
 		} catch (ActionBindingException ex) {
 			LOG.error(ex.getMessage());
-			return new LeafStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, toString() + " FAILED");
 		}
 		LOG.info("Action (" + url + ") " + result);
-		return new LeafStatus(result, toString() + " " + result);
+		return new NodeStatus(result, toString() + " " + result);
 	}
 
 	@Override

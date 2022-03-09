@@ -88,7 +88,7 @@ public class Message extends AbstractTDBLeafTask {
 	}
 
 	@Override
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		try {
 			setRequestUri();
 			if (binding.getBtHeaders() != null) {
@@ -100,13 +100,13 @@ public class Message extends AbstractTDBLeafTask {
 			LOG.info("Executing request {}", request.toString());
 			if (!checkResponse(request.execute())) {
 				LOG.info(toString() + " FAILED due to malformed response model");
-				return new LeafStatus(Status.FAILED, toString() + " FAILED");
+				return new NodeStatus(Status.FAILED, toString() + " FAILED");
 			}
 			LOG.info(toString() + " SUCCEEDED");
-			return new LeafStatus(Status.SUCCEEDED, toString() + " SUCCEEDED");
+			return new NodeStatus(Status.SUCCEEDED, toString() + " SUCCEEDED");
 		} catch (IOException | URISyntaxException | MessageEvaluationException | SAXException ex) {
 			LOG.info(toString() + " FAILED due to query evaluation error", ex);
-			return new LeafStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, toString() + " FAILED");
 		}
 	}
 
