@@ -25,7 +25,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.pluginsystem.standardbtnodes.exceptions.BeliefBaseUpdateException;
 import de.dfki.asr.ajan.pluginsystem.standardbtnodes.vocabularies.StandardBTVocabulary;
 import lombok.Getter;
@@ -35,7 +35,6 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +69,7 @@ public class Wait extends AbstractTDBLeafTask implements NodeExtension {
 	private static final Logger LOG = LoggerFactory.getLogger(Wait.class);
 
 	@Override
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		try {
 			switch (running) {
 				case FRESH:
@@ -79,25 +78,25 @@ public class Wait extends AbstractTDBLeafTask implements NodeExtension {
 					startWaiting();
 					String report = toString() + " RUNNING";
 					LOG.info(report);
-					return new LeafStatus(Status.RUNNING, report);
+					return new NodeStatus(Status.RUNNING, report);
 				}
 				case SUCCEEDED:
 				{
 					running = Status.FRESH;
 					String report = toString() + " SUCCEEDED";
 					LOG.info(report);
-					return new LeafStatus(Status.SUCCEEDED, report);
+					return new NodeStatus(Status.SUCCEEDED, report);
 				}
 				default:
 				{
 					String report = toString() + " RUNNING";
 					LOG.info(report);
-					return new LeafStatus(Status.RUNNING, report);
+					return new NodeStatus(Status.RUNNING, report);
 				}
 			}
 		} catch (BeliefBaseUpdateException ex) {
 			LOG.info(toString() + " FAILED due to query evaluation error", ex);
-			return new LeafStatus(Status.FAILED, toString() + " FAILED due to query evaluation error");
+			return new NodeStatus(Status.FAILED, toString() + " FAILED due to query evaluation error");
 		}
 	}
 

@@ -24,7 +24,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
@@ -80,21 +80,21 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
     }
 
     @Override
-    public LeafStatus executeLeaf() {
+    public NodeStatus executeLeaf() {
         try {
             if (handleEvent()) {
                 String report = toString() + " SUCCEEDED";
                 LOG.info(report);
-                return new LeafStatus(Status.SUCCEEDED, report);
+                return new NodeStatus(Status.SUCCEEDED, report);
             } else {
                 String report = toString() + " FAILED";
                 LOG.info(report);
-                return new LeafStatus(Status.FAILED, report);
+                return new NodeStatus(Status.FAILED, report);
             }
         } catch (InputMappingException ex) {
             LOG.info(toString() + ex);
             LOG.info(toString() + " FAILED due to mapping errors");
-            return new LeafStatus(Status.FAILED, toString() + " FAILED due to mapping errors");
+            return new NodeStatus(Status.FAILED, toString() + " FAILED due to mapping errors");
         }
     }
 

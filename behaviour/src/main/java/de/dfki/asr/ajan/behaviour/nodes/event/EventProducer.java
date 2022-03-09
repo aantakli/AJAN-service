@@ -32,7 +32,7 @@ import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -73,17 +73,17 @@ public class EventProducer extends AbstractTDBLeafTask implements Producer {
 	}
 
 	@Override
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		try {
 			setModelEvent();
 			LOG.info(toString() + " SUCCEEDED");
-			return new LeafStatus(Status.SUCCEEDED, toString() + " SUCCEEDED");
+			return new NodeStatus(Status.SUCCEEDED, toString() + " SUCCEEDED");
 		} catch (ConditionEvaluationException ex) {
 			LOG.info(toString() + " FAILED due to query evaluation error", ex);
-			return new LeafStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, toString() + " FAILED");
 		} catch (EventEvaluationException ex) {
 			LOG.info(toString(), ex);
-			return new LeafStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, toString() + " FAILED");
 		}
 	}
 

@@ -25,7 +25,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
@@ -79,18 +79,18 @@ public class Update extends AbstractTDBLeafTask {
 	}
 
 	@Override
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		try {
 			Repository repo = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
 			if (performUpdateLogic(repo)) {
 				LOG.info(toString() + " SUCCEEDED");
-				return new LeafStatus(Status.SUCCEEDED, toString() + " SUCCEEDED");
+				return new NodeStatus(Status.SUCCEEDED, toString() + " SUCCEEDED");
 			}
 			LOG.info(toString() + " FAILED");
-			return new LeafStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, toString() + " FAILED");
 		} catch (QueryEvaluationException | URISyntaxException ex) {
 			LOG.info(toString() + " FAILED due to evaluation error", ex);
-			return new LeafStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, toString() + " FAILED");
 		}
 	}
 

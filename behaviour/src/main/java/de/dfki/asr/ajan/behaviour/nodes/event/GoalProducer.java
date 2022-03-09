@@ -82,7 +82,7 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 
 	@Override
 	@SuppressWarnings("PMD.ConfusingTernary")
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		Status exStatus;
 		if (goalStatus.equals(Status.FRESH)) {
 			goalStatus = Status.RUNNING;
@@ -91,7 +91,7 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 				produceGoal();
 			} catch (EventEvaluationException | AJANBindingsException | URISyntaxException | ConditionEvaluationException ex) {
 				LOG.info(toString(), ex);
-				return new LeafStatus(Status.FAILED, toString() + " FAILED");
+				return new NodeStatus(Status.FAILED, toString() + " FAILED");
 			}
 		} else if (!goalStatus.equals(Status.RUNNING)) {
 			exStatus = goalStatus;
@@ -100,7 +100,7 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 			exStatus = Status.RUNNING;
 		}
 		printStatus(exStatus);
-		return new LeafStatus(exStatus, toString() + " " + exStatus);
+		return new NodeStatus(exStatus, toString() + " " + exStatus);
 	}
 
 	private void printStatus(final Status status) {

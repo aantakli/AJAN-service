@@ -78,22 +78,22 @@ public class Evaluate extends AbstractTDBLeafTask {
 	}
 
 	@Override
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		try {
 			if (queries == null) {
 				String report = toString() + " FAILED";
 				LOG.info(report);
-				return new LeafStatus(Status.FAILED, report);
+				return new NodeStatus(Status.FAILED, report);
 			} else {
 				startEvaluation();
 				String report = toString() + " SUCCEEDED";
 				LOG.info(report);
-				return new LeafStatus(Status.SUCCEEDED, report);
+				return new NodeStatus(Status.SUCCEEDED, report);
 			}
 		} catch (URISyntaxException ex) {
 			String report = toString() + " FAILED due to evaluation error";
 			LOG.info(report, ex);
-			return new LeafStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, toString() + " FAILED");
 		}
 	}
 

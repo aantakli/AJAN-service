@@ -24,7 +24,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.util.ASPConfig;
@@ -99,21 +99,21 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
     }
 
     @Override
-    public LeafStatus executeLeaf() {
+    public NodeStatus executeLeaf() {
             try {
 				generateRuleSet();
 				if(!config.runSolver(this)) {
 					LOG.info(toString() + " UNSATISFIABLE");
-					return new LeafStatus(Status.FAILED, toString() + " UNSATISFIABLE");
+					return new NodeStatus(Status.FAILED, toString() + " UNSATISFIABLE");
 				}
 				if(facts != null)
 					writeStableModels();
 				String report = toString() + " SUCCEEDED";
 				LOG.info(report);
-				return new LeafStatus(Status.SUCCEEDED, report);
+				return new NodeStatus(Status.SUCCEEDED, report);
             } catch (URISyntaxException | RDFBeanException ex) {
 				LOG.info(toString() + " FAILED due to query evaluation error", ex);
-				return new LeafStatus(Status.FAILED, toString() + " FAILED");
+				return new NodeStatus(Status.FAILED, toString() + " FAILED");
             }
     }
 

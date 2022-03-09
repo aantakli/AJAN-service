@@ -31,7 +31,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.Debug;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Direction;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -113,7 +113,7 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 				cleareEKB();
 				Debug debug = this.getObject().getDebug();
 				long time = System.currentTimeMillis() - before;
-				LeafStatus leafStatus = new LeafStatus(null, "BTRoot(" + label + "), time = " + time + "ms, FINISHED");
+				NodeStatus leafStatus = new NodeStatus(null, "BTRoot(" + label + "), time = " + time + "ms, FINISHED");
 				String report = BTUtil.createReport(getUrl(), getInstance().stringValue(), leafStatus, debug, new LinkedHashModel());
 				BTUtil.sendReport(this.getObject(),report);
 			}

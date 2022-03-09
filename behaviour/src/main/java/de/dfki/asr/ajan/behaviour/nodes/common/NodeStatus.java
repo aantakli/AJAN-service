@@ -28,11 +28,11 @@ import lombok.Data;
  * DFKI)
  */
 @Data
-public class LeafStatus {
+public class NodeStatus {
 	private final Task.Status status;
 	private final String label;
 
-	public LeafStatus(final Task.Status status, final String label) {
+	public NodeStatus(final Task.Status status, final String label) {
 		this.status = status;
 		this.label = label;
 	}

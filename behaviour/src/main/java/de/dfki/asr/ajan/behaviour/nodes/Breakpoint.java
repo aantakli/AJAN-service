@@ -54,7 +54,7 @@ public class Breakpoint extends AbstractTDBLeafTask {
 		Debug debug = this.getObject().getDebug();
 		debug.setDebugging(true);
 		BTRoot bt = this.getObject().getBt();
-		LeafStatus leafStatus = new LeafStatus(null, toString() + " SUCCEEDED");
+		NodeStatus leafStatus = new NodeStatus(null, toString() + " SUCCEEDED");
 		String report = BTUtil.createReport(getUrl(), bt.getInstance().stringValue(), leafStatus, debug, new LinkedHashModel());
 		BTUtil.sendReport(this.getObject(),report);
 		return Status.SUCCEEDED;
@@ -81,7 +81,7 @@ public class Breakpoint extends AbstractTDBLeafTask {
 	}
 
 	@Override
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 }
