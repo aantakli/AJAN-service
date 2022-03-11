@@ -48,9 +48,7 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.Extension;
 
@@ -99,7 +97,6 @@ public class Problem extends AbstractTDBBranchTask implements NodeExtension, Tre
 
 	@Override
 	public Resource getType() {
-		ValueFactory vf = SimpleValueFactory.getInstance();
 		return vf.createIRI("http://www.ajan.de/behavior/strips-ns#Problem");
 	}
 
