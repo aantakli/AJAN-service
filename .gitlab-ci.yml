@@ -18,9 +18,6 @@ publish:
       alias: docker
       command: [ "--tls=false" ]
   script:
-    - apk add --update nodejs npm
-    - npm install
-    - npm run build
     - docker -l "debug" build -t $TAG_COMMIT -t $TAG_LATEST .
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker push $TAG_COMMIT
