@@ -73,8 +73,13 @@ ajan:ASP {
 			
 			activity_type(ID,TYPE) :- 	_t(A1,"rdf:type","suite:Activity"), _t(A1,"suite:activityID",_l(ID,"xsd:integer")), _t(A1,"suite:activityType",TYPE).
 
-			before(ID_1,ID_2,TIME) :- 	_t(B,"rdf:type","suite:Before"),
+			time(s, "s").
+			time(m, "m").
+			time(l, "l").
+
+			before(ID_1,ID_2,S) :- 	_t(B,"rdf:type","suite:Before"),
 									_t(B,"suite:timeRange",_l(TIME,"xsd:string")),
+									time(S,TIME),
 									_t(B,"suite:activity1",A1), _t(A1,"suite:activityID",_l(ID_1,"xsd:integer")), 
 									_t(B,"suite:activity2",A2), _t(A2,"suite:activityID",_l(ID_2,"xsd:integer")).
 
@@ -136,6 +141,46 @@ ajan:ASP {
 			_t(U,"rdfs:subPropertyOf","rdfs:member") :- _t(U,"rdf:type","rdfs:cmp") .
 			_t(U,"rdfs:subPropertyOf","rdfs:Literal") :- _t(U,"rdf:type","rdfs:Datatype") .
 		"""^^xsd:string .
+}
+
+# --------------------------------
+# JsonTest -----------------------
+# --------------------------------
+
+:ILASPMapping {
+
+	# see https://rml.io/specs/rml/ for an example input
+	# {
+	#	"rules": [
+	#		"path_backwards(A,B,s):- before(B,A,s).",
+	#		"path_backwards(A,B,s):- before(C,A,s),path_backwards(C,B,s).",
+	#		"before(A,B, ms) :- before(A,B,s); before(A,B,m).",
+	#		"path_backwards(A,B, m):- before(B,A, ms).",
+	#		"path_backwards(A,B, m):- before(C, A, ms),path_backwards(C,B, m)."
+	#	]
+	# }
+
+	:BKMapping
+		rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:referenceFormulation ql:JSONPath;
+			rml:iterator "$"
+		] ;
+
+		rr:subjectMap [
+			rr:template "http://www.ajan.de/ajan-mapping-ns#BackgroundKnowledge" ;
+			rr:class suite:BackgroundKnowledge ;
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate suite:rule ;
+			rr:objectMap [
+				rml:reference "rules[*]" ;
+				rr:datatype xsd:string
+			]
+		] .
 }
 
 # --------------------------------

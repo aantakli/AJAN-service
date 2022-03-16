@@ -44,7 +44,7 @@ public final class PatternUtil {
 		List<String> statements = new ArrayList();
 		Matcher m = FACTS_PATTERN.matcher(" " + stableModel);
 		while (m.find())
-			statements.add(m.group());
+			statements.add(m.group() + ".");
 		return statements;
 	}
 

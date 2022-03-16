@@ -38,20 +38,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.http.client.HttpResponseException;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
-import org.eclipse.rdf4j.model.Model;
 import org.slf4j.LoggerFactory;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.repository.Repository;
 import org.xml.sax.SAXException;
@@ -78,6 +73,14 @@ public class ILASPInput extends Problem implements NodeExtension {
     @RDF("asp:config")
     @Getter @Setter
     private ASPConfig config;
+
+	@RDF("asp:posExamples")
+	@Setter @Getter
+	private BehaviorSelectQuery pos;
+
+	@RDF("asp:negExamples")
+	@Setter @Getter
+	private BehaviorSelectQuery neg;
 
     @RDF("asp:domain")
     @Getter @Setter
@@ -129,13 +132,32 @@ public class ILASPInput extends Problem implements NodeExtension {
 		}
     }
 
-	private ObjectNode getIlaspPayload() {
+	private ObjectNode getIlaspPayload() throws URISyntaxException {
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode node = mapper.createObjectNode();
-		List<String> statements = PatternUtil.getFacts(getFacts().get(0));
-		ArrayNode array = mapper.valueToTree(statements.toArray());
-		node.putArray("facts").addAll(array);
+		node.putArray("pos").addAll(getExamplesArray("pos", pos));
+		node.putArray("neg").addAll(getExamplesArray("neg", neg));
+		node.putArray("facts").addAll(getFactsArray());
 		return node;
+	}
+
+	private ArrayNode getExamplesArray(final String label, final BehaviorSelectQuery query) throws URISyntaxException {
+		Repository repo = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
+		List<BindingSet> bindings = query.getResult(repo);
+		List<String> results = new ArrayList<>();
+		for(BindingSet set: bindings) {
+			if(set.hasBinding(label)) {
+				results.add(set.getBinding(label).getValue().stringValue());
+			}
+		}
+		ObjectMapper mapper = new ObjectMapper();
+		return mapper.valueToTree(results.toArray());
+	}
+
+	private ArrayNode getFactsArray() {
+		ObjectMapper mapper = new ObjectMapper();
+		List<String> statements = PatternUtil.getFacts(getFacts().get(0));
+		return mapper.valueToTree(statements.toArray());
 	}
 
 	private void sendToIlasp(final ObjectNode payload) throws URISyntaxException, MessageEvaluationException, IOException, SAXException {
