@@ -27,7 +27,6 @@ import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
-import de.dfki.asr.ajan.pluginsystem.aspplugin.exception.LoadingRulesException;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.util.ASPConfig;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.util.Deserializer;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.util.Serializer;
@@ -45,7 +44,9 @@ import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.slf4j.LoggerFactory;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.repository.Repository;
 import ro.fortsoft.pf4j.Extension;
@@ -55,11 +56,8 @@ import ro.fortsoft.pf4j.Extension;
 public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Problem.class);
-	@Getter @Setter
     private ArrayList<String> facts;
-	@Getter @Setter
     private String ruleset;
-	@Getter @Setter
 	private Model stableModels;
 
     @RDFSubject
@@ -88,49 +86,61 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 
 	@Override
 	public Resource getType() {
+		ValueFactory vf = SimpleValueFactory.getInstance();
 		return vf.createIRI("http://www.ajan.de/behavior/asp-ns#Problem");
 	}
+
+    public void setFacts(ArrayList<String> set) {
+            facts = set;
+    }
+
+    public String getRuleset() {
+            return ruleset;
+    }
 
     @Override
     public NodeStatus executeLeaf() {
             try {
 				generateRuleSet();
-				if(!getConfig().runSolver(this)) {
+				if(!config.runSolver(this)) {
 					LOG.info(toString() + " UNSATISFIABLE");
 					return new NodeStatus(Status.FAILED, toString() + " UNSATISFIABLE");
 				}
-				if(getFacts() != null) {
-					setStableModels(readStableModels());
-					writeSolution(getStableModels());
-				}
+				if(facts != null)
+					writeStableModels();
 				String report = toString() + " SUCCEEDED";
 				LOG.info(report);
 				return new NodeStatus(Status.SUCCEEDED, report);
-            } catch (URISyntaxException | RDFBeanException | LoadingRulesException ex) {
+            } catch (URISyntaxException | RDFBeanException ex) {
 				LOG.info(toString() + " FAILED due to query evaluation error", ex);
 				return new NodeStatus(Status.FAILED, toString() + " FAILED");
             }
     }
 
-    protected void generateRuleSet() throws URISyntaxException, RDFBeanException, LoadingRulesException {
+    private void generateRuleSet() throws URISyntaxException, RDFBeanException {
             StringBuilder set = new StringBuilder();
             loadBeliefs(set);
-            Deserializer.loadRules(this.getObject(), set, getRules());
-            setRuleset(set.toString());
-            LOG.info("Input RuleSet: " + getRuleset());
+            Deserializer.loadRules(this.getObject(), set, rules);
+            ruleset = set.toString();
+            LOG.info("Input RuleSet: " + ruleset);
     }
 
     private void loadBeliefs(StringBuilder set) throws URISyntaxException {
-            Repository origin = BTUtil.getInitializedRepository(getObject(), getQuery().getOriginBase());
-            Model model = getQuery().getResult(origin);
+            Repository origin = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
+            Model model = query.getResult(origin);
             Deserializer.addRuleSet(set, model);
     }
 
-    protected Model readStableModels() {
+    private void writeStableModels() {
+		stableModels = getStableModels();
+        writeSolution(stableModels);
+    }
+
+    private Model getStableModels() {
             Model origin = new LinkedHashModel();
             int number = 0;
-            if (!getWrite().getRandom()) {
-                    for (String stableModel : getFacts()) {
+            if (!write.getRandom()) {
+                    for (String stableModel : facts) {
                             Model model = getNamedModel(number,stableModel);
                             model.getNamespaces().stream().forEach(origin::setNamespace);
                             model.stream().forEach(origin::add);
@@ -144,22 +154,22 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 
     private Model getNamedModel(int number, String stableModel) {
             ModelBuilder builder = new ModelBuilder();
-            if (getWrite().getContext() != null)
-                    builder.namedGraph(getWrite().getContext().toString() + number);
+            if (write.getContext() != null)
+                    builder.namedGraph(write.getContext().toString() + number);
             Serializer.getGraphFromSolution(builder, stableModel);
             return builder.build();
     }
 
     private void writeSolution(Model model) {
-            if (getWrite().getTargetBase().toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
+            if (write.getTargetBase().toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
                     this.getObject().getExecutionBeliefs().update(model);
-            } else if (getWrite().getTargetBase().toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
+            } else if (write.getTargetBase().toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
                     this.getObject().getAgentBeliefs().update(model);
             }
     }
 
     private String getRandomStableModel() {
-            return getFacts().get((int) (Math.random() * getFacts().size()));
+            return facts.get((int) (Math.random() * facts.size()));
     }
 
     @Override
@@ -169,7 +179,7 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 
 	@Override
 	public String toString() {
-		return "ASPProblem (" + getLabel() + ")";
+		return "ASPProblem (" + label + ")";
 	}
 
 	@Override
@@ -181,12 +191,12 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 	public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
 		if (mode.equals(BTUtil.ModelMode.DETAIL)) {
 			Resource resource = getInstance(root.getInstance());
-			getQuery().setResultModel(resource, BTVocabulary.DOMAIN_RESULT,  model);
-			if (getStableModels() != null && !getStableModels().isEmpty()) {
+			query.setResultModel(resource, BTVocabulary.DOMAIN_RESULT,  model);
+			if (stableModels != null && !stableModels.isEmpty()) {
 				Resource resultNode = vf.createBNode();
 				model.add(resource, BTVocabulary.HAS_STABLE_MODELS, resultNode);
 				model.add(resultNode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, BTVocabulary.STABLE_MODELS);
-				Resource resultGraph = BTUtil.setGraphResultModel(model, getStableModels());
+				Resource resultGraph = BTUtil.setGraphResultModel(model, stableModels);
 				model.add(resultNode, BTVocabulary.HAS_RESULT, resultGraph);
 			}
 		}

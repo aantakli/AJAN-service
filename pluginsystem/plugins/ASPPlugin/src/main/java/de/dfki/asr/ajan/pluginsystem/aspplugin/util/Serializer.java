@@ -118,6 +118,8 @@ public final class Serializer {
 					return vf.createLiteral(Short.parseShort(literal));
 				case "integer":
 					return vf.createLiteral(Integer.parseInt(literal));
+				case "int":
+					return vf.createLiteral(Integer.parseInt(literal));
 				case "long":
 					return vf.createLiteral(Long.parseLong(literal));
 				default:

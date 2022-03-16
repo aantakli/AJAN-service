@@ -20,6 +20,7 @@
 package de.dfki.asr.ajan.pluginsystem.aspplugin.util;
 
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.exception.LoadingRulesException;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.ASPRules;
 import de.dfki.asr.rdfbeans.BehaviorBeanManager;
 import java.net.URI;
@@ -69,9 +70,12 @@ public final class Deserializer {
 		});
 	}
 
-	public static void loadRules(AgentTaskInformation taskInfo, StringBuilder set, List<URI> rules) throws URISyntaxException, RDFBeanException {
+	public static void loadRules(AgentTaskInformation taskInfo, StringBuilder set, List<URI> rules) throws URISyntaxException, RDFBeanException, LoadingRulesException {
 		for (URI resource : rules) {
 			ASPRules rule = loadRule(taskInfo, resource);
+			if (rule == null) {
+			 throw new LoadingRulesException("Rules are not loadable!");
+			}
 			set.append(rewritePrefixes(rule.getRules()));
 		}
 	}
