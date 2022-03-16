@@ -19,50 +19,61 @@
 
 package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions;
 
-import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
-import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
-import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
-import de.dfki.asr.ajan.common.AJANVocabulary;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
+import de.dfki.asr.ajan.behaviour.service.impl.HttpBinding;
+import de.dfki.asr.ajan.behaviour.service.impl.HttpConnection;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.exception.LoadingRulesException;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.util.ASPConfig;
-import de.dfki.asr.ajan.pluginsystem.aspplugin.util.Deserializer;
-import de.dfki.asr.ajan.pluginsystem.aspplugin.util.Serializer;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.util.PatternUtil;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.http.client.HttpResponseException;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
-import org.slf4j.LoggerFactory;
 import org.eclipse.rdf4j.model.Model;
+import org.slf4j.LoggerFactory;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-import org.eclipse.rdf4j.model.util.ModelBuilder;
+import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.repository.Repository;
+import org.xml.sax.SAXException;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-@RDFBean("asp:Problem")
-public class Problem extends AbstractTDBLeafTask implements NodeExtension {
+@RDFBean("asp:ILASPInput")
+public class ILASPInput extends Problem implements NodeExtension {
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Problem.class);
-    private ArrayList<String> facts;
-    private String ruleset;
-	private Model stableModels;
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ILASPInput.class);
 
     @RDFSubject
     @Getter @Setter
     private String url;
+
+	@RDF("bt:queryUri")
+	@Setter @Getter
+	private BehaviorSelectQuery queryURI;
+
+	@RDF("bt:binding")
+	@Setter @Getter
+	private HttpBinding binding;
 
     @RDF("asp:config")
     @Getter @Setter
@@ -84,122 +95,81 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 	@Getter @Setter
 	private String label;
 
+	private String requestURI;
+
 	@Override
 	public Resource getType() {
-		ValueFactory vf = SimpleValueFactory.getInstance();
-		return vf.createIRI("http://www.ajan.de/behavior/asp-ns#Problem");
+		return vf.createIRI("http://www.ajan.de/behavior/asp-ns#ILASPInput");
 	}
-
-    public void setFacts(ArrayList<String> set) {
-            facts = set;
-    }
-
-    public String getRuleset() {
-            return ruleset;
-    }
-
     @Override
     public NodeStatus executeLeaf() {
-            try {
-				generateRuleSet();
-				if(!config.runSolver(this)) {
-					LOG.info(toString() + " UNSATISFIABLE");
-					return new NodeStatus(Status.FAILED, toString() + " UNSATISFIABLE");
-				}
-				if(facts != null)
-					writeStableModels();
-				String report = toString() + " SUCCEEDED";
-				LOG.info(report);
-				return new NodeStatus(Status.SUCCEEDED, report);
-            } catch (URISyntaxException | RDFBeanException ex) {
-				LOG.info(toString() + " FAILED due to query evaluation error", ex);
-				return new NodeStatus(Status.FAILED, toString() + " FAILED");
-            }
+		try {
+			setRequestUri();
+			generateRuleSet();
+			if(!getConfig().runSolver(this)) {
+				LOG.info(toString() + " UNSATISFIABLE");
+				return new NodeStatus(Status.FAILED, toString() + " UNSATISFIABLE");
+			}
+			if(getFacts() != null) {
+				ObjectNode payload = getIlaspPayload();
+				sendToIlasp(payload);
+			}
+			String report = toString() + " SUCCEEDED";
+			LOG.info(report);
+			return new NodeStatus(Status.SUCCEEDED, report);
+		} catch (URISyntaxException | RDFBeanException | LoadingRulesException ex) {
+			LOG.info(toString() + " FAILED due to query evaluation error", ex);
+			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+		} catch (IOException | SAXException ex) {
+			LOG.info(toString() + " FAILED due transmission problems", ex);
+			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+		} catch (MessageEvaluationException ex) {
+			LOG.info(toString() + " FAILED due to malformed request URI", ex);
+			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+		}
     }
 
-    private void generateRuleSet() throws URISyntaxException, RDFBeanException {
-            StringBuilder set = new StringBuilder();
-            loadBeliefs(set);
-            Deserializer.loadRules(this.getObject(), set, rules);
-            ruleset = set.toString();
-            LOG.info("Input RuleSet: " + ruleset);
-    }
+	private ObjectNode getIlaspPayload() {
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode node = mapper.createObjectNode();
+		List<String> statements = PatternUtil.getFacts(getFacts().get(0));
+		ArrayNode array = mapper.valueToTree(statements.toArray());
+		node.putArray("facts").addAll(array);
+		return node;
+	}
 
-    private void loadBeliefs(StringBuilder set) throws URISyntaxException {
-            Repository origin = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
-            Model model = query.getResult(origin);
-            Deserializer.addRuleSet(set, model);
-    }
+	private void sendToIlasp(final ObjectNode payload) throws URISyntaxException, MessageEvaluationException, IOException, SAXException {
+		if (binding.getBtHeaders() != null) {
+			binding.setAddHeaders(BTUtil.getInitializedRepository(getObject(), binding.getBtHeaders().getOriginBase()));
+		}
+		binding.setRequestURI(new URI(requestURI));
+		HttpConnection request = new HttpConnection(binding);
+		request.setPayload(payload.toString());
+		request.execute();
+	}
 
-    private void writeStableModels() {
-		stableModels = getStableModels();
-        writeSolution(stableModels);
-    }
-
-    private Model getStableModels() {
-            Model origin = new LinkedHashModel();
-            int number = 0;
-            if (!write.getRandom()) {
-                    for (String stableModel : facts) {
-                            Model model = getNamedModel(number,stableModel);
-                            model.getNamespaces().stream().forEach(origin::setNamespace);
-                            model.stream().forEach(origin::add);
-                            number++;
-                    }
-            }
-            else
-                    origin = getNamedModel(number,getRandomStableModel());
-            return origin;
-    }
-
-    private Model getNamedModel(int number, String stableModel) {
-            ModelBuilder builder = new ModelBuilder();
-            if (write.getContext() != null)
-                    builder.namedGraph(write.getContext().toString() + number);
-            Serializer.getGraphFromSolution(builder, stableModel);
-            return builder.build();
-    }
-
-    private void writeSolution(Model model) {
-            if (write.getTargetBase().toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
-                    this.getObject().getExecutionBeliefs().update(model);
-            } else if (write.getTargetBase().toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
-                    this.getObject().getAgentBeliefs().update(model);
-            }
-    }
-
-    private String getRandomStableModel() {
-            return facts.get((int) (Math.random() * facts.size()));
-    }
+	protected void setRequestUri() throws URISyntaxException, MessageEvaluationException {
+		Repository repo = BTUtil.getInitializedRepository(getObject(), queryURI.getOriginBase());
+		List<BindingSet> result = queryURI.getResult(repo);
+		if (result.isEmpty()) {
+			throw new MessageEvaluationException("No ?requestURI defined in Message description");
+		}
+		BindingSet bindings = result.get(0);
+		Value strValue = bindings.getValue("requestURI");
+		if (strValue == null) {
+			throw new MessageEvaluationException("No ?requestURI defined in Message description");
+		} else {
+			requestURI = strValue.stringValue();
+		}
+	}
 
     @Override
     public void end() {
-            LOG.info("ASPProblem (" + getStatus() + ")");
+            LOG.info("ILASPInput (" + getStatus() + ")");
     }
 
 	@Override
 	public String toString() {
-		return "ASPProblem (" + label + ")";
-	}
-
-	@Override
-	public EvaluationResult.Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
-		return EvaluationResult.Result.SUCCESS;
-	}
-
-	@Override
-	public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
-		if (mode.equals(BTUtil.ModelMode.DETAIL)) {
-			Resource resource = getInstance(root.getInstance());
-			query.setResultModel(resource, BTVocabulary.DOMAIN_RESULT,  model);
-			if (stableModels != null && !stableModels.isEmpty()) {
-				Resource resultNode = vf.createBNode();
-				model.add(resource, BTVocabulary.HAS_STABLE_MODELS, resultNode);
-				model.add(resultNode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, BTVocabulary.STABLE_MODELS);
-				Resource resultGraph = BTUtil.setGraphResultModel(model, stableModels);
-				model.add(resultNode, BTVocabulary.HAS_RESULT, resultGraph);
-			}
-		}
-		return super.getModel(model, root, mode);
+		return "ILASPInput (" + getLabel() + ")";
 	}
 }
