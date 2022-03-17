@@ -30,6 +30,8 @@ public final class PatternUtil {
 
 	private static final Pattern PREFIX_PATTERN = Pattern.compile("_p\\((.*?)\\)");
 	private static final Pattern QUOTES_PATTERN = Pattern.compile("\"\\s*(.*?)\\s*\"");
+	private static final Pattern CONTENT_PATTERN = Pattern.compile("\\(\\s*(.*?)\\s*\\)");
+	private static final Pattern LITERAL_PATTERN = Pattern.compile("_l\\(\\s*(.*?)\\s*\\)");
 	private static final Pattern FACTS_PATTERN = Pattern.compile("(?<=\\s)(.*?[\\(\\)]*)(?=\\s|\\Z)");
 	private static final Pattern STATEMENT_PATTERN = Pattern.compile("(?<=_t\\()(.*?[\\(\\)]*)(?=\\)\\s|\\)\\Z)");
 	private static final Pattern TRIPLE_PATTERN = Pattern.compile("\\\"\\s*(.*?)\\s*\\\"|_b\\((.*?)\\)|_l(.*?)\\)|(?<=[\\\",])(\\d+|true|false)\\Z");
@@ -88,11 +90,25 @@ public final class PatternUtil {
 			return "";
 	}
 
+	public static String getContent(final String part) {
+		Matcher m = CONTENT_PATTERN.matcher(part);
+		if (m.find())
+			return m.group().replaceAll("\\(", "").replaceAll("\\)", "").replaceAll("\"", "");
+		else
+			return "";
+	}
+
 	public static List<String> getLiteral(final String literal) {
-		Matcher m = QUOTES_PATTERN.matcher(literal);
+		Matcher m = LITERAL_PATTERN.matcher(literal);
 		List<String> parts = new ArrayList();
-		while (m.find())
-			parts.add(m.group().replaceAll("\"", ""));
+		while (m.find()) {
+			String[] content = m.group().replaceAll("_l\\(", "")
+										.replaceAll("\\)", "")
+										.split(",");
+			for (int i = 0; i < content.length; i++) {
+				parts.add(content[i].replaceAll("\"", ""));
+			}
+		}
 		return parts;
 	}
 

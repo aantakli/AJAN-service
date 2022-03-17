@@ -87,6 +87,41 @@ ajan:ASP {
 			#show before/3 .
 		"""^^xsd:string .
 
+	:Use_Rules
+		a asp:RuleSet ;
+		asp:asRules """
+			_p("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#") .
+			_p("xsd", "http://www.w3.org/2001/XMLSchema#") .
+			_p("suite", "http://www.dfki.de/suite-ns#") .
+			_p("ex", "http://example.org#") .
+
+			activity_type(ID,TYPE) :- 	_t(A1,"rdf:type","suite:Activity"), _t(A1,"suite:activityID",_l(ID,"xsd:integer")), _t(A1,"suite:activityType",TYPE).
+
+			time(s, "s").
+			time(m, "m").
+			time(l, "l").
+
+			before(ID_1,ID_2,S) :- 	_t(B,"rdf:type","suite:Before"),
+									_t(B,"suite:timeRange",_l(TIME,"xsd:string")),
+									time(S,TIME),
+									_t(B,"suite:activity1",A1), _t(A1,"suite:activityID",_l(ID_1,"xsd:integer")), 
+									_t(B,"suite:activity2",A2), _t(A2,"suite:activityID",_l(ID_2,"xsd:integer")).
+
+			entity(path_backwards(A,B,T)) :- path_backwards(A,B,T) .
+			count(C) :- C = #count { N: entity(N) } .
+			blank(1..C) :- count(C) .
+
+			1 { test(A,B,T,1..C) } 1 :- path_backwards(A,B,T), count(C) .
+			:- test(_,_,_,C), not test(_,_,_,D), blank(D), D != C .
+
+			_t(_b(BLANK),"rdf:type","suite:PathBackwards") :- test(_,_,_,BLANK) .
+			_t(_b(BLANK),"suite:activity1",A) :- test(A,_,_,BLANK) .
+			_t(_b(BLANK),"suite:activity2",B) :- test(_,B,_,BLANK) .
+			_t(_b(BLANK),"suite:timeRange",_l(C,"xsd:string")) :- test(_,_,C,BLANK) .
+
+			#show _t/3 .
+		"""^^xsd:string .
+
 	# ASP: RDF_EntailmentRules
 
 	:RDF_EntailmentRules

@@ -76,7 +76,7 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 
     @RDF("asp:ruleSets")
     @Getter @Setter
-    private List<URI> rules;
+    private List<RuleSetLocation> rules;
 
     @RDF("asp:write")
     @Getter @Setter

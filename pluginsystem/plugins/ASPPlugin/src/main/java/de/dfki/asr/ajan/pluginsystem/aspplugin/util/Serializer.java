@@ -64,13 +64,18 @@ public final class Serializer {
 	}
 
 	private static Resource getResource(ValueFactory vf, String part, ModelBuilder builder) throws MalformedStatementException {
-		String output = PatternUtil.getQuotesContent(part);
 		if (!PatternUtil.getBlankContent(part)) {
+			String output = PatternUtil.getQuotesContent(part);
 			if(ResourceUtils.isUrl(output)) {
 				return vf.createIRI(output);
 			} else
 				throw new MalformedStatementException("Wrong Resource description!");
 		} else {
+			String output = PatternUtil.getQuotesContent(part);
+			if (output.equals("")) {
+				output = PatternUtil.getContent(part);
+				output = "aspBlank_" + output;
+			}
 			BNode bNode = vf.createBNode(output);
 			builder.add(bNode, RDF.TYPE, AJANVocabulary.GENERATED_BNODE);
 			return bNode;
@@ -132,9 +137,10 @@ public final class Serializer {
 
 	private static Literal getLiteral(ValueFactory vf, String part) {
 		Literal number;
-		number = getNumber(vf,part);
+		String input = part.replaceAll("\"", "");
+		number = getNumber(vf,input);
 		if (number == null) {
-				if(ResourceUtils.isUrl(part)) {
+				if(ResourceUtils.isUrl(input)) {
 					return null;
 				}
 				switch (part) {
@@ -145,7 +151,7 @@ public final class Serializer {
 					case "":
 						return null;
 					default:
-						return vf.createLiteral(part);
+						return vf.createLiteral(input);
 				}
 			}
 			else

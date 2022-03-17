@@ -20,8 +20,10 @@
 package de.dfki.asr.ajan.pluginsystem.aspplugin.util;
 
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
+import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.exception.LoadingRulesException;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.ASPRules;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.RuleSetLocation;
 import de.dfki.asr.rdfbeans.BehaviorBeanManager;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -70,11 +72,11 @@ public final class Deserializer {
 		});
 	}
 
-	public static void loadRules(AgentTaskInformation taskInfo, StringBuilder set, List<URI> rules) throws URISyntaxException, RDFBeanException, LoadingRulesException {
-		for (URI resource : rules) {
-			ASPRules rule = loadRule(taskInfo, resource);
+	public static void loadRules(AgentTaskInformation taskInfo, StringBuilder set, List<RuleSetLocation> rules) throws URISyntaxException, RDFBeanException, LoadingRulesException {
+		for (RuleSetLocation ruleSet : rules) {
+			ASPRules rule = loadRule(taskInfo, ruleSet);
 			if (rule == null) {
-			 throw new LoadingRulesException("Rules are not loadable!");
+				throw new LoadingRulesException("Rules are not loadable!");
 			}
 			set.append(rewritePrefixes(rule.getRules()));
 		}
@@ -89,11 +91,16 @@ public final class Deserializer {
 		return result;
 	}
 
-	private static ASPRules loadRule(AgentTaskInformation taskInfo, URI resource) throws RDFBeanException {
-		Repository repo = taskInfo.getDomainTDB().getInitializedRepository();
+	private static ASPRules loadRule(AgentTaskInformation taskInfo, RuleSetLocation ruleSet) throws RDFBeanException {	
+		Repository repo =  taskInfo.getDomainTDB().getInitializedRepository();
+		if (ruleSet.getOriginBase().toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
+			repo = taskInfo.getExecutionBeliefs().initialize();
+		} else if (ruleSet.getOriginBase().toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
+			repo = taskInfo.getAgentBeliefs().initialize();
+		}
 		try (RepositoryConnection conn = repo.getConnection()) {
 			RDFBeanManager manager = new BehaviorBeanManager(conn, taskInfo.getExtensions());
-			return manager.get(repo.getValueFactory().createIRI(resource.toString()), ASPRules.class);
+			return manager.get(repo.getValueFactory().createIRI(ruleSet.getRule().toString()), ASPRules.class);
 		}
 	}
 }
