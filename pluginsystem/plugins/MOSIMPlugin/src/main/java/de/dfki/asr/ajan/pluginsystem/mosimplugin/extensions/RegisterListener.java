@@ -86,6 +86,10 @@ public class RegisterListener extends AbstractTDBLeafTask implements NodeExtensi
 	private URI repository;
 	private int clPort;
 
+	@RDF("bt-mosim:eventTypeQuery")
+	@Getter @Setter
+	private BehaviorSelectQuery eventType;
+
 	protected static final Logger LOG = LoggerFactory.getLogger(RegisterListener.class);
 
 	@Override
@@ -135,6 +139,7 @@ public class RegisterListener extends AbstractTDBLeafTask implements NodeExtensi
         transport.open();
         TProtocol protocol = new TCompactProtocol(transport);
 		MCoSimulationAccess.Client client = new MCoSimulationAccess.Client(protocol);
+		String event = MOSIMUtil.getEventType(eventType,this.getObject());
 		MBoolResponse registered = client.RegisterAtEvent(address, event);
 		transport.close();
 		return registered.Successful;
