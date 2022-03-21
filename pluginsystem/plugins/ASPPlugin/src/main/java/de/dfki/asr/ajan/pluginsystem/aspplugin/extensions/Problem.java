@@ -87,7 +87,7 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 	@Override
 	public Resource getType() {
 		ValueFactory vf = SimpleValueFactory.getInstance();
-		return vf.createIRI("http://www.ajan.de/behavior/asp-ns##Problem");
+		return vf.createIRI("http://www.ajan.de/behavior/asp-ns#Problem");
 	}
 
     public void setFacts(ArrayList<String> set) {
