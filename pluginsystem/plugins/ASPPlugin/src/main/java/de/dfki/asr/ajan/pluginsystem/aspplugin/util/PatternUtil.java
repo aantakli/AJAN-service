@@ -34,7 +34,7 @@ public final class PatternUtil {
 	private static final Pattern LITERAL_PATTERN = Pattern.compile("_l\\(\\s*(.*?)\\s*\\)");
 	private static final Pattern FACTS_PATTERN = Pattern.compile("(?<=\\s)(.*?[\\(\\)]*)(?=\\s|\\Z)");
 	private static final Pattern STATEMENT_PATTERN = Pattern.compile("(?<=_t\\()(.*?[\\(\\)]*)(?=\\)\\s|\\)\\Z)");
-	private static final Pattern TRIPLE_PATTERN = Pattern.compile("\\\"\\s*(.*?)\\s*\\\"|_b\\((.*?)\\)|_l(.*?)\\)|(?<=[\\\",])(\\d+|true|false)\\Z");
+	private static final Pattern TRIPLE_PATTERN = Pattern.compile("\\\"\\s*(.*?)\\s*\\\"|_r\\((.*?)\\)|_b\\((.*?)\\)|_l(.*?)\\)|(?<=[\\\",])(\\d+|true|false)\\Z");
 	private static final Pattern BLANKS_PATTERN = Pattern.compile("_b\\((.*?)\\)");
 	private static final Pattern XSD_PATTERN = Pattern.compile("((?<=http:\\/\\/www\\.w3\\.org\\/2001\\/XMLSchema#)(.*?)\\Z)");
 

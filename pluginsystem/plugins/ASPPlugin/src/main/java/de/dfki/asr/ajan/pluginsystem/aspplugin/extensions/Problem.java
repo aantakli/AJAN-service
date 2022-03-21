@@ -32,7 +32,6 @@ import de.dfki.asr.ajan.pluginsystem.aspplugin.util.ASPConfig;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.util.Deserializer;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.util.Serializer;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;

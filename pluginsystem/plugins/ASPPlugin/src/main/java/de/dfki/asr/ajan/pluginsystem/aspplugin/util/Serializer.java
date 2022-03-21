@@ -65,11 +65,15 @@ public final class Serializer {
 
 	private static Resource getResource(ValueFactory vf, String part, ModelBuilder builder) throws MalformedStatementException {
 		if (!PatternUtil.getBlankContent(part)) {
+			if(part.startsWith("_r(")) {
+				return vf.createIRI(readNewResource(part));
+			}
 			String output = PatternUtil.getQuotesContent(part);
 			if(ResourceUtils.isUrl(output)) {
 				return vf.createIRI(output);
-			} else
+			} else {
 				throw new MalformedStatementException("Wrong Resource description!");
+			}
 		} else {
 			String output = PatternUtil.getQuotesContent(part);
 			if (output.equals("")) {
@@ -80,6 +84,21 @@ public final class Serializer {
 			builder.add(bNode, RDF.TYPE, AJANVocabulary.GENERATED_BNODE);
 			return bNode;
 		}
+	}
+
+	private static String readNewResource(final String part) throws MalformedStatementException {
+		String content = part.replaceAll("_r\\(", "").replaceAll("\"","");
+		String[] parts = content.replaceAll("\\)", "").split(",");
+		try {
+			if (ResourceUtils.isUrl(parts[0])) {
+				return parts[0] + Integer.parseInt(parts[1]); 
+			} else {
+				throw new MalformedStatementException("Wrong Resource description!");
+			}
+		} catch (NumberFormatException | NullPointerException ex) {
+			throw new MalformedStatementException("Second argument in _r() is no integer!");
+		}
+		
 	}
 
 	private static Literal extractLiteral(ValueFactory vf, String part) {
