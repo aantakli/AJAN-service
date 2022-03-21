@@ -52,12 +52,17 @@ public final class Serializer {
 			try {
 				Resource subject = getResource(vf,parts.get(0),builder);
 				IRI predicate = (IRI) getResource(vf,parts.get(1),builder);
-				Literal literal = extractLiteral(vf,parts.get(2));
-				if(literal == null) {
-					builder.add(subject, predicate, getResource(vf,parts.get(2),builder));
+				if(parts.get(2).startsWith("_r(")) {
+					Resource object = vf.createIRI(readNewResource(parts.get(2)));
+					builder.add(subject, predicate, object);
+				} else {
+					Literal literal = extractLiteral(vf,parts.get(2));
+					if(literal == null) {
+						builder.add(subject, predicate, getResource(vf,parts.get(2),builder));
+					}
+					else
+						builder.add(subject, predicate, literal);
 				}
-				else
-					builder.add(subject, predicate, literal);
 			}
 			catch (ClassCastException | MalformedStatementException ex) {}
 		}

@@ -115,7 +115,7 @@ ajan:ASP {
 			:- test(_,_,_,C), not test(_,_,_,D), blank(D), D != C .
 
 			_t(_b(BLANK),"rdf:type","suite:PathBackwards") :- test(_,_,_,BLANK) .
-			_t(_r("suite:Test_",BLANK),"suite:activity1",A) :- test(A,_,_,BLANK) .
+			_t(_r("suite:Test_",BLANK),"suite:activity1",_r("suite:Test_",BLANK)) :- test(_,_,_,BLANK) .
 
 			#show _t/3 .
 		"""^^xsd:string .
