@@ -6,7 +6,7 @@ WORKDIR ajan
 
 COPY . ./
 
-RUN mvn clean install -e
+RUN mvn clean install
 RUN chmod +x ./startup.sh
 
 EXPOSE 8080/tcp
