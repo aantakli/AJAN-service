@@ -91,9 +91,11 @@ ajan:ASP {
 		a asp:RuleSet ;
 		asp:asRules """
 			_p("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#") .
+			_p("rdfs", "http://www.w3.org/2000/01/rdf-schema#").
 			_p("xsd", "http://www.w3.org/2001/XMLSchema#") .
 			_p("suite", "http://www.dfki.de/suite-ns#") .
 			_p("ex", "http://example.org#") .
+			_p("bt", "http://www.ajan.de/behavior/bt-ns#").
 
 			activity_type(ID,TYPE) :- 	_t(A1,"rdf:type","suite:Activity"), _t(A1,"suite:activityID",_l(ID,"xsd:integer")), _t(A1,"suite:activityType",TYPE).
 
@@ -116,6 +118,29 @@ ajan:ASP {
 
 			_t(_b(BLANK),"rdf:type","suite:PathBackwards") :- test(_,_,_,BLANK) .
 			_t(_r("suite:Test_",BLANK),"suite:activity1",_r("suite:Test_",BLANK)) :- test(_,_,_,BLANK) .
+			_t(_b(BLANK),"suite:activity1",A) :- test(A,_,_,BLANK) .
+			_t(_b(BLANK),"suite:activity2",B) :- test(_,B,_,BLANK) .
+			_t(_b(BLANK),"suite:timeRange",_l(C,"xsd:string")) :- test(_,_,C,BLANK) .
+
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#BT_dae",1), "rdf:type", "bt:Root").
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#BT_dae",1), "rdf:type", "bt:BehaviorTree").
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#BT_dae",1), "rdfs:label", "test BT").
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#BT_dae",1), "bt:hasChild", _r("http://localhost:8090/rdf4j/repositories/behaviors#Sequence_",1)).
+
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#Sequence_",1), "rdf:type", "bt:Sequence").
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#Sequence_",1), "rdfs:label", "test Sequence").
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#Sequence_",1), "bt:hasChildren", _b("list",1)).
+
+			_t(_b("list",1), "rdf:first", _r("http://localhost:8090/rdf4j/repositories/behaviors#Condition",1)).
+			_t(_b("list",1), "rdf:rest", "rdf:nil").
+
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#Condition",1), "rdf:type", "bt:Condition").
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#Condition",1), "rdfs:label", "test Condition").
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#Condition",1), "bt:query", _b("query",1)).
+
+			_t(_b("query",1), "rdf:type", "bt:AskQuery").
+			_t(_b("query",1), "bt:originBase", "http://www.ajan.de/ajan-ns#AgentKnowledge").
+			_t(_b("query",1), "bt:sparql", "ASK WHERE {?s ?p ?o}").
 
 			#show _t/3 .
 		"""^^xsd:string .

@@ -80,15 +80,30 @@ public final class Serializer {
 				throw new MalformedStatementException("Wrong Resource description!");
 			}
 		} else {
-			String output = PatternUtil.getQuotesContent(part);
-			if (output.equals("")) {
-				output = PatternUtil.getContent(part);
-				output = "aspBlank_" + output;
+			return getBNode(vf, part, builder);
+		}
+	}
+
+	private static Resource getBNode(ValueFactory vf, String part, ModelBuilder builder) {
+		String output = "";
+			String[] parts = part.split(",");
+			if (parts.length == 2) {
+				String part2 = parts[1].replaceAll("\"","").replaceAll("\\)", "");
+				output = PatternUtil.getQuotesContent(parts[0]) + part2;
+			} else {
+				output = PatternUtil.getQuotesContent(part);
+				if (output.equals("")) {
+					output = PatternUtil.getContent(part);
+					output = "aspBlank_" + output;
+				}
 			}
-			BNode bNode = vf.createBNode(output);
+			BNode bNode;
+			if (output.equals(""))
+				bNode = vf.createBNode();
+			else
+				bNode = vf.createBNode(output);
 			builder.add(bNode, RDF.TYPE, AJANVocabulary.GENERATED_BNODE);
 			return bNode;
-		}
 	}
 
 	private static String readNewResource(final String part) throws MalformedStatementException {
