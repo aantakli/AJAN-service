@@ -20,6 +20,7 @@
 package de.dfki.asr.ajan.pluginsystem.stripsplugin.utils;
 
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.TermEvaluationException;
+import de.dfki.asr.ajan.pluginsystem.stripsplugin.vocabularies.STRIPSVocabulary;
 import graphplan.domain.Proposition;
 import graphplan.domain.jason.PropositionImpl;
 import jason.asSyntax.LiteralImpl;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.query.algebra.Exists;
 import org.eclipse.rdf4j.query.algebra.Not;
 import org.eclipse.rdf4j.query.algebra.StatementPattern;
@@ -69,10 +71,16 @@ public class QueryPropositions {
 			Var object = node.getObjectVar();
 			try {
 				checkPredicate(predicate);
-				PropositionImpl proposition = new PropositionImpl(pos,uriManager.setPrdTermHash(predicate.getValue()));
-				proposition.addTerm(getTerm(subject));
-				proposition.addTerm(getTerm(object));
-				props.add(proposition);
+				if (predicate.getValue().stringValue().equals(STRIPSVocabulary.HAS_IS.stringValue())) {
+					PropositionImpl proposition = new PropositionImpl(pos,uriManager.setPrdTermHash(object.getValue()));
+					proposition.addTerm(getTerm(subject));
+					props.add(proposition);
+				} else {
+					PropositionImpl proposition = new PropositionImpl(pos,uriManager.setPrdTermHash(predicate.getValue()));
+					proposition.addTerm(getTerm(subject));
+					proposition.addTerm(getTerm(object));
+					props.add(proposition);
+				}
 			} catch (TermEvaluationException ex) {
 				Logger.getLogger(QueryPropositions.class.getName()).log(Level.SEVERE, null, ex);
 			}
