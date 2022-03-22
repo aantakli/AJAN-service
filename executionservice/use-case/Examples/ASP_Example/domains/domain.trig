@@ -63,58 +63,86 @@ ajan:TBox {
 # --------------------------------------------
 
 ajan:ASP {
-	:Domain_Rules
+	:Training_Rules
 		a asp:RuleSet ;
 		asp:asRules """
 			_p("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#") .
 			_p("xsd", "http://www.w3.org/2001/XMLSchema#") .
-			_p("react", "http://www.dfki.de/react-ns#") .
+			_p("suite", "http://www.dfki.de/suite-ns#") .
+			_p("ex", "http://example.org#") .
+			
+			activity_type(ID,TYPE) :- 	_t(A1,"rdf:type","suite:Activity"), _t(A1,"suite:activityID",_l(ID,"xsd:integer")), _t(A1,"suite:activityType",TYPE).
 
-			_t(S,"init_cost",1) :- _t(S,"react:cost",_l("1","xsd:string")).
-			_t(S,"init_cost",2) :- _t(S,"react:cost",_l("2","xsd:string")).
-			_t(S,"init_cost",3) :- _t(S,"react:cost",_l("3","xsd:string")).
-			_t(S,"init_cost",4) :- _t(S,"react:cost",_l("4","xsd:string")).
-			_t(S,"init_cost",5) :- _t(S,"react:cost",_l("5","xsd:string")).
+			time(s, "s").
+			time(m, "m").
+			time(l, "l").
 
-			_t(S,"cost",C1+2) :- _t(S,"init_cost",C1), _t(S,"react:isIn",A), _t(A,"rdf:type","react:ZebraCrossing").
-			_t(S,"cost",C1+5) :- _t(S,"init_cost",C1), _t(S,"react:isIn",A), _t(A,"rdf:type","react:Street").
-			_t(S,"cost",C1+5) :- _t(S,"init_cost",C1), _t(S,"react:isIn",A), _t(A,"rdf:type","react:PedestrianCrossing").
-			_t(S,"cost",C1+1) :- _t(S,"init_cost",C1), _t(S,"react:isIn",A), _t(A,"rdf:type","react:ShoppingWalk").
-			_t(S,"cost",C1+1) :- _t(S,"init_cost",C1), _t(S,"react:isIn",A), _t(A,"rdf:type","react:BusStop").
-			_t(S,"cost",C1+1) :- _t(S,"init_cost",C1), _t(S,"react:isIn",A), _t(A,"rdf:type","react:PedestrianWalk").
-			_t(S,"cost",C1-1) :- _t(S,"init_cost",C1), _t(S,"react:isIn",A), _t(A,"rdf:type","react:YogaStand").
+			before(ID_1,ID_2,S) :- 	_t(B,"rdf:type","suite:Before"),
+									_t(B,"suite:timeRange",_l(TIME,"xsd:string")),
+									time(S,TIME),
+									_t(B,"suite:activity1",A1), _t(A1,"suite:activityID",_l(ID_1,"xsd:integer")), 
+									_t(B,"suite:activity2",A2), _t(A2,"suite:activityID",_l(ID_2,"xsd:integer")).
 
-			node(N) :- 		_t(S,"react:position",N),
-							_t(S,"rdf:type","react:POI").
-			edge(I,O,C) :- 	_t(E,"rdf:type","react:Edge"),
-							_t(E,"react:in",I),
-							_t(E,"react:out",O),
-							_t(E,"cost",C), not _t(I,"react:notReachable",O).
-			at(X,0) :- 		_t(A,"react:locatedNextTo",X),
-							_t(A,"rdf:type","react:Avatar").
-
-			goal(_l("Ende_ASP","xsd:string")).
-
-			_t(_b(X),"react:move",X) :- move(X,_).
-			_t(_b(X),"react:time",T) :- move(X,T).
-			_t(_b("Cost"),"react:totalCost",C) :- cost(C).
+			#show activity_type/2 .
+			#show before/3 .
 		"""^^xsd:string .
 
-	:MoveTo_Rules
+	:Use_Rules
 		a asp:RuleSet ;
 		asp:asRules """
-			cost(0,0).
-			time(1..steps).
-			number(C) :- C = #count{N : node(N)}.
+			_p("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#") .
+			_p("rdfs", "http://www.w3.org/2000/01/rdf-schema#").
+			_p("xsd", "http://www.w3.org/2001/XMLSchema#") .
+			_p("suite", "http://www.dfki.de/suite-ns#") .
+			_p("ex", "http://example.org#") .
+			_p("bt", "http://www.ajan.de/behavior/bt-ns#").
 
-			1 { move(G,T) : node(G) } 1 :- time(T).
+			activity_type(ID,TYPE) :- 	_t(A1,"rdf:type","suite:Activity"), _t(A1,"suite:activityID",_l(ID,"xsd:integer")), _t(A1,"suite:activityType",TYPE).
 
-			at(G,T) :- move(G,T), at(A,T-1), edge(A,G,_).
-			cost(T,C1+C2) :- move(X,T), at(Y,T-1), edge(Y,X,C1), cost(T-1,C2), Y!=X.
-			cost(Max) :- Max = #max{C : cost(T,C)}.
+			time(s, "s").
+			time(m, "m").
+			time(l, "l").
 
-			:- move(G,T), not edge(A,G,_), at(A,T-1).
-			:- not at(X,T), T = steps, goal(X).
+			before(ID_1,ID_2,S) :- 	_t(B,"rdf:type","suite:Before"),
+									_t(B,"suite:timeRange",_l(TIME,"xsd:string")),
+									time(S,TIME),
+									_t(B,"suite:activity1",A1), _t(A1,"suite:activityID",_l(ID_1,"xsd:integer")), 
+									_t(B,"suite:activity2",A2), _t(A2,"suite:activityID",_l(ID_2,"xsd:integer")).
+
+			entity(path_backwards(A,B,T)) :- path_backwards(A,B,T) .
+			count(C) :- C = #count { N: entity(N) } .
+			blank(1..C) :- count(C) .
+
+			1 { test(A,B,T,1..C) } 1 :- path_backwards(A,B,T), count(C) .
+			:- test(_,_,_,C), not test(_,_,_,D), blank(D), D != C .
+
+			_t(_b(BLANK),"rdf:type","suite:PathBackwards") :- test(_,_,_,BLANK) .
+			_t(_r("suite:Test_",BLANK),"suite:activity1",_r("suite:Test_",BLANK)) :- test(_,_,_,BLANK) .
+			_t(_b(BLANK),"suite:activity1",A) :- test(A,_,_,BLANK) .
+			_t(_b(BLANK),"suite:activity2",B) :- test(_,B,_,BLANK) .
+			_t(_b(BLANK),"suite:timeRange",_l(C,"xsd:string")) :- test(_,_,C,BLANK) .
+
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#BT_dae",1), "rdf:type", "bt:Root").
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#BT_dae",1), "rdf:type", "bt:BehaviorTree").
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#BT_dae",1), "rdfs:label", "test BT").
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#BT_dae",1), "bt:hasChild", _r("http://localhost:8090/rdf4j/repositories/behaviors#Sequence_",1)).
+
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#Sequence_",1), "rdf:type", "bt:Sequence").
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#Sequence_",1), "rdfs:label", "test Sequence").
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#Sequence_",1), "bt:hasChildren", _b("list",1)).
+
+			_t(_b("list",1), "rdf:first", _r("http://localhost:8090/rdf4j/repositories/behaviors#Condition",1)).
+			_t(_b("list",1), "rdf:rest", "rdf:nil").
+
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#Condition",1), "rdf:type", "bt:Condition").
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#Condition",1), "rdfs:label", "test Condition").
+			_t(_r("http://localhost:8090/rdf4j/repositories/behaviors#Condition",1), "bt:query", _b("query",1)).
+
+			_t(_b("query",1), "rdf:type", "bt:AskQuery").
+			_t(_b("query",1), "bt:originBase", "http://www.ajan.de/ajan-ns#AgentKnowledge").
+			_t(_b("query",1), "bt:sparql", "ASK WHERE {?s ?p ?o}").
+
+			#show _t/3 .
 		"""^^xsd:string .
 
 	# ASP: RDF_EntailmentRules
@@ -171,6 +199,46 @@ ajan:ASP {
 			_t(U,"rdfs:subPropertyOf","rdfs:member") :- _t(U,"rdf:type","rdfs:cmp") .
 			_t(U,"rdfs:subPropertyOf","rdfs:Literal") :- _t(U,"rdf:type","rdfs:Datatype") .
 		"""^^xsd:string .
+}
+
+# --------------------------------
+# JsonTest -----------------------
+# --------------------------------
+
+:ILASPMapping {
+
+	# see https://rml.io/specs/rml/ for an example input
+	# {
+	#	"rules": [
+	#		"path_backwards(A,B,s):- before(B,A,s).",
+	#		"path_backwards(A,B,s):- before(C,A,s),path_backwards(C,B,s).",
+	#		"before(A,B, ms) :- before(A,B,s); before(A,B,m).",
+	#		"path_backwards(A,B, m):- before(B,A, ms).",
+	#		"path_backwards(A,B, m):- before(C, A, ms),path_backwards(C,B, m)."
+	#	]
+	# }
+
+	:BKMapping
+		rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:referenceFormulation ql:JSONPath;
+			rml:iterator "$"
+		] ;
+
+		rr:subjectMap [
+			rr:template "http://www.ajan.de/ajan-mapping-ns#BackgroundKnowledge" ;
+			rr:class suite:BackgroundKnowledge ;
+		] ;
+
+		rr:predicateObjectMap [
+			rr:predicate suite:rule ;
+			rr:objectMap [
+				rml:reference "rules[*]" ;
+				rr:datatype xsd:string
+			]
+		] .
 }
 
 # --------------------------------
