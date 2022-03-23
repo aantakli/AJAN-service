@@ -76,6 +76,7 @@ public class RegisterListener extends AbstractTDBLeafTask implements NodeExtensi
 
 	private String host;
 	private int port;
+	private String eventtype;
 
 	@RDF("bt-mosim:callback")
 	@Getter @Setter
@@ -88,7 +89,7 @@ public class RegisterListener extends AbstractTDBLeafTask implements NodeExtensi
 
 	@RDF("bt-mosim:eventTypeQuery")
 	@Getter @Setter
-	private BehaviorSelectQuery eventType;
+	private BehaviorSelectQuery eventTypeQuery;
 
 	protected static final Logger LOG = LoggerFactory.getLogger(RegisterListener.class);
 
@@ -105,6 +106,7 @@ public class RegisterListener extends AbstractTDBLeafTask implements NodeExtensi
 				Map.Entry<String,String> entry = hostMap.entrySet().iterator().next();
 				host = entry.getKey();
 				port = Integer.parseInt(entry.getValue());
+				eventtype = MOSIMUtil.getEventType(eventTypeQuery, this.getObject());
 				try {
 					registerEventCallback();
 					Model inputModel = getInputModel();
@@ -139,8 +141,7 @@ public class RegisterListener extends AbstractTDBLeafTask implements NodeExtensi
         transport.open();
         TProtocol protocol = new TCompactProtocol(transport);
 		MCoSimulationAccess.Client client = new MCoSimulationAccess.Client(protocol);
-		String event = MOSIMUtil.getEventType(eventType,this.getObject());
-		MBoolResponse registered = client.RegisterAtEvent(address, event);
+		MBoolResponse registered = client.RegisterAtEvent(address, eventtype);
 		transport.close();
 		return registered.Successful;
 	}
@@ -151,7 +152,7 @@ public class RegisterListener extends AbstractTDBLeafTask implements NodeExtensi
 		model.add(subj, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MOSIMVocabulary.CO_SIMULATOR);
 		model.add(subj, MOSIMVocabulary.HAS_HOST, vf.createLiteral(host));
 		model.add(subj, MOSIMVocabulary.HAS_PORT, vf.createLiteral(port));
-		model.add(subj, MOSIMVocabulary.HAS_EVENT_TYPE, vf.createLiteral(event));
+		model.add(subj, MOSIMVocabulary.HAS_EVENT_TYPE, vf.createLiteral(eventtype));
 		model.add(subj, MOSIMVocabulary.HAS_CALLBACK, vf.createLiteral(clPort));
 		return model;
 	}
