@@ -1,13 +1,18 @@
 FROM maven:3.3.9-jdk-8-alpine
 
-RUN apk update && apk add supervisor
+RUN apk update && apk add supervisor && apk add tree && apk add wget && apk add ca-certificates
 
 WORKDIR ajan
 
-COPY . ./
+RUN mkdir app
+COPY / /app
 
-RUN mvn clean install
-RUN chmod +x ./startup.sh
+RUN cd /app/ && mvn clean install
+RUN chmod +x /app/startup.sh
+RUN chmod +x /app/create.sh
+
+RUN cd /app && wget https://raw.githubusercontent.com/aantakli/AJAN-editor/master/Triplestore%20Repos/editor_data.trig
+RUN cd /app && wget https://raw.githubusercontent.com/aantakli/AJAN-editor/master/Triplestore%20Repos/node_definitions.ttl
 
 EXPOSE 8080/tcp
 EXPOSE 8090/tcp
@@ -25,4 +30,4 @@ ENV url="-Dtriplestore.url=http://localhost:8090/rdf4j"
 
 RUN export JAVA_OPS="$agentFolderPath $domainFolderPath $serviceFolderPath $behaviorsFolderPath $Dpf4j_mode $port $DloadTTLFiles $Dpf4j_pluginsDir $url"
 
-ENTRYPOINT ["/bin/bash", "./startup.sh"]
+ENTRYPOINT ["/bin/bash", "/app/startup.sh"]
