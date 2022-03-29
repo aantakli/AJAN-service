@@ -10,6 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
+        name: Setup docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: aantakli/ajan-service
+          tags: |
+            type=raw,latest
+            type=sha
+      -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       -
@@ -26,6 +35,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: aantakli/ajan-service
+          tags: ${{ steps.meta.outputs.tags }}
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GIT_TOKEN }}
