@@ -159,6 +159,9 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 	public Model getModel(final Model model, final BTRoot root, final ModelMode mode) {
 		TreeNode child = (TreeNode)getChild();
 		Resource definition = getDefinition();
+		if (instance == null) {
+			instance = BTUtil.getInstanceResource(getUrl(), root.getInstance());
+		}
 		model.add(instance, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, getType());
 		model.add(instance, RDFS.LABEL, vf.createLiteral(label));
 		model.add(instance, RDFS.ISDEFINEDBY, definition);

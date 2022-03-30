@@ -1,0 +1,31 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf4j: <http://rdf4j.org/schema/rdf4j#> .
+@prefix sesame: <http://www.openrdf.org/schema/sesame#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fn: <http://www.w3.org/2005/xpath-functions#> .
+
+<http://localhost:8090/rdf4j/repositories/agents#EV_2c8de43e-0e84-4f75-a6df-832b87ae2f07>
+  a <http://www.ajan.de/ajan-ns#MappingEvent>;
+  rdfs:label "Default Event" .
+
+<http://localhost:8090/rdf4j/repositories/agents#EP_e3ee0056-2bf4-4c51-aafc-57ba47beaa34>
+  a <http://www.ajan.de/ajan-ns#Endpoint>;
+  rdfs:label "Default Endpoint";
+  <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#EV_2c8de43e-0e84-4f75-a6df-832b87ae2f07>;
+  <http://www.ajan.de/ajan-ns#capability> "default" .
+
+<http://localhost:8090/rdf4j/repositories/agents#BE_6915b1a1-5755-4851-9a03-97b83c250ab0>
+  a <http://www.ajan.de/ajan-ns#Behavior>;
+  rdfs:label "Default Behavior";
+  <http://www.ajan.de/ajan-ns#clearEKB> false;
+  <http://www.ajan.de/ajan-ns#trigger> <http://localhost:8090/rdf4j/repositories/agents#EV_2c8de43e-0e84-4f75-a6df-832b87ae2f07>;
+  <http://www.ajan.de/ajan-ns#bt> <http://localhost:8090/rdf4j/repositories/behaviors#BT_dae41a94-6793-4c71-a188-817651a9bc7d> .
+
+<http://localhost:8090/rdf4j/repositories/agents#AG_d3ab1fc9-a846-42c4-8e57-553428b36da6>
+  a <http://www.ajan.de/ajan-ns#AgentTemplate>;
+  rdfs:label "Default AgentTemplate";
+  <http://www.ajan.de/ajan-ns#behavior> <http://localhost:8090/rdf4j/repositories/agents#BE_6915b1a1-5755-4851-9a03-97b83c250ab0>;
+  <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#EV_2c8de43e-0e84-4f75-a6df-832b87ae2f07>;
+  <http://www.ajan.de/ajan-ns#endpoint> <http://localhost:8090/rdf4j/repositories/agents#EP_e3ee0056-2bf4-4c51-aafc-57ba47beaa34> .

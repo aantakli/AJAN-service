@@ -52,29 +52,73 @@ public final class Serializer {
 			try {
 				Resource subject = getResource(vf,parts.get(0),builder);
 				IRI predicate = (IRI) getResource(vf,parts.get(1),builder);
-				Literal literal = extractLiteral(vf,parts.get(2));
-				if(literal == null) {
-					builder.add(subject, predicate, getResource(vf,parts.get(2),builder));
+				if(parts.get(2).startsWith("_r(")) {
+					Resource object = vf.createIRI(readNewResource(parts.get(2)));
+					builder.add(subject, predicate, object);
+				} else {
+					Literal literal = extractLiteral(vf,parts.get(2));
+					if(literal == null) {
+						builder.add(subject, predicate, getResource(vf,parts.get(2),builder));
+					}
+					else
+						builder.add(subject, predicate, literal);
 				}
-				else
-					builder.add(subject, predicate, literal);
 			}
 			catch (ClassCastException | MalformedStatementException ex) {}
 		}
 	}
 
 	private static Resource getResource(ValueFactory vf, String part, ModelBuilder builder) throws MalformedStatementException {
-		String output = PatternUtil.getQuotesContent(part);
 		if (!PatternUtil.getBlankContent(part)) {
+			if(part.startsWith("_r(")) {
+				return vf.createIRI(readNewResource(part));
+			}
+			String output = PatternUtil.getQuotesContent(part);
 			if(ResourceUtils.isUrl(output)) {
 				return vf.createIRI(output);
-			} else
+			} else {
 				throw new MalformedStatementException("Wrong Resource description!");
+			}
 		} else {
-			BNode bNode = vf.createBNode(output);
+			return getBNode(vf, part, builder);
+		}
+	}
+
+	private static Resource getBNode(ValueFactory vf, String part, ModelBuilder builder) {
+		String output = "";
+			String[] parts = part.split(",");
+			if (parts.length == 2) {
+				String part2 = parts[1].replaceAll("\"","").replaceAll("\\)", "");
+				output = PatternUtil.getQuotesContent(parts[0]) + part2;
+			} else {
+				output = PatternUtil.getQuotesContent(part);
+				if (output.equals("")) {
+					output = PatternUtil.getContent(part);
+					output = "aspBlank_" + output;
+				}
+			}
+			BNode bNode;
+			if (output.equals(""))
+				bNode = vf.createBNode();
+			else
+				bNode = vf.createBNode(output);
 			builder.add(bNode, RDF.TYPE, AJANVocabulary.GENERATED_BNODE);
 			return bNode;
+	}
+
+	private static String readNewResource(final String part) throws MalformedStatementException {
+		String content = part.replaceAll("_r\\(", "").replaceAll("\"","");
+		String[] parts = content.replaceAll("\\)", "").split(",");
+		try {
+			if (ResourceUtils.isUrl(parts[0])) {
+				return parts[0] + Integer.parseInt(parts[1]); 
+			} else {
+				throw new MalformedStatementException("Wrong Resource description!");
+			}
+		} catch (NumberFormatException | NullPointerException ex) {
+			throw new MalformedStatementException("Second argument in _r() is no integer!");
 		}
+		
 	}
 
 	private static Literal extractLiteral(ValueFactory vf, String part) {
@@ -118,6 +162,8 @@ public final class Serializer {
 					return vf.createLiteral(Short.parseShort(literal));
 				case "integer":
 					return vf.createLiteral(Integer.parseInt(literal));
+				case "int":
+					return vf.createLiteral(Integer.parseInt(literal));
 				case "long":
 					return vf.createLiteral(Long.parseLong(literal));
 				default:
@@ -130,9 +176,10 @@ public final class Serializer {
 
 	private static Literal getLiteral(ValueFactory vf, String part) {
 		Literal number;
-		number = getNumber(vf,part);
+		String input = part.replaceAll("\"", "");
+		number = getNumber(vf,input);
 		if (number == null) {
-				if(ResourceUtils.isUrl(part)) {
+				if(ResourceUtils.isUrl(input)) {
 					return null;
 				}
 				switch (part) {
@@ -143,7 +190,7 @@ public final class Serializer {
 					case "":
 						return null;
 					default:
-						return vf.createLiteral(part);
+						return vf.createLiteral(input);
 				}
 			}
 			else
