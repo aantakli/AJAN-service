@@ -66,10 +66,6 @@ public class RegisterListener extends AbstractTDBLeafTask implements NodeExtensi
 	@Getter @Setter
 	private String label;
 
-	@RDF("bt-mosim:eventType")
-	@Getter @Setter
-	private String event;
-
 	@RDF("bt-mosim:host")
 	@Getter @Setter
 	private BehaviorSelectQuery query;
