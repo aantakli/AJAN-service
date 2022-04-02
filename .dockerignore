@@ -1,0 +1,16 @@
+.github
+.dockerignore
+.gitignore
+.gitmodules
+.idea
+AUTHORS.txt
+installAJAN.bat
+LICENSE
+licenseheader.txt
+licenseheader_authors.txt
+README.md
+startAJAN-loadTTL-false.bat
+startAJAN.bat
+startAll.bat
+startTriplestore.bat
+THIRDPARTYLICENSE
