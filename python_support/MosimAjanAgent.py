@@ -20,24 +20,25 @@ class MosimAjanAgent:
             "clPort": '8083',
             "avatarID": avatar_id,
             "transform": 'X = 5.900000, Y = 1.053885, Z = 14.800000',
-            "isLocatedAt": 'mosim:InitPosition'
+            "isLocatedAt": {"exclude_value_as_string":True,
+                            "value": 'mosim:InitPosition'},
         })
         self.addInitKnowledge('Scene_1', 'Scene', {
             "host": '127.0.0.1',
             "port": scene_access_port
-        })
+        }, prefix_subject=True)
         self.addInitKnowledge('SkeletonAccess_1', 'SkeletonAccess', {
             "host": '127.0.0.1',
             "port": skeleton_access_port
-        })
+        }, prefix_subject=True)
         self.addInitKnowledge('Registry_1', 'Registry', {
             "host": '127.0.0.1',
             "port": RegistryPort
-        })
+        }, prefix_subject=True)
         self.addInitKnowledge('CoSimulator_1', 'CoSimulator', {
             "host": '127.0.0.1',
             "port": cosim_access_port
-        })
+        }, prefix_subject=True, end=True)
 
     def create_agent(self):
         """
@@ -51,14 +52,17 @@ class MosimAjanAgent:
         """
         self.ajan_agent.execute_agent()
 
-    def addInitKnowledge(self, subject, obj, properties=None, prefix='mosim'):
+    def addInitKnowledge(self, subject, obj, properties=None, prefix='mosim', prefix_subject=False, end=False):
         """
         add the given knowledge to the list of knowledge and uses later for constructing initial knowledge graph
         """
-        self.ajan_agent.addInitKnowledge(prefix, subject, obj, properties)
+        self.ajan_agent.addInitKnowledge(prefix, subject, obj, properties, prefix_subject, end)
 
     def addPrefix(self, prefix):
         """
         adds the given prefix to the list of prefixes and uses later for constructing initial knowledge graph
         """
         self.ajan_agent.add_prefix(prefix)
+
+    def delete_agent(self):
+        self.ajan_agent.delete_agent()

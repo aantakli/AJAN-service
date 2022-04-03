@@ -69,17 +69,23 @@ class AjanAgent:
         self.initialKnowledge = returnString
 
     def addInitKnowledge(self, prefix: str, subject: str, obj: str, properties: dict = None,
-                         prefix_subject: bool = False) -> None:
+                         prefix_subject: bool = False, end=False) -> None:
         """
         add the given knowledge to the list of knowledge and uses later for constructing initial knowledge graph
         """
         subject = subject if not prefix_subject else f'{prefix}:{subject}'
-        self.__addInitialization(f'         ajan:agentInitKnowledge {subject} ;')
+        self.__addInitialization(f'				ajan:agentInitKnowledge {subject} ;' if not end else f'				ajan:agentInitKnowledge {subject} .')
         string = f'{subject} a {prefix}:{obj}'
         if properties is not None:
-            for key, value in properties:
-                string += '; \n'
-                string += f' {prefix}:{key} "{value}"'
+            for key in properties:
+                string += ';\n '
+                if isinstance(properties[key], str) or isinstance(properties[key], int) \
+                        or isinstance(properties[key], float):
+                    string += f' {prefix}:{key} "{properties[key]}"'
+                else:
+                    if isinstance(properties[key], dict):
+                        if properties[key]['exclude_value_as_string']:
+                            string += f' {prefix}:{key} {properties[key]["value"]}'
         string += ' .'
         self.__addInitKnowledge(string)
 
@@ -103,5 +109,5 @@ class AjanAgent:
         requestUrl = self.URL + str(self.agent_id) + "?capability=execute"
         return requests.post(requestUrl, headers=self.__headers)
 
-    def __del__(self):
+    def delete_agent(self):
         requests.delete(self.URL + str(self.agent_id), headers=self.__headers)
