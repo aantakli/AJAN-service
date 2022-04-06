@@ -27,6 +27,8 @@ import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorQuery;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBBranchTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.TreeNode;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.NoActionAvailableException;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.TermEvaluationException;
@@ -46,14 +48,13 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
 @RDFBean("strips:Problem")
-public class Problem extends AbstractTDBBranchTask implements NodeExtension {
+public class Problem extends AbstractTDBBranchTask implements NodeExtension, TreeNode {
 
 	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Problem.class);
 
@@ -91,12 +92,11 @@ public class Problem extends AbstractTDBBranchTask implements NodeExtension {
 
 	@Override
 	public String toString() {
-		return "STRIPSProblem ( " + url + " )";
+		return "STRIPSProblem ( " + label + " )";
 	}
 
 	@Override
 	public Resource getType() {
-		ValueFactory vf = SimpleValueFactory.getInstance();
 		return vf.createIRI("http://www.ajan.de/behavior/strips-ns#Problem");
 	}
 
@@ -114,6 +114,7 @@ public class Problem extends AbstractTDBBranchTask implements NodeExtension {
 				if(!generatePlan()) {
 					LOG.info(toString() + " SUCCEEDED");
 					LOG.info("Status (SUCCEEDED)");
+					reportState(new NodeStatus(Status.SUCCEEDED, toString() + " SUCCEEDED"));
 					success();
 					return;
 				}
@@ -121,11 +122,13 @@ public class Problem extends AbstractTDBBranchTask implements NodeExtension {
 					| ConditionEvaluationException | URISyntaxException | RDFBeanException | VariableEvaluationException ex) {
 				LOG.error(toString() + " FAILED due to evaluation error", ex);
 				LOG.info("Status (FAILED)");
+				reportState(new NodeStatus(Status.FAILED, toString() + " FAILED"));
 				fail();
 				return;
 			} catch (PlanningGraphException | TimeoutException ex) {
 				LOG.info(toString() + " FAILED due to no plan result", ex);
 				LOG.info("Status (FAILED)");
+				reportState(new NodeStatus(Status.FAILED, toString() + " FAILED"));
 				fail();
 				return;
 			}
@@ -137,6 +140,7 @@ public class Problem extends AbstractTDBBranchTask implements NodeExtension {
 			throws ConditionEvaluationException, URISyntaxException, PlanningGraphException, OperatorFactoryException,
 			TimeoutException, RDFBeanException, VariableEvaluationException, TermEvaluationException, NoActionAvailableException {
 		Task<AgentTaskInformation> task;
+		reportState(new NodeStatus(Status.RUNNING, toString() + " RUNNING"));
 		task = new PlanBuilder(this).build();
 		if(task.getChildCount() > 0) {
 			addChild(task);
@@ -176,5 +180,9 @@ public class Problem extends AbstractTDBBranchTask implements NodeExtension {
 			});
 		}
 		return super.getModel(model, root, mode);
+	}
+
+	private void reportState(final NodeStatus leafStatus) {
+		BTUtil.reportState(getUrl(), getModel(new LinkedHashModel(), this.getObject().getBt(), BTUtil.ModelMode.DETAIL), this.getObject(), leafStatus);
 	}
 }

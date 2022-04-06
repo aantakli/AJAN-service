@@ -23,11 +23,11 @@ import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import static de.dfki.asr.ajan.pluginsystem.mosimplugin.endpoint.ThriftPluginServer.THRIFT_HOST;
-import static de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.AbortInstruction.LOG;
+
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.core.MBoolResponse;
@@ -67,16 +67,13 @@ public class UnregisterListener extends AbstractTDBLeafTask implements NodeExten
 	@Getter @Setter
 	private String label;
 
-	@RDF("bt-mosim:eventType")
-	@Getter @Setter
-	private String event;
-
 	@RDF("bt-mosim:host")
 	@Getter @Setter
 	private BehaviorSelectQuery query;
 
 	private String host;
 	private int port;
+	private String eventtype;
 
 	@RDF("bt-mosim:callback")
 	@Getter @Setter
@@ -87,6 +84,10 @@ public class UnregisterListener extends AbstractTDBLeafTask implements NodeExten
 	private URI repository;
 	private int clPort;
 
+	@RDF("bt-mosim:eventTypeQuery")
+	@Getter @Setter
+	private BehaviorSelectQuery eventTypeQuery;
+
 	protected static final Logger LOG = LoggerFactory.getLogger(UnregisterListener.class);
 
 	@Override
@@ -95,34 +96,35 @@ public class UnregisterListener extends AbstractTDBLeafTask implements NodeExten
 	}
 
 	@Override
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		try {
 			Map<String,String> hostMap = MOSIMUtil.getHostInfos(query,this.getObject());
 			if(!hostMap.isEmpty()) {
 				Map.Entry<String,String> entry = hostMap.entrySet().iterator().next();
 				host = entry.getKey();
 				port = Integer.parseInt(entry.getValue());
+				eventtype = MOSIMUtil.getEventType(eventTypeQuery, this.getObject());
 				try {
 					unregisterEventCallback();
 					Model removeModel = getRemoveModel();
 					MOSIMUtil.removeInput(removeModel, repository.toString(), this.getObject());
 					String report = toString() + " SUCCEEDED";
 					LOG.info(report);
-					return new LeafStatus(Status.SUCCEEDED, report);
+					return new NodeStatus(Status.SUCCEEDED, report);
 				} catch (TException ex) {
 					String report = toString() + " FAILED";
 					LOG.info(report);
-					return new LeafStatus(Status.FAILED, report);
+					return new NodeStatus(Status.FAILED, report);
 				}
 			}
 		} catch (URISyntaxException ex) {
 			String report = toString() + " FAILED";
 			LOG.info(report);
-			return new LeafStatus(Status.FAILED, report);
+			return new NodeStatus(Status.FAILED, report);
 		}
 		String report = toString() + " FAILED";
 		LOG.info(report);
-		return new LeafStatus(Status.FAILED, report);
+		return new NodeStatus(Status.FAILED, report);
 	}
 
 	private boolean unregisterEventCallback() throws TTransportException, TException, URISyntaxException {
@@ -135,7 +137,7 @@ public class UnregisterListener extends AbstractTDBLeafTask implements NodeExten
         transport.open();
         TProtocol protocol = new TCompactProtocol(transport);
 		MCoSimulationAccess.Client client = new MCoSimulationAccess.Client(protocol);
-		MBoolResponse registered = client.UnregisterAtEvent(address, event);
+		MBoolResponse registered = client.UnregisterAtEvent(address, eventtype);
 		transport.close();
 		return registered.Successful;
 	}
@@ -146,7 +148,7 @@ public class UnregisterListener extends AbstractTDBLeafTask implements NodeExten
 		model.add(subj, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MOSIMVocabulary.CO_SIMULATOR);
 		model.add(subj, MOSIMVocabulary.HAS_HOST, vf.createLiteral(host));
 		model.add(subj, MOSIMVocabulary.HAS_PORT, vf.createLiteral(port));
-		model.add(subj, MOSIMVocabulary.HAS_EVENT_TYPE, vf.createLiteral(event));
+		model.add(subj, MOSIMVocabulary.HAS_EVENT_TYPE, vf.createLiteral(eventtype));
 		model.add(subj, MOSIMVocabulary.HAS_CALLBACK, vf.createLiteral(clPort));
 		return model;
 	}

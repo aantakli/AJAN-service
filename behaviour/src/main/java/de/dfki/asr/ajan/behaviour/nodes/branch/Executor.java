@@ -161,8 +161,8 @@ public class Executor extends AbstractTDBBranchTask {
 		} else {
 			try {
 				Repository evalRepo = result.getRepo().initialize();
-				int childIndex = selectedChild.getIntValue(evalRepo).get(0);
-				((TreeNode)this.getChild(childIndex)).evaluate(result.setDirection(Direction.Down));
+				int child = selectedChild.getIntValue(evalRepo).get(0);
+				((TreeNode)this.getChild(child)).evaluate(result.setDirection(Direction.Down));
 			} catch (SelectEvaluationException ex) {
 				LOG.error("Problems with the Select Query", ex);
 				result.setChildResult(EvaluationResult.Result.FAIL);

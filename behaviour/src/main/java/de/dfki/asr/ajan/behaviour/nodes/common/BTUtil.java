@@ -119,7 +119,11 @@ public final class BTUtil {
 		List<Resource> list = new ArrayList();
 		for (int i = 0; i < task.getChildCount(); i++) {
 			TreeNode chNode = (TreeNode) task.getChild(i);
-			list.add(chNode.getInstance(btRoot.getInstance()));
+			Resource instance = chNode.getInstance(btRoot.getInstance());
+			if (instance == null) {
+				instance = BTUtil.getInstanceResource(chNode.getUrl(), btRoot.getInstance());
+			}
+			list.add(instance);
 			chNode.getModel(model, btRoot, mode);
 		}
 		RDFCollections.asRDF(list, head, model);
@@ -184,6 +188,19 @@ public final class BTUtil {
 		return root;
 	}
 
+	public static void reportState(final String url, final Model debugModel, final AgentTaskInformation info, final NodeStatus leafStatus) {
+		if (!info.getReportURI().equals("")) {
+			Debug debug = info.getDebug();
+			BTRoot bt = info.getBt();
+			Model detail = new LinkedHashModel();
+			if (debug.isDebugging()) {
+				detail = debugModel;
+			}
+			String report = BTUtil.createReport(url, bt.getInstance().stringValue(), leafStatus, debug, detail);
+			BTUtil.sendReport(info, report);
+		}
+	}
+
 	public static void sendReport(final AgentTaskInformation info, final String report) {
 		if (info != null && !info.getReportURI().equals("")) {
 			CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -200,7 +217,7 @@ public final class BTUtil {
 		}
 	}
 
-	public static String createReport(final String url, final String btUrl, final LeafStatus state, final Debug debug, final Model detail) {
+	public static String createReport(final String url, final String btUrl, final NodeStatus state, final Debug debug, final Model detail) {
 		Model reportModel = new LinkedHashModel();
 		Resource report = VF.createIRI(debug.getAgentURI() + "/report/" + UUID.randomUUID());
 		reportModel.add(report, RDF.TYPE, BTVocabulary.REPORT);

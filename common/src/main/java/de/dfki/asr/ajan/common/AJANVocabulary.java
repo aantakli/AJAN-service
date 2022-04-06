@@ -82,6 +82,7 @@ public class AJANVocabulary {
 
 	public final static IRI BEHAVIOR_HAS_BT = FACTORY.createIRI("http://www.ajan.de/ajan-ns#bt");
 	public final static IRI BEHAVIOR_HAS_TRIGGER = FACTORY.createIRI("http://www.ajan.de/ajan-ns#trigger");
+	public final static IRI BEHAVIOR_HAS_CLEAREKB = FACTORY.createIRI("http://www.ajan.de/ajan-ns#clearEKB");
 
 	public final static IRI EXC_EXCEPTION = FACTORY.createIRI("http://www.ajan.de/ajan-ns#Exception");
 	public final static IRI EXC_HAS_CAUSE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#hasCause");

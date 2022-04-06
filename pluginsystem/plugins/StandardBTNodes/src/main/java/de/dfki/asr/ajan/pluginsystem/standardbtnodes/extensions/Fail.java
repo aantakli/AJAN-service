@@ -25,7 +25,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.TreeNode;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.pluginsystem.standardbtnodes.vocabularies.StandardBTVocabulary;
 import lombok.Getter;
 import lombok.Setter;
@@ -96,9 +96,9 @@ public class Fail extends AbstractTDBLeafTask implements NodeExtension, TreeNode
     }
 
     @Override
-    public LeafStatus executeLeaf() {
+    public NodeStatus executeLeaf() {
         String report = toString() + " FAILED";
 		LOG.info(report);
-		return new LeafStatus(Status.FAILED, report);
+		return new NodeStatus(Status.FAILED, report);
     }
 }

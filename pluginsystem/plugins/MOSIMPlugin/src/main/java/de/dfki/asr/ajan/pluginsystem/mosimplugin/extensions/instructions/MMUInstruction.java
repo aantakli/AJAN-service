@@ -55,7 +55,7 @@ public class MMUInstruction extends AbstractInstruction {
 
     private ArrayList<Value> constraints;
     private List<MConstraint> mConstraints = null;
-
+	private String avatarID = "";
     private String startCond = "";
     private String endCond = "";
 
@@ -78,6 +78,7 @@ public class MMUInstruction extends AbstractInstruction {
         + "WHERE {\n"
         + "	?instruction mosim:mmu ?mmu .\n"
         + "	OPTIONAL { \n"
+		+ "		?instruction mosim:avatarID ?avatarID .\n"
         + "		?instruction mosim:mmuProperty ?property .\n"
         + "		?instruction mosim:actionName ?actionName .\n"
         + "		?instruction mosim:constraint ?constraint .\n"
@@ -136,6 +137,9 @@ public class MMUInstruction extends AbstractInstruction {
     protected void readInput(final InputModel inputModel, final AgentTaskInformation info) {
         try {
             mmu = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_MMU);
+			avatarID = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_AVATAR_ID);
+			if (avatarID.isEmpty())
+				avatarID = "";
             actionName = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_ACTION_NAME);
             properties = MOSIMUtil.getObjects(inputModel, null, MOSIMVocabulary.HAS_MMU_PROPERTY);
             instProps = MOSIMUtil.createGeneralProperties(properties, inputModel);
@@ -159,7 +163,9 @@ public class MMUInstruction extends AbstractInstruction {
         }
         MInstruction instruction = MOSIMUtil.createMInstruction(instID, actionID, mmu, instProps, mConstraints, startCond, endCond);
         instructionDef = MOSIMUtil.getInstructionDef(instruction);
-        return client.AssignInstruction(instruction, new HashMap<>()).Successful;
+		Map<String, String> coSimProperties = new HashMap<>();
+		coSimProperties.put("AvatarID", avatarID);
+		return client.AssignInstruction(instruction, coSimProperties).Successful;
     }
 
     @Override

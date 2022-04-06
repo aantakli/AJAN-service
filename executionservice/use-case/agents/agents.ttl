@@ -1,6 +1,10 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf4j: <http://rdf4j.org/schema/rdf4j#> .
+@prefix sesame: <http://www.openrdf.org/schema/sesame#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fn: <http://www.w3.org/2005/xpath-functions#> .
 
 <http://localhost:8090/rdf4j/repositories/agents#EV_1a7d9583-bf37-433f-a77f-484db73973f4>
   a <http://www.ajan.de/ajan-ns#ModelEvent>;
@@ -24,4 +28,3 @@
   <http://www.ajan.de/ajan-ns#endpoint> <http://localhost:8090/rdf4j/repositories/agents#EP_a4acaf40-be60-492c-930f-3a7823bf7221>;
   <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#EV_1a7d9583-bf37-433f-a77f-484db73973f4>;
   rdfs:label "Default AgentTemplate" .
-

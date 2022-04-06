@@ -31,7 +31,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.Debug;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Direction;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -43,6 +43,8 @@ import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,9 +110,10 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 			long before = System.currentTimeMillis();
 			this.step();
 			if (this.getObject() != null) {
+				cleareEKB();
 				Debug debug = this.getObject().getDebug();
 				long time = System.currentTimeMillis() - before;
-				LeafStatus leafStatus = new LeafStatus(null, "BTRoot(" + label + "), time = " + time + "ms, FINISHED");
+				NodeStatus leafStatus = new NodeStatus(null, "BTRoot(" + label + "), time = " + time + "ms, FINISHED");
 				String report = BTUtil.createReport(getUrl(), getInstance().stringValue(), leafStatus, debug, new LinkedHashModel());
 				BTUtil.sendReport(this.getObject(),report);
 			}
@@ -118,6 +121,17 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 			block = false;
 			if (goalProducer != null) {
 				goalProducer.reportGoalStatus(status);
+			}
+		}
+	}
+
+	private void cleareEKB() {
+		if (status != Status.RUNNING && this.getObject().isClearEKB()) {
+			Repository repo = this.getObject().getExecutionBeliefs().initialize();
+			try (RepositoryConnection conn = repo.getConnection()) {
+				conn.clear();
+				conn.clearNamespaces();
+				conn.close();
 			}
 		}
 	}
@@ -145,6 +159,9 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 	public Model getModel(final Model model, final BTRoot root, final ModelMode mode) {
 		TreeNode child = (TreeNode)getChild();
 		Resource definition = getDefinition();
+		if (instance == null) {
+			instance = BTUtil.getInstanceResource(getUrl(), root.getInstance());
+		}
 		model.add(instance, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, getType());
 		model.add(instance, RDFS.LABEL, vf.createLiteral(label));
 		model.add(instance, RDFS.ISDEFINEDBY, definition);

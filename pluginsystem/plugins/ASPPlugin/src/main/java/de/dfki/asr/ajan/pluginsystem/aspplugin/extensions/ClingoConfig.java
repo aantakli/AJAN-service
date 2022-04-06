@@ -105,12 +105,16 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 			solverCommandLine.add("--models="+ models);
 		if(threads != null && threads > 0)
 			solverCommandLine.add("--parallel-mode="+ threads);
-		constants.stream().forEach((constant) -> {
-			StringBuilder line = new StringBuilder();
-			line.append("-c ").append(constant.getName())
-				.append("=").append(constant.getValue());
-			solverCommandLine.add(line.toString());
-		});
+		if(constants != null) {
+			constants.stream().forEach((constant) -> {
+				if (!constant.getName().isEmpty()) {
+					StringBuilder line = new StringBuilder();
+					line.append("-c ").append(constant.getName())
+						.append("=").append(constant.getValue());
+					solverCommandLine.add(line.toString());
+				}
+			});
+		}
 	}
 
 	private boolean extractFactsFormSolverResult(final BufferedReader in, Problem problem) throws IOException, ClingoException{

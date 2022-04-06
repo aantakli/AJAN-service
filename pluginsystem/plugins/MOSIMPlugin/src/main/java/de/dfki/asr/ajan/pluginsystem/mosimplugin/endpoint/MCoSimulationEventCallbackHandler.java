@@ -48,6 +48,7 @@ public class MCoSimulationEventCallbackHandler implements MCoSimulationEventCall
 			LOG.info("OnEvent name: " + simEvent.Name);
 			LOG.info("OnEvent type: " + simEvent.Type);
 			LOG.info("OnEvent reference: " + simEvent.Reference);
+			LOG.info("Received Event: "+ simEvent);
 			if (simEvent.Type.equals("end")
 					|| simEvent.Type.equals("initError")
 					|| simEvent.Type.equals("PositioningFinished")) {

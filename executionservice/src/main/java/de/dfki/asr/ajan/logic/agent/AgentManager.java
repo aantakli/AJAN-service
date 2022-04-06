@@ -105,7 +105,8 @@ public class AgentManager {
 		Repository agentRepo = agents.getInitializedRepository();
 		agentRDFBuilder = new RDFAgentBuilder(tdbManager, agentRepo, pluginLoader);
                 agentParamBuilder = new ParameterAgentBuilder(tdbManager, agentRepo, pluginLoader);
-		tdbManager.setBehaviorTDB(behaviors);
+		tdbManager.setAgentTemplatesTDB(agents);
+                tdbManager.setBehaviorTDB(behaviors);
 		tdbManager.setDomainTDB(domain);
 		tdbManager.setServiceTDB(services);
 	}

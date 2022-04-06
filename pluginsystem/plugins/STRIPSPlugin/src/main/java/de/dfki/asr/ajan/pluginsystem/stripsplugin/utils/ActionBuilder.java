@@ -20,39 +20,34 @@
 package de.dfki.asr.ajan.pluginsystem.stripsplugin.utils;
 
 import de.dfki.asr.ajan.behaviour.nodes.Action;
-import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorQuery;
-import de.dfki.asr.ajan.common.AJANVocabulary;
-import de.dfki.asr.ajan.common.SPARQLUtil;
 import graphplan.domain.Operator;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-import org.eclipse.rdf4j.query.parser.ParsedGraphQuery;
 
 public final class ActionBuilder {
 
 	private String url;
 	private URI actionUri;
+	private String label;
 	List<BehaviorQuery> inputs;
 
 	private final URIManager uriManager;
 
-	public ActionBuilder(URIManager uriManager) throws URISyntaxException {
+	public ActionBuilder(final URIManager uriManager) throws URISyntaxException {
 		this.uriManager = uriManager;
-		this.url = "http://localhost";
-		this.actionUri = new URI("http://localhost");
 		this.inputs = new ArrayList();
 	}
 
 	public ActionBuilder setServiceUrl(String url) {
 		this.url = url;
+		return this;
+	}
+
+	public ActionBuilder setServiceLabel(String label) {
+		this.label = label;
 		return this;
 	}
 
@@ -62,34 +57,9 @@ public final class ActionBuilder {
 		return this;
 	}
 
-	public ActionBuilder setActionInputs(Operator operator) throws URISyntaxException {
-		ParsedGraphQuery parsedQuery = createQuery(operator);
-		BehaviorQuery query = createBehaviourQuery(parsedQuery);
-		inputs.add(query);
+	public ActionBuilder setActionInputs(final AJANOperator ajanOp, final Operator operator) throws URISyntaxException {
+		inputs.add(PlannerUtil.getNodeQuery(operator, ajanOp, uriManager));
 		return this;
-	}
-
-	private ParsedGraphQuery createQuery(Operator operator) {
-		ValueFactory factory = SimpleValueFactory.getInstance();
-		List terms = operator.getTerms();
-		Set<Resource> resourceSet = new HashSet();
-		for(Object term: terms) {
-			//----------------
-			//ToDo: NOT only URIs could be saved as Terms --> Integers, Strings ...
-			//----------------
-			String resourceURI = uriManager.getURIFromHash(term.toString());
-			Resource resource = factory.createIRI(resourceURI);
-			resourceSet.add(resource);
-		}
-		return SPARQLUtil.getDescribeQuery(resourceSet.iterator());
-	}
-
-	private BehaviorQuery createBehaviourQuery(ParsedGraphQuery parsedQuery) throws URISyntaxException {
-		BehaviorQuery query = new BehaviorConstructQuery();
-		URI agentBeliefbase = new URI(AJANVocabulary.AGENT_KNOWLEDGE.toString());
-		query.setOriginBase(agentBeliefbase);
-		query.setSparql(SPARQLUtil.renderQuery(parsedQuery));
-		return query;
 	}
 
 	public Action build() {
@@ -97,6 +67,7 @@ public final class ActionBuilder {
 		action.setUrl(url);
 		action.setDefinition(actionUri);
 		action.setInputs(inputs);
+		action.setLabel(label);
 		return action;
 	}
 }

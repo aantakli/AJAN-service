@@ -23,6 +23,7 @@ import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
+import de.dfki.asr.ajan.pluginsystem.stripsplugin.vocabularies.STRIPSVocabulary;
 import graphplan.domain.Proposition;
 import graphplan.domain.jason.PropositionImpl;
 import jason.asSyntax.LiteralImpl;
@@ -31,6 +32,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.query.GraphQuery;
 import org.eclipse.rdf4j.query.GraphQueryResult;
@@ -48,16 +51,32 @@ public final class StateLoader {
 		List<Proposition> state = new ArrayList();
 		LinkedHashModel model = getModel(queries, taskInfos);
 		model.stream().map((stat) -> {
-			PropositionImpl prop = new PropositionImpl(true,uriManager.setObjTermHash(stat.getPredicate()));
-			Term subj = new LiteralImpl(uriManager.setObjTermHash(stat.getSubject()));
-			Term obj = new LiteralImpl(uriManager.setObjTermHash(stat.getObject()));
-			prop.addTerm(subj);
-			prop.addTerm(obj);
-			return prop;
+			IRI pred = stat.getPredicate();
+			if (pred.equals(STRIPSVocabulary.HAS_IS)) {
+				return getSingleValueProposition(stat, uriManager);
+			} else {
+				return getDoubleValueProposition(stat, uriManager);
+			}
 		}).forEach((prop -> {
 			state.add(prop);
 		}));
 		return state;
+	}
+
+	private static Proposition getSingleValueProposition(final Statement stat, final URIManager uriManager) {
+		PropositionImpl prop = new PropositionImpl(true,uriManager.setPrdTermHash(stat.getObject()));
+		Term subj = new LiteralImpl(uriManager.setObjTermHash(stat.getSubject()));
+		prop.addTerm(subj);
+		return prop;
+	}
+
+	private static Proposition getDoubleValueProposition(final Statement stat, final URIManager uriManager) {
+		PropositionImpl prop = new PropositionImpl(true,uriManager.setPrdTermHash(stat.getPredicate()));
+		Term subj = new LiteralImpl(uriManager.setObjTermHash(stat.getSubject()));
+		Term obj = new LiteralImpl(uriManager.setObjTermHash(stat.getObject()));
+		prop.addTerm(subj);
+		prop.addTerm(obj);
+		return prop;
 	}
 
 	private static LinkedHashModel getModel(List<BehaviorQuery> queries, AgentTaskInformation taskInfos)

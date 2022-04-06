@@ -25,8 +25,10 @@ import java.util.Map;
 public class URIManager {
 
 	private static final String OBJ = "obj_";
+	private static final String PRD = "prd_";
 	private static final String VAR = "Var_";
 	private static final String ACT = "act_";
+	private static final String GOL = "gol_";
 
 	private final Map<String, String> uriMap = new HashMap();
 
@@ -43,6 +45,17 @@ public class URIManager {
 		return hash;
 	}
 
+	public String getGolSignatureHash(Object o) {
+		String hash = generateHashCode(GOL, o);
+		return hash;
+	}
+
+	public String setGolSignatureHash(Object o) {
+		String hash = generateHashCode(GOL, o);
+		addHashURIPair(hash, o);
+		return hash;
+	}
+
 	public String setObjTermHash(Object o) {
 		String hash = generateHashCode(OBJ, o);
 		addHashURIPair(hash, o);
@@ -51,6 +64,17 @@ public class URIManager {
 
 	public String getObjTermHash(Object o) {
 		String hash = generateHashCode(OBJ, o);
+		return hash;
+	}
+
+	public String setPrdTermHash(Object o) {
+		String hash = generateHashCode(PRD, o);
+		addHashURIPair(hash, o);
+		return hash;
+	}
+
+	public String getPrdTermHash(Object o) {
+		String hash = generateHashCode(PRD, o);
 		return hash;
 	}
 

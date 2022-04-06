@@ -19,38 +19,17 @@
 
 package de.dfki.asr.ajan.behaviour.events;
 
-import de.dfki.asr.ajan.behaviour.nodes.common.Bound;
-import de.dfki.asr.ajan.common.AJANVocabulary;
-import java.util.ArrayList;
-import java.util.List;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-import org.eclipse.rdf4j.model.util.RDFCollections;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
 
 public class GoalInformation {
 
-	private final List<Bound> bindings;
+	private final Model input;
 
-	public GoalInformation(final List<Bound> bindings) {
-		this.bindings = bindings;
+	public GoalInformation(final Model input) {
+		this.input = input;
 	}
 
 	public Model getModel() {
-		Model model = new LinkedHashModel();
-		ValueFactory vf = SimpleValueFactory.getInstance();
-		Resource subject = vf.createBNode();
-		Resource list = vf.createBNode();
-		model.add(subject, RDF.TYPE, AJANVocabulary.GOAL_INFORMATION);
-		List<Resource> bndList = new ArrayList();
-		for (Bound bound: bindings) {
-			bndList.add(bound.setModel(model));
-		}
-		model = RDFCollections.asRDF(bndList,list,model);
-		model.add(subject, AJANVocabulary.HAS_BINDINGS,list);
-		return model;
+		return input;
 	}
 }

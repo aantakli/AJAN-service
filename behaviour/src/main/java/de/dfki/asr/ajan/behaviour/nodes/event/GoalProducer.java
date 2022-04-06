@@ -21,12 +21,17 @@ package de.dfki.asr.ajan.behaviour.nodes.event;
 
 import de.dfki.asr.ajan.behaviour.events.*;
 import de.dfki.asr.ajan.behaviour.exception.AJANBindingsException;
+import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
 import de.dfki.asr.ajan.behaviour.exception.EventEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
+import de.dfki.asr.ajan.behaviour.nodes.action.definition.ActionVariable;
 import de.dfki.asr.ajan.behaviour.nodes.common.*;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
+import de.dfki.asr.ajan.common.SPARQLUtil;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
@@ -36,16 +41,18 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.query.Binding;
+import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RDFBean("bt:GoalProducer")
+@SuppressWarnings("PMD.ExcessiveImports")
 public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 	@Getter @Setter
 	@RDFSubject
@@ -59,11 +66,12 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 	@Getter @Setter
 	private URI goalURI;
 
-	@RDF("ajan:bindings")
+	@RDF("bt:content")
 	@Getter @Setter
-	private Bindings bindings;
+	private BehaviorConstructQuery content;
 
 	private AJANGoal goal;
+	private List<BindingSet> bindings;
 	private Status goalStatus = Status.FRESH;
 	private static final Logger LOG = LoggerFactory.getLogger(GoalProducer.class);
 
@@ -74,16 +82,16 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 
 	@Override
 	@SuppressWarnings("PMD.ConfusingTernary")
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		Status exStatus;
 		if (goalStatus.equals(Status.FRESH)) {
 			goalStatus = Status.RUNNING;
 			exStatus = Status.RUNNING;
 			try {
 				produceGoal();
-			} catch (EventEvaluationException | AJANBindingsException | URISyntaxException ex) {
+			} catch (EventEvaluationException | AJANBindingsException | URISyntaxException | ConditionEvaluationException ex) {
 				LOG.info(toString(), ex);
-				return new LeafStatus(Status.FAILED, toString() + " FAILED");
+				return new NodeStatus(Status.FAILED, toString() + " FAILED");
 			}
 		} else if (!goalStatus.equals(Status.RUNNING)) {
 			exStatus = goalStatus;
@@ -92,7 +100,7 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 			exStatus = Status.RUNNING;
 		}
 		printStatus(exStatus);
-		return new LeafStatus(exStatus, toString() + " " + exStatus);
+		return new NodeStatus(exStatus, toString() + " " + exStatus);
 	}
 
 	private void printStatus(final Status status) {
@@ -109,7 +117,7 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 		}
 	}
 
-	private void produceGoal() throws EventEvaluationException, AJANBindingsException, URISyntaxException {
+	private void produceGoal() throws EventEvaluationException, AJANBindingsException, URISyntaxException, ConditionEvaluationException {
 		Map<URI,Event> events = this.getObject().getEvents();
 		if (events.containsKey(goalURI)) {
 			if (events.get(goalURI) instanceof AJANGoal) {
@@ -123,26 +131,22 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 		}
 	}
 
-	private void createGoalEvent(final AJANGoal goal) throws AJANBindingsException, URISyntaxException {
-		List<Bound> bdgs = bindings.getBindings(this.getObject());
-		if (checkGoalValues(goal, bdgs)) {
-			goal.setEventInformation(this, new GoalInformation(bdgs));
+	private void createGoalEvent(final AJANGoal goal) throws AJANBindingsException, URISyntaxException, ConditionEvaluationException {
+		Model inputModel = getModel();
+		if (!inputModel.isEmpty() && checkConsumables(inputModel)) {
+			goal.setEventInformation(this, new GoalInformation(inputModel));
 		} else {
-			throw new AJANBindingsException("bound values do not fit to goal definition!");
+			throw new AJANBindingsException("No Input Model specified or Input Model dose not fit to the Goal Consumable!");
 		}
 	}
 
-	private boolean checkGoalValues(final AJANGoal goal, final List<Bound> bdgs) {
-		return goal.getVariables().stream().map((var) -> {
-			boolean found = false;
-			for (Bound bnd: bdgs) {
-				if (var.getVarName().equals(bnd.getVarName())
-								&& var.getDataType().equals(bnd.getDataType())) {
-					found = true;
-				}
-			}
-			return found;
-		}).noneMatch((found) -> (!found));
+	private Model getModel() throws ConditionEvaluationException {
+		try {
+			Repository repo = BTUtil.getInitializedRepository(getObject(), content.getOriginBase());
+			return content.getResult(repo);
+		} catch (URISyntaxException | QueryEvaluationException ex) {
+			throw new ConditionEvaluationException(ex);
+		}
 	}
 
 	@Override
@@ -152,7 +156,7 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 			return;
 		}
 		try {
-			if (checkCondition()) {
+			if (checkProducibles()) {
 				goalStatus = Status.SUCCEEDED;
 			} else {
 				goalStatus = Status.FAILED;
@@ -165,30 +169,31 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 		}
 	}
 
-	public boolean checkCondition() throws AJANBindingsException, URISyntaxException {
-		String condition = goal.getCondition();
+	public boolean checkConsumables(final Model inputModel) throws AJANBindingsException, URISyntaxException {
+		String condition = goal.getConsumable().getSparql();
+		boolean check = SPARQLUtil.askModel(inputModel, condition);
+		assignVariables(inputModel, condition);
+		return check;
+	}
+
+	public boolean checkProducibles() throws AJANBindingsException, URISyntaxException {
+		String effect = goal.getProducible().getSparql();
 		Repository repo = this.getObject().getAgentBeliefs().getInitializedRepository();
 		try (RepositoryConnection conn = repo.getConnection()) {
-			BooleanQuery query = conn.prepareBooleanQuery(condition);
-			assignVariables(query);
-			return query.evaluate();
-		} catch (AJANBindingsException | URISyntaxException ex) {
-			return false;
+			BooleanQuery askQuery = conn.prepareBooleanQuery(effect);
+			for (Binding binding: bindings.get(0)) {
+				askQuery.setBinding(binding.getName(), binding.getValue());
+			}
+			return askQuery.evaluate();
 		}
 	}
 
-	private void assignVariables(final BooleanQuery query) throws AJANBindingsException, URISyntaxException {
-		for (Bound bound: bindings.getBindings(this.getObject())) {
-			query.setBinding(bound.getVarName(), getValue(bound));
+	private void assignVariables(final Model inputModel, final String askQuery) throws AJANBindingsException, URISyntaxException {
+		List<String> variables = new ArrayList();
+		for (ActionVariable variable: goal.getVariables()) {
+			variables.add(variable.getVarName());
 		}
-	}
-
-	private Value getValue(final Bound bound) {
-		String valueType = bound.getDataType().toString();
-		if (valueType.equals(RDFS.RESOURCE.toString())) {
-			return vf.createIRI(bound.getStringValue());
-		}
-		return vf.createLiteral(bound.getStringValue(), vf.createIRI(valueType));
+		this.bindings = SPARQLUtil.assignVariables(inputModel, askQuery, variables);
 	}
 
 	@Override
@@ -198,7 +203,7 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 
 	private ModelEvent createEvent() throws URISyntaxException {
 		ModelEvent event = new ModelEvent();
-		String eventName = "e_" + label;
+		String eventName = "g_" + label;
 		event.setName(eventName);
 		event.setUrl(url + "#" + eventName);
 		event.register(this.getObject().getBt());

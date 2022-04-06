@@ -40,6 +40,7 @@ public class MOSIMVocabulary {
 	public final static IRI PROPERTY = FACTORY.createIRI("http://www.dfki.de/mosim-ns#Property");
 
 	public final static IRI CONTAINS = FACTORY.createIRI("http://www.dfki.de/mosim-ns#contains");
+	public final static IRI HAS_AVATAR_ID = FACTORY.createIRI("http://www.dfki.de/mosim-ns#avatarID");
 	public final static IRI HAS_ACTION_ID = FACTORY.createIRI("http://www.dfki.de/mosim-ns#actionID");
 	public final static IRI HAS_INSTRUCTION_ID = FACTORY.createIRI("http://www.dfki.de/mosim-ns#instructionID");
 	public final static IRI HAS_INSTRUCTION_IDS = FACTORY.createIRI("http://www.dfki.de/mosim-ns#instructionIDs");

@@ -92,8 +92,8 @@ public class RDFAgentBuilder extends AgentBuilder {
         connections = new ConcurrentHashMap<>();
         id = getIdFromModel();
         LOG.info("Creating agent with ID: " + id);
+        url = getAgentURI();
         manageTDB = isTDBManagement();
-        url = (baseURI.toString() + id);
         template = setTemplateFromResource();
 	inferencing = Inferencing.NONE;
         AgentEndpoints agentEndpoints = new AgentEndpoints(modelManager, resourceManager, agentRepo);
@@ -116,10 +116,10 @@ public class RDFAgentBuilder extends AgentBuilder {
         reportURI = modelManager.getReportURI(initialKnowledge);
         beliefs.update(initialKnowledge);
         if (initialBehavior != null) {
-            configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource());
+            configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource(), true);
         }
         if (finalBehavior != null) {
-            configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), initialBehavior.getResource());
+            configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), initialBehavior.getResource(), true);
         }
         configureBehaviorTrees(beliefs);
         return beliefs;
@@ -225,10 +225,21 @@ public class RDFAgentBuilder extends AgentBuilder {
             }
             Model model = modelManager.getTemplateFromTDB(agentRepo, resource);
             SingleRunBehavior sglBehavior = getSingleRunBehavior(resource, model);
+            boolean clearEKB = getClearEKB(model, resource, AJANVocabulary.BEHAVIOR_HAS_CLEAREKB);
             resourceManager.getResources(resource, model, AJANVocabulary.BEHAVIOR_HAS_TRIGGER).forEachRemaining(eventResc::add);
-            bhvs.put((IRI) resource, new Behavior(sglBehavior.getName(), sglBehavior.getResource(), sglBehavior.getBehaviorTree(), eventResc));
+            bhvs.put((IRI) resource, new Behavior(sglBehavior.getName(), sglBehavior.getResource(), sglBehavior.getBehaviorTree(), clearEKB, eventResc));
         }
         return bhvs;
+    }
+
+    private boolean getClearEKB(final Model model, final Resource resource, final IRI predicate) {
+        if (!model.filter(resource, predicate, null).objects().isEmpty()) {
+        Value clearEKB = model.filter(resource, predicate, null).objects().stream().findFirst().get();
+            if(clearEKB.isLiteral()) {
+                return Boolean.parseBoolean(clearEKB.stringValue());
+            }
+        }
+        return false;
     }
 
     private SingleRunBehavior getSingleRunBehavior(final Resource resource, final Model model) {

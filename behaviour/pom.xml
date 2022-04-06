@@ -52,7 +52,7 @@ MA 02110-1301  USA
         <dependency>
             <groupId>org.cyberborean</groupId>
             <artifactId>rdfbeans</artifactId>
-            <version>2.2-SNAPSHOT</version>
+            <version>2.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.eclipse.rdf4j</groupId>

@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.DebugMode;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.ModelMode;
 import de.dfki.asr.ajan.common.CSVInput;
+import de.dfki.asr.ajan.knowledge.ExecutionBeliefBase;
 import de.dfki.asr.ajan.logic.agent.AgentManager;
 import de.dfki.asr.ajan.model.Agent;
 import de.dfki.asr.ajan.model.Behavior;
@@ -150,52 +151,61 @@ public class AgentResource {
 	@GET
 	@Produces({TURTLE,JSONLD})
 	@ApiOperation(value = "Get Behavior Information.")
-        @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+        @SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.CyclomaticComplexity"})
 	public Model getBehavior(@PathParam(BEHAVIOR_ID) final String behaviorId, @QueryParam("method") final String method, @QueryParam("mode") final String mode) throws URISyntaxException {
-            String id = "";
-            String behaviorURI = "";
-            LOG.info("Received Behavior call: " + behaviorId + ", " + method + ", " + mode);
-            for (Entry<Resource,Behavior> entry: agent.getBehaviors().entrySet()) {
-                id = new URI(entry.getKey().stringValue()).getFragment();
-                if (behaviorId.equals(id) && method != null && mode != null) {
-                    behaviorURI = agent.getUrl() + "/behaviors/" + behaviorId;
-                    if ("info".equals(method)) {
-                        return getBehaviorInfo(entry.getValue(), behaviorURI, mode);
-                    } else if ("debug".equals(method)) {
-                        return setBehaviorDebug(entry.getValue(), behaviorURI, mode);
+            if (method != null) {
+                for (Entry<Resource,Behavior> entry: agent.getBehaviors().entrySet()) {
+                    if (behaviorId.equals(new URI(entry.getKey().stringValue()).getFragment())) {
+                        String behaviorURI = agent.getUrl() + "/behaviors/" + behaviorId;
+                        switch(method) {
+                            case "info":
+                                return getBehaviorInfo(entry.getValue(), behaviorURI, mode);
+                            case "debug":
+                                return setBehaviorDebug(entry.getValue(), behaviorURI, mode);
+                            case "knowledge":
+                                ExecutionBeliefBase beliefs = entry.getValue().getBehaviorTree().getObject().getExecutionBeliefs();
+                                return beliefs.asModel();
+                            default:
+                                return new LinkedHashModel();
+                        }
                     }
                 }
             }
             return new LinkedHashModel();
 	}
 
-
 	private Model getBehaviorInfo(final Behavior behavior, final String uri, final String mode) throws URISyntaxException {
-            switch (mode) {
-                case "detail":
-                    return behavior.getStatus(uri, ModelMode.DETAIL);
-                case "normal":
-                    return behavior.getStatus(uri, ModelMode.NORMAL);
-                default:
-                    return new LinkedHashModel();
+            if(mode != null) {
+                switch (mode) {
+                    case "detail":
+                        return behavior.getStatus(uri, ModelMode.DETAIL);
+                    case "normal":
+                        return behavior.getStatus(uri, ModelMode.NORMAL);
+                    default:
+                        return new LinkedHashModel();
+                }
             }
+            return new LinkedHashModel();
 	}
    
 	private Model setBehaviorDebug(final Behavior behavior, final String uri, final String mode) throws URISyntaxException {
-            switch (mode) {
-                case "resume":
-                    behavior.setDebug(uri, DebugMode.RESUME);
-                    break;
-                case "step":
-                    behavior.setDebug(uri, DebugMode.STEP);
-                    break;
-                case "pause":
-                    behavior.setDebug(uri, DebugMode.PAUSE);
-                    break;
-                default:
-                    break;
+            if(mode != null) {
+                switch (mode) {
+                    case "resume":
+                        behavior.setDebug(uri, DebugMode.RESUME);
+                        break;
+                    case "step":
+                        behavior.setDebug(uri, DebugMode.STEP);
+                        break;
+                    case "pause":
+                        behavior.setDebug(uri, DebugMode.PAUSE);
+                        break;
+                    default:
+                        break;
+                }
+                return getBehaviorInfo(behavior, mode, uri);
             }
-            return getBehaviorInfo(behavior, mode, uri);
+            return new LinkedHashModel();
 	}
 
 	@Path(COMPLETION_PATH)

@@ -97,17 +97,28 @@ public class AgentBuilder {
 
 	public Agent build() throws URISyntaxException {
                 LOG.info("Creating agent with ID: " + id);
+                url = getAgentURI();
 		AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,manageTDB,inferencing));
 		addAgentInformationToKnowledge(beliefs);
 		beliefs.update(initialKnowledge);
 		connections = new ConcurrentHashMap<>();
-                configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource());
-                configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), finalBehavior.getResource());
+                configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource(), true);
+                configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), finalBehavior.getResource(), true);
 		configureBehaviorTrees(beliefs);
                 Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
                 LOG.info("Agent with ID " + id + " is created: " + agent.getUrl());
 		return agent;
 	}
+        protected String getAgentURI() {
+            String ajanURI = baseURI.toString();
+            StringBuilder builder = new StringBuilder();
+            builder.append(ajanURI);
+            if (!ajanURI.substring(ajanURI.length() - 1).equals("/")) {
+                builder.append('/');
+            }
+            builder.append(id);
+            return builder.toString();
+        }
 
 	protected void addAgentInformationToKnowledge(final AgentBeliefBase beliefs) {
 		ValueFactory factory = SimpleValueFactory.getInstance();
@@ -135,7 +146,7 @@ public class AgentBuilder {
 		behaviors.entrySet().stream().forEach((Map.Entry<Resource, Behavior> behavior) -> {
                     BTRoot bt = behavior.getValue().getBehaviorTree();
                     try {
-                        configureBehaviorTree(beliefs, bt, behavior.getKey());
+                        configureBehaviorTree(beliefs, bt, behavior.getKey(), behavior.getValue().isClearEKB());
                     }
                     catch (URISyntaxException ex) {
                         Logger.getLogger(AgentBuilder.class.getName()).log(Level.SEVERE, null, ex);
@@ -150,13 +161,16 @@ public class AgentBuilder {
 		});
 	}
 
-        protected void configureBehaviorTree(final AgentBeliefBase beliefs, final BTRoot bt, final Resource behaviorIRI) throws URISyntaxException {
+        @SuppressWarnings("PMD.ExcessiveParameterList")
+        protected void configureBehaviorTree(final AgentBeliefBase beliefs, final BTRoot bt, final Resource behaviorIRI, final boolean clearEKB) throws URISyntaxException {
             if (beliefs != null && bt != null) {
                 bt.setInstance(vf.createIRI(getBTInstance(behaviorIRI)));
                 bt.setObject(new AgentTaskInformation(
                     bt,
+                    clearEKB,
                     beliefs,
                     new ExecutionBeliefBase(inferencing),
+                    tdbManager.getAgentTemplatesTDB(),
                     tdbManager.getBehaviorTDB(),
                     tdbManager.getDomainTDB(),
                     tdbManager.getServiceTDB(),

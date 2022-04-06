@@ -116,10 +116,10 @@ public class InitialDataProvider {
     private void loadTTLFromFolders() {
         // loads ttl file(s) for each folder to its corresponding repository
         Map<String, TripleDataBase> tripleStoreMap = new ConcurrentHashMap<>();
-        tripleStoreMap.put(behaviorsFolderPath, behaviors);
         tripleStoreMap.put(agentFolderPath, agents);
-        tripleStoreMap.put(serviceFolderPath, services);
+        tripleStoreMap.put(behaviorsFolderPath, behaviors);
         tripleStoreMap.put(domainFolderPath, domain);
+        tripleStoreMap.put(serviceFolderPath, services);
         pushRDFGraphs(tripleStoreMap);
     }
 

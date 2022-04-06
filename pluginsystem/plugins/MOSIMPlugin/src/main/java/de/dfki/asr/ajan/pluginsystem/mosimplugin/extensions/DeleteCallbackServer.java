@@ -23,7 +23,7 @@ import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.endpoint.ThriftPluginServer;
@@ -67,17 +67,17 @@ public class DeleteCallbackServer extends AbstractTDBLeafTask implements NodeExt
 	}
 
 	@Override
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		try {
 			deleteCoSimCallbackServer();
 		} catch (URISyntaxException ex) {
 			String report = toString() + " FAILED";
 			LOG.info(report);
-			return new LeafStatus(Status.FAILED, report);
+			return new NodeStatus(Status.FAILED, report);
 		}
 		String report = toString() + " SUCCEEDED";
 		LOG.info(report);
-		return new LeafStatus(Status.SUCCEEDED, report);
+		return new NodeStatus(Status.SUCCEEDED, report);
 	}
 
 	public void deleteCoSimCallbackServer() throws URISyntaxException {
