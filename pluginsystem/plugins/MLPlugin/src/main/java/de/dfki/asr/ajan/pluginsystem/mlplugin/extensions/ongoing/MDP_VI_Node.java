@@ -38,7 +38,7 @@ import burlap.statehashing.simple.SimpleHashableStateFactory;
 import com.badlogic.gdx.ai.btree.Task.Status;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mlplugin.test.GridWorldDomain;
 import de.dfki.asr.ajan.pluginsystem.mlplugin.utils.AJANStateModel;
@@ -84,10 +84,10 @@ public class MDP_VI_Node extends AbstractTDBLeafTask implements NodeExtension {
 	}
 	
 	@Override
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		valueIterationExample();
 		String report = toString() + " SUCCEEDED";
-		return new LeafStatus(Status.SUCCEEDED, report);
+		return new NodeStatus(Status.SUCCEEDED, report);
 	}
 
 	private void valueIterationExample(){

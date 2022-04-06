@@ -22,7 +22,7 @@ import com.badlogic.gdx.ai.btree.Task.Status;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mlplugin.exeptions.MLMappingException;
@@ -121,15 +121,15 @@ public class NGram_Node extends AbstractTDBLeafTask implements NodeExtension {
 	}
 	
 	@Override
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		try {
 			Collection<StringList> set = readItemsets();
 			String report = toString() + " SUCCEEDED";
-			return new LeafStatus(Status.SUCCEEDED, report);
+			return new NodeStatus(Status.SUCCEEDED, report);
 		} catch (URISyntaxException | MLMappingException ex) {
 			LOG.info(ex.toString());
 			String report = toString() + " FAILED";
-			return new LeafStatus(Status.FAILED, report);
+			return new NodeStatus(Status.FAILED, report);
 		}
 	}
 

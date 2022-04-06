@@ -23,12 +23,11 @@ import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.common.TreeNode;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mlplugin.exeptions.MLMappingException;
-import de.dfki.asr.ajan.pluginsystem.mlplugin.test.USPS;
 import de.dfki.asr.ajan.pluginsystem.mlplugin.utils.MLUtil;
 import de.dfki.asr.ajan.pluginsystem.mlplugin.vocabularies.MLVocabulary;
 import java.net.URI;
@@ -98,15 +97,15 @@ public class KMeans_Node extends AbstractTDBLeafTask implements NodeExtension, T
 	}
 	
 	@Override
-	public LeafStatus executeLeaf() {
+	public NodeStatus executeLeaf() {
 		try{ 
 			getClusters();
 			String report = toString() + " SUCCEEDED";
-			return new LeafStatus(Status.SUCCEEDED, report);
+			return new NodeStatus(Status.SUCCEEDED, report);
 		} catch (IllegalArgumentException | ConditionEvaluationException | URISyntaxException | MLMappingException | QueryEvaluationException ex) {
 			LOG.info(ex.toString());
 			String report = toString() + " FAILED";
-			return new LeafStatus(Status.FAILED, report);
+			return new NodeStatus(Status.FAILED, report);
 		}
 	}
 
