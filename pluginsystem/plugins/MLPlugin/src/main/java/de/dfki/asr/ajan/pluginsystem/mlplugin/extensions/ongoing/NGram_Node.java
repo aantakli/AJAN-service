@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package de.dfki.asr.ajan.pluginsystem.mlplugin.extensions;
+package de.dfki.asr.ajan.pluginsystem.mlplugin.extensions.ongoing;
 
 import com.badlogic.gdx.ai.btree.Task.Status;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
@@ -152,10 +152,11 @@ public class NGram_Node extends AbstractTDBLeafTask implements NodeExtension {
 		if(!resources.isEmpty()) {
 			Iterator<Resource> iter = resources.iterator();
 			while(iter.hasNext()) {
-				list.add(getItems(result, iter.next(), itemRegister));
+				//list.add(getItems(result, iter.next(), itemRegister));
 			}
 		}
-		return transformMap(list, itemRegister);
+		//return transformMap(list, itemRegister);
+		return null;
 	}
 
 	private void runTest() {
