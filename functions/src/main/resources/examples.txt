@@ -2,20 +2,21 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX amf: <http://www.ajan.de/ajan/functions/math-ns#>
 PREFIX av3df: <http://www.ajan.de/ajan/functions/math/vector3d-ns#>
 
-SELECT ?vector ?sin ?cos ?tan ?sinh ?cosh ?tanh ?distance ?subtract ?dot ?scalarMultiply ?normalize ?normSq ?delta ?x ?y ?z 
+SELECT ?vector ?sin ?cos ?tan ?sinh ?cosh ?tanh ?sqrt ?distance ?subtract ?dot ?scalarMultiply ?normalize ?normSq ?delta ?x ?y ?z 
 WHERE {
-
 	BIND( amf:sin("1.0"^^xsd:float) AS ?sin )
 	BIND( amf:cos("1.0"^^xsd:float) AS ?cos )
 	BIND( amf:tan("1.0"^^xsd:float) AS ?tan )
-	
+
 	BIND( amf:sinh("1.0"^^xsd:float) AS ?sinh )
 	BIND( amf:cosh("1.0"^^xsd:float) AS ?cosh )
 	BIND( amf:tanh("1.0"^^xsd:float) AS ?tanh )
 
+	BIND( amf:sqrt("4.0"^^xsd:float) AS ?sqrt )
+
 	BIND( av3df:vector3D("1.0"^^xsd:float, "2.0"^^xsd:float, "3.0"^^xsd:float) AS ?vector )
 	BIND( av3df:vector3D("40.0"^^xsd:float, "50.0"^^xsd:float, "60.0"^^xsd:float) AS ?vector2 )
-	
+
 	BIND( av3df:distance(?vector, ?vector2) AS ?distance )
 	BIND( av3df:subtract(?vector, ?vector2) AS ?subtract )
 	BIND( av3df:dot(?vector, ?vector2) AS ?dot )
