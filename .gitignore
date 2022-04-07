@@ -4,6 +4,7 @@ nbactions.xml
 /triplestore/target/
 /behaviour/target/
 /common/target/
+/functions/target/
 *.extract/
 .idea
 *.iml
