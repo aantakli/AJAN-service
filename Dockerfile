@@ -1,6 +1,6 @@
 FROM openjdk:8-jdk-alpine
 
-RUN apk update && apk add supervisor && apk add wget && apk add ca-certificates
+RUN apk update && apk add supervisor && apk add wget && apk add ca-certificates && apk add curl
 
 WORKDIR app
 
@@ -16,8 +16,8 @@ RUN chmod +x /app/create.sh
 RUN cd /app && wget https://raw.githubusercontent.com/aantakli/AJAN-editor/master/Triplestore%20Repos/editor_data.trig
 RUN cd /app && wget https://raw.githubusercontent.com/aantakli/AJAN-editor/master/Triplestore%20Repos/node_definitions.ttl
 
-WORKDIR /ajan
-VOLUME ajan
+WORKDIR /logs
+VOLUME logs
 
 EXPOSE 8080/tcp
 EXPOSE 8090/tcp
