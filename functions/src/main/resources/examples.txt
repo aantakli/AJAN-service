@@ -1,32 +1,67 @@
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX amf: <http://www.ajan.de/ajan/functions/math-ns#>
+PREFIX test: <http://www.ajan.de/ajan/functions/math/test-ns#>
 PREFIX av3df: <http://www.ajan.de/ajan/functions/math/vector3d-ns#>
-
-SELECT ?vector ?sin ?cos ?tan ?sinh ?cosh ?tanh ?sqrt ?distance ?subtract ?dot ?scalarMultiply ?normalize ?normSq ?delta ?x ?y ?z 
+  
+SELECT ?seek ?velo ?desVelo ?newSteering ?seek
 WHERE {
-	BIND( amf:sin("1.0"^^xsd:float) AS ?sin )
-	BIND( amf:cos("1.0"^^xsd:float) AS ?cos )
-	BIND( amf:tan("1.0"^^xsd:float) AS ?tan )
 
-	BIND( amf:sinh("1.0"^^xsd:float) AS ?sinh )
-	BIND( amf:cosh("1.0"^^xsd:float) AS ?cosh )
-	BIND( amf:tanh("1.0"^^xsd:float) AS ?tanh )
+	VALUES ?maxVelocity {"5.0"^^xsd:float}
+	VALUES ?maxSpeed {"2.0"^^xsd:float}
+	VALUES ?maxForce {"10.0"^^xsd:float}
+	VALUES ?impactRadius {"3.0"^^xsd:float}
+	VALUES ?steeringDot {"-0.8"^^xsd:float}
+	VALUES ?mass {"2.0"^^xsd:float}
 
-	BIND( amf:sqrt("4.0"^^xsd:float) AS ?sqrt )
+	BIND( av3df:vector3D("0.0"^^xsd:float, "0.0"^^xsd:float, "1.0"^^xsd:float) AS ?origin )
+	BIND( av3df:vector3D("1.0"^^xsd:float, "0.0"^^xsd:float, "0.0"^^xsd:float) AS ?velo )
+	BIND( av3df:vector3D("10.0"^^xsd:float, "0.0"^^xsd:float, "10.0"^^xsd:float) AS ?target )
+	BIND( av3df:distance(?target, ?origin) AS ?distance )
+	
+	BIND( av3df:x(?origin) AS ?x1 )
+	BIND( av3df:z(?origin) AS ?z1 )
+	BIND( av3df:vector3D(?x1, "0.0"^^xsd:float, ?z1) AS ?originY0 )
+	
+	BIND( av3df:x(?target) AS ?x2 )
+	BIND( av3df:z(?target) AS ?z2 )
+	BIND( av3df:vector3D(?x2, "0.0"^^xsd:float, ?z2) AS ?targetY0 )
+	
+	BIND( av3df:subtract(?targetY0, ?originY0) AS ?subtract )
+	BIND( av3df:normalize(?subtract) AS ?normalized )
+	BIND( av3df:scalarMultiply(?normalized, ?maxVelocity) AS ?desVelo )
+	BIND( av3df:x(?desVelo) AS ?xDes )
+	BIND( av3df:y(?desVelo) AS ?yDes )
+	BIND( av3df:z(?desVelo) AS ?zDes )
+	
+	BIND( av3df:normalize(?velo) AS ?normVelo )
+	BIND( av3df:normalize(?desVelo) AS ?normDesVelo )
+	BIND( av3df:dot(?normVelo, ?normDesVelo) AS ?dot )
+	
+	BIND( ?xDes * amf:cos("1.57"^^xsd:float) - ?zDes * amf:sin("1.57"^^xsd:float) AS ?rotX1 )
+	BIND( ?xDes * amf:sin("1.57"^^xsd:float) - ?zDes * amf:cos("1.57"^^xsd:float) AS ?rotZ1 )
+	BIND( av3df:vector3D(?rotX1, ?yDes, ?rotZ1) AS ?rot1 )
+	BIND( av3df:normalize(?rot1) AS ?norRot1 )
+	BIND( av3df:dot(?normVelo, ?norRot1) AS ?dot1 )
+	BIND( IF ( ?dot1 > 0, ?dot1, ?dot1 * -1) AS ?pos1 )
+	
+	BIND( (?xDes * amf:cos("-1.57"^^xsd:float) - ?zDes * amf:sin("-1.57"^^xsd:float)) AS ?rotX2 )
+	BIND( (?xDes * amf:sin("-1.57"^^xsd:float) - ?zDes * amf:cos("-1.57"^^xsd:float)) AS ?rotZ2 )
+	BIND( av3df:vector3D(?rotX2, ?yDes, ?rotZ2) AS ?rot2 )
+	BIND( av3df:normalize(?rot2) AS ?norRot2 )
+	BIND( av3df:dot(?normVelo, ?norRot2) AS ?dot2 )
+	BIND( IF ( ?dot2 > 0, ?dot2, ?dot2 * -1) AS ?pos2 )
+	
+	BIND( IF (?pos1 < ?pos2, ?rot1, ?rot2) AS ?rotate )
+	BIND( av3df:subtract(?rotate, ?velo) AS ?steering )
+	BIND( av3df:normSq(?steering) AS ?norSqSteering )
+	BIND( av3df:normalize(?steering) AS ?norSteering )
+	
+	BIND( ?maxForce + ?impactRadius * ( 1 / ?distance) AS ?force )
+	BIND( IF (?norSqSteering > ?force, av3df:scalarMultiply(?norSteering, ?force), ?steering) AS ?trunc1 )
+	BIND( av3df:scalarMultiply(?trunc1, 1 / ?mass) AS ?endSteering )
 
-	BIND( av3df:vector3D("1.0"^^xsd:float, "2.0"^^xsd:float, "3.0"^^xsd:float) AS ?vector )
-	BIND( av3df:vector3D("40.0"^^xsd:float, "50.0"^^xsd:float, "60.0"^^xsd:float) AS ?vector2 )
-
-	BIND( av3df:distance(?vector, ?vector2) AS ?distance )
-	BIND( av3df:subtract(?vector, ?vector2) AS ?subtract )
-	BIND( av3df:dot(?vector, ?vector2) AS ?dot )
-	BIND( av3df:scalarMultiply(?vector, "2.0"^^xsd:float) AS ?scalarMultiply )
-
-	BIND( av3df:normalize(?vector) AS ?normalize )
-	BIND( av3df:normSq(?vector) AS ?normSq )
-	BIND( av3df:delta(?vector) AS ?delta )
-
-	BIND( av3df:x(?vector) AS ?x )
-	BIND( av3df:y(?vector) AS ?y )
-	BIND( av3df:z(?vector) AS ?z )
+	BIND( av3df:add(?velo, ?endSteering) AS ?addVelo )
+	BIND( IF ( av3df:normSq(?addVelo) > ?maxSpeed, av3df:scalarMultiply(av3df:normalize(?addVelo),?maxSpeed), ?addVelo) AS ?newSteering )
+	
+	BIND (test:seek(?origin,?velo,?target,?steeringDot,?mass,?maxForce,?maxVelocity,?maxSpeed,?impactRadius) AS ?seek)
 }
