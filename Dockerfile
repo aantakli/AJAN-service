@@ -18,6 +18,7 @@ RUN cd /app && wget https://raw.githubusercontent.com/aantakli/AJAN-editor/maste
 
 WORKDIR /logs
 VOLUME logs
+VOLUME /app/executionservice/use-case
 
 EXPOSE 8080/tcp
 EXPOSE 8090/tcp
