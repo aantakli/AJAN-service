@@ -139,11 +139,11 @@ jobs:
           name: MOSIMPlugin
           path: ./pluginsystem/plugins/MOSIMPlugin/target/
       -
-        name: Load StandartBTNodes jar
+        name: Load StandardBTNodes jar
         uses: actions/download-artifact@v3
         with:
-          name: StandartBTNodes
-          path: ./pluginsystem/plugins/StandartBTNodes/target/
+          name: StandardBTNodes
+          path: ./pluginsystem/plugins/StandardBTNodes/target/
       -
         name: Load STRIPSPlugin jar
         uses: actions/download-artifact@v3
