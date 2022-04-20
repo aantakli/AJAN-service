@@ -121,11 +121,11 @@ jobs:
           name: executionservice
           path: .
       -
-        name: Load ASPPLugin jar
+        name: Load ASPPlugin jar
         uses: actions/download-artifact@v3
         with:
-          name: ASPPLugin
-          path: ./pluginsystem/plugins/ASPPLugin/target/
+          name: ASPPlugin
+          path: ./pluginsystem/plugins/ASPPlugin/target/
       -
         name: Load MappingPlugin jar
         uses: actions/download-artifact@v3
