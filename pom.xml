@@ -12,6 +12,7 @@
 		<module>build-resources</module>
 		<module>rdfbeans</module>
 		<module>behaviour</module>
+		<module>functions</module>
 		<module>common</module>
 		<module>triplestore</module>
 		<module>executionservice</module>
