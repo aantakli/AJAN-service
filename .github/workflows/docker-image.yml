@@ -44,7 +44,43 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: executionservice
-          path: ./executionservice/target/executionservice-0.1.jar  
+          path: ./executionservice/target/executionservice-0.1.jar
+      -
+        name: Temporally save loader
+        uses: actions/upload-artifact@v3
+        with:
+          name: executionservice
+          path: ./pluginsystem/loader/target/loader-0.1.jar
+      -
+        name: Temporally save ASPPlugin
+        uses: actions/upload-artifact@v3
+        with:
+          name: ASPPlugin
+          path: ./pluginsystem/plugins/ASPPlugin/target/ASPPlugin-0.1.jar
+      -
+        name: Temporally save MappingPlugin
+        uses: actions/upload-artifact@v3
+        with:
+          name: MappingPlugin
+          path: ./pluginsystem/plugins/MappingPlugin/target/MappingPlugin-0.1.jar
+      -
+        name: Temporally save MOSIMPlugin
+        uses: actions/upload-artifact@v3
+        with:
+          name: MOSIMPlugin
+          path: ./pluginsystem/plugins/MOSIMPlugin/target/MOSIMPlugin-0.1.jar
+      -
+        name: Temporally save StandardBTNodes
+        uses: actions/upload-artifact@v3
+        with:
+          name: StandardBTNodes
+          path: ./pluginsystem/plugins/StandardBTNodes/target/StandardBTNodes-0.1.jar
+      -
+        name: Temporally save STRIPSPlugin
+        uses: actions/upload-artifact@v3
+        with:
+          name: STRIPSPlugin
+          path: ./pluginsystem/plugins/STRIPSPlugin/target/STRIPSPlugin-0.1.jar
   docker:
     runs-on: ubuntu-latest
     needs: [build]
@@ -84,6 +120,36 @@ jobs:
         with:
           name: executionservice
           path: .
+      -
+        name: Load ASPPLugin jar
+        uses: actions/download-artifact@v3
+        with:
+          name: ASPPLugin
+          path: ./pluginsystem/plugins/ASPPLugin/target/
+      -
+        name: Load MappingPlugin jar
+        uses: actions/download-artifact@v3
+        with:
+          name: MappingPlugin
+          path: ./pluginsystem/plugins/MappingPlugin/target/
+      -
+        name: Load MOSIMPlugin jar
+        uses: actions/download-artifact@v3
+        with:
+          name: MOSIMPlugin
+          path: ./pluginsystem/plugins/MOSIMPlugin/target/
+      -
+        name: Load StandartBTNodes jar
+        uses: actions/download-artifact@v3
+        with:
+          name: StandartBTNodes
+          path: ./pluginsystem/plugins/StandartBTNodes/target/
+      -
+        name: Load STRIPSPlugin jar
+        uses: actions/download-artifact@v3
+        with:
+          name: STRIPSPlugin
+          path: ./pluginsystem/plugins/STRIPSPlugin/target/
       -
         name: Build and push
         uses: docker/build-push-action@v2
