@@ -65,11 +65,6 @@ MA 02110-1301  USA
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
-            <artifactId>loader</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.badlogicgames.gdx</groupId>
             <artifactId>gdx-ai</artifactId>
             <version>1.8.2</version>
@@ -109,11 +104,6 @@ MA 02110-1301  USA
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>de.dfki.asr.ajan</groupId>
-            <artifactId>common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
@@ -145,6 +135,16 @@ MA 02110-1301  USA
             <artifactId>jaxrs-api</artifactId>
             <version>3.0.9.Final</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
+            <artifactId>loader</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.dfki.asr.ajan</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>

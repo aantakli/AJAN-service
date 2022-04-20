@@ -124,6 +124,11 @@ MA 02110-1301  USA
             <version>3.0.9.Final</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>de.dfki.asr.ajan</groupId>
+            <artifactId>functions</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
