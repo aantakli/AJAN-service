@@ -42,6 +42,8 @@ Start AJAN-Triplestore (see below), visit `http://localhost:8090/workbench/` and
 * `-DpublicHostName=127.0.0.1`<br>-> Set the host to 127.0.0.1
 * `-DusePort=true` <br>-> Use prot in AJAN base URI (Example AJAN base URI would be `http://127.0.0.1:8080/ajan/agents`)
 * `-Dtriplestore.url=http://localhost:8090/rdf4j` <br>-> Points to the triplestore 
+* `-Dpf4j.pluginsDir=pluginsystem/plugins` <br>-> Place where the AJAN plugins are stored
+* `-Dpf4j.mode=development` <br>-> If set to 'development', then the plugins must be available as jars to be loaded, otherwise PF4J will try to load the plugins as ZIP files
 * `-DloadTTLFiles=true` <br>-> Loading of predefined models with start of AJAN service, this overwrites the existing models in the Triplestore
 * `-Dtriplestore.initialData.agentFolderPath=executionservice/use-case/agents` <br>-> Folder to predefined agents (RDF/Trig)
 * `-Dtriplestore.initialData.domainFolderPath=executionservice/use-case/domains` <br>-> Folder to predefined domain (RDF/Turtle)
