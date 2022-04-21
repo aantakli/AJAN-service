@@ -50,7 +50,7 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.repository.Repository;
 import org.xml.sax.SAXException;
-import ro.fortsoft.pf4j.Extension;
+import org.pf4j.Extension;
 
 @Extension
 @RDFBean("asp:ILASPInput")

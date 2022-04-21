@@ -21,9 +21,9 @@ package de.dfki.asr.ajan.pluginsystem.standardbtnodes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ro.fortsoft.pf4j.Plugin;
-import ro.fortsoft.pf4j.PluginWrapper;
-import ro.fortsoft.pf4j.RuntimeMode;
+import org.pf4j.Plugin;
+import org.pf4j.PluginWrapper;
+import org.pf4j.RuntimeMode;
 
 public class StandardBTNodes extends Plugin {
 	

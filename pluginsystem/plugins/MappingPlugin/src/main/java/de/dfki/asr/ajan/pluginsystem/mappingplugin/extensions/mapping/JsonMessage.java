@@ -48,7 +48,7 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.repository.Repository;
 import org.xml.sax.SAXException;
-import ro.fortsoft.pf4j.Extension;
+import org.pf4j.Extension;
 
 /**
  *

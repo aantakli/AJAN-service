@@ -25,9 +25,9 @@ import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import java.util.List;
 import lombok.Data;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanValidationException;
+import org.pf4j.DefaultPluginManager;
+import org.pf4j.PluginManager;
 import org.springframework.stereotype.Component;
-import ro.fortsoft.pf4j.DefaultPluginManager;
-import ro.fortsoft.pf4j.PluginManager;
 
 @Data
 @Component

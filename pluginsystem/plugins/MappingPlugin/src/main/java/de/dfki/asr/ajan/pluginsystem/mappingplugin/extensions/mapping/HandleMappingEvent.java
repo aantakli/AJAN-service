@@ -46,7 +46,7 @@ import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ro.fortsoft.pf4j.Extension;
+import org.pf4j.Extension;
 
 @Extension
 @RDFBean("bt:HandleMappingEvent")

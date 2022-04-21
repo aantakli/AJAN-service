@@ -47,7 +47,7 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.repository.Repository;
-import ro.fortsoft.pf4j.Extension;
+import org.pf4j.Extension;
 
 @Extension
 @RDFBean("asp:Problem")

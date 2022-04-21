@@ -29,7 +29,6 @@ import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.TreeNode;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.standardbtnodes.vocabularies.StandardBTVocabulary;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
@@ -41,7 +40,7 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-import ro.fortsoft.pf4j.Extension;
+import org.pf4j.Extension;
 
 @Extension
 @RDFBean("bt:PrioParallel")
