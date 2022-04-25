@@ -21,16 +21,25 @@ MA 02110-1301  USA
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>STRIPSPlugin</artifactId>
 	<name>STRIPSPlugin</name>
     <packaging>jar</packaging>
 
-	<parent>
+    <parent>
         <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
         <artifactId>plugins</artifactId>
         <version>0.1</version>
     </parent>
+    
+    <properties>
+        <netbeans.hint.license>licenseheader</netbeans.hint.license>
+        <plugin.id>STRIPSPlugin</plugin.id>
+        <plugin.class>de.dfki.asr.ajan.pluginsystem.stripsplugin.STRIPSPlugin</plugin.class>
+        <plugin.version>0.0.1</plugin.version>
+        <plugin.provider>Andre Antakli</plugin.provider>
+        <plugin.dependencies />
+    </properties>
 
     <dependencies>
         <dependency>
@@ -44,14 +53,15 @@ MA 02110-1301  USA
             <artifactId>StandardBTNodes</artifactId>
             <version>0.1</version>
             <type>jar</type>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
    
    <repositories>
-		<repository>
-			<id>lib</id>
-			<url>file:///${project.basedir}/lib</url>
-		</repository>
+        <repository>
+            <id>lib</id>
+            <url>file:///${project.basedir}/lib</url>
+        </repository>
     </repositories>
 
       <build>
@@ -72,7 +82,6 @@ MA 02110-1301  USA
                       loader,
                       common,
                       lombok,
-                      pf4j,
                       rdf4j-model,
                       rdf4j-repository-api</excludeArtifactIds>
                   <outputDirectory>${project.build.directory}/lib</outputDirectory>
@@ -85,7 +94,4 @@ MA 02110-1301  USA
           </plugin>
         </plugins>
       </build>
-    <properties>
-        <netbeans.hint.license>licenseheader</netbeans.hint.license>
-    </properties>
 </project>

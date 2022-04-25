@@ -24,20 +24,29 @@ MA 02110-1301  USA
     <artifactId>ASPPlugin</artifactId>
     <packaging>jar</packaging>
 	
-	<parent>
+    <parent>
         <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
         <artifactId>plugins</artifactId>
         <version>0.1</version>
     </parent>
-	
-	<repositories>
-		<repository>
-			<id>lib</id>
-			<url>file:///${project.basedir}/lib</url>
-		</repository>
+
+    <properties>
+        <netbeans.hint.license>licenseheader</netbeans.hint.license>
+        <plugin.id>ASPPlugin</plugin.id>
+        <plugin.class>de.dfki.asr.ajan.pluginsystem.aspplugin.ASPPlugin</plugin.class>
+        <plugin.version>0.0.1</plugin.version>
+        <plugin.provider>Andre Antakli</plugin.provider>
+        <plugin.dependencies />
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>lib</id>
+            <url>file:///${project.basedir}/lib</url>
+        </repository>
     </repositories>
 
-	<build>
+    <build>
         <plugins>
           <plugin>
             <artifactId>maven-dependency-plugin</artifactId>
@@ -48,7 +57,16 @@ MA 02110-1301  USA
                   <goal>copy-dependencies</goal>
                 </goals>
                 <configuration>
-                    <excludeArtifactIds>rdfbeans,gdx-ai,behaviour,loader,common,lombok,pf4j,rdf4j-model,rdf4j-repository-api</excludeArtifactIds>
+                    <excludeArtifactIds>
+                        rdfbeans,
+                        gdx-ai,
+                        behaviour,
+                        loader,
+                        common,
+                        lombok,
+                        rdf4j-model,
+                        rdf4j-repository-api
+                    </excludeArtifactIds>
                   <outputDirectory>${project.build.directory}/lib</outputDirectory>
                   <overWriteReleases>false</overWriteReleases>
                   <overWriteSnapshots>true</overWriteSnapshots>
@@ -58,8 +76,5 @@ MA 02110-1301  USA
             </executions>
           </plugin>
         </plugins>
-      </build>
-    <properties>
-        <netbeans.hint.license>licenseheader</netbeans.hint.license>
-    </properties>
+    </build>
 </project>

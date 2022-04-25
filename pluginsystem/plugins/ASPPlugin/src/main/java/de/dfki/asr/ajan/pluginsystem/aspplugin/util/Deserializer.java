@@ -25,7 +25,6 @@ import de.dfki.asr.ajan.pluginsystem.aspplugin.exception.LoadingRulesException;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.ASPRules;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.RuleSetLocation;
 import de.dfki.asr.rdfbeans.BehaviorBeanManager;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
