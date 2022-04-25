@@ -43,7 +43,6 @@ import org.cyberborean.rdfbeans.RDFBeanManager;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.eclipse.rdf4j.RDF4JException;
 import org.eclipse.rdf4j.model.*;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.repository.Repository;
@@ -61,7 +60,6 @@ public class RDFAgentBuilder extends AgentBuilder {
     protected Model initAgentModel;
     protected Resource agentResource;
 
-    protected ValueFactory vf = SimpleValueFactory.getInstance();
     private static final Logger LOG = LoggerFactory.getLogger(RDFAgentBuilder.class);
 
     public RDFAgentBuilder(final AgentTDBManager tdbManager, final Repository agentRepo, final AJANPluginLoader apl) {
@@ -95,19 +93,37 @@ public class RDFAgentBuilder extends AgentBuilder {
         url = getAgentURI();
         manageTDB = isTDBManagement();
         template = setTemplateFromResource();
+	LOG.info("--> Agent Template: " + template.stringValue() + getAgentResolved());
 	inferencing = Inferencing.NONE;
-        AgentEndpoints agentEndpoints = new AgentEndpoints(modelManager, resourceManager, agentRepo);
-        Map<URI, Event> agentEvents;
-        agentEvents = getAgentEvents(template);
-        events = agentEvents;
-        endpoints = agentEndpoints.getAgentEndpoints(template, agentTemplateModel, events);
+        readEndpointsAndEvents();
         extensions = pluginLoader.getNodeExtensions();
         setBehaviorTreesFromResource(template);
+	LOG.info("--> Agent Behaviors " + getAgentResolved());
         initialKnowledge = modelManager.getAgentInitKnowledge(vf.createIRI(url), agentResource, initAgentModel, false);
         AgentBeliefBase beliefs = createAgentKnowledge(template);
+	LOG.info("--> Agent beliefs: " + beliefs.getSparqlEndpoint() + " " + getAgentSet());
         Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
-        LOG.info("Agent with ID " + id + " is created: " + url);
+        LOG.info("--> Agent with ID " + id + " is created: " + url);
         return agent;
+    }
+
+    protected String getAgentResolved() {
+        return "for " + id + " agent resolved!";
+    }
+
+    protected String getAgentSet() {
+        return "for " + id + " agent set!";
+    }
+
+    protected void readEndpointsAndEvents() throws URISyntaxException {
+	AgentEndpoints agentEndpoints = new AgentEndpoints(modelManager, resourceManager, agentRepo);
+	LOG.info("--> Agent endpoints " + getAgentResolved());
+        Map<URI, Event> agentEvents;
+        agentEvents = getAgentEvents(template);
+	LOG.info("--> Agent events " + getAgentResolved());
+        events = agentEvents;
+        endpoints = agentEndpoints.getAgentEndpoints(template, agentTemplateModel, events);
+	LOG.info("--> Agent endpoints " + getAgentSet());
     }
 
     protected AgentBeliefBase createAgentKnowledge(final Resource agentTemplateRsc) throws URISyntaxException {
@@ -133,9 +149,11 @@ public class RDFAgentBuilder extends AgentBuilder {
         finalBehavior = null;
         if (initialBhv != null) {
             initialBehavior = getSingleRunBehavior(initialBhv, modelManager.getTemplateFromTDB(agentRepo, initialBhv));
+            LOG.info("--> Initial Behavior " + getAgentSet());
         }
         if (finalBhv != null) {
             finalBehavior = getSingleRunBehavior(finalBhv, modelManager.getTemplateFromTDB(agentRepo, finalBhv));
+            LOG.info("--> Final Behavior " + getAgentSet());
         }
         Iterator<Resource> behaviorResources = resourceManager.getBehaviorResources(agentTemplateRsc, agentTemplateModel);
         Map<Resource, Behavior> behaviorTrees = getBehaviorTrees(behaviorResources);
@@ -209,6 +227,8 @@ public class RDFAgentBuilder extends AgentBuilder {
             goal = manager.get(resource, AJANGoal.class);
         }
         catch (RDF4JException | RDFBeanException ex) {
+            LOG.error("--> Could not load AJANGoal " + resource.stringValue() + " for " + id + " agent.");
+            LOG.error(ex.getMessage());
             throw new InitializationRDFValidationException("Could not load AJANGoal " + resource.stringValue(), ex);
         }
         return goal;
@@ -225,6 +245,7 @@ public class RDFAgentBuilder extends AgentBuilder {
             }
             Model model = modelManager.getTemplateFromTDB(agentRepo, resource);
             SingleRunBehavior sglBehavior = getSingleRunBehavior(resource, model);
+            LOG.info("--> Behavior Tree for " + id + " agent added: " + resource.stringValue());
             boolean clearEKB = getClearEKB(model, resource, AJANVocabulary.BEHAVIOR_HAS_CLEAREKB);
             resourceManager.getResources(resource, model, AJANVocabulary.BEHAVIOR_HAS_TRIGGER).forEachRemaining(eventResc::add);
             bhvs.put((IRI) resource, new Behavior(sglBehavior.getName(), sglBehavior.getResource(), sglBehavior.getBehaviorTree(), clearEKB, eventResc));
@@ -253,9 +274,13 @@ public class RDFAgentBuilder extends AgentBuilder {
         try (RepositoryConnection conn = tdbManager.getBehaviorTDB().getInitializedRepository().getConnection()) {
             RDFBeanManager manager = new BehaviorBeanManager(conn, pluginLoader.getNodeExtensions());
             tree = manager.get(behaviorResource, BTRoot.class);
+            LOG.info("--> Created Behavior Tree: " + behaviorResource.stringValue() + " for " + id + " agent");
         }
         catch (RDF4JException | RDFBeanException ex) {
-            throw new InitializationRDFValidationException("Could not load BehaviorTree " + behaviorResource.stringValue() + ". A possible reason is a reference to a non-existent resource!", ex);
+            LOG.error("--> Could not load BehaviorTree " + behaviorResource.stringValue() + " for " + id + " agent. A possible reason is a reference to a non-existent resource!");
+            LOG.error(ex.getMessage());
+            LOG.error("Undone agent creation of agent with ID: " + id);
+            throw new InitializationRDFValidationException("Could not load BehaviorTree: ", ex);
         }
         return tree;
     }
