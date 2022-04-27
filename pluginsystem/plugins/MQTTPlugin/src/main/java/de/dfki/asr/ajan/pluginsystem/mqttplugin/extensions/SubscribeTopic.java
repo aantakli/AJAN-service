@@ -1,12 +1,12 @@
 package de.dfki.asr.ajan.pluginsystem.mqttplugin.extensions;
 
-import com.badlogic.gdx.ai.btree.Task;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
+import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mqttplugin.utils.MQTTUtil;
 import de.dfki.asr.ajan.pluginsystem.mqttplugin.utils.MessageService;
@@ -17,11 +17,13 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ro.fortsoft.pf4j.Extension;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 
 @Extension
@@ -38,6 +40,10 @@ public class SubscribeTopic extends AbstractTDBLeafTask implements NodeExtension
     @Getter @Setter
     private String label;
 
+    @RDF("bt:context")
+    @Getter @Setter
+    private URI mapping;
+
     @RDF("bt-mqtt:serverUrlCallback")
     @Getter @Setter
     private BehaviorSelectQuery serverUrlCallback;
@@ -46,10 +52,14 @@ public class SubscribeTopic extends AbstractTDBLeafTask implements NodeExtension
     @Getter @Setter
     private BehaviorSelectQuery subscribeDetails;
 
+//    @RDF("bt:targetBase")
+//    @Getter @Setter
+//    private URI targetBase;
+
     protected static final Logger LOG = LoggerFactory.getLogger(SubscribeTopic.class);
 
     @Override
-    public LeafStatus executeLeaf() {
+    public NodeStatus executeLeaf() {
 
         String report;
         Status stat;
@@ -58,28 +68,40 @@ public class SubscribeTopic extends AbstractTDBLeafTask implements NodeExtension
         try {
             String serverUrl = MQTTUtil.getServerUrlInfo(serverUrlCallback, this.getObject());
             String topic = MQTTUtil.getTopic(subscribeDetails, this.getObject());
-            returnMessage = subscribeToTopic(serverUrl, topic);
+            Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
+            returnMessage = subscribeToTopic(serverUrl, topic, repo);
+            report = toString()+ " SUCCEEDED";
+            stat = Status.SUCCEEDED;
         } catch (URISyntaxException e) {
             LOG.error("Error while fetching info"+e.getMessage());
             returnMessage = null;
+            report = toString()+ "FAILED";
+            stat = Status.FAILED;
         }
 
-        if(returnMessage !=null){
-            report = toString()+ " SUCCEEDED";
-            stat = Status.SUCCEEDED;
-        } else {
-          report = toString()+ "FAILED";
-          stat = Status.FAILED;
-        }
+//        if(returnMessage !=null){
+//            report = toString()+ " SUCCEEDED";
+//            stat = Status.SUCCEEDED;
+//        } else {
+//          report = toString()+ "FAILED";
+//          stat = Status.FAILED;
+//        }
 
         LOG.info(report);
-        return new LeafStatus(stat, report);
+        return new NodeStatus(stat, report);
     }
 
-    private String subscribeToTopic(String serverUrl, String topic) {
+    private String subscribeToTopic(String serverUrl, String topic, Repository repo) {
         MessageService messageService = MessageService.getMessageService(serverUrl);
-        return messageService.subscribe(topic);
+        URI targetBase = null;
+//        URI mapping = null;
+        return messageService.subscribe(topic, false, null, this.getObject(), mapping, targetBase,repo,
+                this.getObject().getAgentBeliefs(),this.getObject().getEventInformation(), null);
     }
+
+
+
+
 
     @Override
     public void end() {

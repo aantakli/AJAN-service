@@ -1,7 +1,5 @@
 package de.dfki.asr.ajan.pluginsystem.mqttplugin.endpoint;
 
-import de.dfki.asr.ajan.logic.agent.AgentManager;
-import de.dfki.asr.ajan.pluginsystem.extensionpoints.EndpointExtension;
 import de.dfki.asr.ajan.pluginsystem.mqttplugin.utils.MessageService;
 import io.moquette.broker.Server;
 import io.moquette.broker.config.ClasspathResourceLoader;
@@ -72,7 +70,7 @@ public class MQTTPluginServer {
 
     private static String subscribeTopic(String topic) {
         MessageService messageService = MessageService.getMessageService(serverUrl);
-        String result = messageService.subscribe(topic);
+        String result = messageService.subscribe(topic, true, null, null, null, null, null, null, null, null);
         log.info("Subscribed to "+topic+" and got Message: "+result);
         return result;
     }

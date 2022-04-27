@@ -14,6 +14,7 @@ import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.slf4j.Logger;
@@ -22,14 +23,15 @@ import org.springframework.stereotype.Component;
 import ro.fortsoft.pf4j.Extension;
 
 import java.net.URISyntaxException;
-import java.util.Map;
 
 @Extension
 @Component
-@RDFBean("bt-mqtt:PublishMessage")
-public class PublishMessage extends AbstractTDBLeafTask implements NodeExtension {
+@RDFBean("bt-mqtt:UnsubscribeTopic")
+public class UnsubscribeTopic extends AbstractTDBLeafTask implements NodeExtension {
+
     @RDFSubject
-    @Getter @Setter
+    @Getter
+    @Setter
     private String url;
 
     @RDF("rdfs:label")
@@ -40,50 +42,34 @@ public class PublishMessage extends AbstractTDBLeafTask implements NodeExtension
     @Getter @Setter
     private BehaviorSelectQuery serverUrlCallback;
 
-    @RDF("bt-mqtt:publishDetails")
+    @RDF("bt-mqtt:subscribeDetails")
     @Getter @Setter
-    private BehaviorSelectQuery publishDetails;
+    private BehaviorSelectQuery subscribeDetails;
 
-    private String topic;
-    private String message;
-
-
-    protected static final Logger LOG = LoggerFactory.getLogger(PublishMessage.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(UnsubscribeTopic.class);
 
     @Override
-    public NodeStatus executeLeaf() {
-
+    public NodeStatus executeLeaf(){
         String report;
         Status stat;
         try {
             String serverUrl = MQTTUtil.getServerUrlInfo(serverUrlCallback, this.getObject());
-            Map<String,String> publishDetailsResult = MQTTUtil.getPublishInfo(publishDetails, this.getObject());
-            if(!publishDetailsResult.isEmpty()){
-                Map.Entry<String,String> entry = publishDetailsResult.entrySet().iterator().next();
-                topic = entry.getKey();
-                message = entry.getValue();
-            }
-            publishMessage(serverUrl, topic, message);
-//            MQTTPluginServer.publishMessage(topic, message);
-            report = toString()+ " SUCCEEDED";
+            String topic = MQTTUtil.getTopic(subscribeDetails, this.getObject());
+            unsubscribeTopic(serverUrl, topic);
             stat = Status.SUCCEEDED;
-        } catch (URISyntaxException e) {
+            report = "SUCCEEDED";
+        } catch (URISyntaxException | MqttException e) {
             LOG.error("Error while fetching info"+e.getMessage());
             report = toString()+ "FAILED";
             stat = Status.FAILED;
         }
 
-        LOG.info(report);
         return new NodeStatus(stat, report);
     }
 
-    private void publishMessage(String serverUrl, String topic, String message) {
+    private void unsubscribeTopic(String serverUrl, String topic) throws MqttException {
         MessageService messageService = MessageService.getMessageService(serverUrl);
-        if(messageService.publish(topic, message)){
-            LOG.info("Published the message to topic : "+topic);
-        } else {
-            LOG.error("Error in publishing message to the topic: "+topic);
-        }
+        messageService.unsubscribe(topic);
     }
 
     @Override
@@ -93,22 +79,21 @@ public class PublishMessage extends AbstractTDBLeafTask implements NodeExtension
 
     @Override
     public String toString(){
-        return "PublishMessage ("+getStatus()+")";
+        return "SubscribeTopic ("+getStatus()+")";
     }
 
     @Override
-    public EvaluationResult.Result simulateNodeLogic(final EvaluationResult result,final Resource root) {
+    public EvaluationResult.Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
         return EvaluationResult.Result.UNCLEAR;
     }
 
     @Override
     public Resource getType() {
-        return vf.createIRI("http://ajan.de/behavior/mqtt-ns#PublishMessage");
+        return vf.createIRI("http://ajan.de/behavior/mqtt-ns#SubscribeTopic");
     }
 
     @Override
     public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
         return super.getModel(model, root, mode);
     }
-
 }

@@ -1,5 +1,10 @@
 package de.dfki.asr.ajan.pluginsystem.mqttplugin.extensions;
 
+import de.dfki.asr.ajan.behaviour.events.Event;
+import de.dfki.asr.ajan.behaviour.events.MappingEvent;
+import de.dfki.asr.ajan.behaviour.events.ModelEvent;
+import de.dfki.asr.ajan.behaviour.events.ModelQueueEvent;
+import de.dfki.asr.ajan.behaviour.exception.EventEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -16,20 +21,23 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ro.fortsoft.pf4j.Extension;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
 @Extension
 @Component
-@RDFBean("bt-mqtt:PublishMessage")
-public class PublishMessage extends AbstractTDBLeafTask implements NodeExtension {
+@RDFBean("bt-mqtt:SubscribeTopicEventHandled")
+public class SubscribeTopicEventHandled extends AbstractTDBLeafTask implements NodeExtension {
     @RDFSubject
-    @Getter @Setter
+    @Getter
+    @Setter
     private String url;
 
     @RDF("rdfs:label")
@@ -40,52 +48,59 @@ public class PublishMessage extends AbstractTDBLeafTask implements NodeExtension
     @Getter @Setter
     private BehaviorSelectQuery serverUrlCallback;
 
-    @RDF("bt-mqtt:publishDetails")
+    @RDF("bt-mqtt:subscribeDetails")
     @Getter @Setter
-    private BehaviorSelectQuery publishDetails;
+    private BehaviorSelectQuery subscribeDetails;
 
-    private String topic;
-    private String message;
+    @RDF("ajan:goal")
+    @Getter @Setter
+    private URI goalEventURI;
 
+    @RDF("bt:context")
+    @Getter @Setter
+    private URI mapping;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(PublishMessage.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SubscribeTopicEventHandled.class);
 
     @Override
     public NodeStatus executeLeaf() {
-
         String report;
         Status stat;
+        String returnMessage;
         try {
             String serverUrl = MQTTUtil.getServerUrlInfo(serverUrlCallback, this.getObject());
-            Map<String,String> publishDetailsResult = MQTTUtil.getPublishInfo(publishDetails, this.getObject());
-            if(!publishDetailsResult.isEmpty()){
-                Map.Entry<String,String> entry = publishDetailsResult.entrySet().iterator().next();
-                topic = entry.getKey();
-                message = entry.getValue();
-            }
-            publishMessage(serverUrl, topic, message);
-//            MQTTPluginServer.publishMessage(topic, message);
+            String topic = MQTTUtil.getTopic(subscribeDetails, this.getObject());
+            Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
+            returnMessage = subscribeToTopic(serverUrl, topic, repo);
             report = toString()+ " SUCCEEDED";
             stat = Status.SUCCEEDED;
-        } catch (URISyntaxException e) {
+        } catch (URISyntaxException | EventEvaluationException e) {
             LOG.error("Error while fetching info"+e.getMessage());
+            returnMessage = null;
             report = toString()+ "FAILED";
             stat = Status.FAILED;
         }
-
         LOG.info(report);
         return new NodeStatus(stat, report);
     }
-
-    private void publishMessage(String serverUrl, String topic, String message) {
+    private String subscribeToTopic(String serverUrl, String topic, Repository repo) throws EventEvaluationException {
         MessageService messageService = MessageService.getMessageService(serverUrl);
-        if(messageService.publish(topic, message)){
-            LOG.info("Published the message to topic : "+topic);
-        } else {
-            LOG.error("Error in publishing message to the topic: "+topic);
-        }
+        return messageService.subscribe(topic, true, goalEventURI, this.getObject(), mapping,null, repo, this.getObject().getAgentBeliefs(), null, getEvent());
     }
 
+    private Event getEvent() throws EventEvaluationException {
+        Map<URI,Event> events = this.getObject().getEvents();
+        if (events.containsKey(goalEventURI)) {
+            if (events.get(goalEventURI) instanceof ModelEvent || events.get(goalEventURI) instanceof ModelQueueEvent
+                    || events.get(goalEventURI) instanceof MappingEvent) {
+                return events.get(goalEventURI);
+            } else {
+                throw new EventEvaluationException("Event is no ModelEvent or Mapping Event");
+            }
+        } else {
+            throw new EventEvaluationException("No such Event defined");
+        }
+    }
     @Override
     public void end() {
         LOG.info("Status ("+getStatus()+")");
@@ -93,22 +108,21 @@ public class PublishMessage extends AbstractTDBLeafTask implements NodeExtension
 
     @Override
     public String toString(){
-        return "PublishMessage ("+getStatus()+")";
+        return "SubscribeTopicEventHandled ("+getStatus()+")";
     }
 
     @Override
-    public EvaluationResult.Result simulateNodeLogic(final EvaluationResult result,final Resource root) {
+    public EvaluationResult.Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
         return EvaluationResult.Result.UNCLEAR;
     }
 
     @Override
     public Resource getType() {
-        return vf.createIRI("http://ajan.de/behavior/mqtt-ns#PublishMessage");
+        return vf.createIRI("http://ajan.de/behavior/mqtt-ns#SubscribeTopicEventHandled");
     }
 
     @Override
     public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
         return super.getModel(model, root, mode);
     }
-
 }

@@ -4,7 +4,7 @@ import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.LeafStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mqttplugin.endpoint.MQTTPluginServer;
 import de.dfki.asr.ajan.pluginsystem.mqttplugin.utils.MessageService;
@@ -54,7 +54,7 @@ public class CreateMQTTBroker extends AbstractTDBLeafTask implements NodeExtensi
     }
 
     @Override
-    public LeafStatus executeLeaf() {
+    public NodeStatus executeLeaf() {
         String report = toString();
         try {
             LOG.info("Starting the MQTT Server");
@@ -62,12 +62,12 @@ public class CreateMQTTBroker extends AbstractTDBLeafTask implements NodeExtensi
         } catch (Exception e){
             report += "FAILED";
             LOG.info(report);
-            return new LeafStatus(Status.FAILED, report);
+            return new NodeStatus(Status.FAILED, report);
         }
 //        System.out.println("Port"+clPort);
         report += "SUCCEEDED";
         LOG.info(report);
-        return new LeafStatus(Status.SUCCEEDED, report);
+        return new NodeStatus(Status.SUCCEEDED, report);
     }
 
     private void startBroker() throws URISyntaxException {
