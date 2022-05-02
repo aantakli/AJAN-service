@@ -76,14 +76,16 @@ public class MessageService {
 
         if(messageServiceInstance == null){
             messageServiceInstance = new MessageService(broker);
-        } else if (!_mqttClient.getServerURI().equals(broker)){
+        }
+        if (!_mqttClient.getServerURI().equals(broker)){
             try {
                 _mqttClient.disconnect().waitForCompletion();
             } catch (MqttException e) {
                 LOG.error("Error while disconnecting existing client:"+e.getMessage());
             }
             messageServiceInstance = new MessageService(broker);
-        } else if(!_mqttClient.isConnected()){
+        }
+        if(!_mqttClient.isConnected()){
             try {
                 _mqttClient.connect(getOptions()).waitForCompletion();
             } catch (MqttException e) {
