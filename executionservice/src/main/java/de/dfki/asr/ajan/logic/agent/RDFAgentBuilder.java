@@ -103,7 +103,7 @@ public class RDFAgentBuilder extends AgentBuilder {
         AgentBeliefBase beliefs = createAgentKnowledge(template);
 	LOG.info("--> Agent beliefs: " + beliefs.getSparqlEndpoint() + " " + getAgentSet());
         Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
-        LOG.info("--> Agent with ID " + id + " is created: " + url);
+        LOG.info("Created agent with ID " + id + ": " + url);
         return agent;
     }
 
