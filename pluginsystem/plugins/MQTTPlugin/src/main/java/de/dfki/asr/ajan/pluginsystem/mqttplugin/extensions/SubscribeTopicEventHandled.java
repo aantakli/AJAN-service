@@ -56,10 +56,6 @@ public class SubscribeTopicEventHandled extends AbstractTDBLeafTask implements N
     @Getter @Setter
     private URI goalEventURI;
 
-    @RDF("bt:context")
-    @Getter @Setter
-    private URI mapping;
-
     protected static final Logger LOG = LoggerFactory.getLogger(SubscribeTopicEventHandled.class);
 
     @Override
@@ -85,7 +81,7 @@ public class SubscribeTopicEventHandled extends AbstractTDBLeafTask implements N
     }
     private String subscribeToTopic(String serverUrl, String topic, Repository repo) throws EventEvaluationException {
         MessageService messageService = MessageService.getMessageService(serverUrl);
-        return messageService.subscribe(topic, true, goalEventURI, this.getObject(), mapping,null, repo, this.getObject().getAgentBeliefs(), null, getEvent());
+        return messageService.subscribe(topic, true, goalEventURI, this.getObject(), null,null, repo, this.getObject().getAgentBeliefs(), null, getEvent());
     }
 
     private Event getEvent() throws EventEvaluationException {
