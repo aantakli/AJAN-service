@@ -117,7 +117,7 @@ public class AgentModelManager {
 		return nameLiteral.getLabel();
 	}
 
-        public String getString(final Model model, final String errorText) {
+        public String getString(final Model model) {
 		Optional<Literal> string = Models.objectLiteral(model);
 		if (!string.isPresent()) {
 			return null;

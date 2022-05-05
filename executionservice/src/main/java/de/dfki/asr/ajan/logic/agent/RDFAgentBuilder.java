@@ -22,13 +22,11 @@ package de.dfki.asr.ajan.logic.agent;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.common.*;
 import de.dfki.asr.ajan.exceptions.InitializationRDFValidationException;
-import de.dfki.asr.ajan.model.Agent;
 import de.dfki.asr.ajan.behaviour.events.*;
 import de.dfki.asr.ajan.common.TripleStoreManager.Inferencing;
 import de.dfki.asr.ajan.data.*;
 import de.dfki.asr.ajan.knowledge.AgentBeliefBase;
-import de.dfki.asr.ajan.model.Behavior;
-import de.dfki.asr.ajan.model.SingleRunBehavior;
+import de.dfki.asr.ajan.model.*;
 import de.dfki.asr.ajan.pluginsystem.AJANPluginLoader;
 import de.dfki.asr.rdfbeans.BehaviorBeanManager;
 import java.net.URI;
@@ -42,6 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.cyberborean.rdfbeans.RDFBeanManager;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.eclipse.rdf4j.RDF4JException;
+import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
@@ -86,7 +85,7 @@ public class RDFAgentBuilder extends AgentBuilder {
     }
 
     @Override
-    public Agent build() throws URISyntaxException {
+    public Agent build() throws UnauthorizedException, URISyntaxException {
         connections = new ConcurrentHashMap<>();
         id = getIdFromModel();
         LOG.info("Creating agent with ID: " + id);
@@ -102,7 +101,10 @@ public class RDFAgentBuilder extends AgentBuilder {
         initialKnowledge = modelManager.getAgentInitKnowledge(vf.createIRI(url), agentResource, initAgentModel, false);
         Credentials auth = readCredentials();
         AgentBeliefBase beliefs = createAgentKnowledge(template, auth);
-	LOG.info("--> Agent beliefs: " + beliefs.getSparqlEndpoint() + " " + getAgentSet());
+        if (beliefs == null) {
+            return null;
+        }
+        LOG.info("--> Agent beliefs: " + beliefs.getSparqlEndpoint() + " " + getAgentSet());
         Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
         LOG.info("Created agent with ID " + id + ": " + url);
         return agent;
@@ -127,19 +129,31 @@ public class RDFAgentBuilder extends AgentBuilder {
 	LOG.info("--> Agent endpoints " + getAgentSet());
     }
 
-    protected AgentBeliefBase createAgentKnowledge(final Resource agentTemplateRsc, final Credentials auth) throws URISyntaxException {
+    protected AgentBeliefBase createAgentKnowledge(final Resource agentTemplateRsc, final Credentials auth) throws UnauthorizedException, URISyntaxException {
         AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,manageTDB,Inferencing.NONE, auth));
-        addAgentInformationToKnowledge(beliefs);
-        reportURI = modelManager.getReportURI(initialKnowledge);
-        beliefs.update(initialKnowledge);
-        if (initialBehavior != null) {
-            configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource(), true);
+        try {
+            addAgentInformationToKnowledge(beliefs);
+            reportURI = modelManager.getReportURI(initialKnowledge);
+            beliefs.update(initialKnowledge);
+            if (initialBehavior != null) {
+                configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource(), true);
+            }
+            if (finalBehavior != null) {
+                configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), initialBehavior.getResource(), true);
+            }
+            configureBehaviorTrees(beliefs);
+            return beliefs;
+        } catch (UnauthorizedException ex) {
+            removeAgentBeliefs(beliefs);
+            return null;
         }
-        if (finalBehavior != null) {
-            configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), initialBehavior.getResource(), true);
-        }
-        configureBehaviorTrees(beliefs);
-        return beliefs;
+    }
+
+    private void removeAgentBeliefs(final AgentBeliefBase beliefs) {
+        LOG.info("Authentication with knowledge base not successful!");
+        LOG.info("Please check the credentials!");
+        tdbManager.deleteAgentTDB(beliefs);
+        LOG.error("Undone agent creation of agent with ID: " + id);
     }
 
     @SuppressWarnings("PMD.NullAssignment")
@@ -177,9 +191,9 @@ public class RDFAgentBuilder extends AgentBuilder {
 
     private Credentials readCredentials() {
         Model userModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_USER, null);
-        String user = modelManager.getString(userModel, "test");
+        String user = modelManager.getString(userModel);
         Model pswdModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_PASSWORD, null);
-        String pswd = modelManager.getString(pswdModel, "test");
+        String pswd = modelManager.getString(pswdModel);
         if(user != null && user.equals("") && pswd != null && pswd.equals("")) {
             return new Credentials(user, pswd);
         }
