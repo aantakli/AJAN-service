@@ -36,7 +36,7 @@ public class RDF4JTripleDataBase extends SparqlTripleDataBase {
 	@Override
 	public Repository getInitializedRepository() {
 		if (!repo.isInitialized()) {
-			repo.initialize();
+			repo.init();
 		}
 		return repo;
 	}

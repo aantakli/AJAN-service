@@ -176,7 +176,7 @@ public final class BTUtil {
 			// TODO: General Repository desription for SPARQL + Update Endpoints
 			// -----------------------------------------------------------------
 			repo = new SPARQLRepository(url.toString(), url.toString());
-			repo.initialize();
+			repo.init();
 		}
 		return repo;
 	}

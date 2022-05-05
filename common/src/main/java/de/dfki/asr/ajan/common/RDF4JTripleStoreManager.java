@@ -47,6 +47,7 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 
 	public RDF4JTripleStoreManager(final URL url) {
 		repositoryManager = RepositoryProvider.getRepositoryManager(url.toString());
+		repositoryManager.init();
 	}
 
 	/**
