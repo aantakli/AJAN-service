@@ -33,6 +33,12 @@ public class RDF4JTripleDataBase extends SparqlTripleDataBase {
 		repo = new HTTPRepository(info.getLocation().toString());
 	}
 
+	public RDF4JTripleDataBase(final RepositoryInfo info, final Credentials auth) throws MalformedURLException {
+		super(info.getId(), info.getLocation(), new URL(info.getLocation().toString() + "/statements"));
+		repo = new HTTPRepository(info.getLocation().toString());
+		repo.setUsernameAndPassword(auth.getUser(), auth.getPassword());
+	}
+
 	@Override
 	public Repository getInitializedRepository() {
 		if (!repo.isInitialized()) {

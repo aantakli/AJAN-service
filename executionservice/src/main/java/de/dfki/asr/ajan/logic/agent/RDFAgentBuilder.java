@@ -100,7 +100,8 @@ public class RDFAgentBuilder extends AgentBuilder {
         setBehaviorTreesFromResource(template);
 	LOG.info("--> Agent Behaviors " + getAgentResolved());
         initialKnowledge = modelManager.getAgentInitKnowledge(vf.createIRI(url), agentResource, initAgentModel, false);
-        AgentBeliefBase beliefs = createAgentKnowledge(template);
+        Credentials auth = readCredentials();
+        AgentBeliefBase beliefs = createAgentKnowledge(template, auth);
 	LOG.info("--> Agent beliefs: " + beliefs.getSparqlEndpoint() + " " + getAgentSet());
         Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
         LOG.info("Created agent with ID " + id + ": " + url);
@@ -126,8 +127,8 @@ public class RDFAgentBuilder extends AgentBuilder {
 	LOG.info("--> Agent endpoints " + getAgentSet());
     }
 
-    protected AgentBeliefBase createAgentKnowledge(final Resource agentTemplateRsc) throws URISyntaxException {
-        AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,manageTDB,Inferencing.NONE));
+    protected AgentBeliefBase createAgentKnowledge(final Resource agentTemplateRsc, final Credentials auth) throws URISyntaxException {
+        AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,manageTDB,Inferencing.NONE, auth));
         addAgentInformationToKnowledge(beliefs);
         reportURI = modelManager.getReportURI(initialKnowledge);
         beliefs.update(initialKnowledge);
@@ -172,6 +173,17 @@ public class RDFAgentBuilder extends AgentBuilder {
         String agentID = modelManager.getLabel(idModel, "No AgentTemplate-literal for " + AJANVocabulary.AGENT_HAS_ID + " defined");
         id = agentID;
         return agentID;
+    }
+
+    private Credentials readCredentials() {
+        Model userModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_USER, null);
+        String user = modelManager.getString(userModel, "test");
+        Model pswdModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_PASSWORD, null);
+        String pswd = modelManager.getString(pswdModel, "test");
+        if(user != null && user.equals("") && pswd != null && pswd.equals("")) {
+            return new Credentials(user, pswd);
+        }
+        return null;
     }
 
     private boolean isTDBManagement() {
@@ -255,7 +267,7 @@ public class RDFAgentBuilder extends AgentBuilder {
 
     private boolean getClearEKB(final Model model, final Resource resource, final IRI predicate) {
         if (!model.filter(resource, predicate, null).objects().isEmpty()) {
-        Value clearEKB = model.filter(resource, predicate, null).objects().stream().findFirst().get();
+            Value clearEKB = model.filter(resource, predicate, null).objects().stream().findFirst().get();
             if(clearEKB.isLiteral()) {
                 return Boolean.parseBoolean(clearEKB.stringValue());
             }

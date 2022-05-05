@@ -117,6 +117,15 @@ public class AgentModelManager {
 		return nameLiteral.getLabel();
 	}
 
+        public String getString(final Model model, final String errorText) {
+		Optional<Literal> string = Models.objectLiteral(model);
+		if (!string.isPresent()) {
+			return null;
+		}
+		Literal nameLiteral = string.get();
+		return nameLiteral.getLabel();
+	}
+
         public boolean getBoolean(final Model model) {
 		Optional<Literal> bool = Models.objectLiteral(model);
 		if (!bool.isPresent()) {

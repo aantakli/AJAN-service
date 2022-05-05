@@ -19,6 +19,7 @@
 
 package de.dfki.asr.ajan.data;
 
+import de.dfki.asr.ajan.common.Credentials;
 import de.dfki.asr.ajan.common.TripleDataBase;
 import de.dfki.asr.ajan.common.TripleStoreManager;
 import de.dfki.asr.ajan.common.TripleStoreManager.Inferencing;
@@ -42,7 +43,7 @@ public class AgentTDBManager {
 		this.tdbManager = manager;
 	}
 
-	public TripleDataBase createAgentTDB(final String id, final boolean overwrite, final Inferencing infer) {
-		return tdbManager.createTripleDataBase(id, overwrite, infer);
+	public TripleDataBase createAgentTDB(final String id, final boolean overwrite, final Inferencing infer, final Credentials auth) {
+		return tdbManager.createSecuredTripleDataBase(id, overwrite, infer, auth);
 	}
 }

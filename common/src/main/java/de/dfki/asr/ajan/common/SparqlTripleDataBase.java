@@ -73,8 +73,8 @@ public class SparqlTripleDataBase implements TripleDataBase {
 
 	@Override
 	public Repository getInitializedRepository() {
-		Repository repository = new SPARQLRepository(sparqlEndpoint.toString(), sparqlUpdateEndpoint.toString());
-		repository.initialize();
-		return repository;
+		SPARQLRepository repo = new SPARQLRepository(sparqlEndpoint.toString(), sparqlUpdateEndpoint.toString());
+		repo.init();
+		return repo;
 	}
 }

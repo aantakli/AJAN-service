@@ -28,9 +28,8 @@ import java.util.stream.Collectors;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.config.RepositoryConfig;
 import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
+import org.eclipse.rdf4j.repository.manager.RemoteRepositoryManager;
 import org.eclipse.rdf4j.repository.manager.RepositoryInfo;
-import org.eclipse.rdf4j.repository.manager.RepositoryManager;
-import org.eclipse.rdf4j.repository.manager.RepositoryProvider;
 import org.eclipse.rdf4j.repository.sail.config.SailRepositoryConfig;
 import org.eclipse.rdf4j.sail.config.SailImplConfig;
 import org.eclipse.rdf4j.sail.inferencer.fc.config.DedupingInferencerConfig;
@@ -43,10 +42,11 @@ import org.slf4j.LoggerFactory;
 public class RDF4JTripleStoreManager implements TripleStoreManager {
 	private static final Logger LOG = LoggerFactory.getLogger(RDF4JTripleStoreManager.class);
 
-	private final RepositoryManager repositoryManager;
+	private final RemoteRepositoryManager repositoryManager;
 
 	public RDF4JTripleStoreManager(final URL url) {
-		repositoryManager = RepositoryProvider.getRepositoryManager(url.toString());
+		repositoryManager = new RemoteRepositoryManager(url.toString());
+		repositoryManager.setUsernameAndPassword("role1", "tomcat");
 		repositoryManager.init();
 	}
 
@@ -71,18 +71,31 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 
 	@Override
 	public TripleDataBase createTripleDataBase(final String tdbId, final boolean overwrite, final Inferencing useInferencing) throws TripleStoreException {
-		String com = "Accessed";
 		try {
-			if (overwrite) {
-				createRemoteRepositiories(tdbId,useInferencing);
-				com = "Created";
-			}
-			RepositoryInfo info = repositoryManager.getRepositoryInfo(tdbId);
-			LOG.info(com + " TDB with ID {} at {}", tdbId, getSparqlEndpoint(info, ""));
-			return convertToTripleDataBase(info);
+			return convertToTripleDataBase(getInfos(tdbId, overwrite, useInferencing), null);
 		} catch (RepositoryConfigException | RepositoryException ex) {
 			throw new TripleStoreException("Error setting up the repository: " + ex.toString(), ex);
 		}
+	}
+
+	@Override
+	public TripleDataBase createSecuredTripleDataBase(final String tdbId, final boolean overwrite, final Inferencing useInferencing, final Credentials auth) throws TripleStoreException {
+		try {
+			return convertToTripleDataBase(getInfos(tdbId, overwrite, useInferencing), auth);
+		} catch (RepositoryConfigException | RepositoryException ex) {
+			throw new TripleStoreException("Error setting up the repository: " + ex.toString(), ex);
+		}
+	}
+
+	private RepositoryInfo getInfos(final String tdbId, final boolean overwrite, final Inferencing useInferencing) {
+		String com = "Accessed";
+		if (overwrite) {
+			createRemoteRepositiories(tdbId,useInferencing);
+			com = "Created";
+		}
+		RepositoryInfo info = repositoryManager.getRepositoryInfo(tdbId);
+		LOG.info(com + " TDB with ID {} at {}", tdbId, getSparqlEndpoint(info, ""));
+		return info;
 	}
 
 	private void createRemoteRepositiories(final String tdbId, final Inferencing useInferencing) {
@@ -134,8 +147,11 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 		repositoryManager.addRepositoryConfig(config);
 	}
 
-	private TripleDataBase convertToTripleDataBase(final RepositoryInfo info) {
+	private TripleDataBase convertToTripleDataBase(final RepositoryInfo info, final Credentials auth) {
 		try {
+			if (auth != null) {
+				return new RDF4JTripleDataBase(info, auth);
+			}
 			return new RDF4JTripleDataBase(info);
 		} catch (MalformedURLException ex) {
 			throw new TripleStoreException("RDF4J is returning invalid URLs", ex);
@@ -155,7 +171,7 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 	public Set<TripleDataBase> getAllTripleDataBases() {
 		Collection<RepositoryInfo> repoInfos = repositoryManager.getAllRepositoryInfos(true);
 		return repoInfos.stream()
-			.map(info -> convertToTripleDataBase(info))
+			.map(info -> convertToTripleDataBase(info, null))
 			.collect(Collectors.toSet());
 	}
 
