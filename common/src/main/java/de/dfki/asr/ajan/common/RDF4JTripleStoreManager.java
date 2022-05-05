@@ -46,7 +46,12 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 
 	public RDF4JTripleStoreManager(final URL url) {
 		repositoryManager = new RemoteRepositoryManager(url.toString());
-		repositoryManager.setUsernameAndPassword("role1", "tomcat");
+		repositoryManager.init();
+	}
+
+	public RDF4JTripleStoreManager(final URL url, final Credentials auth) {
+		repositoryManager = new RemoteRepositoryManager(url.toString());
+		repositoryManager.setUsernameAndPassword(auth.getUser(), auth.getPassword());
 		repositoryManager.init();
 	}
 

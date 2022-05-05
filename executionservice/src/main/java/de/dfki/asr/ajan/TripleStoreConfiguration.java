@@ -19,6 +19,7 @@
 
 package de.dfki.asr.ajan;
 
+import de.dfki.asr.ajan.common.Credentials;
 import de.dfki.asr.ajan.common.RDF4JTripleStoreManager;
 import de.dfki.asr.ajan.common.TripleStoreManager;
 import java.net.MalformedURLException;
@@ -29,13 +30,20 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class TripleStoreConfiguration {
-	public final static String CONFIG_PROPERTY = "${triplestore.url:http://localhost:8090/rdf4j}";
-
-	@Value(CONFIG_PROPERTY)
+	@Value("${triplestore.url:http://localhost:8090/rdf4j}")
 	private String tripleStoreURL;
+
+        @Value("${triplestore.user:}")
+	private String user;
+
+        @Value("${triplestore.pswd:}")
+	private String pswd;
 
 	@Bean
 	public TripleStoreManager createManager() throws MalformedURLException {
-		return new RDF4JTripleStoreManager(new URL(tripleStoreURL));
+            if (user != null && !user.isEmpty() && pswd != null && !pswd.isEmpty()) {
+                return new RDF4JTripleStoreManager(new URL(tripleStoreURL), new Credentials(user, pswd));
+            }
+            return new RDF4JTripleStoreManager(new URL(tripleStoreURL));
 	}
 }
