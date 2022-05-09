@@ -58,8 +58,6 @@ public class PublishMessageRDF extends AbstractTDBLeafTask implements NodeExtens
     @Getter @Setter
     private BehaviorConstructQuery constructQuery;
 
-    private String topic;
-    private String message;
 
     protected static final Logger LOG = LoggerFactory.getLogger(PublishMessageRDF.class);
 
@@ -69,12 +67,7 @@ public class PublishMessageRDF extends AbstractTDBLeafTask implements NodeExtens
         Status stat;
         try {
             String serverUrl= MQTTUtil.getServerUrlInfo(serverUrlCallback, this.getObject());
-            Map<String,String> publishDetailsResult = MQTTUtil.getPublishInfo(publishDetails, this.getObject());
-            if(!publishDetailsResult.isEmpty()){
-                Map.Entry<String,String> entry = publishDetailsResult.entrySet().iterator().next();
-                topic = entry.getKey();
-                message = entry.getValue();
-            }
+            String topic = MQTTUtil.getTopic(publishDetails, this.getObject());
             // execute the query
             Repository repo = BTUtil.getInitializedRepository(getObject(), constructQuery.getOriginBase());
             Model model = constructQuery.getResult(repo);
