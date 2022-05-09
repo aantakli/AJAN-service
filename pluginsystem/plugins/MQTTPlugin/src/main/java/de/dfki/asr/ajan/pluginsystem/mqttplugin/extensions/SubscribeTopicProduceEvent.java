@@ -33,8 +33,8 @@ import java.util.Map;
 
 @Extension
 @Component
-@RDFBean("bt-mqtt:SubscribeTopicEventHandled")
-public class SubscribeTopicEventHandled extends AbstractTDBLeafTask implements NodeExtension {
+@RDFBean("bt-mqtt:SubscribeTopicProduceEvent")
+public class SubscribeTopicProduceEvent extends AbstractTDBLeafTask implements NodeExtension {
     @RDFSubject
     @Getter
     @Setter
@@ -56,7 +56,7 @@ public class SubscribeTopicEventHandled extends AbstractTDBLeafTask implements N
     @Getter @Setter
     private URI goalEventURI;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(SubscribeTopicEventHandled.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SubscribeTopicProduceEvent.class);
 
     @Override
     public NodeStatus executeLeaf() {
