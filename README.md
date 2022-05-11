@@ -53,3 +53,32 @@ Pre-modelled agent templates, behaviors, service definitions and domain knowledg
 ## Examples
 
 For examples, we refere to the [AJAN-service Wiki](https://github.com/aantakli/AJAN-service/wiki/1-AJAN-Overview).
+
+## Plugins
+### MQTT Plugin
+
+MQTT Plugin is the plugin used to communicate using the MQTT Protocol. For more details visit https://mqtt.org/
+
+Following are the different types of Nodes that is part of MQTT Plugin:
+- For MQTT Broker:
+	- CreateMQTTBroker (Creates the MQTT Broker)
+	- DeleteMQTTBroker (Deleted the created MQTT Broker)
+- For Communication:
+	- PublishMessage (Publish a message to a provided topic)
+	- PublishMessageRDF (Publish a message in RDF string to a provided topic)
+	- SubscribeTopic (Subscribe to a provided topic and wait until message received or timeout and unsubscribe. Store the message received in knowledge base)
+	- SubscribeTopicAlwaysListen (Subscribe to a provided topic and receive message asynchronously. Store the message received in knowledge base)
+	- SubscribeTopicProduceEvent (Subscribe to a provided topic and fire an event on receiving message)
+	- UnsubscribeTopic (Unsubscribe the subscribed topic)
+
+### Testing Environment:
+Inorder to work with MQTT Publish and Subscribe, we need a working MQTT Broker setup. We could also use the CreateMQTTBroker provided here but it might be more convenient to set up our own MQTT Broker.
+To do so:
+- Install a MQTT Message Broker such as [Mosquitto](https://mosquitto.org/download/)
+- Make sure you enter the path to mosquitto in envionmental variable for the following to work without any hassles.
+- In Mosquitto publishing is done by
+  `mosquitto_pub -t "<your-topic>" -m "<your-message>" -r`.
+  The `-r` is used to retain message which is useful for testing. For further more info, please refer [mosquitto_pub](https://mosquitto.org/man/mosquitto_pub-1.html)
+- In Mosquitto subscribing is done by
+  `mosquitto_sub -t "<your-topic>"`.
+  For further more info, please refer [mosquitto_sub](https://mosquitto.org/man/mosquitto_sub-1.html)
