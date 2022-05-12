@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.config.RepositoryConfig;
 import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
-import org.eclipse.rdf4j.repository.manager.RemoteRepositoryManager;
 import org.eclipse.rdf4j.repository.manager.RepositoryInfo;
 import org.eclipse.rdf4j.repository.sail.config.SailRepositoryConfig;
 import org.eclipse.rdf4j.sail.config.SailImplConfig;
@@ -41,18 +40,16 @@ import org.slf4j.LoggerFactory;
 
 public class RDF4JTripleStoreManager implements TripleStoreManager {
 	private static final Logger LOG = LoggerFactory.getLogger(RDF4JTripleStoreManager.class);
-
-	private final RemoteRepositoryManager repositoryManager;
+	private final AJANRepositoryManager repoManager;
 
 	public RDF4JTripleStoreManager(final URL url) {
-		repositoryManager = new RemoteRepositoryManager(url.toString());
-		repositoryManager.init();
+		repoManager = new AJANRepositoryManager(url.toString());
+		repoManager.init();
 	}
 
 	public RDF4JTripleStoreManager(final URL url, final Credentials auth) {
-		repositoryManager = new RemoteRepositoryManager(url.toString());
-		repositoryManager.setUsernameAndPassword(auth.getUser(), auth.getPassword());
-		repositoryManager.init();
+		repoManager = new AJANRepositoryManager(url.toString(), auth);
+		repoManager.init();
 	}
 
 	/**
@@ -72,6 +69,15 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 	@Override
 	public TripleDataBase createTripleDataBase(final String tdbId, final boolean overwrite) {
 		return createTripleDataBase(tdbId,overwrite,Inferencing.NONE);
+	}
+
+	@Override
+	public TripleDataBase createSecuredTripleDataBase(final String tdbId, final boolean overwrite, final Credentials auth) throws TripleStoreException {
+		try {
+			return convertToTripleDataBase(getInfos(tdbId, overwrite, Inferencing.NONE), auth);
+		} catch (RepositoryConfigException | RepositoryException ex) {
+			throw new TripleStoreException("Error setting up the repository: " + ex.toString(), ex);
+		}
 	}
 
 	@Override
@@ -98,7 +104,7 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 			createRemoteRepositiories(tdbId,useInferencing);
 			com = "Created";
 		}
-		RepositoryInfo info = repositoryManager.getRepositoryInfo(tdbId);
+		RepositoryInfo info = repoManager.getRepositoryInfo(tdbId);
 		LOG.info(com + " TDB with ID {} at {}", tdbId, getSparqlEndpoint(info, ""));
 		return info;
 	}
@@ -149,7 +155,7 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 	private void addRepositoryConfig(final String tdbId, final SailRepositoryConfig repositoryTypeSpec) {
 		RepositoryConfig config = new RepositoryConfig(tdbId, repositoryTypeSpec);
 		config.setID(tdbId);
-		repositoryManager.addRepositoryConfig(config);
+		repoManager.addRepositoryConfig(config);
 	}
 
 	private TripleDataBase convertToTripleDataBase(final RepositoryInfo info, final Credentials auth) {
@@ -174,7 +180,7 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 
 	@Override
 	public Set<TripleDataBase> getAllTripleDataBases() {
-		Collection<RepositoryInfo> repoInfos = repositoryManager.getAllRepositoryInfos(true);
+		Collection<RepositoryInfo> repoInfos = repoManager.getAllRepositoryInfos(true);
 		return repoInfos.stream()
 			.map(info -> convertToTripleDataBase(info, null))
 			.collect(Collectors.toSet());
@@ -183,9 +189,9 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 	@Override
 	public void removeTripleDataBase(final TripleDataBase db) throws TripleStoreException {
 		LOG.info("Removing TDB with ID {}", db.getId());
-		if (!repositoryManager.isInitialized()) {
-			repositoryManager.initialize();
+		if (!repoManager.isInitialized()) {
+			repoManager.initialize();
 		}
-		repositoryManager.removeRepository(db.getId());
+		repoManager.removeRepository(db.getId());
 	}
 }

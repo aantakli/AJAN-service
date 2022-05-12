@@ -49,7 +49,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("PMD.ExcessiveImports")
+@SuppressWarnings({"PMD.ExcessiveImports", "PMD.CyclomaticComplexity"})
 public class RDFAgentBuilder extends AgentBuilder {
 
     protected final AJANPluginLoader pluginLoader;
@@ -190,12 +190,19 @@ public class RDFAgentBuilder extends AgentBuilder {
     }
 
     private Credentials readCredentials() {
+        Model controllerModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_TOKEN_CONTROLLER, null);
+        String controller = modelManager.getString(controllerModel);
         Model userModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_USER, null);
         String user = modelManager.getString(userModel);
+        Model roleModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_ROLE, null);
+        String role = modelManager.getString(roleModel);
         Model pswdModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_PASSWORD, null);
         String pswd = modelManager.getString(pswdModel);
-        if(user != null && user.equals("") && pswd != null && pswd.equals("")) {
-            return new Credentials(user, pswd);
+        if(controller != null && !controller.equals("")
+                && user != null && !user.equals("")
+                && role != null && !role.equals("")
+                && pswd != null && !pswd.equals("")) {
+            return new Credentials(controller, user, role, pswd);
         }
         return null;
     }

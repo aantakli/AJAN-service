@@ -29,20 +29,30 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@SuppressWarnings({"PMD.CyclomaticComplexity"})
 public class TripleStoreConfiguration {
 	@Value("${triplestore.url:http://localhost:8090/rdf4j}")
 	private String tripleStoreURL;
 
+        @Value("${triplestore.tokenController:}")
+	private String tokenController;
+
         @Value("${triplestore.user:}")
 	private String user;
+
+        @Value("${triplestore.role:}")
+	private String role;
 
         @Value("${triplestore.pswd:}")
 	private String pswd;
 
 	@Bean
 	public TripleStoreManager createManager() throws MalformedURLException {
-            if (user != null && !user.isEmpty() && pswd != null && !pswd.isEmpty()) {
-                return new RDF4JTripleStoreManager(new URL(tripleStoreURL), new Credentials(user, pswd));
+            if (tokenController != null && !tokenController.isEmpty()
+                    && user != null && !user.isEmpty()
+                    && role != null && !role.isEmpty()
+                    && pswd != null && !pswd.isEmpty()) {
+                return new RDF4JTripleStoreManager(new URL(tripleStoreURL), new Credentials(tokenController, user, role, pswd));
             }
             return new RDF4JTripleStoreManager(new URL(tripleStoreURL));
 	}

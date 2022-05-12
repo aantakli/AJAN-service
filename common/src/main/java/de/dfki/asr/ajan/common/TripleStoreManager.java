@@ -35,6 +35,8 @@ public interface TripleStoreManager {
 
 	TripleDataBase createTripleDataBase(final String id, boolean loadFiles) throws TripleStoreException;
 	TripleDataBase createTripleDataBase(final String id, boolean loadFiles, Inferencing useInferencing) throws TripleStoreException;
+
+	TripleDataBase createSecuredTripleDataBase(final String id, boolean loadFiles, final Credentials auth) throws TripleStoreException;
 	TripleDataBase createSecuredTripleDataBase(final String id, boolean loadFiles, Inferencing useInferencing, final Credentials auth) throws TripleStoreException;
 
 	void removeTripleDataBase(final TripleDataBase db) throws TripleStoreException;

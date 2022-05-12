@@ -21,29 +21,39 @@ package de.dfki.asr.ajan.common;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.eclipse.rdf4j.repository.manager.RepositoryInfo;
 
 public class RDF4JTripleDataBase extends SparqlTripleDataBase {
 	private final HTTPRepository repo;
+	private final Credentials auth;
 
 	public RDF4JTripleDataBase(final RepositoryInfo info) throws MalformedURLException {
 		super(info.getId(), info.getLocation(), new URL(info.getLocation().toString() + "/statements"));
 		repo = new HTTPRepository(info.getLocation().toString());
+		auth = null;
 	}
 
 	public RDF4JTripleDataBase(final RepositoryInfo info, final Credentials auth) throws MalformedURLException {
 		super(info.getId(), info.getLocation(), new URL(info.getLocation().toString() + "/statements"));
 		repo = new HTTPRepository(info.getLocation().toString());
-		repo.setUsernameAndPassword(auth.getUser(), auth.getPassword());
+		this.auth = auth;
 	}
 
 	@Override
 	public Repository getInitializedRepository() {
+		if (auth != null) {
+			repo.setAdditionalHttpHeaders(getToken());
+		}
 		if (!repo.isInitialized()) {
 			repo.init();
 		}
 		return repo;
+	}
+
+	private Map<String,String> getToken() {
+		return auth.getJwtHeader();
 	}
 }
