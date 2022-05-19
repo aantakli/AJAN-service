@@ -18,6 +18,9 @@
  */
 package de.dfki.asr.ajan.common;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -46,7 +49,7 @@ public class Credentials {
 	private final String password;
 
 	private String token = "";
-	private final static int TIMEOUT = 1800000;
+	private int timeout;
 	private long created;
 
 	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Credentials.class);
@@ -63,10 +66,13 @@ public class Credentials {
 	}
 
 	private boolean checkTimeout() {
+		if (timeout == 0) {
+			return true;
+		}
 		if (created == 0) {
 			created = System.currentTimeMillis();
 		}
-		return (System.currentTimeMillis() - created) >= TIMEOUT;
+		return (System.currentTimeMillis() - created) >= timeout;
 	}
 
 	private void setToken() {
@@ -79,16 +85,24 @@ public class Credentials {
 				HttpGet httpGet = new HttpGet(builder.build());
 				try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
 					if (response.getStatusLine().getStatusCode() < 300) {
-						token = new BufferedReader(
-								new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8))
-									.lines()
-									.collect(Collectors.joining("\n"));
-						created = System.currentTimeMillis();
+						String payload = new BufferedReader(
+											new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8))
+												.lines()
+												.collect(Collectors.joining("\n"));
+						setResponseValues(payload);
 					}
 				}
 			} catch (URISyntaxException | IOException ex) {
 				LOG.info("It was not possible to get token!", ex);
 			}
 		}
+	}
+
+	private void setResponseValues(final String payload) throws JsonProcessingException {
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode node = mapper.readTree(payload);
+		token = node.findValue("token").textValue();
+		timeout = node.findValue("expirySecs").asInt();
+		created = System.currentTimeMillis();
 	}
 }
