@@ -143,7 +143,10 @@ public class AgentManager {
 		agentRDFBuilder.setBaseURI(baseURI);
 		agentRDFBuilder.setInitModel(initAgentsRDF);
 		agentRDFBuilder.setAgentResource(initAgentRsc);
-		Agent agent = agentRDFBuilder.build();
+                Agent agent = agentRDFBuilder.build();
+                if (agent == null) {
+                    return null;
+                }
                 initiateAgent(agent);
 		return agent;
 	}
@@ -160,11 +163,13 @@ public class AgentManager {
 	}
 
         private void initiateAgent(final Agent agent) throws URISyntaxException {
-            registerAgent(agent);
-            if (agent.getInitialBehavior() != null) {
-                BTRoot initialBT = agent.getInitialBehavior().getBehaviorTree();
-                LOG.info("Start Initial Behavior: " + agent.getInitialBehavior().getName());
-                new Thread(() -> initialBT.run()).start();
+            if (agent != null) {
+                registerAgent(agent);
+                if (agent.getInitialBehavior() != null) {
+                    BTRoot initialBT = agent.getInitialBehavior().getBehaviorTree();
+                    LOG.info("Start Initial Behavior: " + agent.getInitialBehavior().getName());
+                    new Thread(() -> initialBT.run()).start();
+                }
             }
         }
 

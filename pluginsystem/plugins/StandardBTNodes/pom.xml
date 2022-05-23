@@ -21,19 +21,28 @@ MA 02110-1301  USA
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-	<artifactId>StandardBTNodes</artifactId>
+    <artifactId>StandardBTNodes</artifactId>
     <packaging>jar</packaging>
     
-	<parent>
+    <parent>
         <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
         <artifactId>plugins</artifactId>
         <version>0.1</version>
     </parent>
+    
+    <properties>
+        <netbeans.hint.license>licenseheader</netbeans.hint.license>
+        <plugin.id>StandardBTNodes</plugin.id>
+        <plugin.class>de.dfki.asr.ajan.pluginsystem.standardbtnodes.StandardBTNodes</plugin.class>
+        <plugin.version>0.0.1</plugin.version>
+        <plugin.provider>Andre Antakli</plugin.provider>
+        <plugin.dependencies />
+    </properties>
 
    <repositories>
 	<repository>
-		<id>lib</id>
-		<url>file:///${project.basedir}/lib</url>
+            <id>lib</id>
+            <url>file:///${project.basedir}/lib</url>
 	</repository>
     </repositories>
 
@@ -48,7 +57,16 @@ MA 02110-1301  USA
                   <goal>copy-dependencies</goal>
                 </goals>
                 <configuration>
-                    <excludeArtifactIds>rdfbeans,gdx-ai,behaviour,loader,common,lombok,pf4j,rdf4j-model,rdf4j-repository-api</excludeArtifactIds>
+                    <excludeArtifactIds>
+                        rdfbeans,
+                        gdx-ai,
+                        behaviour,
+                        loader,
+                        common,
+                        lombok,
+                        rdf4j-model,
+                        rdf4j-repository-api
+                    </excludeArtifactIds>
                   <outputDirectory>${project.build.directory}/lib</outputDirectory>
                   <overWriteReleases>false</overWriteReleases>
                   <overWriteSnapshots>true</overWriteSnapshots>

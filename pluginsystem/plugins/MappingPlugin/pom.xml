@@ -21,13 +21,14 @@ MA 02110-1301  USA
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <artifactId>MappingPlugin</artifactId>
+    <packaging>jar</packaging>
+
     <parent>
         <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
         <artifactId>plugins</artifactId>
         <version>0.1</version>
     </parent>
-    <artifactId>MappingPlugin</artifactId>
-    <packaging>jar</packaging>
 
     <repositories>
         <repository>
@@ -36,17 +37,27 @@ MA 02110-1301  USA
         </repository>
     </repositories>
    
-   <properties>
+    <properties>
         <netbeans.hint.license>licenseheader</netbeans.hint.license>
+        <plugin.id>MappingPlugin</plugin.id>
+        <plugin.class>de.dfki.asr.ajan.pluginsystem.mappingplugin.MappingPlugin</plugin.class>
+        <plugin.version>0.0.1</plugin.version>
+        <plugin.provider>Andre Antakli</plugin.provider>
+        <plugin.dependencies />
         <carml.version>0.3.2</carml.version>
     </properties>
 
     <dependencies>
-        
         <dependency>
             <groupId>com.taxonic.carml</groupId>
             <artifactId>carml-engine</artifactId>
             <version>${carml.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.taxonic.carml</groupId>
@@ -113,6 +124,16 @@ MA 02110-1301  USA
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.2.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -128,6 +149,12 @@ MA 02110-1301  USA
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <version>2.4.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -167,6 +194,10 @@ MA 02110-1301  USA
             <artifactId>docker-client</artifactId>
             <version>8.11.7</version>
             <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>org.glassfish.jersey.connectors</groupId>
                     <artifactId>jersey-apache-connector</artifactId>
@@ -239,7 +270,6 @@ MA 02110-1301  USA
                                     jackson-databind,
                                     xercesImpl,
                                     opencsv,
-                                    pf4j,
                                     rdf4j-model,
                                     rdf4j-model-compiance,
                                     rdf4j-repository-api</excludeArtifactIds>

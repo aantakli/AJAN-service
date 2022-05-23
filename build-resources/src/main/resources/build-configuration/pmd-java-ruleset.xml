@@ -38,7 +38,7 @@
 	<rule ref="rulesets/java/codesize.xml/ExcessiveParameterList">
 		<properties>
 			<!-- Clean Code -->
-			<property name="minimum" value="4"/>
+			<property name="minimum" value="5"/>
 		</properties>
 	</rule>
 	<rule ref="rulesets/java/codesize.xml/ExcessivePublicCount">

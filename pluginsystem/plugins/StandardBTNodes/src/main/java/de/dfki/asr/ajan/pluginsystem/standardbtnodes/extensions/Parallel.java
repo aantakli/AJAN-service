@@ -41,7 +41,7 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-import ro.fortsoft.pf4j.Extension;
+import org.pf4j.Extension;
 
 @Extension
 @RDFBean("bt:Parallel")

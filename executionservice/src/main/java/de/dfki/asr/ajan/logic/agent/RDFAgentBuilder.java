@@ -22,13 +22,11 @@ package de.dfki.asr.ajan.logic.agent;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.common.*;
 import de.dfki.asr.ajan.exceptions.InitializationRDFValidationException;
-import de.dfki.asr.ajan.model.Agent;
 import de.dfki.asr.ajan.behaviour.events.*;
 import de.dfki.asr.ajan.common.TripleStoreManager.Inferencing;
 import de.dfki.asr.ajan.data.*;
 import de.dfki.asr.ajan.knowledge.AgentBeliefBase;
-import de.dfki.asr.ajan.model.Behavior;
-import de.dfki.asr.ajan.model.SingleRunBehavior;
+import de.dfki.asr.ajan.model.*;
 import de.dfki.asr.ajan.pluginsystem.AJANPluginLoader;
 import de.dfki.asr.rdfbeans.BehaviorBeanManager;
 import java.net.URI;
@@ -42,8 +40,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.cyberborean.rdfbeans.RDFBeanManager;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.eclipse.rdf4j.RDF4JException;
+import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
 import org.eclipse.rdf4j.model.*;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.repository.Repository;
@@ -51,7 +49,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("PMD.ExcessiveImports")
+@SuppressWarnings({"PMD.ExcessiveImports", "PMD.CyclomaticComplexity"})
 public class RDFAgentBuilder extends AgentBuilder {
 
     protected final AJANPluginLoader pluginLoader;
@@ -61,7 +59,6 @@ public class RDFAgentBuilder extends AgentBuilder {
     protected Model initAgentModel;
     protected Resource agentResource;
 
-    protected ValueFactory vf = SimpleValueFactory.getInstance();
     private static final Logger LOG = LoggerFactory.getLogger(RDFAgentBuilder.class);
 
     public RDFAgentBuilder(final AgentTDBManager tdbManager, final Repository agentRepo, final AJANPluginLoader apl) {
@@ -88,41 +85,75 @@ public class RDFAgentBuilder extends AgentBuilder {
     }
 
     @Override
-    public Agent build() throws URISyntaxException {
+    public Agent build() throws UnauthorizedException, URISyntaxException {
         connections = new ConcurrentHashMap<>();
         id = getIdFromModel();
         LOG.info("Creating agent with ID: " + id);
         url = getAgentURI();
         manageTDB = isTDBManagement();
         template = setTemplateFromResource();
+	LOG.info("--> Agent Template: " + template.stringValue() + getAgentResolved());
 	inferencing = Inferencing.NONE;
-        AgentEndpoints agentEndpoints = new AgentEndpoints(modelManager, resourceManager, agentRepo);
-        Map<URI, Event> agentEvents;
-        agentEvents = getAgentEvents(template);
-        events = agentEvents;
-        endpoints = agentEndpoints.getAgentEndpoints(template, agentTemplateModel, events);
+        readEndpointsAndEvents();
         extensions = pluginLoader.getNodeExtensions();
         setBehaviorTreesFromResource(template);
+	LOG.info("--> Agent Behaviors " + getAgentResolved());
         initialKnowledge = modelManager.getAgentInitKnowledge(vf.createIRI(url), agentResource, initAgentModel, false);
-        AgentBeliefBase beliefs = createAgentKnowledge(template);
+        Credentials auth = readCredentials();
+        AgentBeliefBase beliefs = createAgentKnowledge(template, auth);
+        if (beliefs == null) {
+            return null;
+        }
+        LOG.info("--> Agent beliefs: " + beliefs.getSparqlEndpoint() + " " + getAgentSet());
         Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
-        LOG.info("Agent with ID " + id + " is created: " + url);
+        LOG.info("Created agent with ID " + id + ": " + url);
         return agent;
     }
 
-    protected AgentBeliefBase createAgentKnowledge(final Resource agentTemplateRsc) throws URISyntaxException {
+    protected String getAgentResolved() {
+        return "for " + id + " agent resolved!";
+    }
+
+    protected String getAgentSet() {
+        return "for " + id + " agent set!";
+    }
+
+    protected void readEndpointsAndEvents() throws URISyntaxException {
+	AgentEndpoints agentEndpoints = new AgentEndpoints(modelManager, resourceManager, agentRepo);
+	LOG.info("--> Agent endpoints " + getAgentResolved());
+        Map<URI, Event> agentEvents;
+        agentEvents = getAgentEvents(template);
+	LOG.info("--> Agent events " + getAgentResolved());
+        events = agentEvents;
+        endpoints = agentEndpoints.getAgentEndpoints(template, agentTemplateModel, events);
+	LOG.info("--> Agent endpoints " + getAgentSet());
+    }
+
+    protected AgentBeliefBase createAgentKnowledge(final Resource agentTemplateRsc, final Credentials auth) throws UnauthorizedException, URISyntaxException {
         AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,manageTDB,Inferencing.NONE));
-        addAgentInformationToKnowledge(beliefs);
-        reportURI = modelManager.getReportURI(initialKnowledge);
-        beliefs.update(initialKnowledge);
-        if (initialBehavior != null) {
-            configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource(), true);
+        try {
+            addAgentInformationToKnowledge(beliefs);
+            reportURI = modelManager.getReportURI(initialKnowledge);
+            beliefs.update(initialKnowledge);
+            if (initialBehavior != null) {
+                configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource(), true);
+            }
+            if (finalBehavior != null) {
+                configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), initialBehavior.getResource(), true);
+            }
+            configureBehaviorTrees(beliefs);
+            return beliefs;
+        } catch (UnauthorizedException ex) {
+            removeAgentBeliefs(beliefs);
+            return null;
         }
-        if (finalBehavior != null) {
-            configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), initialBehavior.getResource(), true);
-        }
-        configureBehaviorTrees(beliefs);
-        return beliefs;
+    }
+
+    private void removeAgentBeliefs(final AgentBeliefBase beliefs) {
+        LOG.info("Authentication with knowledge base not successful!");
+        LOG.info("Please check the credentials!");
+        tdbManager.deleteAgentTDB(beliefs);
+        LOG.error("Undone agent creation of agent with ID: " + id);
     }
 
     @SuppressWarnings("PMD.NullAssignment")
@@ -133,9 +164,11 @@ public class RDFAgentBuilder extends AgentBuilder {
         finalBehavior = null;
         if (initialBhv != null) {
             initialBehavior = getSingleRunBehavior(initialBhv, modelManager.getTemplateFromTDB(agentRepo, initialBhv));
+            LOG.info("--> Initial Behavior " + getAgentSet());
         }
         if (finalBhv != null) {
             finalBehavior = getSingleRunBehavior(finalBhv, modelManager.getTemplateFromTDB(agentRepo, finalBhv));
+            LOG.info("--> Final Behavior " + getAgentSet());
         }
         Iterator<Resource> behaviorResources = resourceManager.getBehaviorResources(agentTemplateRsc, agentTemplateModel);
         Map<Resource, Behavior> behaviorTrees = getBehaviorTrees(behaviorResources);
@@ -154,6 +187,24 @@ public class RDFAgentBuilder extends AgentBuilder {
         String agentID = modelManager.getLabel(idModel, "No AgentTemplate-literal for " + AJANVocabulary.AGENT_HAS_ID + " defined");
         id = agentID;
         return agentID;
+    }
+
+    private Credentials readCredentials() {
+        Model controllerModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_TOKEN_CONTROLLER, null);
+        String controller = modelManager.getString(controllerModel);
+        Model userModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_USER, null);
+        String user = modelManager.getString(userModel);
+        Model roleModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_ROLE, null);
+        String role = modelManager.getString(roleModel);
+        Model pswdModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_PASSWORD, null);
+        String pswd = modelManager.getString(pswdModel);
+        if(controller != null && !controller.equals("")
+                && user != null && !user.equals("")
+                && role != null && !role.equals("")
+                && pswd != null && !pswd.equals("")) {
+            return new Credentials(controller, user, role, pswd);
+        }
+        return null;
     }
 
     private boolean isTDBManagement() {
@@ -209,6 +260,8 @@ public class RDFAgentBuilder extends AgentBuilder {
             goal = manager.get(resource, AJANGoal.class);
         }
         catch (RDF4JException | RDFBeanException ex) {
+            LOG.error("--> Could not load AJANGoal " + resource.stringValue() + " for " + id + " agent.");
+            LOG.error(ex.getMessage());
             throw new InitializationRDFValidationException("Could not load AJANGoal " + resource.stringValue(), ex);
         }
         return goal;
@@ -225,6 +278,7 @@ public class RDFAgentBuilder extends AgentBuilder {
             }
             Model model = modelManager.getTemplateFromTDB(agentRepo, resource);
             SingleRunBehavior sglBehavior = getSingleRunBehavior(resource, model);
+            LOG.info("--> Behavior Tree for " + id + " agent added: " + resource.stringValue());
             boolean clearEKB = getClearEKB(model, resource, AJANVocabulary.BEHAVIOR_HAS_CLEAREKB);
             resourceManager.getResources(resource, model, AJANVocabulary.BEHAVIOR_HAS_TRIGGER).forEachRemaining(eventResc::add);
             bhvs.put((IRI) resource, new Behavior(sglBehavior.getName(), sglBehavior.getResource(), sglBehavior.getBehaviorTree(), clearEKB, eventResc));
@@ -234,7 +288,7 @@ public class RDFAgentBuilder extends AgentBuilder {
 
     private boolean getClearEKB(final Model model, final Resource resource, final IRI predicate) {
         if (!model.filter(resource, predicate, null).objects().isEmpty()) {
-        Value clearEKB = model.filter(resource, predicate, null).objects().stream().findFirst().get();
+            Value clearEKB = model.filter(resource, predicate, null).objects().stream().findFirst().get();
             if(clearEKB.isLiteral()) {
                 return Boolean.parseBoolean(clearEKB.stringValue());
             }
@@ -253,9 +307,13 @@ public class RDFAgentBuilder extends AgentBuilder {
         try (RepositoryConnection conn = tdbManager.getBehaviorTDB().getInitializedRepository().getConnection()) {
             RDFBeanManager manager = new BehaviorBeanManager(conn, pluginLoader.getNodeExtensions());
             tree = manager.get(behaviorResource, BTRoot.class);
+            LOG.info("--> Created Behavior Tree: " + behaviorResource.stringValue() + " for " + id + " agent");
         }
         catch (RDF4JException | RDFBeanException ex) {
-            throw new InitializationRDFValidationException("Could not load BehaviorTree " + behaviorResource.stringValue() + ". A possible reason is a reference to a non-existent resource!", ex);
+            LOG.error("--> Could not load BehaviorTree " + behaviorResource.stringValue() + " for " + id + " agent. A possible reason is a reference to a non-existent resource!");
+            LOG.error(ex.getMessage());
+            LOG.error("Undone agent creation of agent with ID: " + id);
+            throw new InitializationRDFValidationException("Could not load BehaviorTree: ", ex);
         }
         return tree;
     }

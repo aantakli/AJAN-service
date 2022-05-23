@@ -39,9 +39,7 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ro.fortsoft.pf4j.Extension;
 
-@Extension
 @RDFBean("bt:Executor")
 public class Executor extends AbstractTDBBranchTask {
 	@Getter @Setter

@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 import lombok.Data;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
-import ro.fortsoft.pf4j.Extension;
+import org.pf4j.Extension;
 
 @Extension
 @RDFBean("clingo:Config")

@@ -72,8 +72,11 @@ public class HttpBinding {
 	@Getter @Setter
 	private ActnPayload payload;
 
+	private List<HttpHeader> originals;
+
 	@SuppressWarnings("PMD.ConfusingTernary")
 	public void setAddHeaders(final Repository repo) throws URISyntaxException, MessageEvaluationException {
+		setOriginalHeaders();
 		if (getActnQuery() == null && getBtHeaders() == null) {
 			return;
 		}
@@ -89,6 +92,16 @@ public class HttpBinding {
 			return;
 		}
 		addAddHeaders(addHeaders);
+	}
+
+	private void setOriginalHeaders() {
+		if (originals == null) {
+			originals = new ArrayList();
+			Iterator<HttpHeader> iterOrig = getHeaders().iterator();
+			while (iterOrig.hasNext()) {
+				originals.add((HttpHeader) iterOrig.next());
+			}
+		}
 	}
 
 	private List<HttpHeader> getAdditionalHeaders(final Repository repo, final BehaviorSelectQuery query) throws URISyntaxException, MessageEvaluationException {
@@ -113,21 +126,19 @@ public class HttpBinding {
 	}
 
 	private void addAddHeaders(final List<HttpHeader> addHeaders) {
+		getHeaders().clear();
 		Iterator<HttpHeader> iterAdd = addHeaders.iterator();
 		while (iterAdd.hasNext()) {
 			HttpHeader add = iterAdd.next();
-			boolean exists = false;
-			Iterator<HttpHeader> iterOrig = getHeaders().iterator();
+			Iterator<HttpHeader> iterOrig = originals.iterator();
 			while (iterOrig.hasNext()) {
 				HttpHeader orig = iterOrig.next();
+				getHeaders().add(orig);
 				String origFragment = orig.getHeaderName().getFragment();
 				String addFragment = add.getHeaderName().getFragment();
-				if (origFragment.equalsIgnoreCase(addFragment)) {
-					exists = true;
+				if (!origFragment.equalsIgnoreCase(addFragment)) {
+					getHeaders().add(add);
 				}
-			}
-			if (!exists) {
-				getHeaders().add(add);
 			}
 		}
 	}

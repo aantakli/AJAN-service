@@ -56,6 +56,11 @@ MA 02110-1301  USA
             <version>1.8.2</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.pf4j</groupId>
+            <artifactId>pf4j</artifactId>
+            <version>3.6.0</version>
+        </dependency>
     </dependencies>
     <properties>
         <netbeans.hint.license>lgpl21</netbeans.hint.license>

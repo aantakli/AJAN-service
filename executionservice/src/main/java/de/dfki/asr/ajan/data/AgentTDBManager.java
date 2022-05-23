@@ -43,6 +43,10 @@ public class AgentTDBManager {
 	}
 
 	public TripleDataBase createAgentTDB(final String id, final boolean overwrite, final Inferencing infer) {
-		return tdbManager.createTripleDataBase(id, overwrite, infer);
+		return tdbManager.createSecuredTripleDataBase(id, overwrite, infer);
+	}
+
+        public void deleteAgentTDB(final TripleDataBase base) {
+		tdbManager.removeTripleDataBase(base);
 	}
 }

@@ -40,11 +40,21 @@ public class Repositories {
 
 	@Value("${loadTTLFiles:true}")
 	private boolean loadFiles;
+
+        @Value("${triplestore.user:}")
+	private String user;
+
+        @Value("${triplestore.role:}")
+	private String role;
+
+        @Value("${triplestore.pswd:}")
+	private String pswd;
+
 	@Bean
 	@AJANDataBase(AGENT_TEMPLATE)
 	public TripleDataBase getAgentTemplates() {
 		if (agentTemplates == null) {
-			agentTemplates = tripleStoreManager.createTripleDataBase("agents", loadFiles);
+                    agentTemplates = createStore("agents");
 		}
 		return agentTemplates;
 	}
@@ -53,8 +63,8 @@ public class Repositories {
 	@AJANDataBase(BEHAVIOR)
 	public TripleDataBase getBehaviors() {
 		if (behaviors == null) {
-			behaviors = tripleStoreManager.createTripleDataBase("behaviors", loadFiles);
-		}
+                    behaviors = createStore("behaviors");
+                }
 		return behaviors;
 	}
 
@@ -62,8 +72,8 @@ public class Repositories {
 	@AJANDataBase(DOMAIN)
 	public TripleDataBase getDomain() {
 		if (domain == null) {
-			domain = tripleStoreManager.createTripleDataBase("domain", loadFiles);
-		}
+                    domain = createStore("domain");
+                }
 		return domain;
 	}
 
@@ -71,8 +81,8 @@ public class Repositories {
 	@AJANDataBase(ACTION_SERVICE)
 	public TripleDataBase getServices() {
 		if (services == null) {
-			services = tripleStoreManager.createTripleDataBase("services", loadFiles);
-		}
+                    services = createStore("services");
+                }
 		return services;
 	}
 
@@ -87,5 +97,15 @@ public class Repositories {
 		if (agentTemplates != null) {
 			tripleStoreManager.removeTripleDataBase(agentTemplates);
 		}
+                if (domain != null) {
+			tripleStoreManager.removeTripleDataBase(domain);
+		}
 	}
+
+        private TripleDataBase createStore(final String repoName) {
+            if (user == null || user.isEmpty() || role == null || role.isEmpty() || pswd == null || pswd.isEmpty()) {
+                return tripleStoreManager.createTripleDataBase(repoName, loadFiles);
+            }
+            return tripleStoreManager.createSecuredTripleDataBase(repoName, loadFiles);
+        }
 }

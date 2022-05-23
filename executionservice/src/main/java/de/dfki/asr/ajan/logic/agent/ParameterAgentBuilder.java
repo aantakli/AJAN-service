@@ -92,7 +92,7 @@ public class ParameterAgentBuilder extends RDFAgentBuilder {
             endpoints = agentEndpoints.getAgentEndpoints(template, agentTemplateModel, events);
 
             setBehaviorTreesFromResource(template);
-            AgentBeliefBase beliefs = createAgentKnowledge(template);
+            AgentBeliefBase beliefs = createAgentKnowledge(template, null);
             Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
             LOG.info("Agent with ID " + id + " is created: " + agent.getUrl());
             return agent;

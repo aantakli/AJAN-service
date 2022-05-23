@@ -34,6 +34,10 @@ public class AJANVocabulary {
 	public final static IRI AGENT_HAS_URI = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentURI");
 	public final static IRI AGENT_HAS_KNOWLEDGE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentKnowledge");
 	public final static IRI AGENT_HAS_TEMPLATE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentTemplate");
+	public final static IRI AGENT_HAS_TOKEN_CONTROLLER = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentTokenController");
+	public final static IRI AGENT_HAS_USER = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentUser");
+	public final static IRI AGENT_HAS_ROLE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentRole");
+	public final static IRI AGENT_HAS_PASSWORD = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentPassword");
 
 	public final static IRI GENERATED_BNODE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#BNode");
 

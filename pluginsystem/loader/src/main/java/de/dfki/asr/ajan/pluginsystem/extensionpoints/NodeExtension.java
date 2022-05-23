@@ -19,7 +19,7 @@
 
 package de.dfki.asr.ajan.pluginsystem.extensionpoints;
 
-import ro.fortsoft.pf4j.ExtensionPoint;
+import org.pf4j.ExtensionPoint;
 
 public interface NodeExtension extends ExtensionPoint {
 	
