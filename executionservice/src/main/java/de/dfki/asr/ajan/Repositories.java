@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import static de.dfki.asr.ajan.AJANDataBase.Store.*;
-import de.dfki.asr.ajan.common.Credentials;
 import javax.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -41,9 +40,6 @@ public class Repositories {
 
 	@Value("${loadTTLFiles:true}")
 	private boolean loadFiles;
-
-        @Value("${triplestore.tokenController:}")
-	private String tokenController;
 
         @Value("${triplestore.user:}")
 	private String user;
@@ -107,9 +103,9 @@ public class Repositories {
 	}
 
         private TripleDataBase createStore(final String repoName) {
-            if (user == null || user.isEmpty() || pswd == null || pswd.isEmpty()) {
+            if (user == null || user.isEmpty() || role == null || role.isEmpty() || pswd == null || pswd.isEmpty()) {
                 return tripleStoreManager.createTripleDataBase(repoName, loadFiles);
             }
-            return tripleStoreManager.createSecuredTripleDataBase(repoName, loadFiles, new Credentials(tokenController, user, role, pswd));
+            return tripleStoreManager.createSecuredTripleDataBase(repoName, loadFiles);
         }
 }

@@ -38,17 +38,22 @@ import org.eclipse.rdf4j.sail.spin.config.SpinSailConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+@SuppressWarnings("PMD.NullAssignment")
 public class RDF4JTripleStoreManager implements TripleStoreManager {
 	private static final Logger LOG = LoggerFactory.getLogger(RDF4JTripleStoreManager.class);
 	private final AJANRepositoryManager repoManager;
+	private final Credentials auth;
 
 	public RDF4JTripleStoreManager(final URL url) {
 		repoManager = new AJANRepositoryManager(url.toString());
+		this.auth = null;
 		repoManager.init();
 	}
 
 	public RDF4JTripleStoreManager(final URL url, final Credentials auth) {
 		repoManager = new AJANRepositoryManager(url.toString(), auth);
+		this.auth = auth;
 		repoManager.init();
 	}
 
@@ -72,7 +77,7 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 	}
 
 	@Override
-	public TripleDataBase createSecuredTripleDataBase(final String tdbId, final boolean overwrite, final Credentials auth) throws TripleStoreException {
+	public TripleDataBase createSecuredTripleDataBase(final String tdbId, final boolean overwrite) throws TripleStoreException {
 		try {
 			return convertToTripleDataBase(getInfos(tdbId, overwrite, Inferencing.NONE), auth);
 		} catch (RepositoryConfigException | RepositoryException ex) {
@@ -90,7 +95,7 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 	}
 
 	@Override
-	public TripleDataBase createSecuredTripleDataBase(final String tdbId, final boolean overwrite, final Inferencing useInferencing, final Credentials auth) throws TripleStoreException {
+	public TripleDataBase createSecuredTripleDataBase(final String tdbId, final boolean overwrite, final Inferencing useInferencing) throws TripleStoreException {
 		try {
 			return convertToTripleDataBase(getInfos(tdbId, overwrite, useInferencing), auth);
 		} catch (RepositoryConfigException | RepositoryException ex) {
