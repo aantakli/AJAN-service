@@ -50,37 +50,37 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: executionservice
-          path: ./pluginsystem/loader/target/loader-0.1.jar
+          path: ./pluginsystem/loader/target/
       -
         name: Temporally save ASPPlugin
         uses: actions/upload-artifact@v3
         with:
           name: ASPPlugin
-          path: ./pluginsystem/plugins/ASPPlugin/target/ASPPlugin-0.1.jar
+          path: ./pluginsystem/plugins/ASPPlugin/target/
       -
         name: Temporally save MappingPlugin
         uses: actions/upload-artifact@v3
         with:
           name: MappingPlugin
-          path: ./pluginsystem/plugins/MappingPlugin/target/MappingPlugin-0.1.jar
+          path: ./pluginsystem/plugins/MappingPlugin/target/
       -
         name: Temporally save MOSIMPlugin
         uses: actions/upload-artifact@v3
         with:
           name: MOSIMPlugin
-          path: ./pluginsystem/plugins/MOSIMPlugin/target/MOSIMPlugin-0.1.jar
+          path: ./pluginsystem/plugins/MOSIMPlugin/target/
       -
         name: Temporally save StandardBTNodes
         uses: actions/upload-artifact@v3
         with:
           name: StandardBTNodes
-          path: ./pluginsystem/plugins/StandardBTNodes/target/StandardBTNodes-0.1.jar
+          path: ./pluginsystem/plugins/StandardBTNodes/target/
       -
         name: Temporally save STRIPSPlugin
         uses: actions/upload-artifact@v3
         with:
           name: STRIPSPlugin
-          path: ./pluginsystem/plugins/STRIPSPlugin/target/STRIPSPlugin-0.1.jar
+          path: ./pluginsystem/plugins/STRIPSPlugin/target/
   docker:
     runs-on: ubuntu-latest
     needs: [build]
