@@ -31,8 +31,10 @@ import com.taxonic.carml.logical_source_resolver.XPathResolver;
 import com.taxonic.carml.model.TriplesMap;
 import com.taxonic.carml.util.RmlMappingLoader;
 import com.taxonic.carml.vocab.Rdf;
+import static de.dfki.asr.ajan.behaviour.service.impl.IConnection.BASE_URI;
 import de.dfki.asr.ajan.common.CSVInput;
 import de.dfki.asr.ajan.common.SPARQLUtil;
+import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.RMLMapperException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -49,9 +51,16 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.xerces.dom.DeferredDocumentImpl;
 import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.Rio;
 
 public final class MappingUtil {
+
+	private static final String TURTLE = "http://www.ajan.de/ajan-mapping-ns#TextTurtle";
+	private static final String JSON = "http://www.ajan.de/ajan-mapping-ns#JsonLD";
+	private static final String XML = "http://www.ajan.de/ajan-mapping-ns#RDFxml";
 
     private MappingUtil() {
 
@@ -81,6 +90,27 @@ public final class MappingUtil {
 
 		mapper.bindInputStream(resourceStream);
 		return mapper.map(mappingInput);
+	}
+
+	public static Model getMappedModel(InputStream parsedMessage, Repository repo, URI mapping) throws IOException, URISyntaxException, RMLMapperException {
+		if (parsedMessage != null) {
+            if (mapping != null) {
+				switch (mapping.toString()) {
+					case TURTLE:
+						return Rio.parse(parsedMessage, BASE_URI, RDFFormat.TURTLE);
+					case JSON:
+						return Rio.parse(parsedMessage, BASE_URI, RDFFormat.JSONLD);
+					case XML:
+						return Rio.parse(parsedMessage, BASE_URI, RDFFormat.RDFXML);
+					default:
+						return MappingUtil.getMappedModel(getTriplesMaps(repo, mapping), parsedMessage);
+				}
+            }
+            else {
+                throw new RMLMapperException("no mapping file selected!");
+            }
+        }
+        return new LinkedHashModel();
 	}
 
     public static Model getTriplesMaps(final Repository repo, final List<URI> mappings) throws URISyntaxException {

@@ -30,6 +30,10 @@ public class MappingVocabulary {
 	public final static IRI MP_3VECTOR = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#3Vector");
 	public final static IRI MP_DISTANCE = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#Distance");
 	public final static IRI DATETIME_PREDICATE = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#DateTimePredicate");
+	
+	public final static IRI MIME_TEXT_TUTRLE = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#TextTurtle");
+	public final static IRI MIME_JSON_LD = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#JsonLD");
+	public final static IRI MIME_RDF_XML = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#RDFxml");
 
 	public final static IRI MP_HAS_VALUE = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#value");
 	public final static IRI MP_HAS_X = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#x");

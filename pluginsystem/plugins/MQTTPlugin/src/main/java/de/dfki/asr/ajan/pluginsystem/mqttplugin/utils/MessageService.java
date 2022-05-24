@@ -4,21 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.taxonic.carml.engine.RmlMapper;
-import com.taxonic.carml.logical_source_resolver.CsvResolver;
-import com.taxonic.carml.logical_source_resolver.JsonPathResolver;
-import com.taxonic.carml.logical_source_resolver.XPathResolver;
-import com.taxonic.carml.model.TriplesMap;
-import com.taxonic.carml.util.RmlMappingLoader;
-import com.taxonic.carml.vocab.Rdf;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.events.Event;
-import de.dfki.asr.ajan.behaviour.events.ModelEvent;
-import de.dfki.asr.ajan.behaviour.events.ModelEventInformation;
-import de.dfki.asr.ajan.behaviour.events.ModelQueueEvent;
-import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
-import de.dfki.asr.ajan.behaviour.exception.EventEvaluationException;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.common.AgentUtil;
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -26,14 +13,12 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.transform.TransformerException;
 
 import de.dfki.asr.ajan.common.CSVInput;
-import de.dfki.asr.ajan.common.SPARQLUtil;
-import de.dfki.asr.ajan.knowledge.AgentBeliefBase;
+import de.dfki.asr.ajan.knowledge.AbstractBeliefBase;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.RMLMapperException;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.utils.MappingUtil;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,16 +31,14 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 public class MessageService {
     private static final MemoryPersistence persistence = new MemoryPersistence();
     private static IMqttAsyncClient _mqttClient;
-    private static final Integer client_qos = 2;
+    private static final Integer CLIENT_QOS = 2;
     private static MessageService messageServiceInstance;
-    String clientId = UUID.randomUUID().toString();
+    private String clientId = UUID.randomUUID().toString();
 
     protected static final Logger LOG = LoggerFactory.getLogger(MessageService.class);
 
@@ -92,7 +75,6 @@ public class MessageService {
                 LOG.error("Error while reconnecting"+e.getMessage());
             }
         }
-
         return messageServiceInstance;
     }
 
@@ -109,22 +91,22 @@ public class MessageService {
         return _mqttClient != null?_mqttClient.isConnected()?_mqttClient:null:null;
     }
 
-    public String subscribe(String topic, boolean keepAlive, URI goalURI, AgentTaskInformation thisObject, URI mapping, URI targetBase, Repository repo, AgentBeliefBase agentBeliefs, Object eventInformation, Event event){
+    public String subscribe(String topic, boolean keepAlive, URI eventURI, URI mapping, Repository repo, AbstractBeliefBase beliefs, Event event){
         final String[] message = new String[1];
         try{
             if(keepAlive) {
-                _mqttClient.subscribe(topic, client_qos, (s, mqttMessage) -> {
+                _mqttClient.subscribe(topic, CLIENT_QOS, (s, mqttMessage) -> {
                     message[0] = new String(mqttMessage.getPayload());
-                    if(goalURI!=null){ //false
+                    if(eventURI != null){ //false
                         event.setEventInformation(parseMessage(message[0]));
                         }
                     else
-                        storeInKnowledgeBase(message[0],thisObject,mapping, repo, agentBeliefs, eventInformation); // store it to agent knowledge
+                        storeInKnowledgeBase(message[0], mapping, repo, beliefs); // store it to agent knowledge
                 });
             } else {
-                _mqttClient.subscribe(topic, client_qos, (s, mqttMessage) -> {
+                _mqttClient.subscribe(topic, CLIENT_QOS, (s, mqttMessage) -> {
                     message[0] = new String(mqttMessage.getPayload());
-                    storeInKnowledgeBase(message[0],thisObject,mapping, repo, agentBeliefs, eventInformation); // store it to agent knowledge
+                    storeInKnowledgeBase(message[0], mapping, repo, beliefs); // store it to agent knowledge
                     // update the agent knowledge
                     LOG.info(message[0]); //fire an event
                 _mqttClient.unsubscribe(topic).waitForCompletion();
@@ -139,6 +121,7 @@ public class MessageService {
     public void unsubscribe(String topic) throws MqttException {
         _mqttClient.unsubscribe(topic).waitForCompletion();
     }
+
     public boolean publish(String topic, String message){
         try {
             _mqttClient.publish(topic, message.getBytes(),1,true);
@@ -149,30 +132,27 @@ public class MessageService {
         }
     }
 
+	public AbstractBeliefBase getBeliefs(final AgentTaskInformation info, final URI targetBase) {
+		if (targetBase.toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
+			return info.getExecutionBeliefs();
+		} else if (targetBase.toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
+			return info.getAgentBeliefs();
+		} else {
+			return null;
+		}
+	}
+
     // Helper Functions
-    private void storeInKnowledgeBase(String s, AgentTaskInformation thisObject, URI mapping, Repository repo, AgentBeliefBase agentBeliefs, Object eventInformation) throws RMLMapperException, IOException, URISyntaxException, TransformerException {
-        Model model = parseMessageAndGetModel(s, mapping, repo, eventInformation);
-        agentBeliefs.update(model);
+    private void storeInKnowledgeBase(String s, URI mapping, Repository repo, AbstractBeliefBase beliefs) throws RMLMapperException, IOException, URISyntaxException, TransformerException {
+        Model model = parseMessageAndGetModel(s, mapping, repo);
+        beliefs.update(model);
     }
 
-    private Model parseMessageAndGetModel(String s, URI mapping, Repository repo, Object eventInformation) throws IOException, TransformerException, URISyntaxException, RMLMapperException {
-        // check if the message is RDF, JSON or XML
+    private Model parseMessageAndGetModel(String s, URI mapping, Repository repo) throws IOException, TransformerException, URISyntaxException, RMLMapperException {
+        // check if the message is CSV, JSON or XML
         InputStream parsedMessage = getInputStream(parseMessage(s));
-        Model model = getModel(parsedMessage, repo, mapping, eventInformation);
+        Model model = MappingUtil.getMappedModel(parsedMessage, repo, mapping);
         return model;
-    }
-
-    private Model getModel(InputStream parsedMessage, Repository repo, URI mapping, Object eventInformation) throws IOException, TransformerException, URISyntaxException, RMLMapperException {
-        InputStream resourceStream = parsedMessage;
-        if (resourceStream != null) {
-            if (mapping != null) {
-                return MappingUtil.getMappedModel(MappingUtil.getTriplesMaps(repo, mapping), resourceStream);
-            }
-            else {
-                throw new RMLMapperException("no mapping file selected!");
-            }
-        }
-        return new LinkedHashModel();
     }
 
     private Object parseMessage(String s) {
@@ -184,7 +164,6 @@ public class MessageService {
         } catch (IOException e) {
             LOG.info("Message received is not Json, trying to parse as CSV");
         }
-
 
         try {
             InputStream in = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8));
@@ -211,10 +190,4 @@ public class MessageService {
         ObjectWriter writer = om.writer();
         return new ByteArrayInputStream(writer.writeValueAsBytes(jsonNode));
     }
-
-
-    private MqttMessage getMessage(String message) {
-        return new MqttMessage(message.getBytes());
-    }
-
 }

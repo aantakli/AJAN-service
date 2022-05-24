@@ -6,6 +6,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
+import de.dfki.asr.ajan.knowledge.AbstractBeliefBase;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mqttplugin.utils.MQTTUtil;
 import de.dfki.asr.ajan.pluginsystem.mqttplugin.utils.MessageService;
@@ -39,7 +40,11 @@ public class SubscribeTopic extends AbstractTDBLeafTask implements NodeExtension
     @Getter @Setter
     private String label;
 
-    @RDF("bt:context")
+	@RDF("bt:targetBase")
+    @Getter @Setter
+    private URI targetBase;
+
+    @RDF("bt:mapping")
     @Getter @Setter
     private URI mapping;
 
@@ -51,10 +56,6 @@ public class SubscribeTopic extends AbstractTDBLeafTask implements NodeExtension
     @Getter @Setter
     private BehaviorSelectQuery subscribeDetails;
 
-//    @RDF("bt:targetBase")
-//    @Getter @Setter
-//    private URI targetBase;
-
     protected static final Logger LOG = LoggerFactory.getLogger(SubscribeTopic.class);
 
     @Override
@@ -63,28 +64,18 @@ public class SubscribeTopic extends AbstractTDBLeafTask implements NodeExtension
         String report;
         Status stat;
 
-        String returnMessage;
         try {
             String serverUrl = MQTTUtil.getServerUrlInfo(serverUrlCallback, this.getObject());
             String topic = MQTTUtil.getTopic(subscribeDetails, this.getObject());
             Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
-            returnMessage = subscribeToTopic(serverUrl, topic, repo);
+            subscribeToTopic(serverUrl, topic, repo);
             report = toString()+ " SUCCEEDED";
             stat = Status.SUCCEEDED;
         } catch (URISyntaxException e) {
-            LOG.error("Error while fetching info"+e.getMessage());
-            returnMessage = null;
+            LOG.error("Error while fetching info" + e.getMessage());
             report = toString()+ "FAILED";
             stat = Status.FAILED;
         }
-
-//        if(returnMessage !=null){
-//            report = toString()+ " SUCCEEDED";
-//            stat = Status.SUCCEEDED;
-//        } else {
-//          report = toString()+ "FAILED";
-//          stat = Status.FAILED;
-//        }
 
         LOG.info(report);
         return new NodeStatus(stat, report);
@@ -92,15 +83,9 @@ public class SubscribeTopic extends AbstractTDBLeafTask implements NodeExtension
 
     private String subscribeToTopic(String serverUrl, String topic, Repository repo) {
         MessageService messageService = MessageService.getMessageService(serverUrl);
-        URI targetBase = null;
-//        URI mapping = null;
-        return messageService.subscribe(topic, false, null, this.getObject(), mapping, targetBase,repo,
-                this.getObject().getAgentBeliefs(),this.getObject().getEventInformation(), null);
+		AbstractBeliefBase beliefs = messageService.getBeliefs(this.getObject(), targetBase);
+        return messageService.subscribe(topic, false, null, mapping, repo, beliefs, null);
     }
-
-
-
-
 
     @Override
     public void end() {

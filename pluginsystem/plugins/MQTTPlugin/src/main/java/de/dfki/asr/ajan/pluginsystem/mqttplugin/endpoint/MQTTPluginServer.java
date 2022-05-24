@@ -1,6 +1,5 @@
 package de.dfki.asr.ajan.pluginsystem.mqttplugin.endpoint;
 
-import de.dfki.asr.ajan.pluginsystem.extensionpoints.EndpointExtension;
 import de.dfki.asr.ajan.pluginsystem.mqttplugin.utils.MessageService;
 import io.moquette.broker.Server;
 import io.moquette.broker.config.ClasspathResourceLoader;
@@ -21,7 +20,7 @@ public class MQTTPluginServer implements ExtensionPoint {
 
     static Server mqttBroker;
     private static String serverUrl;
-    private static final String configFile = "config/moquette.conf";
+    private static final String CONFIG = "config/moquette.conf";
 
     public static void initServer() throws URISyntaxException {
 //        AgentManager agentManagerObject = (AgentManager) agentManager;
@@ -39,10 +38,9 @@ public class MQTTPluginServer implements ExtensionPoint {
 
     private static void startMQTTServer() throws URISyntaxException {
         ClassLoader classLoader = MQTTPluginServer.class.getClassLoader();
-        String filePath = classLoader.getResource(configFile).toString();
+        String filePath = classLoader.getResource(CONFIG).toString();
 
-        File mqttConfigFile = new File(classLoader.getResource(configFile).toURI()); // TODO: change to rdf query later
-        String filePathSysProp = System.getProperty(configFile);
+        File mqttConfigFile = new File(classLoader.getResource(CONFIG).toURI()); // TODO: change to rdf query later
         IResourceLoader classpathLoader = new ClasspathResourceLoader(filePath);
         final IConfig classPathConfig = new ResourceLoaderConfig(classpathLoader);
         log.info("Starting MQTT broker...");
@@ -71,8 +69,8 @@ public class MQTTPluginServer implements ExtensionPoint {
 
     private static String subscribeTopic(String topic) {
         MessageService messageService = MessageService.getMessageService(serverUrl);
-        String result = messageService.subscribe(topic, true, null, null, null, null, null, null, null, null);
-        log.info("Subscribed to "+topic+" and got Message: "+result);
+        String result = messageService.subscribe(topic, true, null, null, null, null, null);
+        log.info("Subscribed to " + topic + " and got Message: " + result);
         return result;
     }
 

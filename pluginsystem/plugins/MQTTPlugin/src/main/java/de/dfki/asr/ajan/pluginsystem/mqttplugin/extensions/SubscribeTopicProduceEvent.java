@@ -62,26 +62,25 @@ public class SubscribeTopicProduceEvent extends AbstractTDBLeafTask implements N
     public NodeStatus executeLeaf() {
         String report;
         Status stat;
-        String returnMessage;
         try {
             String serverUrl = MQTTUtil.getServerUrlInfo(serverUrlCallback, this.getObject());
             String topic = MQTTUtil.getTopic(subscribeDetails, this.getObject());
             Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
-            returnMessage = subscribeToTopic(serverUrl, topic, repo);
+            subscribeToTopic(serverUrl, topic, repo);
             report = toString()+ " SUCCEEDED";
             stat = Status.SUCCEEDED;
         } catch (URISyntaxException | EventEvaluationException e) {
-            LOG.error("Error while fetching info"+e.getMessage());
-            returnMessage = null;
+            LOG.error("Error while fetching info" + e.getMessage());
             report = toString()+ "FAILED";
             stat = Status.FAILED;
         }
         LOG.info(report);
         return new NodeStatus(stat, report);
     }
+
     private String subscribeToTopic(String serverUrl, String topic, Repository repo) throws EventEvaluationException {
         MessageService messageService = MessageService.getMessageService(serverUrl);
-        return messageService.subscribe(topic, true, goalEventURI, this.getObject(), null,null, repo, this.getObject().getAgentBeliefs(), null, getEvent());
+        return messageService.subscribe(topic, true, goalEventURI, null, repo, null, getEvent());
     }
 
     private Event getEvent() throws EventEvaluationException {
