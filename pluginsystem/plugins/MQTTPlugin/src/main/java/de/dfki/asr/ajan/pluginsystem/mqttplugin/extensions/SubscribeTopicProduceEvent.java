@@ -52,7 +52,7 @@ public class SubscribeTopicProduceEvent extends AbstractTDBLeafTask implements N
     @Getter @Setter
     private BehaviorSelectQuery subscribeDetails;
 
-    @RDF("ajan:goal")
+    @RDF("ajan:event")
     @Getter @Setter
     private URI goalEventURI;
 
