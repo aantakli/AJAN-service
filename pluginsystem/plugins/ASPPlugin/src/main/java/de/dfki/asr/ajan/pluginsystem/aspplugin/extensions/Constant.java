@@ -23,7 +23,7 @@ import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import lombok.Data;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
-import ro.fortsoft.pf4j.Extension;
+import org.pf4j.Extension;
 
 @Extension
 @RDFBean("clingo:Constant")

@@ -102,7 +102,7 @@ public class HttpConnection implements IConnection {
 	}
 
 	@Override
-	public Object execute() throws IOException, SAXException {
+	public Object execute() throws HttpResponseException, IOException, SAXException {
 		LOG.info("Executing request {}", request.toString());
 		return sendRequest();
 	}

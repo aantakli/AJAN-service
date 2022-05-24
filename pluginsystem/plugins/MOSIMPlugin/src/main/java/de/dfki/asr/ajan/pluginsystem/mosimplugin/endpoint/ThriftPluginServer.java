@@ -21,7 +21,7 @@ package de.dfki.asr.ajan.pluginsystem.mosimplugin.endpoint;
 
 import de.dfki.asr.ajan.logic.agent.AgentManager;
 import lombok.extern.slf4j.Slf4j;
-import ro.fortsoft.pf4j.Extension;
+import org.pf4j.Extension;
 
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.EndpointExtension;
 import de.mosim.mmi.agent.MAJANService;

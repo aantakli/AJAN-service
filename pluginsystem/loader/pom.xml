@@ -35,7 +35,7 @@ MA 02110-1301  USA
         <dependency>
             <groupId>org.cyberborean</groupId>
             <artifactId>rdfbeans</artifactId>
-            <version>2.2-SNAPSHOT</version>
+            <version>2.2</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -55,6 +55,11 @@ MA 02110-1301  USA
             <artifactId>gdx-ai</artifactId>
             <version>1.8.2</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.pf4j</groupId>
+            <artifactId>pf4j</artifactId>
+            <version>3.6.0</version>
         </dependency>
     </dependencies>
     <properties>

@@ -1,5 +1,6 @@
 package de.dfki.asr.ajan.pluginsystem.mqttplugin.endpoint;
 
+import de.dfki.asr.ajan.pluginsystem.extensionpoints.EndpointExtension;
 import de.dfki.asr.ajan.pluginsystem.mqttplugin.utils.MessageService;
 import io.moquette.broker.Server;
 import io.moquette.broker.config.ClasspathResourceLoader;
@@ -7,20 +8,20 @@ import io.moquette.broker.config.IConfig;
 import io.moquette.broker.config.IResourceLoader;
 import io.moquette.broker.config.ResourceLoaderConfig;
 import lombok.extern.slf4j.Slf4j;
-import ro.fortsoft.pf4j.Extension;
+import org.pf4j.Extension;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import org.pf4j.ExtensionPoint;
 
 @Slf4j
 @Extension
-public class MQTTPluginServer {
+public class MQTTPluginServer implements ExtensionPoint {
 
     static Server mqttBroker;
     private static String serverUrl;
     private static final String configFile = "config/moquette.conf";
-
 
     public static void initServer() throws URISyntaxException {
 //        AgentManager agentManagerObject = (AgentManager) agentManager;

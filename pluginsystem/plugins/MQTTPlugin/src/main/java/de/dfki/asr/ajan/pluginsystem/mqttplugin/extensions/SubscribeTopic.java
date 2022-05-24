@@ -6,7 +6,6 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
-import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mqttplugin.utils.MQTTUtil;
 import de.dfki.asr.ajan.pluginsystem.mqttplugin.utils.MessageService;
@@ -21,7 +20,7 @@ import org.eclipse.rdf4j.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import ro.fortsoft.pf4j.Extension;
+import org.pf4j.Extension;
 
 import java.net.URI;
 import java.net.URISyntaxException;

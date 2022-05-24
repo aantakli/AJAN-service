@@ -119,7 +119,11 @@ public final class BTUtil {
 		List<Resource> list = new ArrayList();
 		for (int i = 0; i < task.getChildCount(); i++) {
 			TreeNode chNode = (TreeNode) task.getChild(i);
-			list.add(chNode.getInstance(btRoot.getInstance()));
+			Resource instance = chNode.getInstance(btRoot.getInstance());
+			if (instance == null) {
+				instance = BTUtil.getInstanceResource(chNode.getUrl(), btRoot.getInstance());
+			}
+			list.add(instance);
 			chNode.getModel(model, btRoot, mode);
 		}
 		RDFCollections.asRDF(list, head, model);
@@ -172,7 +176,7 @@ public final class BTUtil {
 			// TODO: General Repository desription for SPARQL + Update Endpoints
 			// -----------------------------------------------------------------
 			repo = new SPARQLRepository(url.toString(), url.toString());
-			repo.initialize();
+			repo.init();
 		}
 		return repo;
 	}

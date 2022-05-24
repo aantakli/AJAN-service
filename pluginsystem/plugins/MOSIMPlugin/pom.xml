@@ -21,14 +21,26 @@ MA 02110-1301  USA
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
         <artifactId>plugins</artifactId>
         <version>0.1</version>
     </parent>
+
     <artifactId>MOSIMPlugin</artifactId>
     <name>MOSIMPlugin</name>
     <packaging>jar</packaging>
+
+    <properties>
+        <netbeans.hint.license>licenseheader</netbeans.hint.license>
+        <plugin.id>MOSIMPlugin</plugin.id>
+        <plugin.class>de.dfki.asr.ajan.pluginsystem.mosimplugin.MOSIMPlugin</plugin.class>
+        <plugin.version>0.0.1</plugin.version>
+        <plugin.provider>Andre Antakli</plugin.provider>
+        <plugin.dependencies />
+    </properties>
+
     <build>
 	  <plugins>
 		<plugin>
@@ -50,7 +62,6 @@ MA 02110-1301  USA
                                     common,
                                     lombok,
                                     jackson-databind,
-                                    pf4j,
                                     rdf4j-model,
                                     rdf4j-repository-api
                                 </excludeArtifactIds>
@@ -70,22 +81,26 @@ MA 02110-1301  USA
                 <groupId>org.apache.thrift</groupId>
                 <artifactId>libthrift</artifactId>
                 <version>0.12.0</version>
-                  <type>jar</type>
+                <type>jar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>de.dfki.asr.ajan</groupId>
                 <artifactId>executionservice</artifactId>
                 <version>0.1</version>
                 <type>jar</type>
+                <scope>provided</scope>
             </dependency>
-                <dependency>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>commons-math3</artifactId>
-                        <version>3.6.1</version>
-                        <type>jar</type>
-                </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math3</artifactId>
+                <version>3.6.1</version>
+                <type>jar</type>
+            </dependency>
         </dependencies>
-    <properties>
-        <netbeans.hint.license>licenseheader</netbeans.hint.license>
-    </properties>
 </project>

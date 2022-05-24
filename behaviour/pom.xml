@@ -52,7 +52,7 @@ MA 02110-1301  USA
         <dependency>
             <groupId>org.cyberborean</groupId>
             <artifactId>rdfbeans</artifactId>
-            <version>2.2-SNAPSHOT</version>
+            <version>2.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.eclipse.rdf4j</groupId>
@@ -63,11 +63,6 @@ MA 02110-1301  USA
                     <artifactId>rdf4j-model</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
-            <artifactId>loader</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.badlogicgames.gdx</groupId>
@@ -98,20 +93,9 @@ MA 02110-1301  USA
             <type>pom</type>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${org.slf4j.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-core</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.dfki.asr.ajan</groupId>
-            <artifactId>common</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -145,6 +129,16 @@ MA 02110-1301  USA
             <artifactId>jaxrs-api</artifactId>
             <version>3.0.9.Final</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
+            <artifactId>loader</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.dfki.asr.ajan</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>

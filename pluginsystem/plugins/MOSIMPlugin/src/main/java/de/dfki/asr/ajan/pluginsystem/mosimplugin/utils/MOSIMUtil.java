@@ -290,26 +290,41 @@ public final class MOSIMUtil {
 	}
 
 	public static Map<String,String> getHostInfos(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
-		Map<String,String> host = new HashMap();
-		if (query != null) {
-			Repository repo = BTUtil.getInitializedRepository(info, query.getOriginBase());
-			List<BindingSet> result = query.getResult(repo);
-			if (!result.isEmpty()) {
-				BindingSet bindings = result.get(0);
-				host.put(bindings.getValue("host").stringValue(), bindings.getValue("port").stringValue());
-			}
-		}
+		Map<String,String> host = new HashMap<>();
+		ArrayList<String> valuesNeeded = new ArrayList<>();
+		valuesNeeded.add("host");
+		valuesNeeded.add("port");
+		Map<String, String> results = MOSIMUtil.getResults(query,info, valuesNeeded);
+		host.put(results.get("host"), results.get("port"));
 		return host;
 	}
 	
 	public static int getPortInfos(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
+		return Integer.parseInt(MOSIMUtil.getResults(query, info, new ArrayList<String>(){{
+			add("port");
+		}}).get("port"));
+	}
+
+	public static String getEventType(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
+		return MOSIMUtil.getResults(query, info, new ArrayList<String>(){{
+			add("eventType");
+		}}).get("eventType");
+	}
+
+	public static Map<String,String> getResults(final BehaviorSelectQuery query, final AgentTaskInformation info, ArrayList<String> valuesNeeded) throws URISyntaxException {
+		Map<String,String> response = new HashMap<>();
 		Repository repo = BTUtil.getInitializedRepository(info, query.getOriginBase());
 		List<BindingSet> result = query.getResult(repo);
-		if (!result.isEmpty()) {
-			BindingSet bindings = result.get(0);
-			return Integer.parseInt(bindings.getValue("port").stringValue());
+		if(!result.isEmpty()){
+			for (String valueNeeded:valuesNeeded) {
+				for (BindingSet bindings : result) {
+					if (bindings.hasBinding(valueNeeded)) {
+						response.put(valueNeeded, bindings.getValue(valueNeeded).stringValue());
+					}
+				}
+			}
 		}
-		return 0;
+		return response;
 	}
 
 	public static MTransform getTransform(final BindingSet binding) throws URISyntaxException, IOException, ClassNotFoundException {

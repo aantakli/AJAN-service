@@ -20,7 +20,7 @@ import org.eclipse.rdf4j.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import ro.fortsoft.pf4j.Extension;
+import org.pf4j.Extension;
 
 import java.net.URISyntaxException;
 

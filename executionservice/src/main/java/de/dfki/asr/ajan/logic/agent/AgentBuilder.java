@@ -28,8 +28,7 @@ import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.Debug;
 import de.dfki.asr.ajan.behaviour.service.impl.IConnection;
 import de.dfki.asr.ajan.common.TripleStoreManager.Inferencing;
-import de.dfki.asr.ajan.data.AgentModelManager;
-import de.dfki.asr.ajan.data.AgentTDBManager;
+import de.dfki.asr.ajan.data.*;
 import de.dfki.asr.ajan.knowledge.ExecutionBeliefBase;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import java.net.URI;
@@ -43,6 +42,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
+import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
@@ -95,7 +95,7 @@ public class AgentBuilder {
 		tdbManager = manager;
 	}
 
-	public Agent build() throws URISyntaxException {
+	public Agent build() throws UnauthorizedException, URISyntaxException {
                 LOG.info("Creating agent with ID: " + id);
                 url = getAgentURI();
 		AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,manageTDB,inferencing));
