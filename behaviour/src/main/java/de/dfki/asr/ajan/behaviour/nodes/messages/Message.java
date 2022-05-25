@@ -46,8 +46,6 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.resultio.TupleQueryResultFormat;
 import org.eclipse.rdf4j.repository.Repository;
@@ -124,7 +122,6 @@ public class Message extends AbstractTDBLeafTask {
 		if (response instanceof Model) {
 			Model model = (Model) response;
 			if (model.isEmpty()) {
-				ValueFactory vf = SimpleValueFactory.getInstance();
 				model.add(vf.createIRI(requestURI), BTVocabulary.HAS_RESPONSE, BTVocabulary.EMPTY);
 				return updateBeliefs(AgentUtil.setNamedGraph(model, new URI(requestURI)), targetBase);
 			}
