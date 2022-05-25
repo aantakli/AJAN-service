@@ -78,6 +78,7 @@ Inorder to work with MQTT Publish and Subscribe, we need a working MQTT Broker s
 To do so:
 - Install a MQTT Message Broker such as [Mosquitto](https://mosquitto.org/download/)
 - Make sure you enter the path to mosquitto in envionmental variable for the following to work without any hassles.
+- Run the mosquitto broker via `mosquitto -p <port-number>`.
 - In Mosquitto publishing is done by
   `mosquitto_pub -t "<your-topic>" -m "<your-message>" -r`.
   The `-r` is used to retain message which is useful for testing. For further more info, please refer [mosquitto_pub](https://mosquitto.org/man/mosquitto_pub-1.html)
