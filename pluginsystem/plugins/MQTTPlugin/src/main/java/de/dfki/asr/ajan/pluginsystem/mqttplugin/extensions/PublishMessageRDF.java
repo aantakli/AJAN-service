@@ -52,7 +52,7 @@ public class PublishMessageRDF extends AbstractTDBLeafTask implements NodeExtens
     @Getter @Setter
     private String contentType;
 
-    @RDF("bt-mqtt:constructQuery")
+    @RDF("bt-mqtt:rdfMessage")
     @Getter @Setter
     private BehaviorConstructQuery constructQuery;
 
@@ -69,9 +69,7 @@ public class PublishMessageRDF extends AbstractTDBLeafTask implements NodeExtens
             // execute the query
             Repository repo = BTUtil.getInitializedRepository(getObject(), constructQuery.getOriginBase());
             Model model = constructQuery.getResult(repo);
-            // convert to RDF using the contentType
             String messagePayload = ACTNUtil.getModelPayload(model,contentType);
-//            Object convertedMessage = convertRDFFormat(result);
             publishMessage(serverUrl, topic, messagePayload);
             report = toString() + "SUCCEEDED";
             stat = Status.SUCCEEDED;
