@@ -33,11 +33,6 @@ public class CreateMQTTBroker extends AbstractTDBLeafTask implements NodeExtensi
     @Getter @Setter
     private String label;
 
-//    @RDF("bt-mqtt:callback")
-//    @Getter @Setter
-//    private BehaviorSelectQuery callback;
-//    private int clPort;
-
     protected static final Logger LOG = LoggerFactory.getLogger(CreateMQTTBroker.class);
 
     @Override
