@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.events.Event;
+import static de.dfki.asr.ajan.behaviour.service.impl.IConnection.BASE_URI;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.common.AgentUtil;
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -16,6 +17,7 @@ import de.dfki.asr.ajan.common.CSVInput;
 import de.dfki.asr.ajan.knowledge.AbstractBeliefBase;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.RMLMapperException;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.utils.MappingUtil;
+import static de.dfki.asr.ajan.pluginsystem.mappingplugin.utils.MappingUtil.getTriplesMaps;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.eclipse.rdf4j.model.Model;
@@ -32,6 +34,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.Rio;
 
 public class MessageService {
     private static final MemoryPersistence persistence = new MemoryPersistence();
@@ -41,6 +46,9 @@ public class MessageService {
     private String clientId = UUID.randomUUID().toString();
 
     protected static final Logger LOG = LoggerFactory.getLogger(MessageService.class);
+	private static final String TURTLE = "http://www.ajan.de/ajan-mapping-ns#TextTurtle";
+	private static final String JSON = "http://www.ajan.de/ajan-mapping-ns#JsonLD";
+	private static final String XML = "http://www.ajan.de/ajan-mapping-ns#RDFxml";
 
     private MessageService(String broker){
         try {
@@ -150,44 +158,61 @@ public class MessageService {
 
     private Model parseMessageAndGetModel(String s, URI mapping, Repository repo) throws IOException, TransformerException, URISyntaxException, RMLMapperException {
         // check if the message is CSV, JSON or XML
-        InputStream parsedMessage = getInputStream(parseMessage(s));
-        Model model = MappingUtil.getMappedModel(parsedMessage, repo, mapping);
+        InputStream parsedMessage = getInputStream(s);
+        Model model = getModel(parsedMessage, repo, mapping);
         return model;
     }
+	
+		public Model getModel(InputStream parsedMessage, Repository repo, URI mapping) throws IOException, URISyntaxException, RMLMapperException {
+		if (parsedMessage != null) {
+            if (mapping != null) {
+				switch (mapping.toString()) {
+					case TURTLE:
+						return Rio.parse(parsedMessage, BASE_URI, RDFFormat.TURTLE);
+					case JSON:
+						return Rio.parse(parsedMessage, BASE_URI, RDFFormat.JSONLD);
+					case XML:
+						return Rio.parse(parsedMessage, BASE_URI, RDFFormat.RDFXML);
+					default:
+						return MappingUtil.getMappedModel(getTriplesMaps(repo, mapping), parsedMessage);
+				}
+            }
+            else {
+                throw new RMLMapperException("no mapping file selected!");
+            }
+        }
+        return new LinkedHashModel();
+	}
 
     private Object parseMessage(String s) {
-        MultivaluedMap<String,String> map = new MultivaluedHashMap<>();
         try {
-            InputStream in = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8));
-            JsonNode jsonNode = AgentUtil.setMessageInformation(AgentUtil.getJsonFromStream(in),map);
-            return jsonNode;
+            return Rio.parse(getInputStream(s), BASE_URI, RDFFormat.TURTLE);
         } catch (IOException e) {
-            LOG.info("Message received is not Json, trying to parse as CSV");
+            LOG.info("Message received is not Text/Turtle, trying to parse as RDF/XML");
+        }
+
+		try {
+            return Rio.parse(getInputStream(s), BASE_URI, RDFFormat.RDFXML);
+        } catch (IOException e) {
+            LOG.info("Message received is not RDF/XML, trying to parse as JSON-LD");
         }
 
         try {
-            InputStream in = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8));
-            Document document = AgentUtil.setMessageInformation(AgentUtil.getXMLFromStream(in), map);
-            return document;
-        } catch (SAXException e) {
-            e.printStackTrace();
+            return Rio.parse(getInputStream(s), BASE_URI, RDFFormat.JSONLD);
         } catch (IOException e) {
-            LOG.info("Message received is not XML, discarding it.");
+            LOG.info("Message received is not JSON-LD, trying to parse as InputStream");
+        }
+		
+		try {
+            return getInputStream(s);
+        } catch (IOException e) {
+			LOG.error("Pasing not possible!", e);
         }
 
-        try {
-            InputStream in = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8));
-            CSVInput csvInput = AgentUtil.setMessageInformation(AgentUtil.getCSVFromStream(in), map);
-            return csvInput;
-        } catch (IOException e) {
-            LOG.info("Message received is not CSV, trying to parse as XML");
-        }
         return null;
     }
 
-    private ByteArrayInputStream getInputStream(Object jsonNode) throws JsonProcessingException {
-        ObjectMapper om = new ObjectMapper();
-        ObjectWriter writer = om.writer();
-        return new ByteArrayInputStream(writer.writeValueAsBytes(jsonNode));
+    private ByteArrayInputStream getInputStream(String input) throws JsonProcessingException {
+        return new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
     }
 }
