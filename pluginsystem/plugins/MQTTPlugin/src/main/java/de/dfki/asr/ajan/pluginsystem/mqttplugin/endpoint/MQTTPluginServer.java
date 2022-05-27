@@ -2,7 +2,7 @@ package de.dfki.asr.ajan.pluginsystem.mqttplugin.endpoint;
 
 import de.dfki.asr.ajan.pluginsystem.mqttplugin.utils.MessageService;
 import io.moquette.broker.Server;
-import io.moquette.broker.config.ClasspathResourceLoader;
+import io.moquette.broker.config.FileResourceLoader;
 import io.moquette.broker.config.IConfig;
 import io.moquette.broker.config.IResourceLoader;
 import io.moquette.broker.config.ResourceLoaderConfig;
@@ -38,10 +38,10 @@ public class MQTTPluginServer implements ExtensionPoint {
 
     private static void startMQTTServer() throws URISyntaxException {
         ClassLoader classLoader = MQTTPluginServer.class.getClassLoader();
-        String filePath = classLoader.getResource(CONFIG).toString();
+        String filePath = classLoader.getResource(CONFIG).getFile();
 
-        File mqttConfigFile = new File(classLoader.getResource(CONFIG).toURI()); // TODO: change to rdf query later
-        IResourceLoader classpathLoader = new ClasspathResourceLoader(filePath);
+        File mqttConfigFile = new File(filePath); // TODO: change to rdf query later
+        IResourceLoader classpathLoader = new FileResourceLoader(mqttConfigFile);
         final IConfig classPathConfig = new ResourceLoaderConfig(classpathLoader);
         log.info("Starting MQTT broker...");
         try{
