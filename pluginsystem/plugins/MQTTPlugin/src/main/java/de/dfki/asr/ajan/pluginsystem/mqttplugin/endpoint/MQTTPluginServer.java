@@ -25,17 +25,22 @@ public class MQTTPluginServer implements ExtensionPoint {
     private static final String CONFIG = "config/moquette.conf";
 
     public static void initServer() throws URISyntaxException {
-//        AgentManager agentManagerObject = (AgentManager) agentManager;
+		// AgentManager agentManagerObject = (AgentManager) agentManager;
         setupAndStartServer();
     }
 
     private static void setupAndStartServer() throws URISyntaxException {
-            startAJANMQTTBroker();
+        startAJANMQTTBroker();
     }
 
     private static void startAJANMQTTBroker() throws URISyntaxException {
         // TODO: Implement handler and processor
-            startMQTTServer();
+		if(mqttBroker != null){
+            log.info("Broker already running!");
+        } else {
+			startMQTTServer();
+			testConnection();
+        }
     }
 
     private static void startMQTTServer() throws URISyntaxException {
@@ -62,11 +67,9 @@ public class MQTTPluginServer implements ExtensionPoint {
         } catch (InterruptedException e){
             log.warn("Pausing for publishing topics interrupted");
         }
-
         log.info("Publishing topics");
         publishMessage("/exit", "Testing Connection");
         subscribeTopic("/exit");
-
     }
 
     private static String subscribeTopic(String topic) {
@@ -93,7 +96,7 @@ public class MQTTPluginServer implements ExtensionPoint {
     }
 
     public static void destroyServer() {
-        if(mqttBroker!=null){
+        if(mqttBroker != null){
             log.info("Destroying Server");
             mqttBroker.stopServer();
         } else {

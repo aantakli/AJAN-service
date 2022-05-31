@@ -59,7 +59,6 @@ public class CreateMQTTBroker extends AbstractTDBLeafTask implements NodeExtensi
 
     private void startBroker() throws URISyntaxException {
         MQTTPluginServer.initServer();
-        MQTTPluginServer.testConnection();
     }
 
     @Override
