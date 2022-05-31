@@ -30,6 +30,7 @@ import org.pf4j.Extension;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.UUID;
 
 @Extension
 @Component
@@ -56,6 +57,7 @@ public class SubscribeTopicProduceEvent extends AbstractTDBLeafTask implements N
     @Getter @Setter
     private URI goalEventURI;
 
+	private final String clientId = UUID.randomUUID().toString();
     protected static final Logger LOG = LoggerFactory.getLogger(SubscribeTopicProduceEvent.class);
 
     @Override
@@ -79,7 +81,7 @@ public class SubscribeTopicProduceEvent extends AbstractTDBLeafTask implements N
     }
 
     private String subscribeToTopic(String serverUrl, String topic, Repository repo) throws EventEvaluationException {
-        MessageService messageService = MessageService.getMessageService(serverUrl);
+        MessageService messageService = MessageService.getMessageService(clientId, serverUrl);
         return messageService.subscribe(topic, true, goalEventURI, null, repo, null, getEvent());
     }
 

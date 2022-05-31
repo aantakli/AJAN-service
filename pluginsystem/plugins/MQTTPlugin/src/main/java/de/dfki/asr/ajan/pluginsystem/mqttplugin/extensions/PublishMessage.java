@@ -23,6 +23,7 @@ import org.pf4j.Extension;
 
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.UUID;
 
 @Extension
 @Component
@@ -47,7 +48,7 @@ public class PublishMessage extends AbstractTDBLeafTask implements NodeExtension
     private String topic;
     private String message;
 
-
+	private final String clientId = UUID.randomUUID().toString();
     protected static final Logger LOG = LoggerFactory.getLogger(PublishMessage.class);
 
     @Override
@@ -78,7 +79,7 @@ public class PublishMessage extends AbstractTDBLeafTask implements NodeExtension
     }
 
     private void publishMessage(String serverUrl, String topic, String message) {
-        MessageService messageService = MessageService.getMessageService(serverUrl);
+        MessageService messageService = MessageService.getMessageService(clientId, serverUrl);
         if(messageService.publish(topic, message)){
             LOG.info("Published the message to topic : "+topic);
         } else {

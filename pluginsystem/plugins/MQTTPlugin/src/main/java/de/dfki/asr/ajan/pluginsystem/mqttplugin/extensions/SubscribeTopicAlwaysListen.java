@@ -25,6 +25,7 @@ import org.pf4j.Extension;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.UUID;
 
 @Extension
 @Component
@@ -55,6 +56,7 @@ public class SubscribeTopicAlwaysListen extends AbstractTDBLeafTask implements N
     @Getter @Setter
     private BehaviorSelectQuery subscribeDetails;
 
+	private final String clientId = UUID.randomUUID().toString();
     protected static final Logger LOG = LoggerFactory.getLogger(SubscribeTopicAlwaysListen.class);
 
     @Override
@@ -62,12 +64,17 @@ public class SubscribeTopicAlwaysListen extends AbstractTDBLeafTask implements N
         String report;
         Status stat;
         try {
-            String serverUrl = MQTTUtil.getServerUrlInfo(serverUrlCallback, this.getObject());
-            String topic = MQTTUtil.getTopic(subscribeDetails, this.getObject());
-            Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
-            subscribeToTopic(serverUrl, topic, repo);
-            report = toString()+ " SUCCEEDED";
-            stat = Status.SUCCEEDED;
+			if (getStatus() != Status.RUNNING) {
+				String serverUrl = MQTTUtil.getServerUrlInfo(serverUrlCallback, this.getObject());
+				String topic = MQTTUtil.getTopic(subscribeDetails, this.getObject());
+				Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
+				subscribeToTopic(serverUrl, topic, repo);
+				report = toString()+ " RUNNING";
+				stat = Status.RUNNING;
+			} else {
+				report = toString()+ " RUNNING";
+				stat = Status.RUNNING;
+			}
         } catch (URISyntaxException e) {
             LOG.error("Error while fetching info" + e.getMessage());
             report = toString()+ "FAILED";
@@ -79,7 +86,7 @@ public class SubscribeTopicAlwaysListen extends AbstractTDBLeafTask implements N
     }
 
     private String subscribeToTopic(String serverUrl, String topic, Repository repo) {
-        MessageService messageService = MessageService.getMessageService(serverUrl);
+        MessageService messageService = MessageService.getMessageService(clientId, serverUrl);
 		AbstractBeliefBase beliefs = messageService.getBeliefs(this.getObject(), targetBase);
         return messageService.subscribe(topic, true, null, mapping, repo, beliefs, null);
     }
@@ -87,6 +94,10 @@ public class SubscribeTopicAlwaysListen extends AbstractTDBLeafTask implements N
     @Override
     public void end() {
         LOG.info("Status (" + getStatus() + ")");
+		if (getStatus() == Status.CANCELLED) {
+			BTUtil.sendReport(this.getObject(), toString() + " CANCELLED");
+			MessageService.clearClient(clientId);
+		}
     }
 
     @Override

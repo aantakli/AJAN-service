@@ -1,19 +1,12 @@
 package de.dfki.asr.ajan.pluginsystem.mqttplugin.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.events.Event;
 import static de.dfki.asr.ajan.behaviour.service.impl.IConnection.BASE_URI;
 import de.dfki.asr.ajan.common.AJANVocabulary;
-import de.dfki.asr.ajan.common.AgentUtil;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.transform.TransformerException;
 
-import de.dfki.asr.ajan.common.CSVInput;
 import de.dfki.asr.ajan.knowledge.AbstractBeliefBase;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.RMLMapperException;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.utils.MappingUtil;
@@ -24,8 +17,6 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -33,57 +24,59 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 
 public class MessageService {
-    private static final MemoryPersistence persistence = new MemoryPersistence();
-    private static IMqttAsyncClient _mqttClient;
-    private static final Integer CLIENT_QOS = 2;
-    private static MessageService messageServiceInstance;
-    private String clientId = UUID.randomUUID().toString();
+    private final IMqttAsyncClient mqttClient;
+    private final String clientId;
+
+	private static final Integer CLIENT_QOS = 2;
+	private static final MemoryPersistence PERSISTANCE = new MemoryPersistence();
+	private static final Map<String, MessageService> BROKERS = new HashMap();
 
     protected static final Logger LOG = LoggerFactory.getLogger(MessageService.class);
 	private static final String TURTLE = "http://www.ajan.de/ajan-mapping-ns#TextTurtle";
 	private static final String JSON = "http://www.ajan.de/ajan-mapping-ns#JsonLD";
 	private static final String XML = "http://www.ajan.de/ajan-mapping-ns#RDFxml";
 
-    private MessageService(String broker){
-        try {
-            IMqttAsyncClient client = new MqttAsyncClient(broker, clientId, persistence);
-            MqttConnectOptions options = getOptions();
-
-            client.connect(options).waitForCompletion();
-            _mqttClient = client;
-            LOG.info("Client Connected Successfully");
-        } catch (MqttException e) {
-            LOG.error(e.getMessage());
-        }
+    public MessageService(String id, String service) throws MqttException {
+		clientId = id;
+		mqttClient = new MqttAsyncClient(service, clientId, PERSISTANCE);
+		MqttConnectOptions options = getOptions();
+		mqttClient.connect(options).waitForCompletion();
+		LOG.info("Client Connected Successfully");
     }
 
-    public static MessageService getMessageService(String broker) {
-
-        if(messageServiceInstance == null){
-            messageServiceInstance = new MessageService(broker);
-        }
-        if (!_mqttClient.getServerURI().equals(broker)){
-            try {
-                _mqttClient.disconnect().waitForCompletion();
-            } catch (MqttException e) {
-                LOG.error("Error while disconnecting existing client:"+e.getMessage());
+    public static MessageService getMessageService(String clientId, String service) {
+		MessageService broker = BROKERS.get(clientId);
+        if(broker == null){
+			try {
+				broker = new MessageService(clientId, service);
+				BROKERS.put(clientId, broker);
+			} catch (MqttException e) {
+                LOG.error("Error while connecting with client:" + e.getMessage());
             }
-            messageServiceInstance = new MessageService(broker);
         }
-        if(!_mqttClient.isConnected()){
+        if (!broker.mqttClient.getServerURI().equals(service)){
             try {
-                _mqttClient.connect(getOptions()).waitForCompletion();
+                broker.mqttClient.disconnect().waitForCompletion();
+				BROKERS.replace(clientId, new MessageService(clientId, service));
+            } catch (MqttException e) {
+                LOG.error("Error while disconnecting existing client:" + e.getMessage());
+            }
+        }
+        if(!broker.mqttClient.isConnected()){
+            try {
+                broker.mqttClient.connect(getOptions()).waitForCompletion();
             } catch (MqttException e) {
                 LOG.error("Error while reconnecting"+e.getMessage());
             }
         }
-        return messageServiceInstance;
+        return broker;
     }
 
     private static MqttConnectOptions getOptions() {
@@ -95,15 +88,29 @@ public class MessageService {
         return _options;
     }
 
+	public static void clearClient(String clientId) {
+		MessageService broker = BROKERS.get(clientId);
+		if (broker != null) {
+			try {
+				broker.mqttClient.disconnectForcibly();
+				broker.mqttClient.close();
+				LOG.info("Connection successfully closed: " + clientId);
+				BROKERS.remove(clientId);
+			} catch (MqttException e) {
+                LOG.error("Error while closing client:" + e.getMessage());
+            }
+		}
+	}
+
     public IMqttAsyncClient getMessageClient(){
-        return _mqttClient != null?_mqttClient.isConnected()?_mqttClient:null:null;
+        return mqttClient != null ? mqttClient.isConnected() ? mqttClient:null:null;
     }
 
     public String subscribe(String topic, boolean keepAlive, URI eventURI, URI mapping, Repository repo, AbstractBeliefBase beliefs, Event event){
         final String[] message = new String[1];
         try{
             if(keepAlive) {
-                _mqttClient.subscribe(topic, CLIENT_QOS, (s, mqttMessage) -> {
+                mqttClient.subscribe(topic, CLIENT_QOS, (s, mqttMessage) -> {
                     message[0] = new String(mqttMessage.getPayload());
                     if(eventURI != null){ //false
                         event.setEventInformation(parseMessage(message[0]));
@@ -112,12 +119,12 @@ public class MessageService {
                         storeInKnowledgeBase(message[0], mapping, repo, beliefs); // store it to agent knowledge
                 });
             } else {
-                _mqttClient.subscribe(topic, CLIENT_QOS, (s, mqttMessage) -> {
+                mqttClient.subscribe(topic, CLIENT_QOS, (s, mqttMessage) -> {
                     message[0] = new String(mqttMessage.getPayload());
                     storeInKnowledgeBase(message[0], mapping, repo, beliefs); // store it to agent knowledge
                     // update the agent knowledge
                     LOG.info(message[0]); //fire an event
-                _mqttClient.unsubscribe(topic).waitForCompletion();
+                mqttClient.unsubscribe(topic).waitForCompletion();
                 }).waitForCompletion();
             }
         } catch (MqttException e){
@@ -127,12 +134,12 @@ public class MessageService {
     }
 
     public void unsubscribe(String topic) throws MqttException {
-        _mqttClient.unsubscribe(topic).waitForCompletion();
+        mqttClient.unsubscribe(topic).waitForCompletion();
     }
 
     public boolean publish(String topic, String message){
         try {
-            _mqttClient.publish(topic, message.getBytes(),1,true);
+            mqttClient.publish(topic, message.getBytes(),1,true);
             return true;
         } catch (MqttException e) {
             LOG.error(e.getMessage());
@@ -163,7 +170,7 @@ public class MessageService {
         return model;
     }
 	
-		public Model getModel(InputStream parsedMessage, Repository repo, URI mapping) throws IOException, URISyntaxException, RMLMapperException {
+	public Model getModel(InputStream parsedMessage, Repository repo, URI mapping) throws IOException, URISyntaxException, RMLMapperException {
 		if (parsedMessage != null) {
             if (mapping != null) {
 				switch (mapping.toString()) {

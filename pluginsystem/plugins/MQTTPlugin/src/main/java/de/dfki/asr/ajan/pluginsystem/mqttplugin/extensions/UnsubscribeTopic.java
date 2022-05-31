@@ -42,9 +42,9 @@ public class UnsubscribeTopic extends AbstractTDBLeafTask implements NodeExtensi
     @Getter @Setter
     private BehaviorSelectQuery serverUrlCallback;
 
-    @RDF("bt-mqtt:subscribeDetails")
+	@RDF("bt-mqtt:unsubscribeDetails")
     @Getter @Setter
-    private BehaviorSelectQuery subscribeDetails;
+    private BehaviorSelectQuery unsubscribeDetails;
 
     protected static final Logger LOG = LoggerFactory.getLogger(UnsubscribeTopic.class);
 
@@ -54,8 +54,9 @@ public class UnsubscribeTopic extends AbstractTDBLeafTask implements NodeExtensi
         Status stat;
         try {
             String serverUrl = MQTTUtil.getServerUrlInfo(serverUrlCallback, this.getObject());
-            String topic = MQTTUtil.getTopic(subscribeDetails, this.getObject());
-            unsubscribeTopic(serverUrl, topic);
+			String clientId = MQTTUtil.getId(unsubscribeDetails, this.getObject());
+            String topic = MQTTUtil.getTopic(unsubscribeDetails, this.getObject());
+            unsubscribeTopic(clientId, serverUrl, topic);
             stat = Status.SUCCEEDED;
             report = "SUCCEEDED";
         } catch (URISyntaxException | MqttException e) {
@@ -67,8 +68,8 @@ public class UnsubscribeTopic extends AbstractTDBLeafTask implements NodeExtensi
         return new NodeStatus(stat, report);
     }
 
-    private void unsubscribeTopic(String serverUrl, String topic) throws MqttException {
-        MessageService messageService = MessageService.getMessageService(serverUrl);
+    private void unsubscribeTopic(String clientId, String serverUrl, String topic) throws MqttException {
+        MessageService messageService = MessageService.getMessageService(clientId, serverUrl);
         messageService.unsubscribe(topic);
     }
 

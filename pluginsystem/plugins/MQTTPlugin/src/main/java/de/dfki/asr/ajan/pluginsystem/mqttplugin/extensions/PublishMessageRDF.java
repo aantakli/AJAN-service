@@ -26,6 +26,7 @@ import org.pf4j.Extension;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.util.UUID;
 
 @Extension
 @Component
@@ -56,7 +57,7 @@ public class PublishMessageRDF extends AbstractTDBLeafTask implements NodeExtens
     @Getter @Setter
     private BehaviorConstructQuery constructQuery;
 
-
+	private final String clientId = UUID.randomUUID().toString();
     protected static final Logger LOG = LoggerFactory.getLogger(PublishMessageRDF.class);
 
     @Override
@@ -83,13 +84,8 @@ public class PublishMessageRDF extends AbstractTDBLeafTask implements NodeExtens
         return new NodeStatus(stat, report);
     }
 
-    private Object convertRDFFormat(Model result) {
-        
-        return null;
-    }
-
     private void publishMessage(String serverUrl, String topic, String message) {
-        MessageService messageService = MessageService.getMessageService(serverUrl);
+        MessageService messageService = MessageService.getMessageService(clientId, serverUrl);
         if(messageService.publish(topic, message)){
             LOG.info("Published the message to topic : "+topic);
         } else {

@@ -25,6 +25,7 @@ import org.pf4j.Extension;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.UUID;
 
 @Extension
 @Component
@@ -56,6 +57,7 @@ public class SubscribeTopic extends AbstractTDBLeafTask implements NodeExtension
     @Getter @Setter
     private BehaviorSelectQuery subscribeDetails;
 
+	private final String clientId = UUID.randomUUID().toString();
     protected static final Logger LOG = LoggerFactory.getLogger(SubscribeTopic.class);
 
     @Override
@@ -82,19 +84,19 @@ public class SubscribeTopic extends AbstractTDBLeafTask implements NodeExtension
     }
 
     private String subscribeToTopic(String serverUrl, String topic, Repository repo) {
-        MessageService messageService = MessageService.getMessageService(serverUrl);
+        MessageService messageService = MessageService.getMessageService(clientId, serverUrl);
 		AbstractBeliefBase beliefs = messageService.getBeliefs(this.getObject(), targetBase);
         return messageService.subscribe(topic, false, null, mapping, repo, beliefs, null);
     }
 
     @Override
     public void end() {
-        LOG.info("Status ("+getStatus()+")");
+        LOG.info("Status (" + getStatus() + ")");
     }
 
     @Override
     public String toString(){
-        return "SubscribeTopic ("+getStatus()+")";
+        return "SubscribeTopic (" + getStatus() + ")";
     }
 
     @Override

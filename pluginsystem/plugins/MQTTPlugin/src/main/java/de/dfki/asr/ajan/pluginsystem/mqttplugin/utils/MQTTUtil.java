@@ -44,14 +44,17 @@ public final class MQTTUtil {
         return getStringStringMap(query, info, "topic", "message");
     }
 
-    public  static String getServerUrlInfo(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
+    public static String getServerUrlInfo(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
         return getStringMap(query, info, "serverUrl");
     }
-    public  static String getTopic(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
+
+    public static String getTopic(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
         return getStringMap(query, info, "topic");
     }
 
-
+	public static String getId(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
+        return getStringMap(query, info, "id");
+    }
 
     public static String getStringMap(BehaviorSelectQuery query, AgentTaskInformation info, String stringNameToFetch) throws URISyntaxException {
         if(query != null){
@@ -64,5 +67,4 @@ public final class MQTTUtil {
         }
         return null;
     }
-
 }

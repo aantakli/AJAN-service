@@ -12,6 +12,7 @@ import org.pf4j.Extension;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.UUID;
 import org.pf4j.ExtensionPoint;
 
 @Slf4j
@@ -20,6 +21,7 @@ public class MQTTPluginServer implements ExtensionPoint {
 
     static Server mqttBroker;
     private static String serverUrl;
+	private static final String CLIENT_ID = UUID.randomUUID().toString();
     private static final String CONFIG = "config/moquette.conf";
 
     public static void initServer() throws URISyntaxException {
@@ -68,14 +70,14 @@ public class MQTTPluginServer implements ExtensionPoint {
     }
 
     private static String subscribeTopic(String topic) {
-        MessageService messageService = MessageService.getMessageService(serverUrl);
+        MessageService messageService = MessageService.getMessageService(CLIENT_ID, serverUrl);
         String result = messageService.subscribe(topic, true, null, null, null, null, null);
         log.info("Subscribed to " + topic + " and got Message: " + result);
         return result;
     }
 
     private static void publishMessage(String topic, String message) {
-        MessageService messageService = MessageService.getMessageService(serverUrl);
+        MessageService messageService = MessageService.getMessageService(CLIENT_ID, serverUrl);
         if(messageService.publish(topic,message)){
             log.info("Message published successfully");
         } else {
