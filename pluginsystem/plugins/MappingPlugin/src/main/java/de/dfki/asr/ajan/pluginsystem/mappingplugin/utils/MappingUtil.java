@@ -57,7 +57,7 @@ public final class MappingUtil {
 
 	}
 
-    public static  InputStream getResourceStream(final Object input) throws JsonProcessingException, IOException, TransformerException {
+    public static InputStream getResourceStream(final Object input) throws JsonProcessingException, IOException, TransformerException {
         if (input instanceof JsonNode) {
             return MappingUtil.getJSONResourceStream(input);
         }

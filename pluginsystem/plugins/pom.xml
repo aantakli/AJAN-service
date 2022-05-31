@@ -80,6 +80,7 @@
         <module>ASPPlugin</module>
         <module>STRIPSPlugin</module>
         <module>MOSIMPlugin</module>
+        <module>MQTTPlugin</module>
     </modules>
 
     <dependencies>

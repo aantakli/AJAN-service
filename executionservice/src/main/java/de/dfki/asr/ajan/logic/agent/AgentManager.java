@@ -226,9 +226,10 @@ public class AgentManager {
 	@PreDestroy
 	public void cleanAllAgents() {
 		for (Iterator<Map.Entry<String, Agent>> iterator = agentMap.entrySet().iterator(); iterator.hasNext();) {
-			TripleDataBase db = iterator.next().getValue().getBeliefs();
-			tripleStoreManager.removeTripleDataBase(db);
-			iterator.remove();
+                    Agent agent = iterator.next().getValue();
+                    TripleDataBase db = agent.getBeliefs();
+                    tripleStoreManager.removeTripleDataBase(db);
+                    iterator.remove();
 		}
 	}
 }

@@ -111,9 +111,7 @@ public class HttpBinding {
 			if (result.isEmpty()) {
 				return addHeaders;
 			}
-			Iterator<BindingSet> bindings = result.iterator();
-			while (bindings.hasNext()) {
-				BindingSet bindingSet = bindings.next();
+			for (BindingSet bindingSet : result) {
 				HttpHeader header = getHttpHeader(bindingSet);
 				if (header != null) {
 					addHeaders.add(header);
@@ -127,12 +125,8 @@ public class HttpBinding {
 
 	private void addAddHeaders(final List<HttpHeader> addHeaders) {
 		getHeaders().clear();
-		Iterator<HttpHeader> iterAdd = addHeaders.iterator();
-		while (iterAdd.hasNext()) {
-			HttpHeader add = iterAdd.next();
-			Iterator<HttpHeader> iterOrig = originals.iterator();
-			while (iterOrig.hasNext()) {
-				HttpHeader orig = iterOrig.next();
+		for (HttpHeader add : addHeaders) {
+			for (HttpHeader orig : originals) {
 				getHeaders().add(orig);
 				String origFragment = orig.getHeaderName().getFragment();
 				String addFragment = add.getHeaderName().getFragment();
