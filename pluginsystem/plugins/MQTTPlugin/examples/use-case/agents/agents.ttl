@@ -1,0 +1,56 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf4j: <http://rdf4j.org/schema/rdf4j#> .
+@prefix sesame: <http://www.openrdf.org/schema/sesame#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fn: <http://www.w3.org/2005/xpath-functions#> .
+
+<http://localhost:8090/rdf4j/repositories/agents#EV_be89dc04-09fd-4c20-8891-57d24c4f619a>
+  a <http://www.ajan.de/ajan-ns#ModelEvent>;
+  rdfs:label "mqtt_in" .
+
+<http://localhost:8090/rdf4j/repositories/agents#EP_a443db33-c4bb-4ecb-870a-7bed607a7981>
+  a <http://www.ajan.de/ajan-ns#Endpoint>;
+  rdfs:label "mqtt_out";
+  <http://www.ajan.de/ajan-ns#capability> "mqtt_out";
+  <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#EV_4fc5cccf-6f61-4831-a0f0-e6be18a38f37> .
+
+<http://localhost:8090/rdf4j/repositories/agents#BE_9b64140a-4d38-4faa-9ecf-41aedbededf0>
+  a <http://www.ajan.de/ajan-ns#Behavior>;
+  rdfs:label "mqtt Behavior";
+  <http://www.ajan.de/ajan-ns#clearEKB> false;
+  <http://www.ajan.de/ajan-ns#trigger> <http://localhost:8090/rdf4j/repositories/agents#EV_4fc5cccf-6f61-4831-a0f0-e6be18a38f37>;
+  <http://www.ajan.de/ajan-ns#bt> <http://localhost:8090/rdf4j/repositories/behaviors#BT_d78d4eb6-5156-47eb-84a5-3a0289f7d2dc> .
+
+<http://localhost:8090/rdf4j/repositories/agents#AG_c5dfbfb3-e222-4c9b-a4b8-0307804012a3>
+  a <http://www.ajan.de/ajan-ns#AgentTemplate>;
+  rdfs:label "MQTT Agent";
+  <http://www.ajan.de/ajan-ns#behavior> <http://localhost:8090/rdf4j/repositories/agents#BE_9b64140a-4d38-4faa-9ecf-41aedbededf0>,
+    <http://localhost:8090/rdf4j/repositories/agents#BE_bb599b5b-d0ba-4221-b932-d3b184eda2bc>;
+  <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#EV_be89dc04-09fd-4c20-8891-57d24c4f619a>,
+    <http://localhost:8090/rdf4j/repositories/agents#EV_4fc5cccf-6f61-4831-a0f0-e6be18a38f37>;
+  <http://www.ajan.de/ajan-ns#endpoint> <http://localhost:8090/rdf4j/repositories/agents#EP_a443db33-c4bb-4ecb-870a-7bed607a7981>;
+  <http://www.ajan.de/ajan-ns#initialBehavior> <http://localhost:8090/rdf4j/repositories/agents#IB_67af7220-32e0-4e10-9320-1ec0db80582d>;
+  <http://www.ajan.de/ajan-ns#finalBehavior> <http://localhost:8090/rdf4j/repositories/agents#FB_4900240b-f858-4366-89fd-2b0d6b22e9d5> .
+
+<http://localhost:8090/rdf4j/repositories/agents#EV_4fc5cccf-6f61-4831-a0f0-e6be18a38f37>
+  a <http://www.ajan.de/ajan-ns#ModelEvent>;
+  rdfs:label "mqtt_out" .
+
+<http://localhost:8090/rdf4j/repositories/agents#IB_67af7220-32e0-4e10-9320-1ec0db80582d>
+  a <http://www.ajan.de/ajan-ns#InitialBehavior>;
+  rdfs:label "Initial Behavior";
+  <http://www.ajan.de/ajan-ns#bt> <http://localhost:8090/rdf4j/repositories/behaviors#BT_f255ae12-3745-463a-ab39-eaa059b18d7e> .
+
+<http://localhost:8090/rdf4j/repositories/agents#BE_bb599b5b-d0ba-4221-b932-d3b184eda2bc>
+  a <http://www.ajan.de/ajan-ns#Behavior>;
+  rdfs:label "mqqt_in Behavior";
+  <http://www.ajan.de/ajan-ns#clearEKB> false;
+  <http://www.ajan.de/ajan-ns#bt> <http://localhost:8090/rdf4j/repositories/behaviors#BT_f8e03f4f-3009-4dc5-80d2-b68591cd64b5>;
+  <http://www.ajan.de/ajan-ns#trigger> <http://localhost:8090/rdf4j/repositories/agents#EV_be89dc04-09fd-4c20-8891-57d24c4f619a> .
+
+<http://localhost:8090/rdf4j/repositories/agents#FB_4900240b-f858-4366-89fd-2b0d6b22e9d5>
+  a <http://www.ajan.de/ajan-ns#FinalBehavior>;
+  rdfs:label "Final Behavior";
+  <http://www.ajan.de/ajan-ns#bt> <http://localhost:8090/rdf4j/repositories/behaviors#BT_400e6bb6-f96a-4aa7-91ad-d54126ea3f3f> .
