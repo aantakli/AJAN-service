@@ -1,0 +1,92 @@
+# ----------------------------------------------------------
+#
+# Inital State
+#
+# ----------------------------------------------------------
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX mosim: <http://www.dfki.de/mosim-ns#>
+PREFIX strips: <http://www.ajan.de/behavior/strips-ns#>
+
+INSERT {
+    mosim:Avatar_1 rdf:type mosim:Avatar ;
+	strips:is mosim:Empty .
+
+    mosim:Block_Green rdf:type mosim:Block ;
+        rdfs:label "Block_Green" ;
+        strips:is mosim:Table ;
+        strips:is mosim:Clear .
+    
+    mosim:Block_Orange rdf:type mosim:Block ;
+        rdfs:label "Block_Orange" ;
+        strips:is mosim:Table ;
+        strips:is mosim:Clear .
+    
+    mosim:Block_Purple rdf:type mosim:Block ;
+        rdfs:label "Block_Purple" ;
+        strips:is mosim:Table ;
+        strips:is mosim:Clear .
+    
+    mosim:Block_Blue rdf:type mosim:Block ;
+        rdfs:label "Block_Blue" ;
+        strips:is mosim:Table ;
+        strips:is mosim:Clear .
+}
+WHERE {
+    ?s ?p ?o .
+}
+
+# ----------------------------------------------------------
+#
+# [Table] Blue -> Purple -> Orange -> Green [clear]
+#
+# ----------------------------------------------------------
+
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix mosim: <http://www.dfki.de/mosim-ns#> .
+@prefix strips: <http://www.ajan.de/behavior/strips-ns#> .
+
+mosim:Block_Green mosim:on mosim:Block_Orange .
+mosim:Block_Orange mosim:on mosim:Block_Purple .
+mosim:Block_Purple mosim:on mosim:Block_Blue .
+
+
+
+# ----------------------------------------------------------
+#
+# [Table] Orange -> Blue -> Green -> Purple [clear]
+#
+# ----------------------------------------------------------
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix mosim: <http://www.dfki.de/mosim-ns#> .
+@prefix strips: <http://www.ajan.de/behavior/strips-ns#> .
+
+mosim:Block_Purple mosim:on mosim:Block_Green .
+mosim:Block_Green mosim:on mosim:Block_Blue .
+mosim:Block_Blue mosim:on mosim:Block_Orange .
+
+
+
+# ----------------------------------------------------------
+#
+# [Table] Blue -> Orange [clear]
+# [Table] Green [clear]
+# [Table] Purple [clear]
+#
+# ----------------------------------------------------------
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix mosim: <http://www.dfki.de/mosim-ns#> .
+@prefix strips: <http://www.ajan.de/behavior/strips-ns#> .
+
+mosim:Block_Orange mosim:on mosim:Block_Blue .
+mosim:Block_Green strips:is mosim:Table ;
+        strips:is mosim:Clear .
+mosim:Block_Purple strips:is mosim:Table ;
+        strips:is mosim:Clear .
