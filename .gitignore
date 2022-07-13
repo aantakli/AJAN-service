@@ -34,3 +34,6 @@ nbactions.xml
 /pluginsystem/target/
 /pluginsystem/plugins/target/
 /target/
+/executionservice-0.1.jar
+/copy.sh
+/triplestore-0.1-war-exec.jar
