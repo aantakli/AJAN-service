@@ -129,6 +129,12 @@ MA 02110-1301  USA
             <artifactId>functions</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.rdf4j</groupId>
+            <artifactId>rdf4j-sail-nativerdf</artifactId>
+            <version>3.6.3</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

@@ -51,15 +51,7 @@ public class AJANRepositoryManager extends RemoteRepositoryManager {
 	public void addRepositoryConfig(final RepositoryConfig config) throws RepositoryException, RepositoryConfigException {
 		try (RDF4JProtocolSession protocolSession = getSharedHttpClientSessionManager()
 				.createRDF4JProtocolSession(serverURL)) {
-			if (auth != null) {
-				protocolSession.setAdditionalHttpHeaders(auth.getJwtHeader());
-			}
-
-			int serverProtocolVersion = Integer.parseInt(protocolSession.getServerProtocol());
-			if (serverProtocolVersion < 9) { // explicit PUT create operation was introduced in Protocol version 9
-				throw new RepositoryException(
-						"Remote Server RDF4J Protocol version not compatible with this version of RDF4J");
-			} else {
+			if (initProtocolSession(protocolSession)) {
 				if (hasRepositoryConfig(config.getID())) {
 					protocolSession.updateRepository(config);
 				} else {
@@ -69,5 +61,30 @@ public class AJANRepositoryManager extends RemoteRepositoryManager {
 		} catch (IOException | QueryEvaluationException | UnauthorizedException | NumberFormatException e) {
 			throw new RepositoryException(e);
 		}
+	}
+
+	@Override
+	public boolean removeRepository(final String repositoryID) throws RepositoryException, RepositoryConfigException {
+		try (RDF4JProtocolSession protocolSession = getSharedHttpClientSessionManager()
+				.createRDF4JProtocolSession(serverURL)) {
+			if (initProtocolSession(protocolSession)) {
+				protocolSession.deleteRepository(repositoryID);
+			}
+		} catch (IOException | QueryEvaluationException | UnauthorizedException | NumberFormatException e) {
+			throw new RepositoryException(e);
+		}
+		return true;
+	}
+
+	private boolean initProtocolSession(final RDF4JProtocolSession protocolSession) throws IOException {
+		if (auth != null) {
+			protocolSession.setAdditionalHttpHeaders(auth.getJwtHeader());
+		}
+		int serverProtocolVersion = Integer.parseInt(protocolSession.getServerProtocol());
+		if (serverProtocolVersion < 9) { // explicit PUT create operation was introduced in Protocol version 9
+			throw new RepositoryException(
+					"Remote Server RDF4J Protocol version not compatible with this version of RDF4J");
+		}
+		return true;
 	}
 }

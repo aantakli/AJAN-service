@@ -42,9 +42,6 @@ public class Repositories {
 	private boolean loadFiles;
 
         @Value("${triplestore.user:}")
-	private String user;
-
-        @Value("${triplestore.role:}")
 	private String role;
 
         @Value("${triplestore.pswd:}")
@@ -103,7 +100,7 @@ public class Repositories {
 	}
 
         private TripleDataBase createStore(final String repoName) {
-            if (user == null || user.isEmpty() || role == null || role.isEmpty() || pswd == null || pswd.isEmpty()) {
+            if (role == null || role.isEmpty() || pswd == null || pswd.isEmpty()) {
                 return tripleStoreManager.createTripleDataBase(repoName, loadFiles);
             }
             return tripleStoreManager.createSecuredTripleDataBase(repoName, loadFiles);

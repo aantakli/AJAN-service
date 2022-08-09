@@ -130,7 +130,7 @@ public class RDFAgentBuilder extends AgentBuilder {
     }
 
     protected AgentBeliefBase createAgentKnowledge(final Resource agentTemplateRsc, final Credentials auth) throws UnauthorizedException, URISyntaxException {
-        AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,manageTDB,Inferencing.NONE));
+        AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,manageTDB,Inferencing.NONE,auth));
         try {
             addAgentInformationToKnowledge(beliefs);
             reportURI = modelManager.getReportURI(initialKnowledge);
@@ -144,6 +144,7 @@ public class RDFAgentBuilder extends AgentBuilder {
             configureBehaviorTrees(beliefs);
             return beliefs;
         } catch (UnauthorizedException ex) {
+            LOG.error(ex.toString());
             removeAgentBeliefs(beliefs);
             return null;
         }
@@ -192,17 +193,14 @@ public class RDFAgentBuilder extends AgentBuilder {
     private Credentials readCredentials() {
         Model controllerModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_TOKEN_CONTROLLER, null);
         String controller = modelManager.getString(controllerModel);
-        Model userModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_USER, null);
-        String user = modelManager.getString(userModel);
         Model roleModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_ROLE, null);
         String role = modelManager.getString(roleModel);
         Model pswdModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_PASSWORD, null);
         String pswd = modelManager.getString(pswdModel);
         if(controller != null && !controller.equals("")
-                && user != null && !user.equals("")
                 && role != null && !role.equals("")
                 && pswd != null && !pswd.equals("")) {
-            return new Credentials(controller, user, role, pswd);
+            return new Credentials(controller, role, pswd);
         }
         return null;
     }
