@@ -99,7 +99,7 @@ public class RDFAgentBuilder extends AgentBuilder {
         setBehaviorTreesFromResource(template);
 	LOG.info("--> Agent Behaviors " + getAgentResolved());
         initialKnowledge = modelManager.getAgentInitKnowledge(vf.createIRI(url), agentResource, initAgentModel, false);
-        Credentials auth = readCredentials();
+        Credentials auth = readCredentials(id);
         AgentBeliefBase beliefs = createAgentKnowledge(template, auth);
         if (beliefs == null) {
             return null;
@@ -190,17 +190,14 @@ public class RDFAgentBuilder extends AgentBuilder {
         return agentID;
     }
 
-    private Credentials readCredentials() {
+    private Credentials readCredentials(final String id) {
         Model controllerModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_TOKEN_CONTROLLER, null);
         String controller = modelManager.getString(controllerModel);
-        Model userModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_USER, null);
-        String user = modelManager.getString(userModel);
         Model pswdModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_PASSWORD, null);
         String pswd = modelManager.getString(pswdModel);
         if(controller != null && !controller.equals("")
-                && user != null && !user.equals("")
                 && pswd != null && !pswd.equals("")) {
-            return new Credentials(controller, user, user, pswd);
+            return new Credentials(controller, id, id, pswd);
         }
         return null;
     }

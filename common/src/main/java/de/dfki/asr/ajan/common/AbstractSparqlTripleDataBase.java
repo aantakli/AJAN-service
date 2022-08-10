@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Data
-public class SparqlTripleDataBase implements TripleDataBase {
+public abstract class AbstractSparqlTripleDataBase implements TripleDataBase {
 
 	private final String id;
 
@@ -43,7 +43,7 @@ public class SparqlTripleDataBase implements TripleDataBase {
 
 	private final URL sparqlUpdateEndpoint;
 
-	private static final Logger LOG = LoggerFactory.getLogger(SparqlTripleDataBase.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractSparqlTripleDataBase.class);
 
 	@Override
 	public void add(final Model model) {

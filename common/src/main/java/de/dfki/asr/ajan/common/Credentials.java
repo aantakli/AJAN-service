@@ -43,7 +43,8 @@ import org.slf4j.LoggerFactory;
  */
 @Data
 public class Credentials {
-	private final String tokenController;
+
+	private final String tripleStoreURL;
 	private final String user;
 	private final String role;
 	private final String password;
@@ -52,7 +53,23 @@ public class Credentials {
 	private int timeout;
 	private long created;
 
+	private static final String TOKEN = "/tokenizer/token";
+	private static final String CONSTRAINT = "/tokenizer/constraint";
+	private static final String USER = "/tokenizer/user";
+
 	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Credentials.class);
+
+	public URIBuilder getTokenURI() throws URISyntaxException {
+		return new URIBuilder(tripleStoreURL).setPath(TOKEN);
+	}
+
+	public URIBuilder getConstraintURI() throws URISyntaxException {
+		return new URIBuilder(tripleStoreURL).setPath(CONSTRAINT);
+	}
+
+	public URIBuilder getUserURI() throws URISyntaxException {
+		return new URIBuilder(tripleStoreURL).setPath(USER);
+	}
 
 	public Map<String,String> getJwtHeader() {
 		Map<String,String> header = new ConcurrentHashMap();
@@ -76,9 +93,9 @@ public class Credentials {
 	}
 
 	private void setToken() {
-		if (tokenController != null && !tokenController.equals("")) {
+		if (tripleStoreURL != null && !tripleStoreURL.equals("")) {
 			try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-				URIBuilder builder = new URIBuilder(tokenController);
+				URIBuilder builder = getTokenURI();
 				builder.setParameter("user", user);
 				builder.setParameter("role", role);
 				builder.setParameter("pswd", password);
