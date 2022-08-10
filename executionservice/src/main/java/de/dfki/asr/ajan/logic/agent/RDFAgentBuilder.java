@@ -193,14 +193,14 @@ public class RDFAgentBuilder extends AgentBuilder {
     private Credentials readCredentials() {
         Model controllerModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_TOKEN_CONTROLLER, null);
         String controller = modelManager.getString(controllerModel);
-        Model roleModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_ROLE, null);
-        String role = modelManager.getString(roleModel);
+        Model userModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_USER, null);
+        String user = modelManager.getString(userModel);
         Model pswdModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_PASSWORD, null);
         String pswd = modelManager.getString(pswdModel);
         if(controller != null && !controller.equals("")
-                && role != null && !role.equals("")
+                && user != null && !user.equals("")
                 && pswd != null && !pswd.equals("")) {
-            return new Credentials(controller, role, pswd);
+            return new Credentials(controller, user, user, pswd);
         }
         return null;
     }

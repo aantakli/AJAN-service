@@ -38,7 +38,7 @@ public class TripleStoreConfiguration {
 	private String tokenController;
 
         @Value("${triplestore.user:}")
-	private String role;
+	private String user;
 
         @Value("${triplestore.pswd:}")
 	private String pswd;
@@ -46,9 +46,9 @@ public class TripleStoreConfiguration {
 	@Bean
 	public TripleStoreManager createManager() throws MalformedURLException {
             if (tokenController != null && !tokenController.isEmpty()
-                    && role != null && !role.isEmpty()
+                    && user != null && !user.isEmpty()
                     && pswd != null && !pswd.isEmpty()) {
-                return new RDF4JTripleStoreManager(new URL(tripleStoreURL), new Credentials(tokenController, role, pswd));
+                return new RDF4JTripleStoreManager(new URL(tripleStoreURL), new Credentials(tokenController, user, "admin", pswd));
             }
             return new RDF4JTripleStoreManager(new URL(tripleStoreURL));
 	}

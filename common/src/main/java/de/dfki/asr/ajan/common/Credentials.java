@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 @Data
 public class Credentials {
 	private final String tokenController;
+	private final String user;
 	private final String role;
 	private final String password;
 
@@ -78,6 +79,7 @@ public class Credentials {
 		if (tokenController != null && !tokenController.equals("")) {
 			try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 				URIBuilder builder = new URIBuilder(tokenController);
+				builder.setParameter("user", user);
 				builder.setParameter("role", role);
 				builder.setParameter("pswd", password);
 				HttpGet httpGet = new HttpGet(builder.build());

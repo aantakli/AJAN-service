@@ -42,7 +42,7 @@ public class Repositories {
 	private boolean loadFiles;
 
         @Value("${triplestore.user:}")
-	private String role;
+	private String user;
 
         @Value("${triplestore.pswd:}")
 	private String pswd;
@@ -50,59 +50,59 @@ public class Repositories {
 	@Bean
 	@AJANDataBase(AGENT_TEMPLATE)
 	public TripleDataBase getAgentTemplates() {
-		if (agentTemplates == null) {
-                    agentTemplates = createStore("agents");
-		}
-		return agentTemplates;
+            if (agentTemplates == null) {
+                agentTemplates = createStore("agents");
+            }
+            return agentTemplates;
 	}
 
 	@Bean
 	@AJANDataBase(BEHAVIOR)
 	public TripleDataBase getBehaviors() {
-		if (behaviors == null) {
-                    behaviors = createStore("behaviors");
-                }
-		return behaviors;
+            if (behaviors == null) {
+                behaviors = createStore("behaviors");
+            }
+            return behaviors;
 	}
 
 	@Bean
 	@AJANDataBase(DOMAIN)
 	public TripleDataBase getDomain() {
-		if (domain == null) {
-                    domain = createStore("domain");
-                }
-		return domain;
+            if (domain == null) {
+                domain = createStore("domain");
+            }
+            return domain;
 	}
 
 	@Bean
 	@AJANDataBase(ACTION_SERVICE)
 	public TripleDataBase getServices() {
-		if (services == null) {
-                    services = createStore("services");
-                }
-		return services;
-	}
-
-	@PreDestroy
-	public void cleanUp() {
-		if (services != null) {
-			tripleStoreManager.removeTripleDataBase(services);
-		}
-		if (behaviors != null) {
-			tripleStoreManager.removeTripleDataBase(behaviors);
-		}
-		if (agentTemplates != null) {
-			tripleStoreManager.removeTripleDataBase(agentTemplates);
-		}
-                if (domain != null) {
-			tripleStoreManager.removeTripleDataBase(domain);
-		}
-	}
-
-        private TripleDataBase createStore(final String repoName) {
-            if (role == null || role.isEmpty() || pswd == null || pswd.isEmpty()) {
-                return tripleStoreManager.createTripleDataBase(repoName, loadFiles);
+            if (services == null) {
+                services = createStore("services");
             }
-            return tripleStoreManager.createSecuredTripleDataBase(repoName, loadFiles);
+            return services;
+	}
+
+    @PreDestroy
+    public void cleanUp() {
+        if (services != null) {
+            tripleStoreManager.removeTripleDataBase(services);
         }
+        if (behaviors != null) {
+            tripleStoreManager.removeTripleDataBase(behaviors);
+        }
+        if (agentTemplates != null) {
+            tripleStoreManager.removeTripleDataBase(agentTemplates);
+        }
+        if (domain != null) {
+            tripleStoreManager.removeTripleDataBase(domain);
+        }
+    }
+
+    private TripleDataBase createStore(final String repoName) {
+        if (user == null || user.isEmpty() || pswd == null || pswd.isEmpty()) {
+            return tripleStoreManager.createTripleDataBase(repoName, loadFiles);
+        }
+        return tripleStoreManager.createSecuredTripleDataBase(repoName, loadFiles);
+    }
 }
