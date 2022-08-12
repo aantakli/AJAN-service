@@ -21,6 +21,7 @@ package de.dfki.asr.ajan.common;
 
 import de.dfki.asr.ajan.common.exceptions.TripleStoreException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Set;
@@ -34,6 +35,7 @@ import org.eclipse.rdf4j.sail.config.SailImplConfig;
 import org.eclipse.rdf4j.sail.inferencer.fc.config.DedupingInferencerConfig;
 import org.eclipse.rdf4j.sail.inferencer.fc.config.SchemaCachingRDFSInferencerConfig;
 import org.eclipse.rdf4j.sail.memory.config.MemoryStoreConfig;
+import org.eclipse.rdf4j.sail.nativerdf.config.NativeStoreConfig;
 import org.eclipse.rdf4j.sail.spin.config.SpinSailConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +44,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("PMD.NullAssignment")
 public class RDF4JTripleStoreManager implements TripleStoreManager {
 	private static final Logger LOG = LoggerFactory.getLogger(RDF4JTripleStoreManager.class);
+	private static final String ERROR_REPO_SETUP = "Error setting up the repository: ";
 	private final AJANRepositoryManager repoManager;
 	private final Credentials auth;
 
@@ -79,34 +82,51 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 	@Override
 	public TripleDataBase createSecuredTripleDataBase(final String tdbId, final boolean overwrite) throws TripleStoreException {
 		try {
-			return convertToTripleDataBase(getInfos(tdbId, overwrite, Inferencing.NONE), auth);
+			return convertToTripleDataBase(getInfos(tdbId, overwrite, Inferencing.NONE, true), auth);
 		} catch (RepositoryConfigException | RepositoryException ex) {
-			throw new TripleStoreException("Error setting up the repository: " + ex.toString(), ex);
+			throw new TripleStoreException(ERROR_REPO_SETUP + ex.toString(), ex);
 		}
 	}
 
 	@Override
 	public TripleDataBase createTripleDataBase(final String tdbId, final boolean overwrite, final Inferencing useInferencing) throws TripleStoreException {
 		try {
-			return convertToTripleDataBase(getInfos(tdbId, overwrite, useInferencing), null);
+			return convertToTripleDataBase(getInfos(tdbId, overwrite, useInferencing, false), null);
 		} catch (RepositoryConfigException | RepositoryException ex) {
-			throw new TripleStoreException("Error setting up the repository: " + ex.toString(), ex);
+			throw new TripleStoreException(ERROR_REPO_SETUP + ex.toString(), ex);
 		}
 	}
 
 	@Override
 	public TripleDataBase createSecuredTripleDataBase(final String tdbId, final boolean overwrite, final Inferencing useInferencing) throws TripleStoreException {
 		try {
-			return convertToTripleDataBase(getInfos(tdbId, overwrite, useInferencing), auth);
+			return convertToTripleDataBase(getInfos(tdbId, overwrite, useInferencing, true), auth);
 		} catch (RepositoryConfigException | RepositoryException ex) {
-			throw new TripleStoreException("Error setting up the repository: " + ex.toString(), ex);
+			throw new TripleStoreException(ERROR_REPO_SETUP + ex.toString(), ex);
 		}
 	}
 
-	private RepositoryInfo getInfos(final String tdbId, final boolean overwrite, final Inferencing useInferencing) {
+	@Override
+	public TripleDataBase createSecuredAgentTripleDataBase(final String tdbId, final boolean overwrite, final Inferencing useInferencing, final Credentials agentAuth) throws TripleStoreException {
+		try {
+			TripleDataBase agentTDB = convertToTripleDataBase(getInfos(tdbId, overwrite, useInferencing, true), agentAuth);
+			repoManager.setupAgentSecurityConfiguration(agentAuth);
+			return agentTDB;
+		} catch (URISyntaxException | RepositoryConfigException | RepositoryException ex) {
+			throw new TripleStoreException(ERROR_REPO_SETUP + ex.toString(), ex);
+		}
+	}
+
+	private RepositoryInfo getInfos(final String tdbId, final boolean overwrite, final Inferencing useInferencing, final boolean nativeStore) {
 		String com = "Accessed";
 		if (overwrite) {
-			createRemoteRepositiories(tdbId,useInferencing);
+			SailImplConfig config;
+			if (nativeStore) {
+				config = new NativeStoreConfig();
+			} else {
+				config = new MemoryStoreConfig();
+			}
+			createRemoteRepositiories(tdbId,useInferencing, config);
 			com = "Created";
 		}
 		RepositoryInfo info = repoManager.getRepositoryInfo(tdbId);
@@ -114,44 +134,42 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 		return info;
 	}
 
-	private void createRemoteRepositiories(final String tdbId, final Inferencing useInferencing) {
+	private void createRemoteRepositiories(final String tdbId, final Inferencing useInferencing, final SailImplConfig cofig) {
 		switch (useInferencing) {
 			case RDFS:
-				createRemoteRDFSRepository(tdbId);
+				createRemoteRDFSRepository(tdbId, cofig);
 				break;
 			case SPIN:
-				createRemoteSPINRepository(tdbId);
+				createRemoteSPINRepository(tdbId, cofig);
 				break;
 			case RDFS_SPIN:
-				createRemoteRDFSSPINRepository(tdbId);
+				createRemoteRDFSSPINRepository(tdbId, cofig);
 				break;
 			default:
-				createRemoteRepository(tdbId);
+				createRemoteRepository(tdbId, cofig);
 				break;
 		}
 	}
 
-	private void createRemoteRepository(final String tdbId) throws RepositoryConfigException, RepositoryException {
-		SailRepositoryConfig repositoryTypeSpec = new SailRepositoryConfig(new MemoryStoreConfig());
+	private void createRemoteRepository(final String tdbId, final SailImplConfig cofig) throws RepositoryConfigException, RepositoryException {
+		SailRepositoryConfig repositoryTypeSpec = new SailRepositoryConfig(cofig);
 		addRepositoryConfig(tdbId, repositoryTypeSpec);
 	}
 
-	private void createRemoteRDFSRepository(final String tdbId) throws RepositoryConfigException, RepositoryException {
-		MemoryStoreConfig backendConfig = new MemoryStoreConfig();
-		SchemaCachingRDFSInferencerConfig rdfsConfig = new SchemaCachingRDFSInferencerConfig(backendConfig);
+	private void createRemoteRDFSRepository(final String tdbId, final SailImplConfig cofig) throws RepositoryConfigException, RepositoryException {
+		SchemaCachingRDFSInferencerConfig rdfsConfig = new SchemaCachingRDFSInferencerConfig(cofig);
 		addRepositoryConfig(tdbId, new SailRepositoryConfig(rdfsConfig));
 	}
 
-	private void createRemoteSPINRepository(final String tdbId) throws RepositoryConfigException, RepositoryException {
-		MemoryStoreConfig backendConfig = new MemoryStoreConfig();
-		SailImplConfig spinConfig = new SpinSailConfig(backendConfig);
+	private void createRemoteSPINRepository(final String tdbId, final SailImplConfig cofig) throws RepositoryConfigException, RepositoryException {
+		SailImplConfig spinConfig = new SpinSailConfig(cofig);
 		addRepositoryConfig(tdbId, new SailRepositoryConfig(spinConfig));
 	}
 
-	private void createRemoteRDFSSPINRepository(final String tdbId) throws RepositoryConfigException, RepositoryException {
+	private void createRemoteRDFSSPINRepository(final String tdbId, final SailImplConfig cofig) throws RepositoryConfigException, RepositoryException {
 		SailImplConfig spinSailConfig = new SpinSailConfig(
 						new SchemaCachingRDFSInferencerConfig(
-								new DedupingInferencerConfig(new MemoryStoreConfig())
+								new DedupingInferencerConfig(cofig)
 			)
 		);
 		addRepositoryConfig(tdbId, new SailRepositoryConfig(spinSailConfig));
@@ -193,10 +211,12 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 
 	@Override
 	public void removeTripleDataBase(final TripleDataBase db) throws TripleStoreException {
-		LOG.info("Removing TDB with ID {}", db.getId());
+		String id = db.getId();
+		LOG.info("Removing TDB with ID {}", id);
 		if (!repoManager.isInitialized()) {
 			repoManager.initialize();
 		}
-		repoManager.removeRepository(db.getId());
+		repoManager.removeAgentSecurityConfiguration(id);
+		repoManager.removeRepository(id);
 	}
 }

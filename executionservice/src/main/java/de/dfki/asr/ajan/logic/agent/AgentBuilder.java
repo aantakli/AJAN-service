@@ -98,7 +98,7 @@ public class AgentBuilder {
 	public Agent build() throws UnauthorizedException, URISyntaxException {
                 LOG.info("Creating agent with ID: " + id);
                 url = getAgentURI();
-		AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,manageTDB,inferencing));
+		AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,manageTDB,inferencing,null));
 		addAgentInformationToKnowledge(beliefs);
 		beliefs.update(initialKnowledge);
 		connections = new ConcurrentHashMap<>();

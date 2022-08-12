@@ -20,6 +20,11 @@
 package de.dfki.asr.ajan.common.exceptions;
 
 public class TripleStoreException extends RuntimeException {
+
+	public TripleStoreException(final String message) {
+		super(message);
+	}
+
 	public TripleStoreException(final String message, final Throwable cause) {
 		super(message, cause);
 	}

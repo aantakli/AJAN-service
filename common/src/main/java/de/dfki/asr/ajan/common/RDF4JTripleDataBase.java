@@ -26,7 +26,7 @@ import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.eclipse.rdf4j.repository.manager.RepositoryInfo;
 
-public class RDF4JTripleDataBase extends SparqlTripleDataBase {
+public class RDF4JTripleDataBase extends AbstractSparqlTripleDataBase {
 	private final HTTPRepository repo;
 	private final Credentials auth;
 
