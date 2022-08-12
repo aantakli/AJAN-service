@@ -25,7 +25,7 @@ import de.dfki.asr.ajan.behaviour.events.Event;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.branch.Executor;
 import de.dfki.asr.ajan.behaviour.nodes.common.Debug;
-import de.dfki.asr.ajan.common.SparqlTripleDataBase;
+import de.dfki.asr.ajan.common.AbstractSparqlTripleDataBase;
 import de.dfki.asr.ajan.common.TripleDataBase;
 import de.dfki.asr.ajan.common.TripleStoreManager.Inferencing;
 import de.dfki.asr.ajan.knowledge.*;
@@ -62,7 +62,7 @@ public class UnmarshalBehaviourTest {
 	private BehaviorTree<AgentTaskInformation> root;
 	private List<NodeExtension> extensions;
 
-	public static class MockTDB extends SparqlTripleDataBase {
+	public static class MockTDB extends AbstractSparqlTripleDataBase {
 		private final SailRepository inMem = new SailRepository(new MemoryStore());
 
 		public MockTDB(final String id) throws MalformedURLException {
