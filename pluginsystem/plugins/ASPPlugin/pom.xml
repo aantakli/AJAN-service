@@ -44,7 +44,20 @@ MA 02110-1301  USA
             <id>lib</id>
             <url>file:///${project.basedir}/lib</url>
         </repository>
+        <repository>
+            <id>des-releases-public</id>
+            <name>denkbares Public Releases Repository</name>
+            <url>https://repo.denkbares.com/releases-public/</url>
+        </repository>
     </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.potassco</groupId>
+            <artifactId>clingo</artifactId>
+            <version>1.0-des-rc1</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

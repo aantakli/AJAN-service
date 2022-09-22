@@ -62,9 +62,9 @@ public class RDFBeanDelegator implements InvocationHandler {
     }
 
 
-	private Resource subject;
-	private RDFBeanInfo rdfBeanInfo;
-	private RDFBeanManager rdfBeanManager;
+	private final Resource subject;
+	private final RDFBeanInfo rdfBeanInfo;
+	private final RDFBeanManager rdfBeanManager;
 	private final RepositoryConnection conn;
 
 	public RDFBeanDelegator(Resource subject, RDFBeanInfo rdfBeanInfo,

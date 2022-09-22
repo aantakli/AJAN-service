@@ -38,7 +38,7 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
  */
 public class RDFBeanInfo {
 	
-	private static WeakHashMap<Class, RDFBeanInfo> rdfBeanInfoCache = new WeakHashMap<Class, RDFBeanInfo>();
+	private final static WeakHashMap<Class, RDFBeanInfo> rdfBeanInfoCache = new WeakHashMap<Class, RDFBeanInfo>();
 	
 	public static RDFBeanInfo get(Class rdfBeanClass)
 			throws RDFBeanValidationException {
