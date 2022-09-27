@@ -57,6 +57,11 @@ MA 02110-1301  USA
             <artifactId>clingo</artifactId>
             <version>1.0-des-rc1</version>
         </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.12.1</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -120,9 +120,11 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
     }
 
     private void loadBeliefs(StringBuilder set) throws URISyntaxException {
+		if (!getQuery().getSparql().isEmpty()) {
             Repository origin = BTUtil.getInitializedRepository(getObject(), getQuery().getOriginBase());
             Model model = getQuery().getResult(origin);
             Deserializer.addRuleSet(set, model);
+		}
     }
 
     protected Model readStableModels() {
@@ -136,8 +138,7 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
                             number++;
                     }
             }
-            else
-                    origin = getNamedModel(number,getRandomStableModel());
+			else origin = getNamedModel(number,getRandomStableModel());
             return origin;
     }
 

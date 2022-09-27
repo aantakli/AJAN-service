@@ -22,13 +22,19 @@ package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.util.ASPConfig;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.Data;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.pf4j.Extension;
 import org.potassco.clingo.control.Control;
+import org.potassco.clingo.solving.Model;
 import org.potassco.clingo.solving.SolveHandle;
+import org.potassco.clingo.solving.SolveMode;
+import org.potassco.clingo.solving.TruthValue;
+import org.potassco.clingo.symbol.Function;
+import org.potassco.clingo.symbol.Symbol;
 
 @Extension
 @RDFBean("clingo:Config")
@@ -71,12 +77,18 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 		solverCommandLine.add("--verbose=0");
 		solverCommandLine.add("-c maxtime="+i);
 		addCommandLines(solverCommandLine);
-		
-		boolean stat;
+		ArrayList<String> factsFromSolver = new ArrayList();
+		boolean stat = false;
 		try (Control control = new Control()) {
-			control.add("main", problem.getRuleset());
+			control.add(problem.getRuleset());
 			control.ground();
-			stat = extractFactsFormSolverResult(control.solve(), problem);
+			try (SolveHandle handle = control.solve(Collections.emptyList(), null, SolveMode.YIELD)) {
+				while (handle.hasNext()) {
+					if (!stat) stat = true;
+					factsFromSolver.add(handle.next().toString());
+				}
+				problem.setFacts(factsFromSolver);
+            }
 			control.cleanup();
 		}
 		return stat;
@@ -99,17 +111,6 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 				}
 			});
 		}
-	}
-
-	private boolean extractFactsFormSolverResult(final SolveHandle handle, Problem problem) {
-		ArrayList<String> factsFromSolver = new ArrayList();
-		boolean stat = true;
-		while (handle.hasNext()) {
-			factsFromSolver.add(handle.next().toString());
-		}
-		problem.setFacts(factsFromSolver);
-		handle.close();
-		return stat;	
 	}
 }
 
