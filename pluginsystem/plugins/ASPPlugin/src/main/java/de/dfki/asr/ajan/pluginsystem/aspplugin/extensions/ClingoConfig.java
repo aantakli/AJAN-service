@@ -29,12 +29,8 @@ import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.pf4j.Extension;
 import org.potassco.clingo.control.Control;
-import org.potassco.clingo.solving.Model;
 import org.potassco.clingo.solving.SolveHandle;
 import org.potassco.clingo.solving.SolveMode;
-import org.potassco.clingo.solving.TruthValue;
-import org.potassco.clingo.symbol.Function;
-import org.potassco.clingo.symbol.Symbol;
 
 @Extension
 @RDFBean("clingo:Config")
