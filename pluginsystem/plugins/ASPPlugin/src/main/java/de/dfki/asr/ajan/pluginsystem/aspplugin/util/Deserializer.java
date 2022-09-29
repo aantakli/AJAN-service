@@ -24,6 +24,9 @@ import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.exception.LoadingRulesException;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.ASPRules;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.RuleSetLocation;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Constant;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Fact;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Term;
 import de.dfki.asr.rdfbeans.BehaviorBeanManager;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -71,13 +74,57 @@ public final class Deserializer {
 		});
 	}
 
-	public static void loadRules(AgentTaskInformation taskInfo, StringBuilder set, List<RuleSetLocation> rules) throws URISyntaxException, RDFBeanException, LoadingRulesException {
-		for (RuleSetLocation ruleSet : rules) {
-			ASPRules rule = loadRule(taskInfo, ruleSet);
-			if (rule == null) {
+	public static void loadRules(AgentTaskInformation taskInfo, StringBuilder set, List<RuleSetLocation> ruleSets) throws URISyntaxException, RDFBeanException, LoadingRulesException {
+		for (RuleSetLocation ruleSet : ruleSets) {
+			ASPRules rules = loadRule(taskInfo, ruleSet);
+			if (rules == null) {
 				throw new LoadingRulesException("Rules are not loadable!");
 			}
-			set.append(rewritePrefixes(rule.getRules()));
+			if (rules.getFacts() != null) {
+				set.append(getStringFacts(rules.getFacts()));
+			}
+			if (rules.getRules() != null) {
+				set.append(rewritePrefixes(rules.getStringRules()));
+			}
+			if (rules.getConstraints() != null) {
+				set.append(rewritePrefixes(rules.getStringRules()));
+			}
+			if (rules.getStringRules() != null) {
+				set.append(rewritePrefixes(rules.getStringRules()));
+			}
+		}
+	}
+
+	private static String getStringFacts(final List<Fact> facts) {
+		StringBuilder builder = new StringBuilder();
+		for (Fact fact: facts) {
+			if (fact.isOpposite()) {
+				builder.append("-");
+			}
+			builder.append(fact.getPredicate());
+			getTermsString(builder, fact.getTerms());
+			builder.append(". ");
+		}
+		return builder.toString();
+	}
+
+	private static void getTermsString(final StringBuilder builder, final List<? extends Term> terms) {
+		if (terms != null) {
+			builder.append("(");
+			for (Term term: terms) {
+				if (term.getValue() != null) {
+					builder.append(term.getValue());
+				}
+				else if (term.getStringValue() != null) {
+					builder.append(term.getStringValue());
+				}
+				else{
+					builder.append(term.getIntValue());
+				}
+				builder.append(",");
+			}
+			builder.setLength(builder.length() - 1);
+			builder.append(")");
 		}
 	}
 

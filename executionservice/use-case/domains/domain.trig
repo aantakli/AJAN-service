@@ -63,6 +63,45 @@ ajan:TBox {
 # --------------------------------------------
 
 ajan:ASP {
+	:Plain_Rules
+		a asp:RuleSet ;
+		asp:facts (
+			:Fact1
+		) .
+	
+	:Fact1
+		a asp:Fact ;
+		asp:predicate "predicate1" ;
+		asp:terms (
+			:Atom1
+		) .
+
+	:Atom1
+		a asp:Constant ;
+		asp:value "atom1" .
+
+	:TWT_Example
+		a asp:RuleSet ;
+		asp:asRules """
+			tool(X) :- wrench(X) .
+			component(X) :- assemblyComponent(X) .
+			component(X) :- screw(X) .
+			screw(X) :- safetyScrew(X) .
+
+			wrench(wrench_1) .
+			safetyScrew(screw_A; screw_B; screw_C) .
+			assemblyComponent(holdingPlate_1; gasPedal_1; base_1) .
+
+			screwingTorque_value(wrench_1,123) .
+			screwingTorque_value(screw_A,123) .
+			screwingTorque_value(screw_B,123) .
+			screwingTorque_value(screw_C,123) .
+			screwingTorque_unit(wrench_1,nm) .
+			screwingTorque_unit(screw_A,nm) .
+			screwingTorque_unit(screw_B,nm) .
+			screwingTorque_unit(screw_C,nm) .
+		"""^^xsd:string .
+
 	:Domain_Rules
 		a asp:RuleSet ;
 		asp:asRules """
@@ -176,6 +215,31 @@ ajan:ASP {
 # --------------------------------
 # JsonTest -----------------------
 # --------------------------------
+
+:JsonTWTMapping {
+
+	:TWTMapping a rr:TriplesMap ;
+		rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:referenceFormulation ql:JSONPath;
+			rml:iterator "$"
+		];
+
+		rr:subjectMap [
+			rr:template "http://www.ajan.de/twt/asp_input";
+			rr:class asp:RuleSet
+		];
+
+		rr:predicateObjectMap [
+			rr:predicate asp:asRules ;
+			rr:objectMap [
+				rml:reference "rules" ;
+				rr:datatype xsd:string
+			]
+		] .
+}
 
 :JsonTestMapping {
 

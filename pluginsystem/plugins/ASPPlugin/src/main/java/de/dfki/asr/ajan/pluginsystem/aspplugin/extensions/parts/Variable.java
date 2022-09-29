@@ -17,31 +17,54 @@
  * MA 02110-1301  USA
  */
 
-package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions;
+package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts;
 
-import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Constraint;
-import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Fact;
-import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Rule;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import java.util.List;
-import lombok.Data;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.pf4j.Extension;
+import org.springframework.util.StringUtils;
 
 @Extension
-@RDFBean("asp:RuleSet")
-@Data
-public class ASPRules implements NodeExtension {
-	@RDF("asp:facts")
-	private List<Fact> facts;
+@RDFBean("asp:Variable")
+public class Variable extends Term implements NodeExtension {
 
-	@RDF("asp:rules")
-	private List<Rule> rules;
-	
-	@RDF("asp:constraints")
-	private List<Constraint> constraints;
-	
-	@RDF("asp:asRules")
-	private String stringRules;
+	private String value;
+	private int intValue;
+	private String stringValue;
+
+	public Variable(){}
+
+	@Override
+	@RDF("asp:value")	
+	public String getValue() {
+		return this.value;
+	}
+
+	@Override
+	public void setValue(final String value) {
+		this.value = StringUtils.capitalize(value);
+	}
+
+	@Override
+	@RDF("asp:intValue")
+	public int getIntValue() {
+		return this.intValue;
+	}
+
+	@Override
+	public void setIntValue(final int value) {
+		this.intValue = value;
+	}
+
+	@Override
+	@RDF("asp:stringValue")
+	public String getStringValue() {
+		return this.stringValue;
+	}
+
+	@Override
+	public void setStringValue(final String value) {
+		this.stringValue = StringUtils.capitalize(value);
+	}
 }

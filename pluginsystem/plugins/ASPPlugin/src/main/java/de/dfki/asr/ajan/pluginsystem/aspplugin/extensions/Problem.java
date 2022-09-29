@@ -146,6 +146,7 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
             ModelBuilder builder = new ModelBuilder();
             if (getWrite().getContext() != null)
                     builder.namedGraph(getWrite().getContext().toString() + number);
+			LOG.info("\n\n" + stableModel + "\n");
             Serializer.getGraphFromSolution(builder, stableModel);
             return builder.build();
     }

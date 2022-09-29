@@ -50,7 +50,7 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 	private Integer threads;
 
 	@RDF("clingo:const")
-	private List<Constant> constants;
+	private List<ClingoConstant> constants;
 
 	private final String solver = "clingo.exe";
 	

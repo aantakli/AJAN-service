@@ -100,9 +100,10 @@ public final class MappingUtil {
                 throw new URISyntaxException("bt:mapping", "Cannot be null");
         }
 		StringBuilder context = new StringBuilder();
-		context.append("CONSTRUCT { ?s ?p ?o } WHERE { GRAPH  ");
+		context.append("CONSTRUCT { ?s ?p ?o } WHERE { GRAPH ");
 		context.append("<").append(mapping.toString()).append("> { ?s ?p ?o }}");
-        return SPARQLUtil.queryRepository(repo, context.toString());
+		Model model = SPARQLUtil.queryRepository(repo, context.toString());
+        return model;
     }
 
     private static InputStream getJSONResourceStream(final Object eventInfo) throws JsonProcessingException, IOException {

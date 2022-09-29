@@ -17,11 +17,8 @@
  * MA 02110-1301  USA
  */
 
-package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions;
+package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts;
 
-import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Constraint;
-import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Fact;
-import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Rule;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import java.util.List;
 import lombok.Data;
@@ -30,18 +27,9 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.pf4j.Extension;
 
 @Extension
-@RDFBean("asp:RuleSet")
+@RDFBean("asp:Constraint")
 @Data
-public class ASPRules implements NodeExtension {
-	@RDF("asp:facts")
-	private List<Fact> facts;
-
-	@RDF("asp:rules")
-	private List<Rule> rules;
-	
-	@RDF("asp:constraints")
-	private List<Constraint> constraints;
-	
-	@RDF("asp:asRules")
-	private String stringRules;
+public class Constraint implements NodeExtension {
+	@RDF("asp:atoms")
+	private List<Atom> atoms;
 }
