@@ -73,7 +73,7 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 		solverCommandLine.add("--verbose=0");
 		solverCommandLine.add("-c maxtime="+i);
 		addCommandLines(solverCommandLine);
-		ArrayList<String> factsFromSolver = new ArrayList();
+		ArrayList<String> facts = new ArrayList();
 		boolean stat = false;
 		try (Control control = new Control()) {
 			control.add(problem.getRuleset());
@@ -81,9 +81,9 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 			try (SolveHandle handle = control.solve(Collections.emptyList(), null, SolveMode.YIELD)) {
 				while (handle.hasNext()) {
 					if (!stat) stat = true;
-					factsFromSolver.add(handle.next().toString());
+					facts.add(handle.next().toString());
 				}
-				problem.setFacts(factsFromSolver);
+				problem.setFacts(facts);
             }
 			control.cleanup();
 		}

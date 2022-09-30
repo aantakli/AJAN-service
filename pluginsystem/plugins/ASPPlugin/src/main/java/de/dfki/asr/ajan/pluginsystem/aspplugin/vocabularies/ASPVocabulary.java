@@ -28,4 +28,9 @@ public class ASPVocabulary {
 	private static final ValueFactory FACTORY = SimpleValueFactory.getInstance();
 	public final static IRI RULE_SET = FACTORY.createIRI("http://www.ajan.de/behavior/asp-ns#RuleSet");
 	public final static IRI AS_RULES = FACTORY.createIRI("http://www.ajan.de/behavior/asp-ns#asRules");
+	
+	public final static IRI IS_FACT = FACTORY.createIRI("http://www.ajan.de/behavior/asp-ns#Fact");
+	public final static IRI HAS_OPPOSITE = FACTORY.createIRI("http://www.ajan.de/behavior/asp-ns#opposite");
+	public final static IRI HAS_PREDICATE = FACTORY.createIRI("http://www.ajan.de/behavior/asp-ns#predicate");
+	public final static IRI HAS_FACTS = FACTORY.createIRI("http://www.ajan.de/behavior/asp-ns#facts");
 }

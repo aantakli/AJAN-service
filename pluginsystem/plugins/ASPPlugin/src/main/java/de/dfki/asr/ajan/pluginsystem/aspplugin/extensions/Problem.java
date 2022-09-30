@@ -51,6 +51,7 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.repository.Repository;
 import org.pf4j.Extension;
+import org.potassco.clingo.symbol.Symbol;
 
 @Extension
 @RDFBean("asp:Problem")
@@ -133,22 +134,26 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
     protected Model readStableModels() {
 		Model origin = new LinkedHashModel();
 		int number = 0;
+		ModelBuilder builder = new ModelBuilder();
+		if (getWrite().getContext() != null)
+			builder.namedGraph(getWrite().getContext().toString() + number);
 		if (!getWrite().getRandom()) {
 			for (String stableModel : getFacts()) {
-				Model model = getNamedModel(number,stableModel);
+				getNamedModel(builder,stableModel);
+				Model model = builder.build();
 				model.getNamespaces().stream().forEach(origin::setNamespace);
 				model.stream().forEach(origin::add);
 				number++;
 			}
 		}
-		else origin = getNamedModel(number,getRandomStableModel());
+		else {
+			getNamedModel(builder,getRandomStableModel());
+			origin = builder.build();
+		}
 		return origin;
     }
 
-    private Model getNamedModel(int number, String stableModel) {
-		ModelBuilder builder = new ModelBuilder();
-		if (getWrite().getContext() != null)
-			builder.namedGraph(getWrite().getContext().toString() + number);
+    private void getNamedModel(final ModelBuilder builder, final String stableModel) {
 		LOG.info("\n\n" + stableModel + "\n");
 		if (!getWrite().isSaveString()) {
 			Serializer.getGraphFromSolution(builder, stableModel);
@@ -158,7 +163,6 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 			builder.add(bnode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.RULE_SET);
 			builder.add(bnode, ASPVocabulary.AS_RULES, stableModel);
 		}
-		return builder.build();
     }
 
     private void writeSolution(Model model) {
