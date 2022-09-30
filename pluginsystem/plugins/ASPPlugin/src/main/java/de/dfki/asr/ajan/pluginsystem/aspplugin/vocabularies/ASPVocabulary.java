@@ -17,35 +17,15 @@
  * MA 02110-1301  USA
  */
 
-package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions;
+package de.dfki.asr.ajan.pluginsystem.aspplugin.vocabularies;
 
-import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import java.net.URI;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import org.cyberborean.rdfbeans.annotations.RDF;
-import org.cyberborean.rdfbeans.annotations.RDFBean;
-import org.pf4j.Extension;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
-@Extension
-@RDFBean("asp:Write")
-@Data
-public class ASPWrite implements NodeExtension {
+public class ASPVocabulary {
 
-	@RDF("asp:saveString")
-    @Getter @Setter
-    private boolean saveString;
-
-	@RDF("asp:contextBase")
-	@Getter @Setter
-	private URI context;
-
-	@RDF("asp:random")
-	@Getter @Setter
-	private Boolean random = true;
-
-	@RDF("bt:targetBase")
-	@Getter @Setter
-	private URI targetBase;
+	private static final ValueFactory FACTORY = SimpleValueFactory.getInstance();
+	public final static IRI RULE_SET = FACTORY.createIRI("http://www.ajan.de/behavior/asp-ns#RuleSet");
+	public final static IRI AS_RULES = FACTORY.createIRI("http://www.ajan.de/behavior/asp-ns#asRules");
 }

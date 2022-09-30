@@ -97,7 +97,7 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 			solverCommandLine.add("--models="+ models);
 		if(threads != null && threads > 0)
 			solverCommandLine.add("--parallel-mode="+ threads);
-		if(constants != null) {
+		if(constants != null && constants.get(0) instanceof ClingoConstant) {
 			constants.stream().forEach((constant) -> {
 				if (!constant.getName().isEmpty()) {
 					StringBuilder line = new StringBuilder();
