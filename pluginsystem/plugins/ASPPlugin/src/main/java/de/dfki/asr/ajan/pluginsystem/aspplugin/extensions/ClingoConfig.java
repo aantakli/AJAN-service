@@ -23,7 +23,6 @@ import de.dfki.asr.ajan.pluginsystem.aspplugin.exception.ClingoException;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.util.ASPConfig;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -45,6 +44,9 @@ import org.slf4j.LoggerFactory;
 @RDFBean("clingo:Config")
 @Data
 public class ClingoConfig implements NodeExtension, ASPConfig {
+
+	@RDF("clingo:envVariable")
+    private String envVar;
 
 	@RDF("clingo:time-limit")
 	private Integer time;
@@ -70,7 +72,7 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 			return solution;
 		Process p;
 		try {
-			p = Runtime.getRuntime().exec("clingo");
+			p = Runtime.getRuntime().exec(getEnvVar());
 			p.destroy();
 			for(int i = 0; i <= execution; i++) {
 				if(executeSolver(problem, i)) {
@@ -79,6 +81,7 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 				}
 			}
 		} catch (IOException ex) {
+			LOG.info("Environment variable not accessible!");
 			return executeSolver(problem);
 		}
 		return solution;
