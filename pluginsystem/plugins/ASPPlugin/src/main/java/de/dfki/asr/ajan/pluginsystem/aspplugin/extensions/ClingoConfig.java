@@ -31,6 +31,7 @@ import org.pf4j.Extension;
 import org.potassco.clingo.control.Control;
 import org.potassco.clingo.solving.SolveHandle;
 import org.potassco.clingo.solving.SolveMode;
+import org.slf4j.LoggerFactory;
 
 @Extension
 @RDFBean("clingo:Config")
@@ -53,6 +54,7 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 	private List<ClingoConstant> constants;
 
 	private final String solver = "clingo.exe";
+	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(Problem.class);
 	
 	@Override
 	public boolean runSolver(Problem problem) {
@@ -86,6 +88,9 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 				problem.setFacts(facts);
             }
 			control.cleanup();
+		} catch (RuntimeException ex) {
+			LOG.info(ex.getMessage());
+			return false;
 		}
 		return stat;
 	}

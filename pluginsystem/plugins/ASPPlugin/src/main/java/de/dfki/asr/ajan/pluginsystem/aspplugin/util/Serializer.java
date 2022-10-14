@@ -97,7 +97,11 @@ public final class Serializer {
 			getParts(list,vf,fact.substring(fact.indexOf(",")+1));
 		}
 		else {
-			list.add(vf.createLiteral(fact));
+			try {
+				list.add(vf.createLiteral(Integer.parseInt(fact)));
+			} catch (NumberFormatException e) {
+				list.add(vf.createLiteral(fact));
+			}
 		}
 	}
 

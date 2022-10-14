@@ -51,7 +51,6 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.repository.Repository;
 import org.pf4j.Extension;
-import org.potassco.clingo.symbol.Symbol;
 
 @Extension
 @RDFBean("asp:Problem")
