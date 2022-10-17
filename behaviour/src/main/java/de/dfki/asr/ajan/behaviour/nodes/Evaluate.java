@@ -37,8 +37,6 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.repository.Repository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RDFBean("bt:Evaluate")
 public class Evaluate extends AbstractTDBLeafTask {
@@ -62,8 +60,6 @@ public class Evaluate extends AbstractTDBLeafTask {
 	@Getter @Setter
 	private URI targetBase;
 
-	private static final Logger LOG = LoggerFactory.getLogger(Evaluate.class);
-
 	@Override
 	public Resource getType() {
 		return BTVocabulary.EVALUATE;
@@ -81,25 +77,19 @@ public class Evaluate extends AbstractTDBLeafTask {
 	public NodeStatus executeLeaf() {
 		try {
 			if (queries == null) {
-				String report = toString() + " FAILED";
-				LOG.info(report);
-				return new NodeStatus(Status.FAILED, report);
+				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED");
 			} else {
 				startEvaluation();
-				String report = toString() + " SUCCEEDED";
-				LOG.info(report);
-				return new NodeStatus(Status.SUCCEEDED, report);
+				return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
 			}
 		} catch (URISyntaxException ex) {
-			String report = toString() + " FAILED due to evaluation error";
-			LOG.info(report, ex);
-			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due malformed URI", ex);
 		}
 	}
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	private void startEvaluation() throws URISyntaxException {

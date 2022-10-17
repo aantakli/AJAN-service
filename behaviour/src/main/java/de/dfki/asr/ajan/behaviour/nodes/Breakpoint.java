@@ -29,9 +29,6 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @RDFBean("bt:Breakpoint")
 public class Breakpoint extends AbstractTDBLeafTask {
 	@Getter @Setter
@@ -41,8 +38,6 @@ public class Breakpoint extends AbstractTDBLeafTask {
 	@RDF("rdfs:label")
 	@Getter @Setter
 	private String label;
-
-	private static final Logger LOG = LoggerFactory.getLogger(Condition.class);
 
 	@Override
 	public Resource getType() {
@@ -54,7 +49,7 @@ public class Breakpoint extends AbstractTDBLeafTask {
 		Debug debug = this.getObject().getDebug();
 		debug.setDebugging(true);
 		BTRoot bt = this.getObject().getBt();
-		NodeStatus leafStatus = new NodeStatus(null, toString() + " SUCCEEDED");
+		NodeStatus leafStatus = new NodeStatus(null, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
 		String report = BTUtil.createReport(getUrl(), bt.getInstance().stringValue(), leafStatus, debug, new LinkedHashModel());
 		BTUtil.sendReport(this.getObject(),report);
 		return Status.SUCCEEDED;
@@ -72,7 +67,7 @@ public class Breakpoint extends AbstractTDBLeafTask {
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	@Override

@@ -48,8 +48,6 @@ import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RDFBean("bt:GoalProducer")
 @SuppressWarnings("PMD.ExcessiveImports")
@@ -73,7 +71,6 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 	private AJANGoal goal;
 	private List<BindingSet> bindings;
 	private Status goalStatus = Status.FRESH;
-	private static final Logger LOG = LoggerFactory.getLogger(GoalProducer.class);
 
 	@Override
 	public Resource getType() {
@@ -90,8 +87,7 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 			try {
 				produceGoal();
 			} catch (EventEvaluationException | AJANBindingsException | URISyntaxException | ConditionEvaluationException ex) {
-				LOG.info(toString(), ex);
-				return new NodeStatus(Status.FAILED, toString() + " FAILED");
+				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED", ex);
 			}
 		} else if (!goalStatus.equals(Status.RUNNING)) {
 			exStatus = goalStatus;
@@ -100,19 +96,19 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 			exStatus = Status.RUNNING;
 		}
 		printStatus(exStatus);
-		return new NodeStatus(exStatus, toString() + " " + exStatus);
+		return new NodeStatus(exStatus, this.getObject().getLogger(), this.getClass(), toString() + " " + exStatus);
 	}
 
 	private void printStatus(final Status status) {
 		switch (status) {
 			case RUNNING:
-				LOG.info(toString() + " RUNNING");
+				this.getObject().getLogger().info(this.getClass(), "Status (RUNNING)");
 				break;
 			case SUCCEEDED:
-				LOG.info(toString() + " SUCCEEDED");
+				this.getObject().getLogger().info(this.getClass(), "Status (SUCCEEDED)");
 				break;
 			default:
-				LOG.info(toString() + " FAILED");
+				this.getObject().getLogger().info(this.getClass(), "Status (FAILED)");
 				break;
 		}
 	}
@@ -164,7 +160,7 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 			ModelEvent event = createEvent();
 			event.setEventInformation(new LinkedHashModel());
 		} catch (AJANBindingsException | URISyntaxException ex) {
-			LOG.error("Error while creating an Event: " + ex);
+			this.getObject().getLogger().info(this.getClass(), "Error while creating an Event: " + ex);
 			goalStatus = Status.FAILED;
 		}
 	}
@@ -213,7 +209,7 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	@Override

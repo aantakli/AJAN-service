@@ -37,8 +37,6 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RDFBean("bt:HandleEvent")
 public class HandleModelEvent extends AbstractTDBLeafTask {
@@ -59,7 +57,6 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 	private BehaviorConstructQuery query;
 
 	protected BehaviorConstructQuery constructQuery;
-	protected static final Logger LOG = LoggerFactory.getLogger(HandleModelEvent.class);
 
 	@Override
 	public Resource getType() {
@@ -79,15 +76,12 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 		try {
 			constructQuery = query;
 			if (handleEvent()) {
-				LOG.info(toString() + " SUCCEEDED");
-				return new NodeStatus(Status.SUCCEEDED, toString() + " SUCCEEDED");
+				return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
 			} else {
-				LOG.info(toString() + " FAILED");
-				return new NodeStatus(Status.FAILED, toString() + " FAILED");
+				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED");
 			}
 		} catch (ConditionEvaluationException ex) {
-			LOG.info(toString() + " FAILED due to query evaluation error", ex);
-			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to condition evaluation error", ex);
 		}
 	}
 
@@ -137,7 +131,7 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	@Override

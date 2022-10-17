@@ -19,6 +19,7 @@
 
 package de.dfki.asr.ajan.logic.agent;
 
+import de.dfki.asr.ajan.behaviour.AJANLogger;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.knowledge.AgentBeliefBase;
@@ -166,6 +167,7 @@ public class AgentBuilder {
             if (beliefs != null && bt != null) {
                 bt.setInstance(vf.createIRI(getBTInstance(behaviorIRI)));
                 bt.setObject(new AgentTaskInformation(
+                    new AJANLogger(id),
                     bt,
                     clearEKB,
                     beliefs,

@@ -45,8 +45,6 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RDFBean("bt:EventProducer")
 public class EventProducer extends AbstractTDBLeafTask implements Producer {
@@ -65,7 +63,6 @@ public class EventProducer extends AbstractTDBLeafTask implements Producer {
 	@RDF("bt:content")
 	@Getter @Setter
 	private BehaviorConstructQuery query;
-	private static final Logger LOG = LoggerFactory.getLogger(EventProducer.class);
 
 	@Override
 	public Resource getType() {
@@ -76,14 +73,11 @@ public class EventProducer extends AbstractTDBLeafTask implements Producer {
 	public NodeStatus executeLeaf() {
 		try {
 			setModelEvent();
-			LOG.info(toString() + " SUCCEEDED");
-			return new NodeStatus(Status.SUCCEEDED, toString() + " SUCCEEDED");
+			return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
 		} catch (ConditionEvaluationException ex) {
-			LOG.info(toString() + " FAILED due to query evaluation error", ex);
-			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to condition evaluation error", ex);
 		} catch (EventEvaluationException ex) {
-			LOG.info(toString(), ex);
-			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED", ex);
 		}
 	}
 
@@ -112,7 +106,7 @@ public class EventProducer extends AbstractTDBLeafTask implements Producer {
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	@Override

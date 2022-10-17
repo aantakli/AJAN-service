@@ -44,8 +44,6 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RDFBean("bt:Update")
 public class Update extends AbstractTDBLeafTask {
@@ -65,8 +63,6 @@ public class Update extends AbstractTDBLeafTask {
 	@Getter @Setter
 	private boolean useW3C;
 
-	private static final Logger LOG = LoggerFactory.getLogger(Update.class);
-
 	@Override
 	public Resource getType() {
 		return BTVocabulary.UPDATE;
@@ -83,20 +79,17 @@ public class Update extends AbstractTDBLeafTask {
 		try {
 			Repository repo = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
 			if (performUpdateLogic(repo)) {
-				LOG.info(toString() + " SUCCEEDED");
-				return new NodeStatus(Status.SUCCEEDED, toString() + " SUCCEEDED");
+				return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
 			}
-			LOG.info(toString() + " FAILED");
-			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED");
 		} catch (QueryEvaluationException | URISyntaxException ex) {
-			LOG.info(toString() + " FAILED due to evaluation error", ex);
-			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to evaluation error", ex);
 		}
 	}
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	private Boolean performUpdateLogic(final Repository repo) {
@@ -127,7 +120,7 @@ public class Update extends AbstractTDBLeafTask {
 			httpResponse = httpClient.execute(httpPost);
 			StatusLine statusLine = httpResponse.getStatusLine();
 			if (statusLine.getStatusCode() >= 300) {
-				LOG.info("POST Response Status: " + httpResponse.getStatusLine().getStatusCode());
+				this.getObject().getLogger().info(this.getClass(), "POST Response Status: " + httpResponse.getStatusLine().getStatusCode());
 				return false;
 			}
 		} catch (IOException ex) {

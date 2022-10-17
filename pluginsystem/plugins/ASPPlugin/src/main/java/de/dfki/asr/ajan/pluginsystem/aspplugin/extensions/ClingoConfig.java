@@ -63,7 +63,7 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 	@RDF("clingo:const")
 	private List<ClingoConstant> constants;
 
-	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(Problem.class);
+	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(ClingoConfig.class);
 	
 	@Override
 	public boolean runSolver(Problem problem) {
@@ -81,7 +81,7 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 				}
 			}
 		} catch (IOException ex) {
-			LOG.info("Environment variable not accessible!");
+			LOG.debug("Environment variable not accessible!", ex);
 			return executeSolver(problem);
 		}
 		return solution;
@@ -102,7 +102,7 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
             }
 			control.cleanup();
 		} catch (RuntimeException ex) {
-			LOG.info(ex.getMessage());
+			LOG.debug(ex.getMessage());
 			return false;
 		}
 		return stat;

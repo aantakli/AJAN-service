@@ -19,6 +19,7 @@
 
 package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions;
 
+import de.dfki.asr.ajan.behaviour.AJANLogger;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -43,7 +44,6 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.eclipse.rdf4j.model.BNode;
-import org.slf4j.LoggerFactory;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
@@ -56,7 +56,7 @@ import org.pf4j.Extension;
 @RDFBean("asp:Problem")
 public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Problem.class);
+    private AJANLogger LOG;
 	@Getter @Setter
     private ArrayList<String> facts;
 	@Getter @Setter
@@ -98,19 +98,15 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 		try {
 			generateRuleSet();
 			if(!getConfig().runSolver(this)) {
-				LOG.info(toString() + " UNSATISFIABLE");
-				return new NodeStatus(Status.FAILED, toString() + " UNSATISFIABLE");
+				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " UNSATISFIABLE");
 			}
 			if(getFacts() != null) {
 				setStableModels(readStableModels());
 				writeSolution(getStableModels());
 			}
-			String report = toString() + " SUCCEEDED";
-			LOG.info(report);
-			return new NodeStatus(Status.SUCCEEDED, report);
+			return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
 		} catch (URISyntaxException | RDFBeanException | LoadingRulesException ex) {
-			LOG.info(toString() + " FAILED due to query evaluation error", ex);
-			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to query evaluation error", ex);
 		}
     }
 
@@ -119,7 +115,6 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
             loadBeliefs(set);
             Deserializer.loadRules(this.getObject(), set, getRules());
             setRuleset(set.toString());
-            LOG.info("Input RuleSet: " + getRuleset());
     }
 
     private void loadBeliefs(StringBuilder set) throws URISyntaxException {
@@ -153,7 +148,6 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
     }
 
     private void getNamedModel(final ModelBuilder builder, final String stableModel) {
-		LOG.info("\n\n" + stableModel + "\n");
 		if (!getWrite().isSaveString()) {
 			Serializer.getGraphFromSolution(builder, stableModel);
 		}
@@ -178,7 +172,7 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 
     @Override
     public void end() {
-		LOG.info("ASPProblem (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
     }
 
 	@Override

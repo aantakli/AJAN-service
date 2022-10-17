@@ -106,16 +106,12 @@ public class JsonMessage extends Message implements NodeExtension {
 			request = new HttpConnection(getBinding());
 			String payload = createPayload();
 			request.setPayload(payload);
-			LOG.info("Executing request {}", request.toString());
 			if (!checkResponse(request.execute())) {
-				LOG.info(toString() + " FAILED due to malformed response model");
-				return new NodeStatus(Task.Status.FAILED, toString() + " FAILED");
+				return new NodeStatus(Task.Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to malformed response model");
 			}
-			LOG.info(toString() + " SUCCEEDED");
-			return new NodeStatus(Task.Status.SUCCEEDED, toString() + " SUCCEEDED");
+			return new NodeStatus(Task.Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
 		} catch (IOException | URISyntaxException | MessageEvaluationException | InputMappingException | SAXException ex) {
-			LOG.info(toString() + " FAILED due to query evaluation error", ex);
-			return new NodeStatus(Task.Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Task.Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to query evaluation error", ex);
 		}
 	}
 
@@ -149,8 +145,7 @@ public class JsonMessage extends Message implements NodeExtension {
 			try {
 				domainResponse = getModel(response);
 			} catch (URISyntaxException | RMLMapperException | IOException | TransformerException ex) {
-				LOG.error("Malformed response!");
-				LOG.error("Mime Type is not supported!");
+				this.getObject().getLogger().info(this.getClass(), "Malformed response! Mime Type is not supported!", ex);
 				return false;
 			}
 		}
