@@ -49,8 +49,6 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
@@ -75,8 +73,6 @@ public class CreateCallbackServer extends AbstractTDBLeafTask implements NodeExt
 	private static MCoSimulationEventCallbackHandler coSimHandler;
 	private static MCoSimulationEventCallback.Processor coSimProcessor;
 
-	protected static final Logger LOG = LoggerFactory.getLogger(CreateCallbackServer.class);
-
 	@Override
 	public Resource getType() {
 		return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#CreateCallbackServer");
@@ -86,8 +82,7 @@ public class CreateCallbackServer extends AbstractTDBLeafTask implements NodeExt
 	public NodeStatus executeLeaf() {
 		startCoSimCallbackServer();
 		String report = toString() + " SUCCEEDED";
-		LOG.info(report);
-		return new NodeStatus(Status.SUCCEEDED, report);
+		return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
 	}
 
 	public void startCoSimCallbackServer() {
@@ -117,7 +112,7 @@ public class CreateCallbackServer extends AbstractTDBLeafTask implements NodeExt
 			if (!ThriftPluginServer.add(clPort, coSimServer)) {
 				throw new PortExistingException("Port: " + callback + " is already reserved!");
 			}
-			LOG.info("Starting the CoSimCallback server...");
+			this.getObject().getLogger().info(this.getClass(), "Starting the CoSimCallback server...");
 			coSimServer.serve();
 		} catch (TTransportException e) {
 			throw new SetupCallbackServerException("Caught TTransportException in start().");
@@ -126,7 +121,7 @@ public class CreateCallbackServer extends AbstractTDBLeafTask implements NodeExt
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	@Override

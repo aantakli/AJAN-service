@@ -57,8 +57,6 @@ import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
@@ -85,8 +83,6 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 	@Getter @Setter
 	private URI repository;
 
-	protected static final Logger LOG = LoggerFactory.getLogger(GetScene.class);
-
 	@Override
 	public Resource getType() {
 		return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#GetScene");
@@ -103,23 +99,19 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 				List<MSceneObject> objects = getSceneObjects();
 				if (objects == null) {
 					String report = toString() + " FAILED";
-					LOG.info(report);
-					return new NodeStatus(Status.FAILED, report);
+					return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
 				}
 				Model inputModel = getInputModel(objects);
 				MOSIMUtil.writeInput(inputModel, repository.toString(), this.getObject());
 				String report = toString() + " SUCCEEDED";
-				LOG.info(report);
-				return new NodeStatus(Status.SUCCEEDED, report);
+				return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
 			}
 		} catch (URISyntaxException | IOException | ClassNotFoundException ex) {
 			String report = toString() + " FAILED";
-			LOG.info(report);
-			return new NodeStatus(Status.FAILED, report);
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
 		}
 		String report = toString() + " FAILED";
-		LOG.info(report);
-		return new NodeStatus(Status.FAILED, report);
+		return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
 	}
 
 	private List<MSceneObject> getSceneObjects() {
@@ -131,7 +123,7 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 				return client.GetSceneObjects();
 			}
 		} catch (TException ex) {
-			LOG.error("Could not load List<MSceneObject>", ex);
+			this.getObject().getLogger().info(this.getClass(), "Could not load List<MSceneObject>", ex);
 			return null;
 		}
 	}
@@ -210,7 +202,6 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 
 	private void setRDF(final Model model, final IRI subject, final String RDF) throws IOException {
 		if (!RDF.equals("")) {
-			LOG.info(RDF);
 			InputStream input = new ByteArrayInputStream(RDF.getBytes());
 			Model additionalRDF = Rio.parse(input, "", RDFFormat.TURTLE);
 			Iterable<Statement> stmts = additionalRDF.getStatements(null, null, null);
@@ -234,7 +225,7 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	@Override

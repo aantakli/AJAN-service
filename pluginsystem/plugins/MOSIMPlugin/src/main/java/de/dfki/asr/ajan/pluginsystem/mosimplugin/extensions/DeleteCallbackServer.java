@@ -36,8 +36,6 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
@@ -58,8 +56,6 @@ public class DeleteCallbackServer extends AbstractTDBLeafTask implements NodeExt
 	private BehaviorSelectQuery callback;
 	private int clPort;
 
-	protected static final Logger LOG = LoggerFactory.getLogger(DeleteCallbackServer.class);
-
 	@Override
 	public Resource getType() {
 		return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#DeleteCallbackServer");
@@ -71,12 +67,10 @@ public class DeleteCallbackServer extends AbstractTDBLeafTask implements NodeExt
 			deleteCoSimCallbackServer();
 		} catch (URISyntaxException ex) {
 			String report = toString() + " FAILED";
-			LOG.info(report);
-			return new NodeStatus(Status.FAILED, report);
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
 		}
 		String report = toString() + " SUCCEEDED";
-		LOG.info(report);
-		return new NodeStatus(Status.SUCCEEDED, report);
+		return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
 	}
 
 	public void deleteCoSimCallbackServer() throws URISyntaxException {
@@ -86,7 +80,7 @@ public class DeleteCallbackServer extends AbstractTDBLeafTask implements NodeExt
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	@Override

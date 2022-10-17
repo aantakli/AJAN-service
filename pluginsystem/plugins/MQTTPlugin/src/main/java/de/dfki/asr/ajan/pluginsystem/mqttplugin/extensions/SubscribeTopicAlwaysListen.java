@@ -18,8 +18,6 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.repository.Repository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
@@ -57,7 +55,6 @@ public class SubscribeTopicAlwaysListen extends AbstractTDBLeafTask implements N
     private BehaviorSelectQuery subscribeDetails;
 
 	private final String clientId = UUID.randomUUID().toString();
-    protected static final Logger LOG = LoggerFactory.getLogger(SubscribeTopicAlwaysListen.class);
 
     @Override
     public NodeStatus executeLeaf(){
@@ -76,13 +73,10 @@ public class SubscribeTopicAlwaysListen extends AbstractTDBLeafTask implements N
 				stat = Status.RUNNING;
 			}
         } catch (URISyntaxException e) {
-            LOG.error("Error while fetching info" + e.getMessage());
             report = toString()+ "FAILED";
             stat = Status.FAILED;
         }
-
-        LOG.info(report);
-        return new NodeStatus(stat, report);
+        return new NodeStatus(stat, this.getObject().getLogger(), this.getClass(), report);
     }
 
     private String subscribeToTopic(String serverUrl, String topic, Repository repo) {
@@ -93,7 +87,7 @@ public class SubscribeTopicAlwaysListen extends AbstractTDBLeafTask implements N
 
     @Override
     public void end() {
-        LOG.info("Status (" + getStatus() + ")");
+        this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 		if (getStatus() == Status.CANCELLED) {
 			BTUtil.sendReport(this.getObject(), toString() + " CANCELLED");
 			MessageService.clearClient(clientId);

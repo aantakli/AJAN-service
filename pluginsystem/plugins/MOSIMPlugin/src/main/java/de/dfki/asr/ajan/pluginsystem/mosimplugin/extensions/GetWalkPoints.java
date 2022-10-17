@@ -30,7 +30,6 @@ import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.math.MTransform;
 import de.mosim.mmi.scene.MSceneObject;
-import de.mosim.mmi.services.MSceneAccess;
 import de.mosim.mmi.services.MWalkPoint;
 import de.mosim.mmi.services.MWalkPointEstimationService;
 import java.io.IOException;
@@ -57,8 +56,6 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.repository.Repository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
@@ -95,8 +92,6 @@ public class GetWalkPoints extends AbstractTDBLeafTask implements NodeExtension 
 	
 	private MSceneObject targetObj;
 
-	protected static final Logger LOG = LoggerFactory.getLogger(GetWalkPoints.class);
-
 	@Override
 	public Resource getType() {
 		return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#GetWalkPoints");
@@ -112,21 +107,17 @@ public class GetWalkPoints extends AbstractTDBLeafTask implements NodeExtension 
 				port = Integer.parseInt(entry.getValue());
 				targetObj = getWalkTarget();
 				List<MWalkPoint> walkPoints = getWalkPoints();
-				LOG.info("Found Walkpoints: " + walkPoints.size());
 				Model inputModel = getWalkPointsModel(walkPoints);
 				MOSIMUtil.writeInput(inputModel, repository.toString(), this.getObject());
 				String report = toString() + " SUCCEEDED";
-				LOG.info(report);
-				return new NodeStatus(Status.SUCCEEDED, report);
+				return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
 			}
 		} catch (URISyntaxException | ClassNotFoundException | IOException ex) {
 			String report = toString() + " FAILED";
-			LOG.info(report);
-			return new NodeStatus(Status.FAILED, report);
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
 		}
 		String report = toString() + " FAILED";
-		LOG.info(report);
-		return new NodeStatus(Status.FAILED, report);
+		return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
 	}
 
 	private List<MWalkPoint> getWalkPoints() throws IOException, ClassNotFoundException, URISyntaxException {
@@ -138,7 +129,7 @@ public class GetWalkPoints extends AbstractTDBLeafTask implements NodeExtension 
 				return client.EstimateWalkPoints(getMSceneObjects(targetObj), targetObj, 10, new HashMap<String,String>());
 			}
 		} catch (TException ex) {
-			LOG.error("Could not load List<MWalkPoint>", ex);
+			this.getObject().getLogger().info(this.getClass(), "Could not load List<MWalkPoint>", ex);
 			return null;
 		}
 	}
@@ -191,7 +182,7 @@ public class GetWalkPoints extends AbstractTDBLeafTask implements NodeExtension 
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	@Override

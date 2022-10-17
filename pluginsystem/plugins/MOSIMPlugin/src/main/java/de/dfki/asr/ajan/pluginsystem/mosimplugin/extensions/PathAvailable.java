@@ -58,8 +58,6 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.repository.Repository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
@@ -97,8 +95,6 @@ public class PathAvailable extends AbstractTDBLeafTask implements NodeExtension 
 	@RDF("bt:targetBase")
 	@Getter @Setter
 	private URI repository;
-
-	protected static final Logger LOG = LoggerFactory.getLogger(PathAvailable.class);
 	
 	private class Input {
 		public Resource iri;
@@ -120,22 +116,18 @@ public class PathAvailable extends AbstractTDBLeafTask implements NodeExtension 
 				port = Integer.parseInt(entry.getValue());
 				if(checkPath()) {
 					String report = toString() + " SUCCEEDED";
-					LOG.info(report);
-					return new NodeStatus(Status.SUCCEEDED, report);
+					return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
 				} else {
 					String report = toString() + " FAILED";
-					LOG.info(report);
-					return new NodeStatus(Status.FAILED, report);
+					return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
 				}
 			}
 		} catch (URISyntaxException ex) {
 			String report = toString() + " FAILED";
-			LOG.info(report);
-			return new NodeStatus(Status.FAILED, report);
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
 		}
 		String report = toString() + " FAILED";
-		LOG.info(report);
-		return new NodeStatus(Status.FAILED, report);
+		return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
 	}
 
 	private boolean checkPath() {
@@ -154,7 +146,7 @@ public class PathAvailable extends AbstractTDBLeafTask implements NodeExtension 
 				return !path.getPolygonPoints().isEmpty();
 			}
 		} catch (TException | URISyntaxException | ClassNotFoundException | IOException ex) {
-			LOG.error("Could not check path", ex);
+			this.getObject().getLogger().info(this.getClass(), "Could not check path", ex);
 			return false;
 		}
 	}
@@ -219,7 +211,7 @@ public class PathAvailable extends AbstractTDBLeafTask implements NodeExtension 
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	@Override

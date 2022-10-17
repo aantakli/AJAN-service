@@ -49,8 +49,6 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
@@ -87,8 +85,6 @@ public class RegisterListener extends AbstractTDBLeafTask implements NodeExtensi
 	@Getter @Setter
 	private BehaviorSelectQuery eventTypeQuery;
 
-	protected static final Logger LOG = LoggerFactory.getLogger(RegisterListener.class);
-
 	@Override
 	public Resource getType() {
 		return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#RegisterListener");
@@ -108,22 +104,18 @@ public class RegisterListener extends AbstractTDBLeafTask implements NodeExtensi
 					Model inputModel = getInputModel();
 					MOSIMUtil.writeInput(inputModel, repository.toString(), this.getObject());
 					String report = toString() + " SUCCEEDED";
-					LOG.info(report);
-					return new NodeStatus(Status.SUCCEEDED, report);
+					return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
 				} catch (TException ex) {
 					String report = toString() + " FAILED";
-					LOG.info(report);
-					return new NodeStatus(Status.FAILED, report);
+					return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
 				}
 			}
 		} catch (URISyntaxException ex) {
 			String report = toString() + " FAILED";
-			LOG.info(report);
-			return new NodeStatus(Status.FAILED, report);
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
 		}
 		String report = toString() + " FAILED";
-		LOG.info(report);
-		return new NodeStatus(Status.FAILED, report);
+		return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
 			
 	}
 
@@ -155,7 +147,7 @@ public class RegisterListener extends AbstractTDBLeafTask implements NodeExtensi
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	@Override
