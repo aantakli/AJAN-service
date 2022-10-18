@@ -29,6 +29,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Data;
@@ -139,7 +140,7 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 		return stat;
 	}
 
-	private boolean extractFactsFormSolverResult(final BufferedReader in, Problem problem) throws IOException, ClingoException{
+	private boolean extractFactsFormSolverResult(final BufferedReader in, Problem problem) throws IOException, ClingoException {
  		ArrayList<String> factsFromSolver = new ArrayList();
  		boolean stat = true;
 		String line;
