@@ -93,27 +93,6 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 		return solution;
 	}
 
-	private boolean executeInternalSolver(Problem problem, final int i) {
-		ArrayList<String> facts = new ArrayList();
-		boolean stat = false;
-		try (Control control = new Control()) {
-			control.add("input", problem.getRuleset(), "--verbose=0 -c maxtime="+i);
-			control.ground();
-			try (SolveHandle handle = control.solve(Collections.emptyList(), null, SolveMode.YIELD)) {
-				while (handle.hasNext()) {
-					if (!stat) stat = true;
-					facts.add(handle.next().toString());
-				}
-				problem.setFacts(facts);
-            }
-			control.cleanup();
-		} catch (RuntimeException ex) {
-			LOG.debug(ex.getMessage());
-			return false;
-		}
-		return stat;
-	}
-
 	private boolean executeSolver(Problem problem, final int i) {
 		List<String> solverCommandLine = new ArrayList();
 		solverCommandLine.add("clingo");
@@ -134,6 +113,28 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 		} catch (IOException | InterruptedException | ClingoException ex) {
 			Logger.getLogger(ClingoConfig.class.getName()).log(Level.SEVERE, null, ex);
 			return stat;
+		}
+		return stat;
+	}
+
+	
+	private boolean executeInternalSolver(Problem problem, final int i) {
+		ArrayList<String> facts = new ArrayList();
+		boolean stat = false;
+		try (Control control = new Control("--verbose", "0", "--const", "maxtime="+i)) {
+			control.add(problem.getRuleset());
+			control.ground();
+			try (SolveHandle handle = control.solve(Collections.emptyList(), null, SolveMode.YIELD)) {
+				while (handle.hasNext()) {
+					if (!stat) stat = true;
+					facts.add(handle.next().toString());
+				}
+				problem.setFacts(facts);
+            }
+			control.cleanup();
+		} catch (RuntimeException ex) {
+			LOG.debug(ex.getMessage());
+			return false;
 		}
 		return stat;
 	}
