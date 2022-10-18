@@ -98,15 +98,19 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 		try {
 			generateRuleSet();
 			if(!getConfig().runSolver(this)) {
-				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " UNSATISFIABLE");
+				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to output UNSATISFIABLE");
 			}
 			if(getFacts() != null) {
 				setStableModels(readStableModels());
 				writeSolution(getStableModels());
 			}
 			return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
-		} catch (URISyntaxException | RDFBeanException | LoadingRulesException ex) {
-			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to query evaluation error", ex);
+		} catch (URISyntaxException ex) {
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to URISyntaxException", ex);
+		} catch (RDFBeanException ex) {
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to RDFBeanException", ex);
+		} catch (LoadingRulesException ex) {
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to LoadingRulesException", ex);
 		}
     }
 

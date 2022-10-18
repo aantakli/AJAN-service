@@ -83,16 +83,21 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 		} catch (IOException ex) {
 			LOG.debug("Environment variable not accessible!", ex);
 			LOG.debug("Executing built in Clingo instead!", ex);
-			return executeSolver(problem);
+			for(int i = 0; i <= execution; i++) {
+				if(executeInternalSolver(problem, i)) {
+					solution = true;
+					break;
+				}
+			}
 		}
 		return solution;
 	}
 
-	private boolean executeSolver(Problem problem) {
+	private boolean executeInternalSolver(Problem problem, final int i) {
 		ArrayList<String> facts = new ArrayList();
 		boolean stat = false;
 		try (Control control = new Control()) {
-			control.add(problem.getRuleset());
+			control.add("input", problem.getRuleset(), "--verbose=0 -c maxtime="+i);
 			control.ground();
 			try (SolveHandle handle = control.solve(Collections.emptyList(), null, SolveMode.YIELD)) {
 				while (handle.hasNext()) {
