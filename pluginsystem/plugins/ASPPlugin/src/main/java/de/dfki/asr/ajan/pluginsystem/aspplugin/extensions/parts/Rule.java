@@ -30,7 +30,7 @@ import org.pf4j.Extension;
 @Data
 public class Rule implements NodeExtension {
 	@RDF("asp:head")
-	private Atom head;
+	private Fact head;
 	
 	@RDF("asp:body")
 	private Body body;

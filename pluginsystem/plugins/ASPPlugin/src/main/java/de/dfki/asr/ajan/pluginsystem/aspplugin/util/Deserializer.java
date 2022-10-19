@@ -24,7 +24,10 @@ import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.exception.LoadingRulesException;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.ASPRules;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.RuleSetLocation;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Atom;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Body;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Fact;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Rule;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Term;
 import de.dfki.asr.rdfbeans.BehaviorBeanManager;
 import java.net.URISyntaxException;
@@ -83,7 +86,7 @@ public final class Deserializer {
 				set.append(getStringFacts(rules.getFacts()));
 			}
 			if (rules.getRules() != null) {
-				set.append(rewritePrefixes(rules.getStringRules()));
+				set.append(getStringRules(rules.getRules()));
 			}
 			/*if (rules.getConstraints() != null) {
 				set.append(rewritePrefixes(rules.getStringRules()));
@@ -127,6 +130,39 @@ public final class Deserializer {
 		}
 	}
 
+	private static String getStringRules(final List<Rule> rules) {
+		StringBuilder builder = new StringBuilder();
+		for (Rule rule: rules) {
+			Fact head = rule.getHead();
+			if (head.isOpposite()) {
+				builder.append("-");
+			}
+			builder.append(head.getPredicate());
+			getTermsString(builder, head.getTerms());
+			builder.append(" ").append(":-");
+			Body body = rule.getBody();
+			getAtomsAsString(builder, body.getAtoms());
+			builder.append(". ");
+		}
+		return builder.toString();
+	}
+
+	private static void getAtomsAsString(final StringBuilder builder, final List<Atom> atoms) {
+		for (Atom atom: atoms) {
+			builder.append(" ");
+			if (atom.isNaf()) {
+				builder.append("not ");
+			}
+			if (atom.isOpposite()) {
+				builder.append("-");
+			}
+			builder.append(atom.getPredicate());
+			getTermsString(builder, atom.getTerms());
+			builder.append(",");
+		}
+		builder.setLength(builder.length() - 1);
+	}
+
 	private static String rewritePrefixes(final String rules) {
 		String result = rules;
 		Map<String,String> map = PatternUtil.getPrefixes(rules);
@@ -142,6 +178,8 @@ public final class Deserializer {
 			repo = taskInfo.getExecutionBeliefs().initialize();
 		} else if (ruleSet.getOriginBase().toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
 			repo = taskInfo.getAgentBeliefs().initialize();
+		} else if (ruleSet.getOriginBase().toString().equals(AJANVocabulary.DOMAIN_KNOWLEDGE.toString())) {
+			repo = taskInfo.getDomainTDB().getInitializedRepository();
 		}
 		try (RepositoryConnection conn = repo.getConnection()) {
 			RDFBeanManager manager = new BehaviorBeanManager(conn, taskInfo.getExtensions());

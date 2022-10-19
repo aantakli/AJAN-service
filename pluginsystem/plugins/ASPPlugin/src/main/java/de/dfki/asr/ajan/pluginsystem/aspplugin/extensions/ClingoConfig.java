@@ -45,8 +45,8 @@ import org.slf4j.LoggerFactory;
 @Data
 public class ClingoConfig implements NodeExtension, ASPConfig {
 
-	@RDF("clingo:envVariable")
-    private String envVar;
+	@RDF("clingo:solver")
+    private String solver;
 
 	@RDF("clingo:time-limit")
 	private Integer time;
@@ -92,7 +92,7 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 
 	private boolean executeSolver(Problem problem, final int i) throws ClingoException {
 		StringBuilder solverCommandLine = new StringBuilder();
-		solverCommandLine.append(getCommandLineForEnvVariable());
+		solverCommandLine.append(getCommandLineForSolver());
 		solverCommandLine.append(" --verbose=0");
 		solverCommandLine.append(" --const maxtime=").append(i);
 		addCommandLines(solverCommandLine);
@@ -187,15 +187,18 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 		}
 	}
 
-	private String getCommandLineForEnvVariable() throws ClingoException {
+	private String getCommandLineForSolver() throws ClingoException {
 		Properties prop = new Properties();
 		ClassLoader classLoader = getClass().getClassLoader();
 		InputStream input = null;
 		try {
 			input = classLoader.getResourceAsStream("envVariables.properties");
 			prop.load(input);
-			if (prop.containsKey(getEnvVar())) {
-				return (String)prop.get(getEnvVar());
+			if (getSolver() == null) {
+				throw new ClingoException("No solver specified!");
+			}
+			if (prop.containsKey(getSolver())) {
+				return (String)prop.get(getSolver());
 			} else {
 				throw new ClingoException("Environmental variable not available!");
 			}

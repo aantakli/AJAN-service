@@ -66,18 +66,38 @@ ajan:ASP {
 	:Plain_Rules
 		a asp:RuleSet ;
 		asp:facts (
-			:Fact1
+			:Andre
+		) ;
+		asp:rules (
+			:Mortal
 		) .
 	
-	:Fact1
-		a asp:Fact ;
-		asp:predicate "predicate1" ;
+	:Andre a asp:Fact ;
+		asp:predicate "human" ;
 		asp:terms ([
 			  a asp:Constant ;
-				asp:value "atom1" ]
-			[ a asp:Constant ;
-				asp:value "atom2" ]
-		) .
+			  asp:value "andre" ]) .
+
+	:Mortal a asp:Rule ;
+		asp:head [ 
+			a asp:Fact ;
+			asp:predicate "mortal" ;
+			asp:terms ([
+			  a asp:Variable ;
+			  asp:value "X" ]
+			)
+		] ;
+		asp:body [
+			a asp:Body ;
+			asp:atoms ([
+				a asp:Atom ;
+				asp:predicate "human" ;
+				asp:terms ([
+				  a asp:Variable ;
+				  asp:value "X" ]
+				)]
+			)
+		] .
 
 	:TWT_Example
 		a asp:RuleSet ;
