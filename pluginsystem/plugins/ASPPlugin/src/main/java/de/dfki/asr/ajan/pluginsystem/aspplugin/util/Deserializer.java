@@ -24,7 +24,6 @@ import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.exception.LoadingRulesException;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.ASPRules;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.RuleSetLocation;
-import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Constant;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Fact;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Term;
 import de.dfki.asr.rdfbeans.BehaviorBeanManager;
@@ -86,9 +85,9 @@ public final class Deserializer {
 			if (rules.getRules() != null) {
 				set.append(rewritePrefixes(rules.getStringRules()));
 			}
-			if (rules.getConstraints() != null) {
+			/*if (rules.getConstraints() != null) {
 				set.append(rewritePrefixes(rules.getStringRules()));
-			}
+			}*/
 			if (rules.getStringRules() != null) {
 				set.append(rewritePrefixes(rules.getStringRules()));
 			}

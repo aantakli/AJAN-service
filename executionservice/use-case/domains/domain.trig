@@ -72,13 +72,12 @@ ajan:ASP {
 	:Fact1
 		a asp:Fact ;
 		asp:predicate "predicate1" ;
-		asp:terms (
-			:Atom1
+		asp:terms ([
+			  a asp:Constant ;
+				asp:value "atom1" ]
+			[ a asp:Constant ;
+				asp:value "atom2" ]
 		) .
-
-	:Atom1
-		a asp:Constant ;
-		asp:value "atom1" .
 
 	:TWT_Example
 		a asp:RuleSet ;
