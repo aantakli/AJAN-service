@@ -72,8 +72,6 @@ public class ConvertToUnixTime extends AbstractTDBLeafTask implements NodeExtens
 	@Getter @Setter
 	private URI target;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(ConvertToUnixTime.class);
-
 	@Override
 	public Resource getType() {
 		return vf.createIRI("http://www.ajan.de/behavior/mapping#ConvertToUnixTime");
@@ -84,17 +82,14 @@ public class ConvertToUnixTime extends AbstractTDBLeafTask implements NodeExtens
 		try {
 			if (convertInput()) {
 				String report = toString() + " SUCCEEDED";
-				LOG.info(report);
-				return new NodeStatus(Status.SUCCEEDED, report);
+				return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
 			} else {
 				String report = toString() + " FAILED";
-				LOG.info(report);
-				return new NodeStatus(Status.FAILED, report);
+				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
 			}
 		} catch (URISyntaxException | ParseException | QueryInterruptedException ex) {
 			String report = toString() + " FAILED";
-			LOG.info(report, ex);
-			return new NodeStatus(Status.FAILED, report);
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
 		}
     }
 
@@ -145,7 +140,7 @@ public class ConvertToUnixTime extends AbstractTDBLeafTask implements NodeExtens
 
     @Override
     public void end() {
-            LOG.info("Status (" + getStatus() + ")");
+        this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
     }
 
     @Override

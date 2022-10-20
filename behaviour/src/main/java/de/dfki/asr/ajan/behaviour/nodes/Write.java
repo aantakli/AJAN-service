@@ -42,8 +42,6 @@ import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RDFBean("bt:Write")
 public class Write extends AbstractTDBLeafTask {
@@ -59,8 +57,6 @@ public class Write extends AbstractTDBLeafTask {
 	@Getter @Setter
 	private BehaviorConstructQuery query;
 
-	private static final Logger LOG = LoggerFactory.getLogger(Write.class);
-
 	@Override
 	public Resource getType() {
 		return BTVocabulary.WRITE;
@@ -70,11 +66,11 @@ public class Write extends AbstractTDBLeafTask {
 	public NodeStatus executeLeaf() {
 		try {
 			performWrite();
-			LOG.info(toString() + " SUCCEEDED");
-			return new NodeStatus(Status.SUCCEEDED, toString() + " SUCCEEDED");
+			String report = toString() + " SUCCEEDED";
+			return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
 		} catch (ConditionEvaluationException ex) {
-			LOG.info(toString() + " FAILED due to evaluation error", ex);
-			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+			String report = toString() + " FAILED due to evaluation error";
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
 		}
 	}
 
@@ -127,7 +123,7 @@ public class Write extends AbstractTDBLeafTask {
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	@Override

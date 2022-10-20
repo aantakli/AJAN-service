@@ -23,23 +23,30 @@ import de.dfki.asr.ajan.pluginsystem.aspplugin.exception.ClingoException;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.util.ASPConfig;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Properties;
 import lombok.Data;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.pf4j.Extension;
+import org.potassco.clingo.control.Control;
+import org.potassco.clingo.solving.SolveHandle;
+import org.potassco.clingo.solving.SolveMode;
+import org.slf4j.LoggerFactory;
 
 @Extension
 @RDFBean("clingo:Config")
 @Data
 public class ClingoConfig implements NodeExtension, ASPConfig {
+
+	@RDF("clingo:solver")
+    private String solver;
 
 	@RDF("clingo:time-limit")
 	private Integer time;
@@ -54,72 +61,87 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 	private Integer threads;
 
 	@RDF("clingo:const")
-	private List<Constant> constants;
+	private List<ClingoConstant> constants;
 
-	private final String solver = "clingo.exe";
+	private final org.slf4j.Logger LOG = LoggerFactory.getLogger(ClingoConfig.class);
 	
 	@Override
 	public boolean runSolver(Problem problem) {
-		ClassLoader classLoader = getClass().getClassLoader();
-		File file = new File(classLoader.getResource(solver).getFile());
 		boolean solution = false;
 		if (execution < 1) 
-			return solution;
-		for(int i = 0; i <= execution; i++) {
-			if(executeSolver(problem, file, i)) {
-				solution = true;
-				break;
+			execution = 1;
+		try {
+			for(int i = 1; i <= execution; i++) {
+				if(executeSolver(problem, i)) {
+					solution = true;
+					break;
+				}
+			}
+		} catch (ClingoException ex) {
+			LOG.info("Environment variable not accessible!", ex);
+			LOG.info("Executing built in Clingo instead!", ex);
+			for(int i = 1; i <= execution; i++) {
+				if(executeInternalSolver(problem, i)) {
+					solution = true;
+					break;
+				}
 			}
 		}
 		return solution;
 	}
 
-	private boolean executeSolver(Problem problem, final File file, final int i) {
-		List<String> solverCommandLine = new ArrayList();
-		solverCommandLine.add(file.getAbsolutePath());
-		solverCommandLine.add("--verbose=0");
-		solverCommandLine.add("-c maxtime="+i);
+	private boolean executeSolver(Problem problem, final int i) throws ClingoException {
+		StringBuilder solverCommandLine = new StringBuilder();
+		solverCommandLine.append(getCommandLineForSolver());
+		solverCommandLine.append(" --verbose=0");
+		solverCommandLine.append(" --const maxtime=").append(i);
 		addCommandLines(solverCommandLine);
 		boolean stat = false;
 		try {
-			Process p = Runtime.getRuntime().exec(solverCommandLine.stream().toArray(String[]::new));
+			Process p = Runtime.getRuntime().exec(solverCommandLine.toString());
 			try (OutputStreamWriter out = new OutputStreamWriter(p.getOutputStream())) {
 				out.write(problem.getRuleset());
 			}
 			try (BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
 				stat = extractFactsFormSolverResult(in, problem);
+			} finally {
 				p.waitFor();
-				p.destroy(); // might not even be neccessary?
+				p.descendants().forEach(ph -> {
+					ph.destroy();
+				});
+				p.destroy();
 			}
 		} catch (IOException | InterruptedException | ClingoException ex) {
-			Logger.getLogger(ClingoConfig.class.getName()).log(Level.SEVERE, null, ex);
-			return stat;
+			throw new ClingoException("Problems with the Runtime environment!", ex);
 		}
 		return stat;
 	}
 
-	private void addCommandLines(List<String> solverCommandLine) {
-		if(time != null && time > 0)
-			solverCommandLine.add("--time-limit="+ time);
-		if(models != null && models > 0)
-			solverCommandLine.add("--models="+ models);
-		if(threads != null && threads > 0)
-			solverCommandLine.add("--parallel-mode="+ threads);
-		if(constants != null) {
-			constants.stream().forEach((constant) -> {
-				if (!constant.getName().isEmpty()) {
-					StringBuilder line = new StringBuilder();
-					line.append("-c ").append(constant.getName())
-						.append("=").append(constant.getValue());
-					solverCommandLine.add(line.toString());
+	
+	private boolean executeInternalSolver(Problem problem, final int i) {
+		ArrayList<String> facts = new ArrayList();
+		boolean stat = false;
+		try (Control control = new Control("--verbose", "0", "--const", "maxtime="+i)) {
+			control.add(problem.getRuleset());
+			control.ground();
+			try (SolveHandle handle = control.solve(Collections.emptyList(), null, SolveMode.YIELD)) {
+				while (handle.hasNext()) {
+					if (!stat) stat = true;
+					facts.add(handle.next().toString());
 				}
-			});
+				problem.setFacts(facts);
+            }
+			control.cleanup();
+		} catch (RuntimeException ex) {
+			LOG.debug(ex.getMessage());
+			return false;
 		}
+		return stat;
 	}
 
-	private boolean extractFactsFormSolverResult(final BufferedReader in, Problem problem) throws IOException, ClingoException{
-		ArrayList<String> factsFromSolver = new ArrayList();
-		boolean stat = true;
+	private boolean extractFactsFormSolverResult(final BufferedReader in, Problem problem) throws IOException, ClingoException {
+ 		ArrayList<String> factsFromSolver = new ArrayList();
+ 		boolean stat = true;
 		String line;
 		/* example output of the solver:
 		 * ... more stupid stuff, looking for the Answer line
@@ -129,6 +151,7 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 		 * ... ignore all the other output, we are satisfied
 		 */
 		while ( (line = in.readLine()) != null) {
+			LOG.info(line);
 			if (line.startsWith("SATISFIABLE")) {
 				problem.setFacts(factsFromSolver);
 			} else if (line.startsWith("UNSATISFIABLE")) {
@@ -143,7 +166,46 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 				factsFromSolver.add(line);
 			}
 		}
-		return stat;	
+ 		return stat;	
+ 	}
+
+	private void addCommandLines(StringBuilder solverCommandLine) {
+		if(time != null && time > 0)
+			solverCommandLine.append(" --time-limit=").append(time);
+		if(models != null && models > 0)
+			solverCommandLine.append(" --models=").append(models);
+		if(threads != null && threads > 0)
+			solverCommandLine.append(" --parallel-mode=").append(threads);
+		if(constants != null && constants.get(0) instanceof ClingoConstant) {
+			constants.stream().forEach((constant) -> {
+				if (!constant.getName().isEmpty()) {
+					StringBuilder line = new StringBuilder();
+					line.append("- -const ").append(constant.getName())
+						.append("=").append(constant.getValue());
+					solverCommandLine.append(line.toString());
+				}
+			});
+		}
+	}
+
+	private String getCommandLineForSolver() throws ClingoException {
+		Properties prop = new Properties();
+		ClassLoader classLoader = getClass().getClassLoader();
+		InputStream input = null;
+		try {
+			input = classLoader.getResourceAsStream("envVariables.properties");
+			prop.load(input);
+			if (getSolver() == null) {
+				throw new ClingoException("No solver specified!");
+			}
+			if (prop.containsKey(getSolver())) {
+				return (String)prop.get(getSolver());
+			} else {
+				throw new ClingoException("Environmental variable not available!");
+			}
+		} catch (IOException ex) {
+			throw new ClingoException("Can't load environmental variable!", ex);
+		}
 	}
 }
 

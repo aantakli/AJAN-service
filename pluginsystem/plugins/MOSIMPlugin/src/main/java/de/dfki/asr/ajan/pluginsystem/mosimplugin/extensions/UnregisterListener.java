@@ -50,8 +50,6 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
@@ -88,8 +86,6 @@ public class UnregisterListener extends AbstractTDBLeafTask implements NodeExten
 	@Getter @Setter
 	private BehaviorSelectQuery eventTypeQuery;
 
-	protected static final Logger LOG = LoggerFactory.getLogger(UnregisterListener.class);
-
 	@Override
 	public Resource getType() {
 		return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#UnregisterListener");
@@ -109,22 +105,18 @@ public class UnregisterListener extends AbstractTDBLeafTask implements NodeExten
 					Model removeModel = getRemoveModel();
 					MOSIMUtil.removeInput(removeModel, repository.toString(), this.getObject());
 					String report = toString() + " SUCCEEDED";
-					LOG.info(report);
-					return new NodeStatus(Status.SUCCEEDED, report);
+					return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
 				} catch (TException ex) {
 					String report = toString() + " FAILED";
-					LOG.info(report);
-					return new NodeStatus(Status.FAILED, report);
+					return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
 				}
 			}
 		} catch (URISyntaxException ex) {
 			String report = toString() + " FAILED";
-			LOG.info(report);
-			return new NodeStatus(Status.FAILED, report);
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
 		}
 		String report = toString() + " FAILED";
-		LOG.info(report);
-		return new NodeStatus(Status.FAILED, report);
+		return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
 	}
 
 	private boolean unregisterEventCallback() throws TTransportException, TException, URISyntaxException {
@@ -155,7 +147,7 @@ public class UnregisterListener extends AbstractTDBLeafTask implements NodeExten
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	@Override

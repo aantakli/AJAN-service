@@ -33,8 +33,6 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RDFBean("bt:Condition")
 public class Condition extends AbstractTDBLeafTask {
@@ -49,7 +47,6 @@ public class Condition extends AbstractTDBLeafTask {
 	@RDF("bt:query")
 	@Getter @Setter
 	private BehaviorAskQuery query;
-	private static final Logger LOG = LoggerFactory.getLogger(Condition.class);
 
 	@Override
 	public Resource getType() {
@@ -68,23 +65,20 @@ public class Condition extends AbstractTDBLeafTask {
 			Repository repo = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
 			if (performConditionLogic(repo)) {
 				String report = toString() + " SUCCEEDED";
-				LOG.info(report);
-				return new NodeStatus(Status.SUCCEEDED, report);
+				return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
 			} else {
 				String report = toString() + " FAILED";
-				LOG.info(report);
-				return new NodeStatus(Status.FAILED, report);
+				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
 			}
 		} catch (URISyntaxException ex) {
-			String report = toString() + " FAILED due to evaluation error";
-			LOG.info(report, ex);
-			return new NodeStatus(Status.FAILED, report);
+			String report = toString() + " FAILED due to malformed URI";
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
 		}
 	}
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	private Boolean performConditionLogic(final Repository repo) {

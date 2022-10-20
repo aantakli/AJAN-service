@@ -19,6 +19,7 @@
 
 package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions;
 
+import de.dfki.asr.ajan.behaviour.AJANLogger;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -31,6 +32,7 @@ import de.dfki.asr.ajan.pluginsystem.aspplugin.exception.LoadingRulesException;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.util.ASPConfig;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.util.Deserializer;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.util.Serializer;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.vocabularies.ASPVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -41,10 +43,11 @@ import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
-import org.slf4j.LoggerFactory;
+import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.repository.Repository;
 import org.pf4j.Extension;
@@ -53,7 +56,7 @@ import org.pf4j.Extension;
 @RDFBean("asp:Problem")
 public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Problem.class);
+    private AJANLogger LOG;
 	@Getter @Setter
     private ArrayList<String> facts;
 	@Getter @Setter
@@ -92,23 +95,23 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 
     @Override
     public NodeStatus executeLeaf() {
-            try {
-				generateRuleSet();
-				if(!getConfig().runSolver(this)) {
-					LOG.info(toString() + " UNSATISFIABLE");
-					return new NodeStatus(Status.FAILED, toString() + " UNSATISFIABLE");
-				}
-				if(getFacts() != null) {
-					setStableModels(readStableModels());
-					writeSolution(getStableModels());
-				}
-				String report = toString() + " SUCCEEDED";
-				LOG.info(report);
-				return new NodeStatus(Status.SUCCEEDED, report);
-            } catch (URISyntaxException | RDFBeanException | LoadingRulesException ex) {
-				LOG.info(toString() + " FAILED due to query evaluation error", ex);
-				return new NodeStatus(Status.FAILED, toString() + " FAILED");
-            }
+		try {
+			generateRuleSet();
+			if(!getConfig().runSolver(this)) {
+				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to output UNSATISFIABLE");
+			}
+			if(getFacts() != null) {
+				setStableModels(readStableModels());
+				writeSolution(getStableModels());
+			}
+			return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
+		} catch (URISyntaxException ex) {
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to URISyntaxException", ex);
+		} catch (RDFBeanException ex) {
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to RDFBeanException", ex);
+		} catch (LoadingRulesException ex) {
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to LoadingRulesException", ex);
+		}
     }
 
     protected void generateRuleSet() throws URISyntaxException, RDFBeanException, LoadingRulesException {
@@ -116,54 +119,64 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
             loadBeliefs(set);
             Deserializer.loadRules(this.getObject(), set, getRules());
             setRuleset(set.toString());
-            LOG.info("Input RuleSet: " + getRuleset());
     }
 
     private void loadBeliefs(StringBuilder set) throws URISyntaxException {
+		if (!getQuery().getSparql().isEmpty()) {
             Repository origin = BTUtil.getInitializedRepository(getObject(), getQuery().getOriginBase());
             Model model = getQuery().getResult(origin);
             Deserializer.addRuleSet(set, model);
+		}
     }
 
     protected Model readStableModels() {
-            Model origin = new LinkedHashModel();
-            int number = 0;
-            if (!getWrite().getRandom()) {
-                    for (String stableModel : getFacts()) {
-                            Model model = getNamedModel(number,stableModel);
-                            model.getNamespaces().stream().forEach(origin::setNamespace);
-                            model.stream().forEach(origin::add);
-                            number++;
-                    }
-            }
-            else
-                    origin = getNamedModel(number,getRandomStableModel());
-            return origin;
+		Model origin = new LinkedHashModel();
+		int number = 0;
+		ModelBuilder builder = new ModelBuilder();
+		if (getWrite().getContext() != null)
+			builder.namedGraph(getWrite().getContext().toString() + number);
+		if (!getWrite().getRandom()) {
+			for (String stableModel : getFacts()) {
+				getNamedModel(builder,stableModel);
+				Model model = builder.build();
+				model.getNamespaces().stream().forEach(origin::setNamespace);
+				model.stream().forEach(origin::add);
+				number++;
+			}
+		}
+		else {
+			getNamedModel(builder,getRandomStableModel());
+			origin = builder.build();
+		}
+		return origin;
     }
 
-    private Model getNamedModel(int number, String stableModel) {
-            ModelBuilder builder = new ModelBuilder();
-            if (getWrite().getContext() != null)
-                    builder.namedGraph(getWrite().getContext().toString() + number);
-            Serializer.getGraphFromSolution(builder, stableModel);
-            return builder.build();
+    private void getNamedModel(final ModelBuilder builder, final String stableModel) {
+		if (!getWrite().isSaveString()) {
+			Serializer.getGraphFromSolution(builder, stableModel);
+		}
+		else {
+			BNode bnode = SimpleValueFactory.getInstance().createBNode();
+			builder.add(bnode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.RULE_SET);
+			builder.add(bnode, ASPVocabulary.AS_RULES, stableModel);
+		}
     }
 
     private void writeSolution(Model model) {
-            if (getWrite().getTargetBase().toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
-                    this.getObject().getExecutionBeliefs().update(model);
-            } else if (getWrite().getTargetBase().toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
-                    this.getObject().getAgentBeliefs().update(model);
-            }
+		if (getWrite().getTargetBase().toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
+			this.getObject().getExecutionBeliefs().update(model);
+		} else if (getWrite().getTargetBase().toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
+			this.getObject().getAgentBeliefs().update(model);
+		}
     }
 
     private String getRandomStableModel() {
-            return getFacts().get((int) (Math.random() * getFacts().size()));
+		return getFacts().get((int) (Math.random() * getFacts().size()));
     }
 
     @Override
     public void end() {
-            LOG.info("ASPProblem (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
     }
 
 	@Override

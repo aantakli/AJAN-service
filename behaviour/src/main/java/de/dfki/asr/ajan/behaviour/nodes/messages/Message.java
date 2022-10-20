@@ -49,8 +49,6 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.resultio.TupleQueryResultFormat;
 import org.eclipse.rdf4j.repository.Repository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 @RDFBean("bt:Message")
@@ -78,7 +76,6 @@ public class Message extends AbstractTDBLeafTask {
 
 	protected String requestURI;
 	protected HttpConnection request;
-	protected static final Logger LOG = LoggerFactory.getLogger(Message.class);
 
 	@Override
 	public Resource getType() {
@@ -95,16 +92,14 @@ public class Message extends AbstractTDBLeafTask {
 			binding.setRequestURI(new URI(requestURI));
 			request = new HttpConnection(binding);
 			prepareRequest();
-			LOG.info("Executing request {}", request.toString());
 			if (!checkResponse(request.execute())) {
-				LOG.info(toString() + " FAILED due to malformed response model");
-				return new NodeStatus(Status.FAILED, toString() + " FAILED");
+				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to malformed response model");
 			}
-			LOG.info(toString() + " SUCCEEDED");
-			return new NodeStatus(Status.SUCCEEDED, toString() + " SUCCEEDED");
-		} catch (IOException | URISyntaxException | MessageEvaluationException | SAXException ex) {
-			LOG.info(toString() + " FAILED due to query evaluation error", ex);
-			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
+		} catch (URISyntaxException | MessageEvaluationException ex) {
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to malformed URI");
+		} catch (IOException | SAXException ex) {
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to IO exception");
 		}
 	}
 
@@ -144,7 +139,7 @@ public class Message extends AbstractTDBLeafTask {
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")

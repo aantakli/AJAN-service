@@ -33,6 +33,10 @@ import org.pf4j.Extension;
 @Data
 public class ASPWrite implements NodeExtension {
 
+	@RDF("asp:saveString")
+    @Getter @Setter
+    private boolean saveString;
+
 	@RDF("asp:contextBase")
 	@Getter @Setter
 	private URI context;

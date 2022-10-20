@@ -17,21 +17,54 @@
  * MA 02110-1301  USA
  */
 
-package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions;
+package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts;
 
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import lombok.Data;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.pf4j.Extension;
+import org.springframework.util.StringUtils;
 
 @Extension
-@RDFBean("clingo:Constant")
-@Data
-public class Constant implements NodeExtension {
-	@RDF("clingo:name")
-	private String name;
+@RDFBean("asp:Constant")
+public class Constant extends Term implements NodeExtension {
 
-	@RDF("clingo:value")
 	private String value;
+	private int intValue;
+	private String stringValue;
+
+	public Constant(){}
+
+	@RDF("asp:value")
+	@Override
+	public String getValue() {
+		return this.value;
+	}
+
+	@Override
+	public void setValue(final String value) {
+		this.value = StringUtils.uncapitalize(value);
+	}
+
+	@RDF("asp:intValue")
+	@Override
+	public int getIntValue() {
+		return this.intValue;
+	}
+
+	@Override
+	public void setIntValue(final int value) {
+		this.intValue = value;
+	}
+	
+	@RDF("asp:stringValue")
+	@Override
+	public String getStringValue() {
+		return this.stringValue;
+	}
+
+	@Override
+	public void setStringValue(final String value) {
+		this.stringValue = StringUtils.uncapitalize(value);
+	}
 }

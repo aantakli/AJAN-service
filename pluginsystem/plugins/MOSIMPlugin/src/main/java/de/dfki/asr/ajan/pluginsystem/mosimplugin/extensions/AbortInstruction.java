@@ -58,8 +58,6 @@ import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
@@ -90,8 +88,6 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 	@Setter
 	private BehaviorSelectQuery instructionIDs;
 
-	protected static final Logger LOG = LoggerFactory.getLogger(AbortInstruction.class);
-
 	@Override
 	public Resource getType() {
 		return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#AbortInstruction");
@@ -107,18 +103,15 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 				port = Integer.parseInt(entry.getValue());
 				if (abortInstruction()) {
 					String report = toString() + " SUCCEEDED";
-					LOG.info(report);
-					return new NodeStatus(Status.SUCCEEDED, report);
+					return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
 				};
 			}
 		} catch (URISyntaxException ex) {
 			String report = toString() + " FAILED";
-			LOG.info(report);
-			return new NodeStatus(Status.FAILED, report);
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
 		}
 		String report = toString() + " FAILED";
-		LOG.info(report);
-		return new NodeStatus(Status.FAILED, report);
+		return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
 	}
 
 	private boolean abortInstruction() throws URISyntaxException {
@@ -139,7 +132,7 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 				return response.Successful;
 			}
 		} catch (TException | ConditionEvaluationException ex) {
-			LOG.error("Could not load List<MSceneObject>", ex);
+			this.getObject().getLogger().info(this.getClass(), "Could not load List<MSceneObject>", ex);
 			return false;
 		}
 	}
@@ -205,7 +198,7 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	@Override

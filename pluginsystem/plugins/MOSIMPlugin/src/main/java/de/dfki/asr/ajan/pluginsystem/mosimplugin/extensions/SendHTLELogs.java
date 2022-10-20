@@ -56,8 +56,6 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
@@ -86,7 +84,6 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 	private URI repository;
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
-	protected static final Logger LOG = LoggerFactory.getLogger(SendHTLELogs.class);
 
 	String MMU_LOGS = 
             "PREFIX mosim: <http://www.dfki.de/mosim-ns#>\n" +
@@ -122,16 +119,13 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 		try {
 			if (readInput()) {
 				String report = toString() + " SUCCEEDED";
-				LOG.info(report);
-				return new NodeStatus(Status.SUCCEEDED, report);
+				return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
 			}
 			String report = toString() + " FAILED";
-			LOG.info(report);
-			return new NodeStatus(Status.FAILED, report);
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
 		} catch (IOException | URISyntaxException ex) {
 			String report = toString() + " FAILED";
-			LOG.info(report);
-			return new NodeStatus(Status.FAILED, report);
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
 		}
 	}
 
@@ -142,7 +136,6 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 		if (!readExternalRepo(array)) {
 			return false;
 		}
-		LOG.info(root.toString());
 		return sendMessage(root);
 	}
 
@@ -212,14 +205,14 @@ public class SendHTLELogs extends AbstractTDBLeafTask implements NodeExtension {
 			httpPost.setEntity(new StringEntity(root.toString()));
 			CloseableHttpResponse response = client.execute(httpPost);
 			HttpEntity entity = response.getEntity();
-			LOG.info(IOUtils.toString(entity.getContent(), StandardCharsets.UTF_8));
+			this.getObject().getLogger().info(this.getClass(), IOUtils.toString(entity.getContent(), StandardCharsets.UTF_8));
 			return response.getStatusLine().getStatusCode() < 300;
 		}
 	}
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	@Override

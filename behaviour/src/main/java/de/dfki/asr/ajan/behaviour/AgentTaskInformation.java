@@ -36,6 +36,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.Debug;
 @SuppressWarnings("PMD.TooManyFields")
 @Data
 public class AgentTaskInformation {
+	private final AJANLogger logger;
 	private final BTRoot bt;
 	private final boolean clearEKB;
 	private final AgentBeliefBase agentBeliefs;

@@ -20,6 +20,7 @@
 package de.dfki.asr.ajan.behaviour.load;
 
 import com.badlogic.gdx.ai.btree.BehaviorTree;
+import de.dfki.asr.ajan.behaviour.AJANLogger;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.events.Event;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
@@ -117,7 +118,7 @@ public class UnmarshalBehaviourTest {
 	@Test(dependsOnMethods = {"loadRoot"})
 	public void rootCanStep() {
 		Map<URI,Event> events = new ConcurrentHashMap();
-		AgentTaskInformation info = new AgentTaskInformation(new BTRoot(), true, new AgentBeliefBase(beliefsTDB), new ExecutionBeliefBase(Inferencing.NONE), agentTemplatesTDB, behaviorTDB, domainTDB, servicesTDB, events, new ConcurrentHashMap<>(), extensions, new LinkedHashMap(), "", new Debug());
+		AgentTaskInformation info = new AgentTaskInformation(new AJANLogger("agent_1"), new BTRoot(), true, new AgentBeliefBase(beliefsTDB), new ExecutionBeliefBase(Inferencing.NONE), agentTemplatesTDB, behaviorTDB, domainTDB, servicesTDB, events, new ConcurrentHashMap<>(), extensions, new LinkedHashMap(), "", new Debug());
 		root.setObject(info);
 		root.step();
 	}

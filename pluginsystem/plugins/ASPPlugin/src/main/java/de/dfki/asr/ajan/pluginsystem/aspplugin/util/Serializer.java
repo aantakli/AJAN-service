@@ -21,15 +21,20 @@ package de.dfki.asr.ajan.pluginsystem.aspplugin.util;
 
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.exception.MalformedStatementException;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.vocabularies.ASPVocabulary;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
+import org.eclipse.rdf4j.model.util.RDFCollections;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.springframework.util.ResourceUtils;
 
@@ -39,15 +44,68 @@ public final class Serializer {
 	}
 
 	public static void getGraphFromSolution(ModelBuilder builder, String stableModel) {
-		List<String> statements = PatternUtil.getStatements(stableModel);
+		List<String> statements = PatternUtil.getFacts(stableModel);
 		statements.stream().forEach((statement) -> {
 			extractStatement(builder, statement);
 		});
 	}
 
 	private static void extractStatement(ModelBuilder builder, String fact) {
-		List<String> parts = PatternUtil.getTriple(fact);
 		ValueFactory vf = SimpleValueFactory.getInstance();
+		if (fact.startsWith("_t")) {
+			extractRDFStatements(PatternUtil.getTriple(fact),vf,builder);
+		}
+		else {
+			String aspPredicate = fact.substring(0,fact.indexOf("("));
+			BNode subject = vf.createBNode();
+			builder.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.IS_FACT);
+			if (aspPredicate.startsWith("-")) {
+				builder.add(subject, ASPVocabulary.HAS_OPPOSITE, true);
+				builder.add(subject, ASPVocabulary.HAS_PREDICATE, aspPredicate.substring(1));
+			}
+			else {
+				builder.add(subject, ASPVocabulary.HAS_OPPOSITE, false);
+				builder.add(subject, ASPVocabulary.HAS_PREDICATE, aspPredicate);
+			}
+			String first = fact.substring(fact.indexOf("(")+1);
+			String last = first.substring(0,first.lastIndexOf(")."));
+			List<Literal> list = new ArrayList();
+			getParts(list,vf,last);
+			BNode head = vf.createBNode();
+			builder.add(subject, ASPVocabulary.HAS_FACTS, head);
+			Model partsModel = RDFCollections.asRDF(list, head, new LinkedHashModel());
+			partsModel.forEach(stmt -> {builder.add(stmt.getSubject(),stmt.getPredicate(),stmt.getObject());});
+		}
+	}
+
+	private static void getParts(final List<Literal> list, final ValueFactory vf, final String fact) {
+		if (fact.startsWith("\"")) {
+			String first = fact.substring(fact.indexOf('"'));
+			if (first.contains("\",")) {
+				String[] last = first.split("\",",2);
+				list.add(vf.createLiteral(last[0]+'"'));
+				getParts(list,vf,last[1]);
+			}
+			else {
+				String last = first.substring(0,first.lastIndexOf('"')+1);
+				list.add(vf.createLiteral(last));
+			}
+		}
+		else if (fact.contains(",")) {
+			String last = fact.substring(0,fact.lastIndexOf(","));
+			list.add(vf.createLiteral(last));
+			getParts(list,vf,fact.substring(fact.indexOf(",")+1));
+		}
+		else {
+			try {
+				list.add(vf.createLiteral(Integer.parseInt(fact)));
+			} catch (NumberFormatException e) {
+				list.add(vf.createLiteral(fact));
+			}
+		}
+	}
+
+	private static void extractRDFStatements(final List<String> parts, final ValueFactory vf, final ModelBuilder builder) {
 		if (parts.size() == 3) {
 			try {
 				Resource subject = getResource(vf,parts.get(0),builder);
@@ -86,24 +144,24 @@ public final class Serializer {
 
 	private static Resource getBNode(ValueFactory vf, String part, ModelBuilder builder) {
 		String output = "";
-			String[] parts = part.split(",");
-			if (parts.length == 2) {
-				String part2 = parts[1].replaceAll("\"","").replaceAll("\\)", "");
-				output = PatternUtil.getQuotesContent(parts[0]) + part2;
-			} else {
-				output = PatternUtil.getQuotesContent(part);
-				if (output.equals("")) {
-					output = PatternUtil.getContent(part);
-					output = "aspBlank_" + output;
-				}
+		String[] parts = part.split(",");
+		if (parts.length == 2) {
+			String part2 = parts[1].replaceAll("\"","").replaceAll("\\)", "");
+			output = PatternUtil.getQuotesContent(parts[0]) + part2;
+		} else {
+			output = PatternUtil.getQuotesContent(part);
+			if (output.equals("")) {
+				output = PatternUtil.getContent(part);
+				output = "aspBlank_" + output;
 			}
-			BNode bNode;
-			if (output.equals(""))
-				bNode = vf.createBNode();
-			else
-				bNode = vf.createBNode(output);
-			builder.add(bNode, RDF.TYPE, AJANVocabulary.GENERATED_BNODE);
-			return bNode;
+		}
+		BNode bNode;
+		if (output.equals(""))
+			bNode = vf.createBNode();
+		else
+			bNode = vf.createBNode(output);
+		builder.add(bNode, RDF.TYPE, AJANVocabulary.GENERATED_BNODE);
+		return bNode;
 	}
 
 	private static String readNewResource(final String part) throws MalformedStatementException {

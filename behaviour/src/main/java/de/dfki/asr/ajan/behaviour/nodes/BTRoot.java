@@ -45,14 +45,11 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RDFBean("bt:Root")
 public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNode, Listener {
 
 	private boolean block;
-	protected static final Logger LOG = LoggerFactory.getLogger(BTRoot.class);
 
 	@Getter @Setter
 	@RDFSubject
@@ -113,11 +110,11 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 				cleareEKB();
 				Debug debug = this.getObject().getDebug();
 				long time = System.currentTimeMillis() - before;
-				NodeStatus leafStatus = new NodeStatus(null, "BTRoot(" + label + "), time = " + time + "ms, FINISHED");
+				NodeStatus leafStatus = new NodeStatus(null, this.getObject().getLogger(), this.getClass(), "BTRoot(" + label + "), time = " + time + "ms, FINISHED");
 				String report = BTUtil.createReport(getUrl(), getInstance().stringValue(), leafStatus, debug, new LinkedHashModel());
 				BTUtil.sendReport(this.getObject(),report);
 			}
-			LOG.info(Long.toString(System.currentTimeMillis() - before));
+			this.getObject().getLogger().info(this.getClass(), "Runtime (" + Long.toString(System.currentTimeMillis() - before) + "ms)");
 			block = false;
 			if (goalProducer != null) {
 				goalProducer.reportGoalStatus(status);

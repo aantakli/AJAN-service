@@ -78,6 +78,14 @@ public class InitialDataProvider {
     @AJANDataBase(ACTION_SERVICE)
     private TripleDataBase services;
 
+    @Autowired
+    @AJANDataBase(NODE_DEFINITIONS)
+    private TripleDataBase nodeDefinitions;
+
+    @Autowired
+    @AJANDataBase(EDITOR_DATA)
+    private TripleDataBase editorData;
+
     @Value("${publicHostName:localhost}")
     private String publicHostName;
     
@@ -98,6 +106,12 @@ public class InitialDataProvider {
 
     @Value("${triplestore.initialData.domainFolderPath:use-case/domains}")
     private String domainFolderPath;
+
+    @Value("${triplestore.initialData.domainFolderPath:use-case/editor/nodeDefinitions}")
+    private String nodeDefinitionsFolderPath;
+
+    @Value("${triplestore.initialData.domainFolderPath:use-case/editor/editorData}")
+    private String editorDataFolderPath;
 
     private List<EndpointExtension> endpoints;
 
@@ -120,6 +134,8 @@ public class InitialDataProvider {
         tripleStoreMap.put(behaviorsFolderPath, behaviors);
         tripleStoreMap.put(domainFolderPath, domain);
         tripleStoreMap.put(serviceFolderPath, services);
+        tripleStoreMap.put(nodeDefinitionsFolderPath, nodeDefinitions);
+        tripleStoreMap.put(editorDataFolderPath, editorData);
         pushRDFGraphs(tripleStoreMap);
     }
 

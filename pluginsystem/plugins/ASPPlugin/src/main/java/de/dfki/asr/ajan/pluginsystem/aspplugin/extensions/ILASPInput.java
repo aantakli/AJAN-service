@@ -44,7 +44,6 @@ import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
-import org.slf4j.LoggerFactory;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
@@ -55,8 +54,6 @@ import org.pf4j.Extension;
 @Extension
 @RDFBean("asp:ILASPInput")
 public class ILASPInput extends Problem implements NodeExtension {
-
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ILASPInput.class);
 
     @RDFSubject
     @Getter @Setter
@@ -110,25 +107,19 @@ public class ILASPInput extends Problem implements NodeExtension {
 			setRequestUri();
 			generateRuleSet();
 			if(!getConfig().runSolver(this)) {
-				LOG.info(toString() + " UNSATISFIABLE");
-				return new NodeStatus(Status.FAILED, toString() + " UNSATISFIABLE");
+				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " UNSATISFIABLE");
 			}
 			if(getFacts() != null) {
 				ObjectNode payload = getIlaspPayload();
 				sendToIlasp(payload);
 			}
-			String report = toString() + " SUCCEEDED";
-			LOG.info(report);
-			return new NodeStatus(Status.SUCCEEDED, report);
+			return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
 		} catch (URISyntaxException | RDFBeanException | LoadingRulesException ex) {
-			LOG.info(toString() + " FAILED due to query evaluation error", ex);
-			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to query evaluation error", ex);
 		} catch (IOException | SAXException ex) {
-			LOG.info(toString() + " FAILED due transmission problems", ex);
-			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due transmission problems", ex);
 		} catch (MessageEvaluationException ex) {
-			LOG.info(toString() + " FAILED due to malformed request URI", ex);
-			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to malformed request URI", ex);
 		}
     }
 
@@ -187,7 +178,7 @@ public class ILASPInput extends Problem implements NodeExtension {
 
     @Override
     public void end() {
-            LOG.info("ILASPInput (" + getStatus() + ")");
+        this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
     }
 
 	@Override

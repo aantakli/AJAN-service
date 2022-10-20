@@ -39,8 +39,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.transform.TransformerException;
 import lombok.Getter;
 import lombok.Setter;
@@ -101,7 +99,7 @@ public class QueryMappingDomain extends SyncMessage implements NodeExtension {
             super.setQueryURI(queryURI);
             super.setBinding(bng);
         } catch (URISyntaxException | RMLMapperException ex) {
-            Logger.getLogger(QueryDomain.class.getName()).log(Level.SEVERE, null, ex);
+			this.getObject().getLogger().info(this.getClass(), "", ex);
         }
         return super.execute();
     }
@@ -158,12 +156,10 @@ public class QueryMappingDomain extends SyncMessage implements NodeExtension {
 			try {
                 domainResponse = getModel(response);
             } catch (URISyntaxException | TransformerException | IOException ex) {
-                LOG.error("Malformed response!");
-				LOG.error("Mime Type is not supported!");
+				this.getObject().getLogger().info(this.getClass(), "Malformed response! Mime Type is not supported!", ex);
                 return false;
             } catch (RuntimeException ex) {
-                LOG.error("CARML Mapping Error!");
-				LOG.error("Malformed mapping file!");
+				this.getObject().getLogger().info(this.getClass(), "CARML Mapping Error! Malformed mapping file!", ex);
                 return false;
             }
         }
@@ -182,7 +178,7 @@ public class QueryMappingDomain extends SyncMessage implements NodeExtension {
 
     @Override
     public void end() {
-        LOG.info("Status (" + getStatus() + ")");
+        this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
     }
 
     @Override

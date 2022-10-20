@@ -19,6 +19,7 @@
 
 package de.dfki.asr.ajan.pluginsystem.standardbtnodes.extensions;
 
+import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -34,10 +35,6 @@ import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pf4j.Extension;
 
 @Extension
@@ -46,8 +43,6 @@ public class Wait extends AbstractTDBLeafTask implements NodeExtension {
 	@Getter @Setter
 	@RDFSubject
 	private String url;
-
-	private final ValueFactory vf = SimpleValueFactory.getInstance();
 
 	@RDF("rdfs:label")
 	@Getter @Setter
@@ -59,14 +54,12 @@ public class Wait extends AbstractTDBLeafTask implements NodeExtension {
 	
 	private Thread thread;
 	private Status running = Status.FRESH;
-	private BTRoot bt;
+	private AgentTaskInformation info;
 
 	@Override
 	public Resource getType() {
 		return StandardBTVocabulary.TIMESTAMP;
 	}
-
-	private static final Logger LOG = LoggerFactory.getLogger(Wait.class);
 
 	@Override
 	public NodeStatus executeLeaf() {
@@ -77,40 +70,36 @@ public class Wait extends AbstractTDBLeafTask implements NodeExtension {
 				{
 					startWaiting();
 					String report = toString() + " RUNNING";
-					LOG.info(report);
-					return new NodeStatus(Status.RUNNING, report);
+					return new NodeStatus(Status.RUNNING, this.getObject().getLogger(), this.getClass(), report);
 				}
 				case SUCCEEDED:
 				{
 					running = Status.FRESH;
 					String report = toString() + " SUCCEEDED";
-					LOG.info(report);
-					return new NodeStatus(Status.SUCCEEDED, report);
+					return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
 				}
 				default:
 				{
 					String report = toString() + " RUNNING";
-					LOG.info(report);
-					return new NodeStatus(Status.RUNNING, report);
+					return new NodeStatus(Status.RUNNING, this.getObject().getLogger(), this.getClass(), report);
 				}
 			}
-		} catch (BeliefBaseUpdateException ex) {
-			LOG.info(toString() + " FAILED due to query evaluation error", ex);
-			return new NodeStatus(Status.FAILED, toString() + " FAILED due to query evaluation error");
+		} catch (BeliefBaseUpdateException ex) {;
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to query evaluation error", ex);
 		}
 	}
 
 	private void startWaiting() throws BeliefBaseUpdateException {
-		bt = this.getObject().getBt();
+		info = this.getObject();
 		thread = new Thread(){
 			public void run(){
 				try {
 					running = Status.RUNNING;
 					sleep(milliseconds);
 					running = Status.SUCCEEDED;
-					bt.run();
+					info.getBt().run();
 				} catch (InterruptedException ex) {
-					LOG.info("Thread cancelled!");
+					info.getLogger().info(this.getClass(), "Thread cancelled!", ex);
 				}
 			}
 		};
@@ -132,6 +121,8 @@ public class Wait extends AbstractTDBLeafTask implements NodeExtension {
 			running = Status.CANCELLED;
 			if (thread != null && thread.isAlive())
 				thread.interrupt();
+		} else {
+			this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 		}
 	}
 

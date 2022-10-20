@@ -26,8 +26,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import de.dfki.asr.ajan.behaviour.nodes.action.TaskStep;
 import de.dfki.asr.ajan.behaviour.nodes.action.common.*;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.*;
@@ -102,7 +100,6 @@ public class Action extends AbstractTDBLeafTask {
 	@Setter
 	private Model actionResult;
 	private final TaskContext context;
-	private static final Logger LOG = LoggerFactory.getLogger(Action.class);
 	public static final String ASYNCHRONOUS_FRAGMENT = "Asynchronous";
 
 	public Action() {
@@ -119,7 +116,7 @@ public class Action extends AbstractTDBLeafTask {
 	@Override
 	public NodeStatus executeLeaf() {
 		if (!loadDescription(getObject().getServiceTDB().getInitializedRepository())) {
-			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED");
 		}
 		context.put(this);
 		context.put(actionDefinition);
@@ -127,22 +124,20 @@ public class Action extends AbstractTDBLeafTask {
 		try {
 			TaskStep workflow = actionDefinition.getWorkflow();
 			if (workflow == null) {
-				return new NodeStatus(Status.RUNNING, toString() + " RUNNING");
+				return new NodeStatus(Status.RUNNING, this.getObject().getLogger(), this.getClass(), toString() + " RUNNING");
 			}
 			result = workflow.execute(context);
 		} catch (ActionBindingException ex) {
-			LOG.error(ex.getMessage());
-			return new NodeStatus(Status.FAILED, toString() + " FAILED");
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED", ex);
 		}
-		LOG.info("Action (" + url + ") " + result);
-		return new NodeStatus(result, toString() + " " + result);
+		return new NodeStatus(result, this.getObject().getLogger(), this.getClass(), toString() + result);
 	}
 
 	@Override
 	public void end() {
 		if (getStatus() == Status.CANCELLED) {
 			BTUtil.sendReport(this.getObject(), toString() + " CANCELLED");
-			LOG.info("Status (" + getStatus() + ")");
+			this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 			TaskStep abortAction = actionDefinition.getAbortWorkflow();
 			abortAction.execute(context);
 		}
@@ -177,7 +172,7 @@ public class Action extends AbstractTDBLeafTask {
 			}
 			return true;
 		} catch (Exception ex) {
-			LOG.error("Problem when loading Action Description!", ex);
+			this.getObject().getLogger().info(this.getClass(), "Problem when loading Action Description!", ex);
 			return false;
 		}
 	}
@@ -206,7 +201,7 @@ public class Action extends AbstractTDBLeafTask {
 		InputModel inputModel = ACTNUtil.getInputModel(this.getInputs(), repo.initialize());
 		inputModel.add(ACTNVocabulary.DUMMY, AJANVocabulary.ASYNC_REQUEST_URI, ACTNVocabulary.DUMMY);
 		if (!SPARQLUtil.askModel(inputModel, actionDefinition.getConsumable().getSparql())) {
-			LOG.error("Input model failed to conform to Action specification.");
+			this.getObject().getLogger().info(this.getClass(), "Input model failed to conform to Action specification.");
 			return null;
 		}
 		return inputModel;

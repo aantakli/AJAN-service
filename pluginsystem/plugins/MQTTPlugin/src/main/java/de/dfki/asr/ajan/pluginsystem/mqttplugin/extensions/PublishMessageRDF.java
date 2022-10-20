@@ -19,8 +19,6 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.repository.Repository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
@@ -58,7 +56,6 @@ public class PublishMessageRDF extends AbstractTDBLeafTask implements NodeExtens
     private BehaviorConstructQuery constructQuery;
 
 	private final String clientId = UUID.randomUUID().toString();
-    protected static final Logger LOG = LoggerFactory.getLogger(PublishMessageRDF.class);
 
     @Override
     public NodeStatus executeLeaf() {
@@ -75,27 +72,24 @@ public class PublishMessageRDF extends AbstractTDBLeafTask implements NodeExtens
             report = toString() + "SUCCEEDED";
             stat = Status.SUCCEEDED;
         } catch (URISyntaxException | UnsupportedEncodingException e) {
-            LOG.error("Error while fetching info"+e.getMessage());
             report = toString() + "FAILED";
             stat = Status.FAILED;
         }
-
-        LOG.info(report);
-        return new NodeStatus(stat, report);
+        return new NodeStatus(stat, this.getObject().getLogger(), this.getClass(), report);
     }
 
     private void publishMessage(String serverUrl, String topic, String message) {
         MessageService messageService = MessageService.getMessageService(clientId, serverUrl);
         if(messageService.publish(topic, message)){
-            LOG.info("Published the message to topic : "+topic);
+			this.getObject().getLogger().info(this.getClass(), "Published the message to topic : "+topic);
         } else {
-            LOG.error("Error in publishing message to the topic: "+topic);
+			this.getObject().getLogger().info(this.getClass(), "Error in publishing message to the topic: "+topic);
         }
     }
 
     @Override
     public void end() {
-        LOG.info("Status ("+getStatus()+")");
+        this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
     }
 
     @Override

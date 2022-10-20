@@ -51,8 +51,6 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
@@ -79,8 +77,6 @@ public class GetAvailableMMUs extends AbstractTDBLeafTask implements NodeExtensi
 	@Getter @Setter
 	private URI repository;
 
-	protected static final Logger LOG = LoggerFactory.getLogger(GetAvailableMMUs.class);
-
 	@Override
 	public Resource getType() {
 		return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#GetAvailableMMUs");
@@ -98,17 +94,14 @@ public class GetAvailableMMUs extends AbstractTDBLeafTask implements NodeExtensi
 				Model inputModel = getInputModel(mmus);
 				MOSIMUtil.writeInput(inputModel, repository.toString(), this.getObject());
 				String report = toString() + " SUCCEEDED";
-				LOG.info(report);
-				return new NodeStatus(Status.SUCCEEDED, report);
+				return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
 			}
 		} catch (URISyntaxException ex) {
 			String report = toString() + " FAILED";
-			LOG.info(report);
-			return new NodeStatus(Status.FAILED, report);
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
 		}
 		String report = toString() + " FAILED";
-		LOG.info(report);
-		return new NodeStatus(Status.FAILED, report);
+		return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
 	}
 
 	private Map<MMUDescription,List<MIPAddress>> getMMUs() {
@@ -120,7 +113,7 @@ public class GetAvailableMMUs extends AbstractTDBLeafTask implements NodeExtensi
 				return client.GetAvailableMMUs(host);
 			}
 		} catch (TException ex) {
-			LOG.error("Could not load List<MMUDescription>", ex);
+			this.getObject().getLogger().info(this.getClass(), "Could not load List<MMUDescription>", ex);
 			return null;
 		}
 	}
@@ -151,7 +144,7 @@ public class GetAvailableMMUs extends AbstractTDBLeafTask implements NodeExtensi
 
 	@Override
 	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
 	}
 
 	@Override

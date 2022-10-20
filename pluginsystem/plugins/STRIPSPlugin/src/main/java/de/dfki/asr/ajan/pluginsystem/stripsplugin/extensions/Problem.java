@@ -49,15 +49,11 @@ import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.slf4j.LoggerFactory;
 import org.pf4j.Extension;
 
 @Extension
 @RDFBean("strips:Problem")
 public class Problem extends AbstractTDBBranchTask implements NodeExtension, TreeNode {
-
-	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Problem.class);
-
 	@RDFSubject
 	@Getter @Setter
 	private String url;
@@ -112,23 +108,20 @@ public class Problem extends AbstractTDBBranchTask implements NodeExtension, Tre
 		if (children.size == 0) {
 			try {
 				if(!generatePlan()) {
-					LOG.info(toString() + " SUCCEEDED");
-					LOG.info("Status (SUCCEEDED)");
-					reportState(new NodeStatus(Status.SUCCEEDED, toString() + " SUCCEEDED"));
+					this.getObject().getLogger().info(this.getClass(), "Status (SUCCEEDED)");
+					reportState(new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED"));
 					success();
 					return;
 				}
 			} catch (OperatorFactoryException | TermEvaluationException | NoActionAvailableException
 					| ConditionEvaluationException | URISyntaxException | RDFBeanException | VariableEvaluationException ex) {
-				LOG.error(toString() + " FAILED due to evaluation error", ex);
-				LOG.info("Status (FAILED)");
-				reportState(new NodeStatus(Status.FAILED, toString() + " FAILED"));
+				this.getObject().getLogger().info(this.getClass(), "Status (FAILED)");
+				reportState(new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to evaluation error", ex));
 				fail();
 				return;
 			} catch (PlanningGraphException | TimeoutException ex) {
-				LOG.info(toString() + " FAILED due to no plan result", ex);
-				LOG.info("Status (FAILED)");
-				reportState(new NodeStatus(Status.FAILED, toString() + " FAILED"));
+				this.getObject().getLogger().info(this.getClass(), "Status (FAILED)");
+				reportState(new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to no plan result", ex));
 				fail();
 				return;
 			}
@@ -140,7 +133,7 @@ public class Problem extends AbstractTDBBranchTask implements NodeExtension, Tre
 			throws ConditionEvaluationException, URISyntaxException, PlanningGraphException, OperatorFactoryException,
 			TimeoutException, RDFBeanException, VariableEvaluationException, TermEvaluationException, NoActionAvailableException {
 		Task<AgentTaskInformation> task;
-		reportState(new NodeStatus(Status.RUNNING, toString() + " RUNNING"));
+		reportState(new NodeStatus(Status.RUNNING, this.getObject().getLogger(), this.getClass(), toString() + " RUNNING"));
 		task = new PlanBuilder(this).build();
 		if(task.getChildCount() > 0) {
 			addChild(task);

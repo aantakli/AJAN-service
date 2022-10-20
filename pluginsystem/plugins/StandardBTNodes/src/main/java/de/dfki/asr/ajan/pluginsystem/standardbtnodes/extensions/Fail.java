@@ -32,8 +32,6 @@ import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.*;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pf4j.Extension;
 
 @Extension
@@ -45,7 +43,6 @@ public class Fail extends AbstractTDBLeafTask implements NodeExtension, TreeNode
     @RDFSubject
     private String url;
 
-    private static final Logger LOG = LoggerFactory.getLogger(Fail.class);
     private Resource instance;
 
     @RDF("rdfs:label")
@@ -55,7 +52,7 @@ public class Fail extends AbstractTDBLeafTask implements NodeExtension, TreeNode
 
     @Override
     public void end() {
-        LOG.info("Status (" + getStatus() + ")");
+        this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
     }
 
     @Override
@@ -98,7 +95,6 @@ public class Fail extends AbstractTDBLeafTask implements NodeExtension, TreeNode
     @Override
     public NodeStatus executeLeaf() {
         String report = toString() + " FAILED";
-		LOG.info(report);
-		return new NodeStatus(Status.FAILED, report);
+		return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
     }
 }

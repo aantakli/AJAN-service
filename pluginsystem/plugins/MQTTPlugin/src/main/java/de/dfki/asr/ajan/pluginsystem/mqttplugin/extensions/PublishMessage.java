@@ -49,7 +49,6 @@ public class PublishMessage extends AbstractTDBLeafTask implements NodeExtension
     private String message;
 
 	private final String clientId = UUID.randomUUID().toString();
-    protected static final Logger LOG = LoggerFactory.getLogger(PublishMessage.class);
 
     @Override
     public NodeStatus executeLeaf() {
@@ -69,27 +68,24 @@ public class PublishMessage extends AbstractTDBLeafTask implements NodeExtension
             report = toString()+ " SUCCEEDED";
             stat = Status.SUCCEEDED;
         } catch (URISyntaxException e) {
-            LOG.error("Error while fetching info"+e.getMessage());
             report = toString()+ "FAILED";
             stat = Status.FAILED;
         }
-
-        LOG.info(report);
-        return new NodeStatus(stat, report);
+        return new NodeStatus(stat, this.getObject().getLogger(), this.getClass(), report);
     }
 
     private void publishMessage(String serverUrl, String topic, String message) {
         MessageService messageService = MessageService.getMessageService(clientId, serverUrl);
         if(messageService.publish(topic, message)){
-            LOG.info("Published the message to topic : "+topic);
+			this.getObject().getLogger().info(this.getClass(), "Published the message to topic : "+topic);
         } else {
-            LOG.error("Error in publishing message to the topic: "+topic);
+			this.getObject().getLogger().info(this.getClass(), "Error in publishing message to the topic: "+topic);
         }
     }
 
     @Override
     public void end() {
-        LOG.info("Status ("+getStatus()+")");
+        this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
     }
 
     @Override

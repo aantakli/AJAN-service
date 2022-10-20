@@ -14,8 +14,6 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
@@ -32,8 +30,6 @@ public class DeleteMQTTBroker extends AbstractTDBLeafTask implements NodeExtensi
     @Getter @Setter
     private String label;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(DeleteMQTTBroker.class);
-
     @Override
     public Resource getType() {
         return vf.createIRI("http://www.ajan.de/behavior/mqtt-ns#DeleteMQTTBroker");
@@ -43,8 +39,7 @@ public class DeleteMQTTBroker extends AbstractTDBLeafTask implements NodeExtensi
     public NodeStatus executeLeaf() {
         stopBroker();
         String report = toString() + "SUCCEEDED";
-        LOG.info(report);
-        return new NodeStatus(Status.SUCCEEDED, report);
+        return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
     }
 
     private void stopBroker() {
@@ -53,7 +48,7 @@ public class DeleteMQTTBroker extends AbstractTDBLeafTask implements NodeExtensi
 
     @Override
     public void end() {
-        LOG.info("Status ("+ getStatus() + ")");
+        this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
     }
 
     @Override

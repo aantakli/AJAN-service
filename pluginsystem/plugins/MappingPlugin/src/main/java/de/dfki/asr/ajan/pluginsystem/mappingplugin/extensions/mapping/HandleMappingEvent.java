@@ -44,8 +44,6 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.repository.Repository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pf4j.Extension;
 
 @Extension
@@ -72,8 +70,6 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
     @Setter
     private String label;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(HandleMappingEvent.class);
-
     @Override
     public Resource getType() {
         return vf.createIRI("http://www.ajan.de/behavior/mapping#HandleMappingEvent");
@@ -84,17 +80,13 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
         try {
             if (handleEvent()) {
                 String report = toString() + " SUCCEEDED";
-                LOG.info(report);
-                return new NodeStatus(Status.SUCCEEDED, report);
+                return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
             } else {
                 String report = toString() + " FAILED";
-                LOG.info(report);
-                return new NodeStatus(Status.FAILED, report);
+                return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
             }
         } catch (InputMappingException ex) {
-            LOG.info(toString() + ex);
-            LOG.info(toString() + " FAILED due to mapping errors");
-            return new NodeStatus(Status.FAILED, toString() + " FAILED due to mapping errors");
+            return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to mapping errors", ex);
         }
     }
 
@@ -113,8 +105,8 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
         } catch (URISyntaxException | RMLMapperException | TransformerException | IOException ex) {
             throw new InputMappingException(ex);
         }catch (RuntimeException ex) {
-            LOG.error("CARML Mapping Error!");
-			LOG.error("Malformed mapping file!");
+			this.getObject().getLogger().info(this.getClass(), "CARML Mapping Error!");
+			this.getObject().getLogger().info(this.getClass(), "Malformed mapping file!");
             throw new InputMappingException(ex);
         }
         return result;
@@ -136,7 +128,7 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
 
     @Override
     public void end() {
-        LOG.info("Status (" + getStatus() + ")");
+        this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
     }
 
     @Override

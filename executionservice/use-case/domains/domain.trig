@@ -63,6 +63,85 @@ ajan:TBox {
 # --------------------------------------------
 
 ajan:ASP {
+	:Plain_Rules
+		a asp:RuleSet ;
+		asp:facts (
+			:Andre
+		) ;
+		asp:rules (
+			:Mortal
+		) .
+	
+	:Andre a asp:Fact ;
+		asp:predicate "human" ;
+		asp:terms ([
+			  a asp:Constant ;
+			  asp:value "andre" ]) .
+
+	:Mortal a asp:Rule ;
+		asp:head [ 
+			a asp:Fact ;
+			asp:predicate "mortal" ;
+			asp:terms ([
+			  a asp:Variable ;
+			  asp:value "X" ]
+			)
+		] ;
+		asp:body [
+			a asp:Body ;
+			asp:atoms ([
+				a asp:Atom ;
+				asp:predicate "human" ;
+				asp:terms ([
+				  a asp:Variable ;
+				  asp:value "X" ]
+				)]
+			)
+		] .
+
+	:Python_Example
+		a asp:RuleSet ;
+		asp:asRules """
+			#script (python)
+			import clingo
+			class Context:
+				def id(self, x):
+					return x
+
+				def seq(self, x, y):
+					return [x, y]
+
+			def main(prg):
+				prg.ground([("base", [])], context=Context())
+				prg.solve()
+			#end.
+
+			p(@id(10)).
+			q(@seq(1,2)).
+		"""^^xsd:string .
+
+	:TWT_Example
+		a asp:RuleSet ;
+		asp:asRules """
+			tool(X) :- wrench(X) .
+			component(X) :- assemblyComponent(X) .
+			component(X) :- screw(X) .
+			screw(X) :- safetyScrew(X) .
+
+			wrench(wrench_1) .
+			safetyScrew(screw_A; screw_B; screw_C) .
+			assemblyComponent(holdingPlate_1; gasPedal_1; base_1) .
+
+			screwingTorque_value(wrench_1,123) .
+			screwingTorque_value(screw_A,123) .
+			screwingTorque_value(screw_B,123) .
+			screwingTorque_value(screw_C,123) .
+			screwingTorque_unit(wrench_1,nm) .
+			screwingTorque_unit(screw_A,nm) .
+			screwingTorque_unit(screw_B,nm) .
+			screwingTorque_unit(screw_C,nm) .
+		"""^^xsd:string .
+
 	:Domain_Rules
 		a asp:RuleSet ;
 		asp:asRules """
@@ -176,6 +255,31 @@ ajan:ASP {
 # --------------------------------
 # JsonTest -----------------------
 # --------------------------------
+
+:JsonTWTMapping {
+
+	:TWTMapping a rr:TriplesMap ;
+		rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:referenceFormulation ql:JSONPath;
+			rml:iterator "$"
+		];
+
+		rr:subjectMap [
+			rr:template "http://www.ajan.de/twt/asp_input";
+			rr:class asp:RuleSet
+		];
+
+		rr:predicateObjectMap [
+			rr:predicate asp:asRules ;
+			rr:objectMap [
+				rml:reference "rules" ;
+				rr:datatype xsd:string
+			]
+		] .
+}
 
 :JsonTestMapping {
 

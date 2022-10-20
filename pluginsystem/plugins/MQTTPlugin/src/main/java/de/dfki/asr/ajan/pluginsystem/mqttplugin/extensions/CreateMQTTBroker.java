@@ -14,8 +14,6 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
@@ -33,8 +31,6 @@ public class CreateMQTTBroker extends AbstractTDBLeafTask implements NodeExtensi
     @Getter @Setter
     private String label;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(CreateMQTTBroker.class);
-
     @Override
     public Resource getType() {
         return vf.createIRI("http://www.ajan.de/behavior/mqtt-ns#CreateMQTTBroker");
@@ -44,17 +40,14 @@ public class CreateMQTTBroker extends AbstractTDBLeafTask implements NodeExtensi
     public NodeStatus executeLeaf() {
         String report = toString();
         try {
-            LOG.info("Starting the MQTT Server");
             startBroker();
-        } catch (Exception e){
+        } catch (Exception ex){
             report += "FAILED";
-            LOG.info(report);
-            return new NodeStatus(Status.FAILED, report);
+            return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
         }
 //        System.out.println("Port"+clPort);
         report += "SUCCEEDED";
-        LOG.info(report);
-        return new NodeStatus(Status.SUCCEEDED, report);
+        return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
     }
 
     private void startBroker() throws URISyntaxException {
@@ -63,7 +56,7 @@ public class CreateMQTTBroker extends AbstractTDBLeafTask implements NodeExtensi
 
     @Override
     public void end() {
-    LOG.info("Status ("+ getStatus() + ")");
+		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
     }
 
     @Override

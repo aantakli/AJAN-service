@@ -30,58 +30,78 @@ import org.springframework.beans.factory.annotation.Value;
 
 @Component
 public class Repositories {
-	@Autowired
-	private TripleStoreManager tripleStoreManager;
+    @Autowired
+    private TripleStoreManager tripleStoreManager;
 
-	private TripleDataBase agentTemplates;
-	private TripleDataBase behaviors;
-	private TripleDataBase services;
-	private TripleDataBase domain;
+    private TripleDataBase agentTemplates;
+    private TripleDataBase behaviors;
+    private TripleDataBase services;
+    private TripleDataBase domain;
+    private TripleDataBase nodeDefinitions;
+    private TripleDataBase editorData;
 
-	@Value("${loadTTLFiles:true}")
-	private boolean loadFiles;
+    @Value("${loadTTLFiles:true}")
+    private boolean loadFiles;
 
-        @Value("${triplestore.user:}")
-	private String user;
+    @Value("${triplestore.user:}")
+    private String user;
 
-        @Value("${triplestore.pswd:}")
-	private String pswd;
+    @Value("${triplestore.pswd:}")
+    private String pswd;
 
-	@Bean
-	@AJANDataBase(AGENT_TEMPLATE)
-	public TripleDataBase getAgentTemplates() {
-            if (agentTemplates == null) {
-                agentTemplates = createStore("agents");
-            }
-            return agentTemplates;
-	}
+    @Bean
+    @AJANDataBase(AGENT_TEMPLATE)
+    public TripleDataBase getAgentTemplates() {
+        if (agentTemplates == null) {
+            agentTemplates = createStore("agents");
+        }
+        return agentTemplates;
+    }
 
-	@Bean
-	@AJANDataBase(BEHAVIOR)
-	public TripleDataBase getBehaviors() {
-            if (behaviors == null) {
-                behaviors = createStore("behaviors");
-            }
-            return behaviors;
-	}
+    @Bean
+    @AJANDataBase(BEHAVIOR)
+    public TripleDataBase getBehaviors() {
+        if (behaviors == null) {
+            behaviors = createStore("behaviors");
+        }
+        return behaviors;
+    }
 
-	@Bean
-	@AJANDataBase(DOMAIN)
-	public TripleDataBase getDomain() {
-            if (domain == null) {
-                domain = createStore("domain");
-            }
-            return domain;
-	}
+    @Bean
+    @AJANDataBase(DOMAIN)
+    public TripleDataBase getDomain() {
+        if (domain == null) {
+            domain = createStore("domain");
+        }
+        return domain;
+    }
 
-	@Bean
-	@AJANDataBase(ACTION_SERVICE)
-	public TripleDataBase getServices() {
-            if (services == null) {
-                services = createStore("services");
-            }
-            return services;
-	}
+    @Bean
+    @AJANDataBase(ACTION_SERVICE)
+    public TripleDataBase getServices() {
+        if (services == null) {
+            services = createStore("services");
+        }
+        return services;
+    }
+
+    @Bean
+    @AJANDataBase(NODE_DEFINITIONS)
+    public TripleDataBase getNodeDefinitions() {
+        if (nodeDefinitions == null) {
+            nodeDefinitions = createStore("node_definitions");
+        }
+        return nodeDefinitions;
+    }
+
+    @Bean
+    @AJANDataBase(EDITOR_DATA)
+    public TripleDataBase getEditorData() {
+        if (editorData == null) {
+            editorData = createStore("editor_data");
+        }
+        return editorData;
+    }
 
     @PreDestroy
     public void cleanUp() {
@@ -96,6 +116,12 @@ public class Repositories {
         }
         if (domain != null) {
             tripleStoreManager.removeTripleDataBase(domain);
+        }
+        if (nodeDefinitions != null) {
+            tripleStoreManager.removeTripleDataBase(nodeDefinitions);
+        }
+        if (editorData != null) {
+            tripleStoreManager.removeTripleDataBase(editorData);
         }
     }
 
