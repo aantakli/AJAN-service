@@ -38,6 +38,8 @@ public @interface AJANDataBase {
 		AGENT_TEMPLATE,
 		BEHAVIOR,
 		DOMAIN,
-		ACTION_SERVICE
+		ACTION_SERVICE,
+                NODE_DEFINITIONS,
+                EDITOR_DATA
 	}
 }
