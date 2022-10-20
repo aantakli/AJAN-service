@@ -78,8 +78,8 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 				}
 			}
 		} catch (ClingoException ex) {
-			LOG.debug("Environment variable not accessible!", ex);
-			LOG.debug("Executing built in Clingo instead!", ex);
+			LOG.info("Environment variable not accessible!", ex);
+			LOG.info("Executing built in Clingo instead!", ex);
 			for(int i = 1; i <= execution; i++) {
 				if(executeInternalSolver(problem, i)) {
 					solution = true;
