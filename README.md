@@ -6,7 +6,7 @@ This is the Maven based JAVA service to create and run AJAN agents.
 
 You will need the following things properly installed on your computer.
 
-* [Java OpenJDK (Version 1.8)](https://adoptopenjdk.net/)
+* [Java OpenJDK (Version 11)](https://adoptium.net/temurin/releases/?version=11)
 * [Maven (Version 3.3.9)](http://artfiles.org/apache.org/maven/maven-3/3.3.9/)
 * [Git](https://git-scm.com/)
 * (optional) [Netbeans (Version 11.3)](http://netbeans.apache.org/download/nb113/nb113.html)
@@ -50,7 +50,10 @@ Start AJAN-Triplestore (see below), visit `http://localhost:8090/workbench/` and
 * `-Dtriplestore.initialData.serviceFolderPath=executionservice/use-case/services` <br>-> Folder to predefined services (RDF/Turtle)
 * `-Dtriplestore.initialData.behaviorsFolderPath=executionservice/use-case/behaviors` <br>-> Folder to predefined behaviors (RDF/Turtle)
    
-Pre-modelled agent templates, behaviors, service definitions and domain knowledge can be adapted via the turtle-files under the `ajan-service/executionservice/use-case` folder. If you want to model them graphically, we refer you to the [AJAN-editor](https://github.com/aantakli/AJAN-editor).
+Pre-modelled agent templates, behaviors, service definitions and domain knowledge can be adapted via the turtle-files under the `ajan-service/executionservice/use-case` folder. If you want to model them graphically, we refer you to the [AJAN-editor](https://github.com/aantakli/AJAN-editor). This editor needs some additional data in additional Triplestores which can be included using the following VM variables:
+
+* `-Dtriplestore.initialData.behaviorsFolderPath=executionservice/use-case/editor/nodeDefinitions` <br>-> Folder to predefined node definitions (RDF/Turtle)
+* `-Dtriplestore.initialData.behaviorsFolderPath=executionservice/use-case/editor/editorData` <br>-> Folder to predefined editor data (RDF/Turtle)
    
 ## Examples
 
