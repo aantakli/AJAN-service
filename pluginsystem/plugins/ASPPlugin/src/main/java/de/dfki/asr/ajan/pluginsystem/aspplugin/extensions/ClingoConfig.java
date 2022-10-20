@@ -104,6 +104,7 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 			}
 			try (BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
 				stat = extractFactsFormSolverResult(in, problem);
+			} finally {
 				p.waitFor();
 				p.descendants().forEach(ph -> {
 					ph.destroy();
