@@ -107,10 +107,10 @@ public class InitialDataProvider {
     @Value("${triplestore.initialData.domainFolderPath:use-case/domains}")
     private String domainFolderPath;
 
-    @Value("${triplestore.initialData.domainFolderPath:use-case/editor/nodeDefinitions}")
+    @Value("${triplestore.initialData.nodeDefinitionsFolderPath:use-case/editor/nodeDefinitions}")
     private String nodeDefinitionsFolderPath;
 
-    @Value("${triplestore.initialData.domainFolderPath:use-case/editor/editorData}")
+    @Value("${triplestore.initialData.editorDataFolderPath:use-case/editor/editorData}")
     private String editorDataFolderPath;
 
     private List<EndpointExtension> endpoints;
@@ -165,6 +165,7 @@ public class InitialDataProvider {
     }
 
     private void pushFileToStore(final String inputFile, final TripleDataBase tripleDataBase) {
+        LOG.info("read repository file: " + inputFile);
         String extension = FilenameUtils.getExtension(inputFile).toLowerCase();
         try (InputStream input = new FileInputStream(inputFile)) {
             switch (extension) {
