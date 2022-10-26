@@ -34,3 +34,4 @@ nbactions.xml
 /pluginsystem/target/
 /pluginsystem/plugins/target/
 /target/
+/pluginsystem/plugins/PythonPlugin/target/
