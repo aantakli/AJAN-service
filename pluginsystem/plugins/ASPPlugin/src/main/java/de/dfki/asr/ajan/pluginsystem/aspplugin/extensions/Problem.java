@@ -19,7 +19,6 @@
 
 package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions;
 
-import de.dfki.asr.ajan.behaviour.AJANLogger;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -56,7 +55,6 @@ import org.pf4j.Extension;
 @RDFBean("asp:Problem")
 public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 
-    private AJANLogger LOG;
 	@Getter @Setter
     private ArrayList<String> facts;
 	@Getter @Setter
