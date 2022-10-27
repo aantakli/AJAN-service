@@ -2227,6 +2227,14 @@
     ];
 	nd:parameter [
 	    a nd:Parameter;
+	    nd:mapsTo python:script;
+	    nd:title "Python Script";
+	    nd:input xsd:string;
+        nd:default "import AJANlib\nimport rdflib\n\n\nclass MyNode(AJANlib.LeafNode):\n\tdef executeLeafNode(self, input: rdflib.Graph):\n\t\treturn AJANlib.NodeResult(AJANlib.Status.SUCCEEDED, 'testNode (SUCCEEDED)')\n\n\tdef getClassName(self):\n\t\treturn 'MyNode'";
+        nd:title "Name";
+    ];
+	nd:parameter [
+	    a nd:Parameter;
 	    nd:mapsTo bt:targetBase;
 	    nd:title "Target Base";
 	    nd:input nd:Repo;

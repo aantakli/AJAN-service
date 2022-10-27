@@ -31,10 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -59,6 +55,10 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 	@RDF("python:input")
 	@Getter @Setter
 	private BehaviorConstructQuery query;
+
+	@RDF("python:script")
+	@Getter @Setter
+	private String script = "";
 
 	@RDF("bt:targetBase")
 	@Getter @Setter
@@ -95,7 +95,8 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 				List<String> cmdLine = new ArrayList();
 				cmdLine.add(python.getPath());
 				cmdLine.add(main.getPath());
-				cmdLine.add("\"<http://test/Test> <http://test> 1 .\"");
+				cmdLine.add("\"" + getScript()+ "\"");
+				cmdLine.add("\"" + getRDFInput()+ "\"");
 				Process p = Runtime.getRuntime().exec(cmdLine.stream().toArray(String[]::new));
 				try (BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
 					return extractFormResult(in);
@@ -116,11 +117,14 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 		}
 	}
 
+	private String getRDFInput() {
+		return "<http://test/Test> <http://test> 1 .";
+	}
+
 	private String extractFormResult(final BufferedReader in) throws IOException {
 		StringBuilder result = new StringBuilder();
 		String line;
 		while ( (line = in.readLine()) != null) {
-			LOG.info(this.getClass(), line);
 			result.append(line);
 		}
  		return result.toString();	
