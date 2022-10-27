@@ -25,15 +25,36 @@ if __name__ == '__main__':
                    '    def getClassName(self):\n' \
                    '        return "MyNode"\n'"""
 
-    dynNode = makemodule(codeInString)
+    try:
+        dynNode = makemodule(codeInString)
+    except:
+        print("ERROR")
+        print("Source cannot be imported as Module!")
+        sys.exit()
 
-    for name, obj in inspect.getmembers(dynNode):
-        if inspect.isclass(obj):
-            ownNode = obj()
-            if isinstance(ownNode, AJANlib.LeafNode):
-                result = ownNode.executeLeafNode(input=rdflib.Graph().parse(data=rdf_input))
-                print(result.label)
-                sys.exit()
+    try:
+        for name, obj in inspect.getmembers(dynNode):
+            if inspect.isclass(obj):
+                if issubclass(obj, AJANlib.LeafNode):
+                    ownNode = obj()
+                    print(ownNode.getClassName())
+                    result = ownNode.executeLeafNode(input=rdflib.Graph().parse(data=rdf_input))
+                    print(result.status)
+                    print(result.label)
+                    print('RDF--------')
+                    print(result.rdf_output.serialize(format="turtle"))
+                    print('--------RDF')
+                    sys.exit()
+                    
+        print("ERROR")
+        print("Source not type of AJANlib.LeafNode!")
+        sys.exit()
 
-    print("ERROR: No LeafNode Class defined!")
+    except:
+        print("ERROR")
+        print("Problem executing source!")
+        sys.exit()
+
+    print("ERROR")
+    print("No LeafNode Class defined!")
     sys.exit()

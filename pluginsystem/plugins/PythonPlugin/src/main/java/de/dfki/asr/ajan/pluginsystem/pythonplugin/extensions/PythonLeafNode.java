@@ -20,7 +20,9 @@
 package de.dfki.asr.ajan.pluginsystem.pythonplugin.extensions;
 
 import de.dfki.asr.ajan.behaviour.AJANLogger;
+import de.dfki.asr.ajan.behaviour.nodes.action.common.ACTNUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
+import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
@@ -30,7 +32,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -38,7 +42,10 @@ import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
+import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.repository.Repository;
 import org.pf4j.Extension;
 
 @Extension
@@ -80,7 +87,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 	public NodeStatus executeLeaf() {
 		LOG = this.getObject().getLogger();
 		try {
-			LOG.info(this.getClass(), runPythonScript());
+			runPythonScript();
 			return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
 		} catch (PythonException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED", ex);
@@ -96,7 +103,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 				cmdLine.add(python.getPath());
 				cmdLine.add(main.getPath());
 				cmdLine.add("\"" + getScript()+ "\"");
-				cmdLine.add("\"" + getRDFInput()+ "\"");
+				cmdLine.add("\"" + readInputRDF() + "\"");
 				Process p = Runtime.getRuntime().exec(cmdLine.stream().toArray(String[]::new));
 				try (BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
 					return extractFormResult(in);
@@ -117,15 +124,31 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 		}
 	}
 
-	private String getRDFInput() {
-		return "<http://test/Test> <http://test> 1 .";
+	private String readInputRDF() throws PythonException {
+		String input = loadBeliefs();
+		String removedControls = input.replaceAll("\n", " ").replaceAll("\r", " ").replaceAll("\t", " ");
+		return removedControls.replaceAll("\"", "'");
 	}
+
+	private String loadBeliefs() throws PythonException {
+		try {
+			if (!getQuery().getSparql().isEmpty()) {
+				Repository origin = BTUtil.getInitializedRepository(getObject(), getQuery().getOriginBase());
+				Model model = getQuery().getResult(origin);
+				return ACTNUtil.getModelPayload(model, "text/turtle");
+			}
+		} catch (UnsupportedEncodingException | QueryEvaluationException | URISyntaxException ex) {
+			throw new PythonException("Problems with loading RDF input!", ex);
+		}
+		return "";
+    }
 
 	private String extractFormResult(final BufferedReader in) throws IOException {
 		StringBuilder result = new StringBuilder();
 		String line;
 		while ( (line = in.readLine()) != null) {
-			result.append(line);
+			LOG.info(this.getClass(), line);
+			result.append("\n").append(line);
 		}
  		return result.toString();	
  	}

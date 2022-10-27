@@ -1,22 +1,21 @@
-# Python Module example
-
 import rdflib
 from enum import Enum
 
 class Status(Enum):
-   FRESH = 0
-   RUNNING = 1
-   SUCCEEDED = 2
-   FAILED = 3
+   FRESH = "FRESH"
+   RUNNING = "RUNNING"
+   SUCCEEDED = "SUCCEEDED"
+   FAILED = "FAILED"
 
 class NodeResult:
    status = Status.FRESH
    label = "My NodeStatus is fresh"
-   rdf_output = ""
+   rdf_output = rdflib.Graph()
 
-   def __init__(self, status: Status, label: str):
+   def __init__(self, status: Status, label: str, rdf_output: rdflib.Graph):
       self.status = status
       self.label = label
+      self.rdf_output = rdf_output
 
 
 class LeafNode:
