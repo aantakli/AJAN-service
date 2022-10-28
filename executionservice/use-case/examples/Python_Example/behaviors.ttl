@@ -1,0 +1,85 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf4j: <http://rdf4j.org/schema/rdf4j#> .
+@prefix sesame: <http://www.openrdf.org/schema/sesame#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fn: <http://www.w3.org/2005/xpath-functions#> .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#PythonLeafNode-c07f7d61-a191-4b11-ba33-733c940a1bd5>
+  a <http://www.ajan.de/behavior/python-ns#LeafNode>;
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/python-ns#script> """import AJANlib
+from rdflib import Graph, URIRef, BNode, Literal
+from rdflib.namespace import RDF, XSD
+
+class MyNode(AJANlib.LeafNode):
+	def executeLeafNode(self, input: Graph):
+		output = Graph()
+		agent = URIRef('http://www.ajan.de/ajan-ns#Agent')
+		label = URIRef('http://www.ajan.de/python-ns#label')
+		
+		for agent in input.subjects(RDF.type, agent):
+			output.add((agent, label, Literal('is an Python Agent', datatype=XSD.string)))
+		
+		return AJANlib.NodeResult(status=AJANlib.Status.SUCCEEDED, label='added statements!', rdf_output=output)
+
+	def getClassName(self):
+		return 'MyNode'""";
+  rdfs:comment "";
+  rdfs:label "PythonLeafNode";
+  <http://www.ajan.de/behavior/python-ns#input> _:genid-3be00e53d11d4f40a8a7ab8e7aca0152-b605 .
+
+_:genid-3be00e53d11d4f40a8a7ab8e7aca0152-b605 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """CONSTRUCT
+WHERE { ?s ?p ?o }""" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Sequence-173eee19-059a-4b12-8072-f1b306afe307>
+  a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  rdfs:label "defaultSequence";
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-3be00e53d11d4f40a8a7ab8e7aca0152-b609 .
+
+_:genid-3be00e53d11d4f40a8a7ab8e7aca0152-b606 a <http://www.ajan.de/behavior/clingo-ns#Constant>;
+  <http://www.ajan.de/behavior/clingo-ns#name> "";
+  <http://www.ajan.de/behavior/clingo-ns#value> "5" .
+
+_:genid-3be00e53d11d4f40a8a7ab8e7aca0152-b607 a <http://www.ajan.de/behavior/asp-ns#RuleSetLocation>;
+  <http://www.ajan.de/behavior/asp-ns#ruleSet> <http://>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> "" .
+
+_:genid-3be00e53d11d4f40a8a7ab8e7aca0152-b608 <http://www.ajan.de/behavior/clingo-ns#solver>
+    "clingo" .
+
+_:genid-3be00e53d11d4f40a8a7ab8e7aca0152-b609 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#PythonLeafNode-c07f7d61-a191-4b11-ba33-733c940a1bd5>;
+  rdf:rest _:genid-3be00e53d11d4f40a8a7ab8e7aca0152-B7EF5CD64DCDDB3F9E1D8593F6E9CD7F .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#PythonLeafNode-bbd47886-ab5a-4360-a30a-4ec76044d903>
+  a <http://www.ajan.de/behavior/python-ns#LeafNode>;
+  <http://www.ajan.de/behavior/python-ns#input> _:genid-3be00e53d11d4f40a8a7ab8e7aca0152-B8F9FD9F14D6278E1FA3DB3882AC4A2A;
+  <http://www.ajan.de/behavior/python-ns#script> """import AJANlib
+import rdflib
+
+
+class MyNode(AJANlib.LeafNode):
+	def executeLeafNode(self, input: rdflib.Graph):
+		return AJANlib.NodeResult(status=AJANlib.Status.SUCCEEDED, label='Hallo World!', rdf_output=input)
+
+	def getClassName(self):
+		return 'MyNode'""";
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#AgentKnowledge>;
+  rdfs:label "defaultPythonLeafNode";
+  rdfs:comment "" .
+
+_:genid-3be00e53d11d4f40a8a7ab8e7aca0152-B8F9FD9F14D6278E1FA3DB3882AC4A2A a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> "";
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#AgentKnowledge> .
+
+_:genid-3be00e53d11d4f40a8a7ab8e7aca0152-B7EF5CD64DCDDB3F9E1D8593F6E9CD7F rdf:first
+    <http://localhost:8090/rdf4j/repositories/behaviors#PythonLeafNode-bbd47886-ab5a-4360-a30a-4ec76044d903>;
+  rdf:rest rdf:nil .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#BT_ef2d3162-464c-4fc1-a2ca-586f4c102383>
+  a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>, <http://www.ajan.de/behavior/bt-ns#Root>;
+  <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-173eee19-059a-4b12-8072-f1b306afe307>;
+  rdfs:label "ASPBehavior" .
