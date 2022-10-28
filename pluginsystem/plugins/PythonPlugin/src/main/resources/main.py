@@ -37,9 +37,10 @@ if __name__ == '__main__':
 
     try:
         dynNode = makemodule(codeInString)
-    except:
+    except Exception as ex:
         print("ERROR")
         print("Source cannot be imported as Module!")
+        print("pyEXCEPTION: " + ex)
         sys.exit()
 
     try:
@@ -57,6 +58,8 @@ if __name__ == '__main__':
             print("ERROR")
             print("Source not type of AJANlib.LeafNode!")
 
-    except:
+    except Exception as ex:
         print("ERROR")
         print("Problem executing source!")
+        print("pyEXCEPTION: " + ex)
+
