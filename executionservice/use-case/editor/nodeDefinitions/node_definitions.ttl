@@ -21,6 +21,7 @@
 @prefix bt-mosim: <http://www.ajan.de/behavior/mosim-ns#> .
 @prefix bt-mqtt: <http://www.ajan.de/behavior/mqtt-ns#> .
 @prefix tcp: <http://www.ajan.de/behavior/tcp-ns#> .
+@prefix python: <http://www.ajan.de/behavior/python-ns#> .
 @prefix ws: <http://bla/ws#> .
 
 
@@ -2197,6 +2198,47 @@
         bt:targetBase "false";
         nd:type bt:SelectQuery;
    ].
+
+# --------------- PythonBehavior -------------------
+ 
+:PythonLeafNode nd:class nd:Leaf;
+	nd:category "Python Nodes";
+    nd:name "PythonLeafNode";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultPythonLeafNode";
+    nd:type python:LeafNode;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#c9c308";
+		nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "python_icon.png";
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo python:input;
+	    nd:title "Python Input";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo python:script;
+	    nd:title "Python Script";
+	    nd:input nd:textarea;
+        nd:default "import AJANlib\nimport rdflib\n\n\nclass MyNode(AJANlib.LeafNode):\n\tdef executeLeafNode(self, input: rdflib.Graph):\n\t\treturn AJANlib.NodeResult(status=AJANlib.Status.SUCCEEDED, label='Hallo World!', rdf_output=input)\n\n\tdef getClassName(self):\n\t\treturn 'MyNode'";
+        nd:title "Name";
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt:targetBase;
+	    nd:title "Target Base";
+	    nd:input nd:Repo;
+    ].
 
 # --------------- Plugin X -------------------
 

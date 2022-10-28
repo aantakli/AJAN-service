@@ -33,4 +33,5 @@ nbactions.xml
 /pluginsystem/plugins/MQTTPlugin/target/
 /pluginsystem/target/
 /pluginsystem/plugins/target/
+/pluginsystem/plugins/PythonPlugin/target/
 /target/
