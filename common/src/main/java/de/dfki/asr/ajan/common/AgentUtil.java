@@ -216,10 +216,11 @@ public final class AgentUtil {
 	}
 
 	public static CSVInput getCSVFromStream(final InputStream is) throws IOException {
-		CSVReader reader = new CSVReader(new InputStreamReader(is));
-		CSVInput input = new CSVInput();
-		input.setContent(reader.readAll());
-		reader.close();
+		CSVInput input;
+		try (CSVReader reader = new CSVReader(new InputStreamReader(is))) {
+			input = new CSVInput();
+			input.setContent(reader.readAll());
+		}
 		return input;
 	}
 }

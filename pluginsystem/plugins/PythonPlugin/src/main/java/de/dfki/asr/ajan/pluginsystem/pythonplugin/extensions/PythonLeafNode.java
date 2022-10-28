@@ -26,9 +26,11 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
+import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.pythonplugin.exception.PythonException;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -37,6 +39,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -46,6 +50,11 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
 import org.pf4j.Extension;
 
 @Extension
@@ -188,8 +197,22 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 				rdfOutput.append("\n").append(line);
 			}
 		}
+		writeSolution(rdfOutput.toString());
  		return new NodeStatus(pyStatus, this.getObject().getLogger(), this.getClass(), pyStringOutput);
  	}
+
+	private void writeSolution(final String input) throws IOException {
+		Model model;
+		if (input.isEmpty()) {
+			return;
+		}
+		model = Rio.parse(new ByteArrayInputStream(input.getBytes()),"http://www.ajan.de" , RDFFormat.TURTLE);
+		if (getTargetBase().toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
+			this.getObject().getExecutionBeliefs().update(model);
+		} else if (getTargetBase().toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
+			this.getObject().getAgentBeliefs().update(model);
+		}
+    }
 
 	@Override
 	public void end() {
