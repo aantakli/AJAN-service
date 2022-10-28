@@ -75,7 +75,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 
 	@Override
 	public String toString() {
-		return "PythonLeafNode ( " + label + " )";
+		return "PythonLeafNode (" + label + ")";
 	}
 
 	@Override
@@ -87,14 +87,13 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 	public NodeStatus executeLeaf() {
 		LOG = this.getObject().getLogger();
 		try {
-			runPythonScript();
-			return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
+			return runPythonScript();
 		} catch (PythonException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED", ex);
 		}
 	}
 
-	private String runPythonScript() throws PythonException {
+	private NodeStatus runPythonScript() throws PythonException {
 		try {
 			File python = new File(getClass().getClassLoader().getResource("venv/Scripts/python.exe").getFile());
 			File main = new File(getClass().getClassLoader().getResource("main.py").getFile());
@@ -143,14 +142,53 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 		return "";
     }
 
-	private String extractFormResult(final BufferedReader in) throws IOException {
-		StringBuilder result = new StringBuilder();
+	private NodeStatus extractFormResult(final BufferedReader in) throws IOException {
+		Status pyStatus = Status.FAILED;
+		String pyStringOutput = "";
+		StringBuilder rdfOutput = new StringBuilder();
+		boolean pyLabel = false;
+		boolean pyRDF = false;
 		String line;
 		while ( (line = in.readLine()) != null) {
 			LOG.info(this.getClass(), line);
-			result.append("\n").append(line);
+			switch (line) {
+				case "Status.SUCCEEDED":
+					pyStatus = Status.SUCCEEDED;
+					pyStringOutput = toString() + " SUCCEEDED ";
+					pyLabel = true;
+					continue;
+				case "Status.RUNNING":
+					pyStatus = Status.RUNNING;
+					pyStringOutput = toString() + " RUNNING ";
+					pyLabel = true;
+					continue;
+				case "ERROR":
+				case "Status.FAILED":
+					pyStatus = Status.FAILED;
+					pyStringOutput = toString() + " FAILED ";
+					pyLabel = true;
+					continue;
+				default:
+					break;
+			}
+			if (pyLabel) {
+				pyStringOutput = pyStringOutput + line;
+				pyLabel = false;
+				continue;
+			}
+			if (line.endsWith("RDF--------")) {
+				pyRDF = true;
+				continue;
+			}
+			if (line.endsWith("--------RDF")) {
+				pyRDF = false;
+				continue;
+			}
+			if (pyRDF) {
+				rdfOutput.append("\n").append(line);
+			}
 		}
- 		return result.toString();	
+ 		return new NodeStatus(pyStatus, this.getObject().getLogger(), this.getClass(), pyStringOutput);
  	}
 
 	@Override

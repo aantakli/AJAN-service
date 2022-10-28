@@ -2230,7 +2230,7 @@
 	    nd:mapsTo python:script;
 	    nd:title "Python Script";
 	    nd:input nd:textarea;
-        nd:default "import AJANlib\nimport rdflib\n\n\nclass MyNode(AJANlib.LeafNode):\n\tdef executeLeafNode(self, input: rdflib.Graph):\n\t\treturn AJANlib.NodeResult(AJANlib.Status.SUCCEEDED, 'testNode (SUCCEEDED)')\n\n\tdef getClassName(self):\n\t\treturn 'MyNode'";
+        nd:default "import AJANlib\nimport rdflib\n\n\nclass MyNode(AJANlib.LeafNode):\n\tdef executeLeafNode(self, input: rdflib.Graph):\n\t\treturn AJANlib.NodeResult(status=AJANlib.Status.SUCCEEDED, label='Hallo World!', rdf_output=input)\n\n\tdef getClassName(self):\n\t\treturn 'MyNode'";
         nd:title "Name";
     ];
 	nd:parameter [

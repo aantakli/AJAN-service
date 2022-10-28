@@ -12,6 +12,16 @@ def makemodule(code):
     exec(codeobj, newmodule.__dict__)
     return newmodule
 
+
+def runLeafNode(input: rdflib.Graph):
+    result = ownNode.executeLeafNode(input)
+    print(result.status)
+    print(result.label)
+    print('RDF--------')
+    print(result.rdf_output.serialize(format="turtle"))
+    print('--------RDF')
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     codeInString = str(sys.argv[1])
@@ -33,28 +43,20 @@ if __name__ == '__main__':
         sys.exit()
 
     try:
+        available = False
+
         for name, obj in inspect.getmembers(dynNode):
             if inspect.isclass(obj):
                 if issubclass(obj, AJANlib.LeafNode):
+                    available = True
                     ownNode = obj()
                     print(ownNode.getClassName())
-                    result = ownNode.executeLeafNode(input=rdflib.Graph().parse(data=rdf_input))
-                    print(result.status)
-                    print(result.label)
-                    print('RDF--------')
-                    print(result.rdf_output.serialize(format="turtle"))
-                    print('--------RDF')
-                    sys.exit()
-                    
-        print("ERROR")
-        print("Source not type of AJANlib.LeafNode!")
-        sys.exit()
+                    runLeafNode(input=rdflib.Graph().parse(data=rdf_input))
+
+        if not available:
+            print("ERROR")
+            print("Source not type of AJANlib.LeafNode!")
 
     except:
         print("ERROR")
         print("Problem executing source!")
-        sys.exit()
-
-    print("ERROR")
-    print("No LeafNode Class defined!")
-    sys.exit()
