@@ -4,7 +4,6 @@ import sys
 import inspect
 import importlib
 
-
 def makemodule(code):
     codeobj = compile(code, 'DynLeafNode', 'exec')
     module_spec = importlib.machinery.ModuleSpec('DynLeafNode', None)
@@ -27,11 +26,12 @@ if __name__ == '__main__':
     codeInString = str(sys.argv[1])
     rdf_input = str(sys.argv[2])
 
-    """codeInString = 'import AJANlib\n' \
+    """rdf_input = str(sys.argv[1])
+    codeInString = 'import AJANlib\n' \
                    'import rdflib\n' \
                    'class MyNode(AJANlib.LeafNode):\n' \
                    '    def executeLeafNode(self, input: rdflib.Graph):\n' \
-                   '        return AJANlib.NodeResult(AJANlib.Status.SUCCEEDED, "myNode (SUCCEEDED)")\n' \
+                   '        return AJANlib.NodeResult(status=AJANlib.Status.SUCCEEDED, label="Hallo World!", rdf_output=input)\n' \
                    '    def getClassName(self):\n' \
                    '        return "MyNode"\n'"""
 
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     except Exception as ex:
         print("ERROR")
         print("Source cannot be imported as Module!")
-        print("pyEXCEPTION: " + ex)
+        print(ex)
         sys.exit()
 
     try:
@@ -61,5 +61,5 @@ if __name__ == '__main__':
     except Exception as ex:
         print("ERROR")
         print("Problem executing source!")
-        print("pyEXCEPTION: " + ex)
+        print(ex)
 
