@@ -35,3 +35,4 @@ nbactions.xml
 /pluginsystem/plugins/target/
 /pluginsystem/plugins/PythonPlugin/target/
 /target/
+/pluginsystem/plugins/PythonPlugin/src/main/resources/venv/Lib/site-packages/
