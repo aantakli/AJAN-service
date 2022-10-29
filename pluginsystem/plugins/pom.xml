@@ -82,6 +82,7 @@
         <module>MOSIMPlugin</module>
         <module>MQTTPlugin</module>
 	<module>PythonPlugin</module>
+        <module>MDPPlugin</module>
     </modules>
 
     <dependencies>
