@@ -5,6 +5,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.endpoint.SOGBOFAPluginClient;
 import lombok.Getter;
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Component;
 
 @Extension
 @Component
-@RDFBean("bt-mdp:CreateRDDLServer")
+@RDFBean("bt-mdp:CreateSOGBOFAClient")
 public class CreateSOGBOFAClient extends AbstractTDBLeafTask implements NodeExtension {
 
     @RDFSubject
@@ -35,15 +36,15 @@ public class CreateSOGBOFAClient extends AbstractTDBLeafTask implements NodeExte
 
     @RDF("bt-mdp:port")
     @Getter @Setter
-    private String port;
+    private BehaviorSelectQuery port;
 
     @RDF("bt-mdp:rddlFilesPath")
     @Getter @Setter
-    private String rddlFilesPath;
+    private BehaviorSelectQuery rddlFilesPath;
 
     @RDF("bt-mdp:rddlString")
     @Getter @Setter
-    private String rddlString;
+    private BehaviorSelectQuery rddlString;
 
 
     @Override

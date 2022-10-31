@@ -5,8 +5,10 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.endpoint.RDDLPluginServer;
+import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.MDPUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -16,6 +18,8 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
+
+import java.net.URISyntaxException;
 
 @Extension
 @Component
@@ -33,25 +37,33 @@ public class CreateRDDLServer extends AbstractTDBLeafTask implements NodeExtensi
 
     @RDF("bt-mdp:port")
     @Getter @Setter
-    private String port;
+    private BehaviorSelectQuery port;
 
     @RDF("bt-mdp:rddlFilesPath")
     @Getter @Setter
-    private String rddlFilesPath;
+    private BehaviorSelectQuery rddlFilesPath;
 
     @RDF("bt-mdp:rddlString")
     @Getter @Setter
-    private String rddlString;
+    private BehaviorSelectQuery rddlString;
 
 
     @Override
     public NodeStatus executeLeaf() {
         String report = toString();
-
-        RDDLPluginServer.initServer();
-
-        report += "SUCCEEDED";
-        return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
+        Status stat;
+        try {
+            String portNumber = MDPUtil.getPortInfo(port,this.getObject());
+            String filesPath = MDPUtil.getFilesPath(rddlFilesPath, this.getObject());
+            String rddlDataString = MDPUtil.getRDDLString(rddlString, this.getObject());
+            RDDLPluginServer.initServer(filesPath,portNumber);
+            report = toString()+ " SUCCEEDED";
+            stat = Status.SUCCEEDED;
+        } catch (URISyntaxException e) {
+            report = toString()+ "FAILED";
+            stat = Status.FAILED;
+        }
+        return new NodeStatus(stat, this.getObject().getLogger(), this.getClass(), report);
     }
 
     @Override

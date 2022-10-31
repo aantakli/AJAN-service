@@ -20,8 +20,6 @@ public class MDPPlugin extends Plugin {
         System.out.println("MDPPlugin.start()");
         if(RuntimeMode.DEVELOPMENT.equals(wrapper.getRuntimeMode())){
             LOG.debug("MDPPlugin");
-            String[] arg = new String[] {"D:\\Bhuvan\\Projects\\PRobPlan\\projects\\test\\files"};
-            Server.main(arg);
         }
     }
 
