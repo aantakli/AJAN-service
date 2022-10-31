@@ -20,6 +20,7 @@
 @prefix hybrit: <http://www.dfki.de/hybrit-ns#> .
 @prefix bt-mosim: <http://www.ajan.de/behavior/mosim-ns#> .
 @prefix bt-mqtt: <http://www.ajan.de/behavior/mqtt-ns#> .
+@prefix bt-mdp: <http://www.ajan.de/behavior/mdp-ns#> .
 @prefix tcp: <http://www.ajan.de/behavior/tcp-ns#> .
 @prefix python: <http://www.ajan.de/behavior/python-ns#> .
 @prefix ws: <http://bla/ws#> .
@@ -1911,7 +1912,95 @@
         bt:targetBase "false";
         nd:type bt:SelectQuery;
     ] .
+# --------------- MDP Plugin -------------------
+:CreateRDDLServer nd:class nd:Leaf;
+	nd:category "MDP Nodes";
+	nd:name "CreateRDDLServer";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultCreateRDDLServer";
+    nd:type bt-mdp:CreateRDDLServer;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "mqtt_broker.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:port;
+        nd:title "RDDL Server port: ?port";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
 
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:rddlFilesPath;
+        nd:title "RDDL File Path: ?rddlFilesPath";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:rddlString;
+        nd:title "RDDL String: ?rddlString";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ].
+
+
+:CreateSOGBOFAClient nd:class nd:Leaf;
+	nd:category "MDP Nodes";
+	nd:name "CreateSOGBOFAClient";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultCreateSOGBOFAClient";
+    nd:type bt-mdp:CreateSOGBOFAClient;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "mqtt_broker.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:port;
+        nd:title "RDDL Server port: ?port";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+
+     nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:rddlFilesPath;
+        nd:title "RDDL File Path: ?rddlFilesPath";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+     ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:rddlString;
+        nd:title "RDDL String: ?rddlString";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ].
 # --------------- MQTT Plugin -------------------
 
 
