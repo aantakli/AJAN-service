@@ -56,7 +56,7 @@ public class CreateRDDLServer extends AbstractTDBLeafTask implements NodeExtensi
             String portNumber = MDPUtil.getPortInfo(port,this.getObject());
             String filesPath = MDPUtil.getFilesPath(rddlFilesPath, this.getObject());
             String rddlDataString = MDPUtil.getRDDLString(rddlString, this.getObject());
-            RDDLPluginServer.initServer(filesPath,portNumber);
+            startServer(filesPath,portNumber);
             report = toString()+ " SUCCEEDED";
             stat = Status.SUCCEEDED;
         } catch (URISyntaxException e) {
@@ -66,6 +66,9 @@ public class CreateRDDLServer extends AbstractTDBLeafTask implements NodeExtensi
         return new NodeStatus(stat, this.getObject().getLogger(), this.getClass(), report);
     }
 
+    private void startServer(String filesPath, String portNumber) throws URISyntaxException{
+        RDDLPluginServer.initServer(filesPath,portNumber);
+    }
     @Override
     public void end() {
         this.getObject().getLogger().info(this.getClass(),"Status (" + getStatus() + ")");
