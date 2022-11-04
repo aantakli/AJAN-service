@@ -75,6 +75,11 @@ public class CreateRDDLServer extends AbstractTDBLeafTask implements NodeExtensi
     }
 
     @Override
+    public String toString() {
+        return "CreateRDDLServer (" + getLabel() + ")";
+    }
+
+    @Override
     public EvaluationResult.Result simulateNodeLogic(EvaluationResult result, Resource root) {
         return EvaluationResult.Result.UNCLEAR;
     }
