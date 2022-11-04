@@ -84,7 +84,7 @@ MA 02110-1301  USA
         <dependency>
             <groupId>com.github.buvnswrn</groupId>
             <artifactId>rddlsim</artifactId>
-            <version>5181f7cf3d</version>
+            <version>-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.github.buvnswrn</groupId>

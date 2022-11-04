@@ -63,6 +63,11 @@ public class CreateSOGBOFAClient extends AbstractTDBLeafTask implements NodeExte
     }
 
     @Override
+    public String toString() {
+        return "CreateSOGBOFAClient (" + getLabel() + ")";
+    }
+
+    @Override
     public EvaluationResult.Result simulateNodeLogic(EvaluationResult result, Resource root) {
         return EvaluationResult.Result.UNCLEAR;
     }
