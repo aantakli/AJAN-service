@@ -8,6 +8,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.endpoint.SOGBOFAPluginClient;
+import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.MDPUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -17,6 +18,8 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
+
+import java.net.URISyntaxException;
 
 
 @Extension
@@ -46,14 +49,27 @@ public class CreateSOGBOFAClient extends AbstractTDBLeafTask implements NodeExte
     @Getter @Setter
     private BehaviorSelectQuery rddlString;
 
+    @RDF("bt-mdp:instanceName")
+    @Getter @Setter
+    private BehaviorSelectQuery instanceName;
+
 
     @Override
     public NodeStatus executeLeaf() {
         String report = toString();
-
-        SOGBOFAPluginClient.initClient();
-
-        report += "SUCCEEDED";
+        Status stat;
+        try {
+            String portNumber = MDPUtil.getPortInfo(port,this.getObject());
+            String filesPath = MDPUtil.getFilesPath(rddlFilesPath, this.getObject());
+            String rddlDataString = MDPUtil.getRDDLString(rddlString, this.getObject());
+            String instanceName = MDPUtil.getInstanceName(this.instanceName, this.getObject());
+            SOGBOFAPluginClient.initClient(filesPath,portNumber, "AJAN_SOGBOFA_Client", instanceName);
+            report = toString() + " SUCCEEDED";
+            stat = Status.SUCCEEDED;
+        } catch (URISyntaxException e) {
+            report = toString()+ "FAILED";
+            stat = Status.FAILED;
+        }
         return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
     }
 
