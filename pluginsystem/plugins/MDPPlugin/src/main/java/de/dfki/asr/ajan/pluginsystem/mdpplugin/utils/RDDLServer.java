@@ -25,12 +25,16 @@ public class RDDLServer implements Runnable{
 
     @Override
     public void run() {
-        while (!exit) {
             ServerSocket socket1 = null;
+            LOG.info(String.format("Opening a socket in %s port",port));
+        try {
+            socket1 = new ServerSocket(port);
+        } catch (IOException e) {
+            LOG.error("Socket connection failed"+e.getMessage());
+        }
+        while (!exit) {
             Socket connection = null;
             try {
-                LOG.info(String.format("Opening a socket in %s port",port));
-                socket1 = new ServerSocket(port);
                 connection = socket1.accept();
                 LOG.info("Accepted a Client");
             } catch (IOException e) {
