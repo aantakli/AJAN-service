@@ -2013,6 +2013,15 @@
         bt:originBase "true";
         bt:targetBase "false";
         nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:instanceName;
+        nd:title "RDDL String: ?instanceName";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
     ].
 # --------------- MQTT Plugin -------------------
 

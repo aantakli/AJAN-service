@@ -33,4 +33,8 @@ public final class MDPUtil {
     public static String getRDDLString(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
         return getStringMap(query, info, "rddlString");
     }
+
+    public static String getInstanceName(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
+        return getStringMap(query, info, "instanceName");
+    }
 }
