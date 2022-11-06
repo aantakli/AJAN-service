@@ -62,23 +62,26 @@ public class SOGBOFAClient implements Runnable{
     private String ClientName;
     private String filePath;
     private String portNumber;
+    private String instanceName;
 
 
-    public SOGBOFAClient(String filesPath,String portNumber, String ClientName){
+    public SOGBOFAClient(String filesPath,String portNumber, String clientName, String instanceName){
         numRounds = 0;
         timeAllowed = 0;
         curRound = 0;
         reward = 0;
         id = 0;
-        this.ClientName = ClientName;
+        this.ClientName = clientName;
         this.portNumber = portNumber;
         this.filePath = filesPath;
+        this.instanceName = instanceName;
     }
     @Override
     public void run() {
         String host = Server.HOST_NAME;
-        int port = Server.PORT_NUMBER;
-        String instanceName = null;
+//        int port = Server.PORT_NUMBER;
+        int port = Integer.parseInt(portNumber);
+        String instanceName = this.instanceName;
         int randomSeed = DEFAULT_RANDOM_SEED;
 
         State state;
