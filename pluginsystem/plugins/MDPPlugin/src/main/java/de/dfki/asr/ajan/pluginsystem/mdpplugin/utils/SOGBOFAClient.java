@@ -2,8 +2,6 @@ package de.dfki.asr.ajan.pluginsystem.mdpplugin.utils;
 
 import org.apache.xerces.impl.dv.util.Base64;
 import org.apache.xerces.parsers.DOMParser;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -13,21 +11,31 @@ import org.xml.sax.SAXException;
 import rddl.EvalException;
 import rddl.RDDL;
 import rddl.State;
-import rddl.competition.*;
+import rddl.competition.RDDLXMLException;
+import rddl.competition.Records;
+import rddl.competition.Server;
 import rddl.policy.Policy;
-import rddl.viz.StateViz;
 
+//import javax.xml.parsers.DocumentBuilder;
+//import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import static rddl.competition.SOGBOFA.*;
+import static rddl.competition.SOGBOFA.serialize;
+import static rddl.competition.SOGBOFA.createXMLRoundRequest;
+import static rddl.competition.SOGBOFA.processXMLRoundInit;
+import static rddl.competition.SOGBOFA.parseMessage;
+import static rddl.competition.SOGBOFA.processXMLTurn;
+import static rddl.competition.SOGBOFA.createXMLAction;
+import static rddl.competition.SOGBOFA.getTimeLeft;
+import static rddl.competition.SOGBOFA.processXMLRoundEnd;
+import static rddl.competition.SOGBOFA.processXMLSessionEnd;
 
 public class SOGBOFAClient implements Runnable{
     private static final Logger LOG = LoggerFactory.getLogger(SOGBOFAClient.class);
@@ -47,9 +55,6 @@ public class SOGBOFAClient implements Runnable{
         id = 0;
     }
 
-    enum XMLType {
-        ROUND,TURN,ROUND_END,END_TEST,NONAME
-    }
 
     private static RDDL rddl = null;
 
@@ -88,9 +93,7 @@ public class SOGBOFAClient implements Runnable{
         RDDL.INSTANCE instance;
         RDDL.NONFLUENTS nonFluents = null;
         RDDL.DOMAIN domain;
-        StateViz stateViz;
 
-        StringBuffer instr = new StringBuffer();
         String TimeStamp;
 
         double timeLeft = 0;
@@ -103,30 +106,30 @@ public class SOGBOFAClient implements Runnable{
                 ClientName = "L_C_SOGBOFA";
             }
 
-            /** Obtain an address object of the server */
+            /* Obtain an address object of the server */
             InetAddress address = InetAddress.getByName(host);
-            /** Establish a socket connetion */
+            /* Establish a socket connetion */
             connection = new Socket(address, port);
             LOG.info("RDDL client initialized");
 
-            /** Instantiate a BufferedOutputStream object */
+            /* Instantiate a BufferedOutputStream object */
             BufferedOutputStream bos = new BufferedOutputStream(connection.
                     getOutputStream());
-            /** Instantiate an OutputStreamWriter object with the optional character
+            /* Instantiate an OutputStreamWriter object with the optional character
              * encoding.
              */
             OutputStreamWriter osw = new OutputStreamWriter(bos, "US-ASCII");
-            /** Write across the socket connection and flush the buffer */
+            /* Write across the socket connection and flush the buffer */
             String msg = createXMLSessionRequest(instanceName, ClientName);
             Server.sendOneMessage(osw, msg);
             BufferedInputStream isr = new BufferedInputStream(connection.getInputStream());
-            /**Instantiate an InputStreamReader with the optional
+            /*Instantiate an InputStreamReader with the optional
              * character encoding.
              */
             //InputStreamReader isr = new InputStreamReader(bis, "US-ASCII");
             DOMParser p = new DOMParser();
 
-            /**Read the socket's InputStream and append to a StringBuffer */
+            /*Read the socket's InputStream and append to a StringBuffer */
             InputSource isrc = Server.readOneMessage(isr);
             SOGBOFAClient client = processXMLSessionInit(p, isrc, instanceName);
 
@@ -249,8 +252,6 @@ public class SOGBOFAClient implements Runnable{
                 if (round_ended_early)
                     break;
                 if (SHOW_MSG) LOG.info("Done reading turn message");
-                //if (SHOW_XML)
-                //	Server.printXMLNode(e); // DEBUG
                 ArrayList<RDDL.PVAR_INST_DEF> obs = processXMLTurn(e,state);
 
                 //time allowed is deducted by 3 seconds to avoid time issue
@@ -351,7 +352,7 @@ public class SOGBOFAClient implements Runnable{
 
 
             //System.out.println("Round reward: " + reward);
-            if (getTimeLeft(round_end_msg) <= 0l)
+            if (getTimeLeft(round_end_msg) <= 0L)
                 break;
         }
         Records visRec = new Records();
@@ -378,11 +379,11 @@ public class SOGBOFAClient implements Runnable{
             res4 = policy._visCounter.depthInTotal / policy._visCounter.depthTime;
 
         res5 = policy._visCounter.sizeInTotal / policy._visCounter.depthTime;
-        visRec.fileAppend(clientName + "_" + (int)Math.round(client.timeAllowed / 1000) + "_" + instanceName + "_" + "rrCounter", String.valueOf(res));
-        visRec.fileAppend(clientName + "_" + (int)Math.round(client.timeAllowed / 1000) + "_" + instanceName + "_" + "updatesCounter", String.valueOf(res2));
-        visRec.fileAppend(clientName + "_" + (int)Math.round(client.timeAllowed / 1000) + "_" + instanceName + "_" + "seenCounter", String.valueOf(res3));
-        visRec.fileAppend(clientName + "_" + (int)Math.round(client.timeAllowed / 1000) + "_" + instanceName + "_" + "depthCounter", String.valueOf(res4));
-        visRec.fileAppend(clientName + "_" + (int)Math.round(client.timeAllowed / 1000) + "_" + instanceName + "_" + "sizeCounter", String.valueOf(res5));
+        visRec.fileAppend(clientName + "_" + (int)Math.round(timeAllowed / 1000) + "_" + instanceName + "_" + "rrCounter", String.valueOf(res));
+        visRec.fileAppend(clientName + "_" + (int)Math.round(timeAllowed / 1000) + "_" + instanceName + "_" + "updatesCounter", String.valueOf(res2));
+        visRec.fileAppend(clientName + "_" + (int)Math.round(timeAllowed / 1000) + "_" + instanceName + "_" + "seenCounter", String.valueOf(res3));
+        visRec.fileAppend(clientName + "_" + (int)Math.round(timeAllowed / 1000) + "_" + instanceName + "_" + "depthCounter", String.valueOf(res4));
+        visRec.fileAppend(clientName + "_" + (int)Math.round(timeAllowed / 1000) + "_" + instanceName + "_" + "sizeCounter", String.valueOf(res5));
         isrc = Server.readOneMessage(isr);
         double total_reward = processXMLSessionEnd(p, isrc);
         policy.sessionEnd(total_reward);
@@ -433,8 +434,6 @@ public class SOGBOFAClient implements Runnable{
 
         rec.fileAppend("tmp.rddl", new String(rddlDesc), true);
 
-        //read the file
-        MyPath myPath = new MyPath();
         String absPath = System.getProperty("user.home") + System.getProperties().getProperty("file.separator") + "tmp.rddl";
         try {
             rddl = new RDDL(absPath);
@@ -443,5 +442,21 @@ public class SOGBOFAClient implements Runnable{
             e1.printStackTrace();
         }
         return c;
+    }
+    public static String createXMLSessionRequest(String problemName, String clientName) {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        try {
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document dom = db.newDocument();
+            Element rootEle = dom.createElement("session-request");
+            dom.appendChild(rootEle);
+            Server.addOneText(dom, rootEle, "client-name", clientName);
+            Server.addOneText(dom, rootEle, "problem-name", problemName);
+            Server.addOneText(dom, rootEle, "input-language", "rddl");
+            return serialize(dom);
+        } catch (Exception var6) {
+            return null;
+        }
     }
 }
