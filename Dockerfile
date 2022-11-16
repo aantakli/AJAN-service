@@ -13,9 +13,6 @@ COPY pluginsystem/plugins ./pluginsystem/plugins
 RUN chmod +x /app/startup.sh
 RUN chmod +x /app/create.sh
 
-RUN cd /app && wget https://raw.githubusercontent.com/aantakli/AJAN-editor/master/Triplestore%20Repos/editor_data.trig
-RUN cd /app && wget https://raw.githubusercontent.com/aantakli/AJAN-editor/master/Triplestore%20Repos/node_definitions.ttl
-
 WORKDIR /logs
 VOLUME logs
 VOLUME /app/executionservice/use-case
