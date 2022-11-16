@@ -82,6 +82,18 @@ jobs:
         with:
           name: STRIPSPlugin
           path: ./pluginsystem/plugins/STRIPSPlugin/target/
+      - 
+        uses: vimtor/action-zip@v1
+        with:
+          recursive: true
+          files: ./pluginsystem/ ./executionservice/target/executionservice-0.1.jar ./triplestore/target/triplestore-0.1-war-exec.jar
+          dest: release.zip
+      -
+        name: Temporally save release.zip
+        uses: actions/upload-artifact@v3
+        with:
+          name: release
+          path: ./release.zip
   docker:
     runs-on: ubuntu-latest
     needs: [build]
@@ -194,6 +206,12 @@ jobs:
         with:
           name: executionservice
           path: .
+      -
+        name: Load release zip
+        uses: actions/download-artifact@v3
+        with:
+          name: release
+          path: .
       - 
         name: upload triplestore artifact
         uses: actions/upload-release-asset@v1
@@ -214,3 +232,13 @@ jobs:
           asset_path: ./executionservice-0.1.jar
           asset_name: executionservice-0.1.jar
           asset_content_type: application/java-archive
+      -
+        name: upload release zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./release.zip
+          asset_name: release.zip
+          asset_content_type: application/zip
