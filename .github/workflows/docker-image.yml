@@ -91,13 +91,13 @@ jobs:
         with:
           recursive: true
           files: ./pluginsystem/ ./executionservice/target/executionservice-0.1.jar ./triplestore/target/triplestore-0.1-war-exec.jar ./executionservice/use-case/
-          dest: ${{ steps.commit.outputs.short }}.zip
+          dest: ajanservice-${{ steps.commit.outputs.short }}.zip
       -
         name: Temporally save release.zip
         uses: actions/upload-artifact@v3
         with:
           name: release
-          path: ./ajan-${{ steps.commit.outputs.short }}.zip
+          path: ./ajanservice-${{ steps.commit.outputs.short }}.zip
   docker:
     runs-on: ubuntu-latest
     needs: [build]
