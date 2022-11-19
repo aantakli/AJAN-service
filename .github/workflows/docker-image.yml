@@ -86,14 +86,14 @@ jobs:
         uses: vimtor/action-zip@v1
         with:
           recursive: true
-          files: ./pluginsystem/ ./executionservice/target/executionservice-0.1.jar ./triplestore/target/triplestore-0.1-war-exec.jar
+          files: ./pluginsystem/ ./executionservice/target/executionservice-0.1.jar ./triplestore/target/triplestore-0.1-war-exec.jar ./executionservice/use-case/
           dest: release.zip
       -
         name: Temporally save release.zip
         uses: actions/upload-artifact@v3
         with:
           name: release
-          path: ./release.zip
+          path: ./ajan-${{ steps.commit.outputs.short }}.zip
   docker:
     runs-on: ubuntu-latest
     needs: [build]
