@@ -90,7 +90,7 @@ jobs:
         uses: vimtor/action-zip@v1
         with:
           recursive: true
-          files: ./pluginsystem/ ./executionservice/target/executionservice-0.1.jar ./triplestore/target/triplestore-0.1-war-exec.jar ./executionservice/use-case/
+          files: ./pluginsystem/ ./executionservice/target/executionservice-0.1.jar ./triplestore/target/triplestore-0.1-war-exec.jar ./executionservice/
           dest: ajanservice-${{ steps.commit.outputs.short }}.zip
       -
         name: Temporally save release.zip
