@@ -86,6 +86,18 @@ jobs:
         with:
           name: STRIPSPlugin
           path: ./pluginsystem/plugins/STRIPSPlugin/target/
+      -
+        name: Temporally save MQTT Plugin
+        uses: actions/upload-artifact@v3
+        with:
+          name: MQTTPlugin
+          path: ./pluginsystem/plugins/MQTTPlugin/target/
+      -
+        name: Temporally save Python Plugin
+        uses: actions/upload-artifact@v3
+        with:
+          name: PythonPlugin
+          path: ./pluginsystem/plugins/PythonPlugin/target/
       - 
         uses: vimtor/action-zip@v1
         with:
@@ -167,6 +179,18 @@ jobs:
         with:
           name: STRIPSPlugin
           path: ./pluginsystem/plugins/STRIPSPlugin/target/
+      -
+        name: Load MQTTPlugin jar
+        uses: actions/download-artifact@v3
+        with:
+          name: MQTTPlugin
+          path: ./pluginsystem/plugins/MQTTPlugin/target/
+      -
+        name: Load PythonPlugin jar
+        uses: actions/download-artifact@v3
+        with:
+          name: PythonPlugin
+          path: ./pluginsystem/plugins/PythonPlugin/target/
       -
         name: Build and push
         uses: docker/build-push-action@v2
