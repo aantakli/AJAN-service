@@ -1968,6 +1968,51 @@
         bt:originBase "true";
         bt:targetBase "false";
         nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo bt-mdp:rddlInstanceName;
+            nd:title "RDDL String: ?rddlInstanceName";
+            nd:input nd:Query;
+            bt:originBase "true";
+            bt:targetBase "false";
+            nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+           a nd:Parameter;
+           nd:mapsTo bt-mdp:rddlClientName;
+           nd:title "RDDL String: ?rddlClientName";
+           nd:input nd:Query;
+           bt:originBase "true";
+           bt:targetBase "false";
+           nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+           a nd:Parameter;
+           nd:mapsTo bt-mdp:rddlExecutePolicy;
+           nd:title "RDDL String: ?rddlExecutePolicy";
+           nd:input nd:Query;
+           bt:originBase "true";
+           bt:targetBase "false";
+           nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+           a nd:Parameter;
+           nd:mapsTo bt-mdp:numOfRounds;
+           nd:title "RDDL String: ?numOfRounds";
+           nd:input nd:Query;
+           bt:originBase "true";
+           bt:targetBase "false";
+           nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+           a nd:Parameter;
+           nd:mapsTo bt-mdp:timeLimit;
+           nd:title "RDDL String: ?timeLimit";
+           nd:input nd:Query;
+           bt:originBase "true";
+           bt:targetBase "false";
+           nd:type bt:SelectQuery;
     ].
 
 
