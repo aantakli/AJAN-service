@@ -85,7 +85,7 @@ MA 02110-1301  USA
         <dependency>
             <groupId>com.github.buvnswrn</groupId>
             <artifactId>SOGBOFA</artifactId>
-            <version>2cd6df125b</version>
+            <version>-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
