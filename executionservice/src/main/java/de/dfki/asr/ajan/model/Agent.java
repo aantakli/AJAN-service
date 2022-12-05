@@ -41,7 +41,7 @@ public class Agent {
         private final SingleRunBehavior initialBehavior;
         private final SingleRunBehavior finalBehavior;
 	private final Map<Resource,Behavior> behaviors;
-        private final boolean manageTDB;
+        private final boolean overwrite;
 	private final AgentBeliefBase beliefs;
 	private final Map<URI,Event> events;
 	private final Map<String,Endpoint> endpoints;

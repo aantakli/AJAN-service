@@ -29,7 +29,7 @@ public class AJANVocabulary {
 	public final static IRI AGENT_TYPE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#Agent");
 	public final static IRI AGENT_THIS = FACTORY.createIRI("http://www.ajan.de/ajan-ns#This");
 	public final static IRI AGENT_HAS_ID = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentId");
-	public final static IRI AGENT_HAS_MANAGE_TDB = FACTORY.createIRI("http://www.ajan.de/ajan-ns#manageTDB");
+	public final static IRI AGENT_HAS_MANAGED_TDB = FACTORY.createIRI("http://www.ajan.de/ajan-ns#managedTDB");
 	public final static IRI AGENT_HAS_ROOT = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentRoot");
 	public final static IRI AGENT_HAS_URI = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentURI");
 	public final static IRI AGENT_HAS_KNOWLEDGE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentKnowledge");
@@ -37,6 +37,8 @@ public class AJANVocabulary {
 	public final static IRI AGENT_HAS_TOKEN_CONTROLLER = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentTokenController");
 	public final static IRI AGENT_HAS_USER = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentUser");
 	public final static IRI AGENT_HAS_ROLE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentRole");
+	public final static IRI AGENT_HAS_ACCESS_TOKEN = FACTORY.createIRI("http://www.ajan.de/ajan-ns#accessToken");
+	public final static IRI AGENT_HAS_REFRESH_TOKEN = FACTORY.createIRI("http://www.ajan.de/ajan-ns#refreshToken");
 	public final static IRI AGENT_HAS_PASSWORD = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentPassword");
 
 	public final static IRI GENERATED_BNODE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#BNode");

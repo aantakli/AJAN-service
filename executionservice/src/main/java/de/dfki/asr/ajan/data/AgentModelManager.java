@@ -35,7 +35,7 @@ import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.util.Literals;
 import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
-import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.model.vocabulary.XSD;
 import org.eclipse.rdf4j.query.parser.ParsedGraphQuery;
 import org.eclipse.rdf4j.query.parser.ParsedQuery;
 import org.eclipse.rdf4j.queryrender.builder.QueryBuilder;
@@ -84,12 +84,12 @@ public class AgentModelManager {
             }
 	}
 
-        public String getReportURI(final Model initAgentModel) {
+        public String getAnyURI(final Model initAgentModel, final IRI predicate) {
             String report = "";
-            Optional<Literal> reportLiteral = Models.objectLiteral(initAgentModel.filter(null, AJANVocabulary.AGENT_HAS_REPORT_URI, null));
+            Optional<Literal> reportLiteral = Models.objectLiteral(initAgentModel.filter(null, predicate, null));
             if (reportLiteral.isPresent()) {
                 Literal uri = reportLiteral.get();
-                if (uri.getDatatype().equals(XMLSchema.ANYURI)) {
+                if (uri.getDatatype().equals(XSD.ANYURI)) {
                     report = uri.stringValue();
                 }
             }
