@@ -101,7 +101,7 @@ public class RDF4JTripleDataBase extends AbstractSparqlTripleDataBase {
 
 		@Override
 		public boolean retryRequest(final HttpResponse response, final int executionCount, final HttpContext context) {
-			if (checkContent(response, executionCount)) {
+			if (checkResponse(response, executionCount)) {
 				HttpClientContext clientContext = HttpClientContext.adapt(context);
 				HttpConnection conn = clientContext.getConnection();
 
@@ -118,7 +118,7 @@ public class RDF4JTripleDataBase extends AbstractSparqlTripleDataBase {
 			return false;
 		}
 
-		private boolean checkContent(final HttpResponse response, final int executionCount) {
+		private boolean checkResponse(final HttpResponse response, final int executionCount) {
 			Header[] headers = response.getAllHeaders();
 			for (Header header : headers) {
 				if (header.getName().equals("AccessToken")) {
