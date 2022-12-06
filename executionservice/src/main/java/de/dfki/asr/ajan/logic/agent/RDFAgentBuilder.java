@@ -130,17 +130,13 @@ public class RDFAgentBuilder extends AgentBuilder {
     }
 
     private Credentials readCredentials(final String id) {
-        Model controllerModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_TOKEN_CONTROLLER, null);
-        String controller = modelManager.getString(controllerModel);
-        Model pswdModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_PASSWORD, null);
-        String pswd = modelManager.getString(pswdModel);
-        if(controller != null && !controller.equals("")
-                && pswd != null && !pswd.equals("")) {
-            return new Credentials(controller, id, id, pswd);
+        Credentials creds = modelManager.readTokenizerCredentials(id, initAgentModel, agentResource);
+        if (creds == null) {
+            return modelManager.readExternalCredentials(initAgentModel, agentResource, managedTDB);
         }
-        return null;
+        return creds;
     }
- 
+
     private boolean isManagedAgentTDB() {
         Model nameModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_MANAGED_TDB, null);
         managedTDB = modelManager.getAnyURI(nameModel, AJANVocabulary.AGENT_HAS_MANAGED_TDB);

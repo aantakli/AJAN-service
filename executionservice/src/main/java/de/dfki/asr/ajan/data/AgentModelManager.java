@@ -20,6 +20,7 @@
 package de.dfki.asr.ajan.data;
 
 import de.dfki.asr.ajan.common.AJANVocabulary;
+import de.dfki.asr.ajan.common.Credentials;
 import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.ajan.exceptions.InitializationRDFValidationException;
 import java.util.Iterator;
@@ -83,6 +84,29 @@ public class AgentModelManager {
                 return new LinkedHashModel();
             }
 	}
+
+        public Credentials readTokenizerCredentials(final String id, final Model model, final Resource agentResource) {
+            Model controllerModel = model.filter(agentResource, AJANVocabulary.AGENT_HAS_TOKEN_CONTROLLER, null);
+            String controller = getString(controllerModel);
+            Model pswdModel = model.filter(agentResource, AJANVocabulary.AGENT_HAS_PASSWORD, null);
+            String pswd = getString(pswdModel);
+            if(controller != null && !controller.equals("")
+                    && pswd != null && !pswd.equals("")) {
+                return new Credentials(controller, id, id, pswd);
+            }
+            return null;
+        }
+
+        public Credentials readExternalCredentials(final Model model, final Resource agentResource, final String managed) {
+            Model tokenModel = model.filter(agentResource, AJANVocabulary.AGENT_HAS_ACCESS_TOKEN, null);
+            String accessToken = getString(tokenModel);
+            tokenModel = model.filter(agentResource, AJANVocabulary.AGENT_HAS_REFRESH_TOKEN, null);
+            String refreshToken = getString(tokenModel);
+            if (managed != null && !accessToken.equals("") && !refreshToken.equals("")) {
+                return new Credentials(managed, accessToken, refreshToken);
+            }
+            return null;
+        }
 
         public String getAnyURI(final Model initAgentModel, final IRI predicate) {
             String report = "";

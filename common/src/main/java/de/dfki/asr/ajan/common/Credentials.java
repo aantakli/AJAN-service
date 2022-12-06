@@ -29,7 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import lombok.Data;
+import lombok.Getter;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -41,15 +41,20 @@ import org.slf4j.LoggerFactory;
  *
  * @author anan02-admin
  */
-@Data
 public class Credentials {
 
+	private final boolean externalAccess;
 	private final String tripleStoreURL;
+	@Getter
 	private final String user;
+	@Getter
 	private final String role;
+	@Getter
 	private final String password;
 
-	private String token = "";
+	private String accessToken = "";
+	private String refreshToken = "";
+
 	private int timeout;
 	private long created;
 
@@ -58,6 +63,22 @@ public class Credentials {
 	private static final String USER = "/tokenizer/user";
 
 	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Credentials.class);
+
+	public Credentials(final String url, final String accessToken, final String refreshToken) {
+		externalAccess = true;
+		this.tripleStoreURL = url;
+		this.accessToken = accessToken;
+		this.refreshToken = refreshToken;
+		this.user = this.role = this.password = "";
+	}
+
+	public Credentials(final String url, final String user, final String role, final String password) {
+		externalAccess = false;
+		this.tripleStoreURL = url;
+		this.user = user;
+		this.role = role;
+		this.password = password;
+	}
 
 	public URIBuilder getTokenURI() throws URISyntaxException {
 		return new URIBuilder(tripleStoreURL).setPath(TOKEN);
@@ -72,12 +93,31 @@ public class Credentials {
 	}
 
 	public Map<String,String> getJwtHeader() {
-		Map<String,String> header = new ConcurrentHashMap();
-		if (token.isEmpty() || checkTimeout()) {
-			setToken();
+		if (externalAccess) {
+			return getExternalToken();
+		} else {
+			return getTokenizerToken();
 		}
-		if (!token.isEmpty()) {
-			header.put("Authorization", "Bearer " + token);
+	}
+
+	private Map<String,String> getTokenizerToken() {
+		Map<String,String> header = new ConcurrentHashMap();
+		if (accessToken.isEmpty() || checkTimeout()) {
+			setTokenizerToken();
+		}
+		if (!accessToken.isEmpty()) {
+			header.put("Authorization", "Bearer " + accessToken);
+		}
+		return header;
+	}
+
+	private Map<String,String> getExternalToken() {
+		Map<String,String> header = new ConcurrentHashMap();
+		if (!accessToken.isEmpty()) {
+			header.put("AccessToken", accessToken);
+		}
+		if (!refreshToken.isEmpty()) {
+			header.put("RefreshToken", refreshToken);
 		}
 		return header;
 	}
@@ -92,7 +132,15 @@ public class Credentials {
 		return (System.currentTimeMillis() - created) >= timeout;
 	}
 
-	private void setToken() {
+	public void setAccessToken(final String token) {
+		accessToken = token;
+	}
+
+	public void setRefreshToken(final String token) {
+		refreshToken = token;
+	}
+
+	private void setTokenizerToken() {
 		if (tripleStoreURL != null && !tripleStoreURL.equals("")) {
 			try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 				URIBuilder builder = getTokenURI();
@@ -118,7 +166,7 @@ public class Credentials {
 	private void setResponseValues(final String payload) throws JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode node = mapper.readTree(payload);
-		token = node.findValue("token").textValue();
+		accessToken = node.findValue("token").textValue();
 		timeout = node.findValue("expirySecs").asInt();
 		created = System.currentTimeMillis();
 	}
