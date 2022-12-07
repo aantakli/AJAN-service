@@ -29,16 +29,21 @@ public class AJANVocabulary {
 	public final static IRI AGENT_TYPE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#Agent");
 	public final static IRI AGENT_THIS = FACTORY.createIRI("http://www.ajan.de/ajan-ns#This");
 	public final static IRI AGENT_HAS_ID = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentId");
-	public final static IRI AGENT_HAS_MANAGED_TDB = FACTORY.createIRI("http://www.ajan.de/ajan-ns#managedTDB");
 	public final static IRI AGENT_HAS_ROOT = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentRoot");
 	public final static IRI AGENT_HAS_URI = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentURI");
 	public final static IRI AGENT_HAS_KNOWLEDGE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentKnowledge");
 	public final static IRI AGENT_HAS_TEMPLATE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentTemplate");
-	public final static IRI AGENT_HAS_TOKEN_CONTROLLER = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentTokenController");
+
+	public final static IRI AGENT_HAS_MANAGED_TDB = FACTORY.createIRI("http://www.ajan.de/ajan-ns#managedTDB");
+	public final static IRI AGENT_HAS_TDB_URL = FACTORY.createIRI("http://www.ajan.de/ajan-ns#tdbURL");
+	public final static IRI AGENT_HAS_LOGIN_URL = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentLoginURL");
 	public final static IRI AGENT_HAS_USER = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentUser");
 	public final static IRI AGENT_HAS_ROLE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentRole");
 	public final static IRI AGENT_HAS_ACCESS_TOKEN = FACTORY.createIRI("http://www.ajan.de/ajan-ns#accessToken");
 	public final static IRI AGENT_HAS_REFRESH_TOKEN = FACTORY.createIRI("http://www.ajan.de/ajan-ns#refreshToken");
+	public final static IRI TOKEN_HAS_VALUE = FACTORY.createIRI("http://www.ajan.de/ajan-ns/token#value");
+	public final static IRI TOKEN_HAS_JSON_FIELD = FACTORY.createIRI("http://www.ajan.de/ajan-ns/token#jsonField");
+	public final static IRI TOKEN_HAS_HEADER = FACTORY.createIRI("http://www.ajan.de/ajan-ns/token#header");
 	public final static IRI AGENT_HAS_PASSWORD = FACTORY.createIRI("http://www.ajan.de/ajan-ns#agentPassword");
 
 	public final static IRI GENERATED_BNODE = FACTORY.createIRI("http://www.ajan.de/ajan-ns#BNode");

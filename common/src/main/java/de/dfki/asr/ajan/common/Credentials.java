@@ -21,6 +21,7 @@ package de.dfki.asr.ajan.common;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,9 +31,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.Setter;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.LoggerFactory;
@@ -43,81 +48,77 @@ import org.slf4j.LoggerFactory;
  */
 public class Credentials {
 
-	private final boolean externalAccess;
-	private final String tripleStoreURL;
+	@Getter
+	private final String usersURL;
+	@Getter
+	private final String constraintURL;
+	@Getter
+	private final String loginURL;
 	@Getter
 	private final String user;
 	@Getter
 	private final String role;
 	@Getter
 	private final String password;
-
-	private String accessToken = "";
-	private String refreshToken = "";
+	@Getter @Setter
+	private Token accessToken;
+	@Getter @Setter
+	private Token refreshToken;
 
 	private int timeout;
 	private long created;
 
-	private static final String TOKEN = "/tokenizer/token";
-	private static final String CONSTRAINT = "/tokenizer/constraint";
-	private static final String USER = "/tokenizer/user";
-
 	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Credentials.class);
 
-	public Credentials(final String url, final String accessToken, final String refreshToken) {
-		externalAccess = true;
-		this.tripleStoreURL = url;
-		this.accessToken = accessToken;
-		this.refreshToken = refreshToken;
-		this.user = this.role = this.password = "";
-	}
-
-	public Credentials(final String url, final String user, final String role, final String password) {
-		externalAccess = false;
-		this.tripleStoreURL = url;
+	@SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.NcssConstructorCount"})
+	public Credentials(final String usersURL, final String constraintURL,
+					final String login, final String user, final String role,
+					final String password, final Token accessToken, final Token refreshToken) {
+		this.usersURL = usersURL;
+		this.constraintURL = constraintURL;
+		this.loginURL = login;
 		this.user = user;
 		this.role = role;
 		this.password = password;
+		if (accessToken == null) {
+			this.accessToken = createToken("", "AccessToken", "Authorization");
+		} else {
+			this.accessToken = accessToken;
+		}
+		if (refreshToken == null) {
+			this.refreshToken = createToken("", "RefreshToken", "RefreshToken");
+		} else {
+			this.refreshToken = refreshToken;
+		}
 	}
 
-	public URIBuilder getTokenURI() throws URISyntaxException {
-		return new URIBuilder(tripleStoreURL).setPath(TOKEN);
+	private Token createToken(final String value, final String jsonField, final String header) {
+		Token token = new Token();
+		token.setHeader(value);
+		token.setJsonField(jsonField);
+		token.setHeader(header);
+		return token;
 	}
 
 	public URIBuilder getConstraintURI() throws URISyntaxException {
-		return new URIBuilder(tripleStoreURL).setPath(CONSTRAINT);
+		return new URIBuilder(loginURL).setPath(usersURL);
 	}
 
 	public URIBuilder getUserURI() throws URISyntaxException {
-		return new URIBuilder(tripleStoreURL).setPath(USER);
+		return new URIBuilder(loginURL).setPath(constraintURL);
 	}
 
 	public Map<String,String> getJwtHeader() {
-		if (externalAccess) {
-			return getExternalToken();
-		} else {
-			return getTokenizerToken();
-		}
-	}
-
-	private Map<String,String> getTokenizerToken() {
 		Map<String,String> header = new ConcurrentHashMap();
-		if (accessToken.isEmpty() || checkTimeout()) {
-			setTokenizerToken();
+		if (accessToken.getValue().isEmpty() && refreshToken.getValue().isEmpty()
+						|| accessToken.getValue().isEmpty() && checkTimeout()) {
+			sendPostRequest(this.loginURL, getLoginPayload());
 		}
-		if (!accessToken.isEmpty()) {
-			header.put("Authorization", "Bearer " + accessToken);
+		if (!accessToken.getValue().isEmpty()) {
+			header.put(accessToken.getHeader(), "Bearer " + accessToken.getValue());
 		}
-		return header;
-	}
-
-	private Map<String,String> getExternalToken() {
-		Map<String,String> header = new ConcurrentHashMap();
-		if (!accessToken.isEmpty()) {
-			header.put("AccessToken", accessToken);
-		}
-		if (!refreshToken.isEmpty()) {
-			header.put("RefreshToken", refreshToken);
+		if (!refreshToken.getValue().isEmpty()) {
+			header.put(refreshToken.getHeader(), "Bearer " + refreshToken.getValue());
 		}
 		return header;
 	}
@@ -132,42 +133,59 @@ public class Credentials {
 		return (System.currentTimeMillis() - created) >= timeout;
 	}
 
-	public void setAccessToken(final String token) {
-		accessToken = token;
-	}
-
-	public void setRefreshToken(final String token) {
-		refreshToken = token;
-	}
-
-	private void setTokenizerToken() {
-		if (tripleStoreURL != null && !tripleStoreURL.equals("")) {
+	private void sendPostRequest(final String url, final String payload) {
+		if (!url.isEmpty()) {
 			try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-				URIBuilder builder = getTokenURI();
-				builder.setParameter("user", user);
-				builder.setParameter("role", role);
-				builder.setParameter("pswd", password);
-				HttpGet httpGet = new HttpGet(builder.build());
-				try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
+				HttpPost httpPost = new HttpPost(url);
+				HttpEntity postParams = new StringEntity(payload, ContentType.APPLICATION_JSON);
+				httpPost.setEntity(postParams);
+				try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
 					if (response.getStatusLine().getStatusCode() < 300) {
-						String payload = new BufferedReader(
+						String responsePayload = new BufferedReader(
 											new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8))
 												.lines()
 												.collect(Collectors.joining("\n"));
-						setResponseValues(payload);
+						setResponseValues(responsePayload);
 					}
 				}
-			} catch (URISyntaxException | IOException ex) {
-				LOG.info("It was not possible to get token!", ex);
+			} catch (IOException ex) {
+				LOG.info("It was not possible to login agent!", ex);
 			}
 		}
+	}
+
+	private String getLoginPayload() {
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode node = mapper.createObjectNode();
+		((ObjectNode) node).put("username", user);
+		if (!role.isEmpty()) {
+			((ObjectNode) node).put("role", role);
+		}
+		((ObjectNode) node).put("password", password);
+		return node.toString();
 	}
 
 	private void setResponseValues(final String payload) throws JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode node = mapper.readTree(payload);
-		accessToken = node.findValue("token").textValue();
-		timeout = node.findValue("expirySecs").asInt();
+		JsonNode accessNode = node.findPath(accessToken.getJsonField());
+		JsonNode refreshNode = node.findPath(refreshToken.getJsonField());
+		JsonNode timeoutNode = node.findPath("expirySecs");
+		if (accessNode == null) {
+			accessToken.setValue("");
+		} else {
+			accessToken.setValue(accessNode.textValue());
+		}
+		if (refreshNode == null) {
+			refreshToken.setValue("");
+		} else {
+			refreshToken.setValue(refreshNode.textValue());
+		}
+		if (timeoutNode == null) {
+			timeout = 0;
+		} else {
+			timeout = timeoutNode.asInt();
+		}
 		created = System.currentTimeMillis();
 	}
 }

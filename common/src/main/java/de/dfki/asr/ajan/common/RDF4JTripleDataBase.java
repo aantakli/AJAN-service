@@ -122,10 +122,10 @@ public class RDF4JTripleDataBase extends AbstractSparqlTripleDataBase {
 			Header[] headers = response.getAllHeaders();
 			for (Header header : headers) {
 				if (header.getName().equals("AccessToken")) {
-					auth.setAccessToken(header.getValue());
+					auth.getAccessToken().setValue(header.getValue());
 				}
 				if (header.getName().equals("RefreshToken")) {
-					auth.setAccessToken(header.getValue());
+					auth.getRefreshToken().setValue(header.getValue());
 				}
 			}
 			// only retry on `408`

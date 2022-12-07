@@ -42,6 +42,7 @@ import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.eclipse.rdf4j.RDF4JException;
 import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
 import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.repository.Repository;
@@ -99,7 +100,7 @@ public class RDFAgentBuilder extends AgentBuilder {
 	LOG.info("--> Agent Behaviors " + getAgentResolved());
         initialKnowledge = modelManager.getAgentInitKnowledge(vf.createIRI(url), agentResource, initAgentModel, false);
         overwrite = isManagedAgentTDB();
-        Credentials auth = readCredentials(id);
+        Credentials auth = readCredentials();
         AgentBeliefBase beliefs = createAgentKnowledge(template, auth);
         if (beliefs == null) {
             return null;
@@ -129,18 +130,18 @@ public class RDFAgentBuilder extends AgentBuilder {
 	LOG.info("--> Agent endpoints " + getAgentSet());
     }
 
-    private Credentials readCredentials(final String id) {
-        Credentials creds = modelManager.readTokenizerCredentials(id, initAgentModel, agentResource);
-        if (creds == null) {
-            return modelManager.readExternalCredentials(initAgentModel, agentResource, managedTDB);
-        }
-        return creds;
+    private boolean isManagedAgentTDB() {
+        managedTDB = modelManager.getManagedTDB(initAgentModel, agentResource);
+        return managedTDB.isEmpty();
     }
 
-    private boolean isManagedAgentTDB() {
+    private Credentials readCredentials() {
+        CredentialsBuilder auth = new CredentialsBuilder();
         Model nameModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_MANAGED_TDB, null);
-        managedTDB = modelManager.getAnyURI(nameModel, AJANVocabulary.AGENT_HAS_MANAGED_TDB);
-        return managedTDB.isEmpty();
+        Optional<Resource> managedResource = Models.objectResource(nameModel);
+        modelManager.setCredentials(auth, initAgentModel, managedResource.get());
+        modelManager.setTokens(auth, initAgentModel, managedResource.get());
+        return auth.build();
     }
 
     protected AgentBeliefBase createAgentKnowledge(final Resource agentTemplateRsc, final Credentials auth) throws UnauthorizedException, URISyntaxException {
