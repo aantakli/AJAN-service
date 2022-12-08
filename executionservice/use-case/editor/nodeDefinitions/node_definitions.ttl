@@ -1930,6 +1930,19 @@
     ];
     nd:parameter [
         a nd:Parameter;
+        nd:mapsTo bt:targetBase;
+        nd:title "Target Base";
+        nd:input nd:Repo ;
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt:mapping;
+        nd:title "Mapping";
+        nd:input xsd:anyURI ;
+        nd:default "http://"^^xsd:anyURI;
+    ];
+    nd:parameter [
+        a nd:Parameter;
         nd:mapsTo bt-mdp:port;
         nd:title "RDDL Server port: ?port";
         nd:input nd:Query;
@@ -1937,7 +1950,6 @@
         bt:targetBase "false";
         nd:type bt:SelectQuery;
     ];
-
     nd:parameter [
         a nd:Parameter;
         nd:mapsTo bt-mdp:rddlFilesPath;
