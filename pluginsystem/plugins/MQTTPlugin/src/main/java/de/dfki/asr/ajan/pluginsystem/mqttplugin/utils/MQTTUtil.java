@@ -51,6 +51,13 @@ public final class MQTTUtil {
     public static String getTopic(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
         return getStringMap(query, info, "topic");
     }
+    public static String getUserName(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
+        return getStringMap(query, info, "userName");
+    }
+
+    public static String getPassword(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
+        return getStringMap(query, info, "password");
+    }
 
 	public static String getId(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
         return getStringMap(query, info, "id");

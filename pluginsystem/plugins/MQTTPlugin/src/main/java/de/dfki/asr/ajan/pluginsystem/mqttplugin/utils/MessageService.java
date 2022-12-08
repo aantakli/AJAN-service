@@ -51,6 +51,16 @@ public class MessageService {
 		LOG.info("Client Connected Successfully");
     }
 
+    public MessageService(String id, String service, String userName, String password) throws MqttException {
+        clientId = id;
+        mqttClient = new MqttAsyncClient(service, clientId, PERSISTANCE);
+        MqttConnectOptions options = getOptions();
+        options.setUserName(userName);
+        options.setPassword(password.toCharArray());
+        mqttClient.connect(options).waitForCompletion();
+        LOG.info("Client Connected Successfully");
+    }
+
     public static MessageService getMessageService(String clientId, String service) {
 		MessageService broker = BROKERS.get(clientId);
         if(broker == null){
@@ -65,6 +75,34 @@ public class MessageService {
             try {
                 broker.mqttClient.disconnect().waitForCompletion();
 				BROKERS.replace(clientId, new MessageService(clientId, service));
+            } catch (MqttException e) {
+                LOG.error("Error while disconnecting existing client:" + e.getMessage());
+            }
+        }
+        if(!broker.mqttClient.isConnected()){
+            try {
+                broker.mqttClient.connect(getOptions()).waitForCompletion();
+            } catch (MqttException e) {
+                LOG.error("Error while reconnecting"+e.getMessage());
+            }
+        }
+        return broker;
+    }
+    public static MessageService getMessageService(String clientId, String service, String userName, String password) {
+        MessageService broker = BROKERS.get(clientId);
+        if(broker == null){
+            try {
+                LOG.info("Creating new client: Username: " + userName + " Password: " + password);
+                broker = new MessageService(clientId, service, userName, password);
+                BROKERS.put(clientId, broker);
+            } catch (MqttException e) {
+                LOG.error("Error while connecting with client:" + e.getMessage());
+            }
+        }
+        if (!broker.mqttClient.getServerURI().equals(service)){
+            try {
+                broker.mqttClient.disconnect().waitForCompletion();
+                BROKERS.replace(clientId, new MessageService(clientId, service));
             } catch (MqttException e) {
                 LOG.error("Error while disconnecting existing client:" + e.getMessage());
             }

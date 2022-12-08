@@ -55,6 +55,10 @@ public class SubscribeTopic extends AbstractTDBLeafTask implements NodeExtension
     @Getter @Setter
     private BehaviorSelectQuery subscribeDetails;
 
+    @RDF("bt-mqtt:credentials")
+    @Getter @Setter
+    private BehaviorSelectQuery credentials;
+
 	private final String clientId = UUID.randomUUID().toString();
 
     @Override
@@ -67,7 +71,9 @@ public class SubscribeTopic extends AbstractTDBLeafTask implements NodeExtension
             String serverUrl = MQTTUtil.getServerUrlInfo(serverUrlCallback, this.getObject());
             String topic = MQTTUtil.getTopic(subscribeDetails, this.getObject());
             Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
-            subscribeToTopic(serverUrl, topic, repo);
+            String userName = MQTTUtil.getUserName(credentials, this.getObject());
+            String password = MQTTUtil.getPassword(credentials, this.getObject());
+            subscribeToTopic(serverUrl, topic, repo, userName, password);
             report = toString()+ " SUCCEEDED";
             stat = Status.SUCCEEDED;
         } catch (URISyntaxException e) {
@@ -77,8 +83,8 @@ public class SubscribeTopic extends AbstractTDBLeafTask implements NodeExtension
         return new NodeStatus(stat, this.getObject().getLogger(), this.getClass(), report);
     }
 
-    private String subscribeToTopic(String serverUrl, String topic, Repository repo) {
-        MessageService messageService = MessageService.getMessageService(clientId, serverUrl);
+    private String subscribeToTopic(String serverUrl, String topic, Repository repo, String userName, String password) throws URISyntaxException {
+        MessageService messageService = MessageService.getMessageService(clientId, serverUrl, userName, password);
 		AbstractBeliefBase beliefs = messageService.getBeliefs(this.getObject(), targetBase);
         return messageService.subscribe(topic, false, null, mapping, repo, beliefs, null);
     }

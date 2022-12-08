@@ -2219,6 +2219,16 @@
         bt:originBase "true";
         bt:targetBase "false";
         nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mqtt:credentials;
+        nd:title "Credentials: ?userName ?password";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+        nd:default "SELECT ?userName ?password WHERE { VALUES ?userName {''} VALUES ?password {''}}"^^xsd:string;
     ].
 
 :SubscribeTopicAlwaysListen nd:class nd:Leaf;
