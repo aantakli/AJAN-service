@@ -119,12 +119,12 @@ public class AgentModelManager {
         public void setTokens(final CredentialsBuilder auth, final Model model, final Resource resource) {
             Model tokenModel = model.filter(resource, AJANVocabulary.AGENT_HAS_ACCESS_TOKEN, null);
             Optional<Resource> accessToken = Models.objectResource(tokenModel);
-            if (accessToken != null) {
+            if (!accessToken.isEmpty()) {
                 auth.setAccessToken(getToken(model, accessToken.get()));
             }
             tokenModel = model.filter(resource, AJANVocabulary.AGENT_HAS_REFRESH_TOKEN, null);
             Optional<Resource> refreshToken = Models.objectResource(tokenModel);
-            if (refreshToken != null) {
+            if (!refreshToken.isEmpty()) {
                 auth.setRefreshToken(getToken(model, refreshToken.get()));
             }
         }

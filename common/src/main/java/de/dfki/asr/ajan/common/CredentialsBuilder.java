@@ -22,6 +22,7 @@ package de.dfki.asr.ajan.common;
  *
  * @author anan02-admin
  */
+@SuppressWarnings({"PMD.CyclomaticComplexity","PMD.ConfusingTernary"})
 public class CredentialsBuilder {
 
 	private String usersUrl = "";
@@ -74,6 +75,21 @@ public class CredentialsBuilder {
 	}
 
 	public Credentials build() {
-		return new Credentials(usersUrl, constraintUrl, loginUrl, user, role, password, accessToken, refreshToken);
+		if (checkCredentialsFields()) {
+			return new Credentials(usersUrl, constraintUrl, loginUrl, user, role, password, accessToken, refreshToken);
+		}
+		return null;
+	}
+
+	private boolean checkCredentialsFields() {
+		if (!usersUrl.isEmpty() && !constraintUrl.isEmpty() && !loginUrl.isEmpty()
+						&& !user.isEmpty() && !role.isEmpty() && !password.isEmpty()) {
+			return true;
+		} else if (!loginUrl.isEmpty() && !user.isEmpty() && !password.isEmpty()) {
+			return true;
+		} else if (accessToken != null && refreshToken != null) {
+			return true;
+		}
+		return false;
 	}
 }

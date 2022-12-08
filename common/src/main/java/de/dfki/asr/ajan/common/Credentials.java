@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import de.dfki.asr.ajan.common.exceptions.CredentialsException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -140,16 +141,18 @@ public class Credentials {
 				HttpEntity postParams = new StringEntity(payload, ContentType.APPLICATION_JSON);
 				httpPost.setEntity(postParams);
 				try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
-					if (response.getStatusLine().getStatusCode() < 300) {
+					int statusCode = response.getStatusLine().getStatusCode();
+					if (statusCode < 300) {
 						String responsePayload = new BufferedReader(
 											new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8))
-												.lines()
-												.collect(Collectors.joining("\n"));
+												.lines().collect(Collectors.joining("\n"));
 						setResponseValues(responsePayload);
+					} else {
+						throw new CredentialsException("It was not possible to login agent at: " + url + ", with user: " + this.user + ", to interact with AgentKnowledge! Server responded: " + statusCode);
 					}
 				}
 			} catch (IOException ex) {
-				LOG.info("It was not possible to login agent!", ex);
+				throw new CredentialsException("It was not possible to login agent at: " + url + ", with user: " + this.user + ", to interact with AgentKnowledge! Server may not be accessible.", ex);
 			}
 		}
 	}
