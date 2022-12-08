@@ -18,6 +18,8 @@
  */
 package de.dfki.asr.ajan.common;
 
+import de.dfki.asr.ajan.common.exceptions.CredentialsException;
+
 /**
  *
  * @author anan02-admin
@@ -82,14 +84,56 @@ public class CredentialsBuilder {
 	}
 
 	private boolean checkCredentialsFields() {
-		if (!usersUrl.isEmpty() && !constraintUrl.isEmpty() && !loginUrl.isEmpty()
-						&& !user.isEmpty() && !role.isEmpty() && !password.isEmpty()) {
+		if (checkCredentialsCreationFields()) {
 			return true;
-		} else if (!loginUrl.isEmpty() && !user.isEmpty() && !password.isEmpty()) {
+		} else if (checkLoginFields()) {
 			return true;
 		} else if (accessToken != null && refreshToken != null) {
 			return true;
 		}
 		return false;
+	}
+
+	private boolean checkCredentialsCreationFields() {
+		checkMissingCredentials();
+		checkMissingServerInformation();
+		return !usersUrl.isEmpty() && !constraintUrl.isEmpty() && !loginUrl.isEmpty()
+						&& !user.isEmpty() && !role.isEmpty() && !password.isEmpty();
+	}
+
+	private void checkMissingCredentials() {
+		if (!usersUrl.isEmpty() && !constraintUrl.isEmpty() && (loginUrl.isEmpty()
+						|| user.isEmpty() || role.isEmpty() || password.isEmpty())) {
+			throw new CredentialsException("Server information for agent registration are set, but agent credentails are missing!");
+		}
+	}
+
+	private void checkMissingServerInformation() {
+		if (usersUrl.isEmpty() && !constraintUrl.isEmpty()
+						|| !usersUrl.isEmpty() && constraintUrl.isEmpty()) {
+			throw new CredentialsException("Server information for agent registration are incomplete!");
+		}
+	}
+
+	private boolean checkLoginFields() {
+		checkSingleMissingfield();
+		checkDoubleMissingfield();
+		return !loginUrl.isEmpty() && !user.isEmpty() && !password.isEmpty();
+	}
+
+	private void checkSingleMissingfield() {
+		if (loginUrl.isEmpty() && !user.isEmpty() && !password.isEmpty()
+						|| !loginUrl.isEmpty() && user.isEmpty() && !password.isEmpty()
+						|| !loginUrl.isEmpty() && !user.isEmpty() && password.isEmpty()) {
+			throw new CredentialsException("Agent login information is incomplete!");
+		}
+	}
+
+	private void checkDoubleMissingfield() {
+		if (loginUrl.isEmpty() && user.isEmpty() && !password.isEmpty()
+						|| !loginUrl.isEmpty() && user.isEmpty() && password.isEmpty()
+						|| loginUrl.isEmpty() && !user.isEmpty() && password.isEmpty()) {
+			throw new CredentialsException("Agent login information is incomplete!");
+		}
 	}
 }

@@ -41,7 +41,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -69,8 +68,6 @@ public class Credentials {
 	private int timeout;
 	private long created;
 
-	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Credentials.class);
-
 	@SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.NcssConstructorCount"})
 	public Credentials(final String usersURL, final String constraintURL,
 					final String login, final String user, final String role,
@@ -95,7 +92,7 @@ public class Credentials {
 
 	private Token createToken(final String value, final String jsonField, final String header) {
 		Token token = new Token();
-		token.setHeader(value);
+		token.setValue(value);
 		token.setJsonField(jsonField);
 		token.setHeader(header);
 		return token;
