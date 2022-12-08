@@ -1,7 +1,10 @@
 package de.dfki.asr.ajan.pluginsystem.mdpplugin.utils;
 
+import de.dfki.asr.ajan.knowledge.AbstractBeliefBase;
+import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.RMLMapperException;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.xerces.parsers.DOMParser;
+import org.eclipse.rdf4j.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -20,8 +23,11 @@ import rddl.viz.StateViz;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -83,10 +89,18 @@ public class PlannerUnified {
     Class client_c;
     String clientInstanceName;
 
-    public void serverInitialize(String filespath) {
+    private AbstractBeliefBase beliefBase;
+    private Repository repository;
+
+    private KnowledgeBaseHelper knowledgeBaseHelper;
+
+    public void serverInitialize(String filespath, AbstractBeliefBase beliefBase, Repository repo) throws Exception {
         rand = new RandomDataGenerator();
 //        timeAllowed = DEFAULT_TIME_ALLOWED;
         numRounds = DEFAULT_NUM_ROUNDS;
+        this.beliefBase = beliefBase;
+        this.repository = repo;
+        knowledgeBaseHelper= new KnowledgeBaseHelper();
         StateViz state_viz = new NullScreenDisplay(false);
 
         try{
@@ -175,7 +189,7 @@ public class PlannerUnified {
         }
     }
 
-    public void dummyServerStart(int numRounds, long timeLimit, String problemName,String clientName,String inputLanguage,boolean executePolicy){
+    public void dummyServerStart(int numRounds, long timeLimit, String problemName,String clientName,String inputLanguage,boolean executePolicy, URI mapping){
 
         try{
             long start_time = System.currentTimeMillis();
@@ -204,6 +218,7 @@ public class PlannerUnified {
                 int r = 0;
                 double[] rewardArray = new double[numRounds];
                 for (rewardArray = new double[numRounds]; r < numRounds && !OUT_OF_TIME; r++){
+                    ArrayList<Object> actions_for_this_round = new ArrayList<>();
                     double t0 = System.currentTimeMillis();
                     clientState.init(clientDomain._hmObjects, clientNonFluents!=null?clientNonFluents._hmObjects:null,clientInstance._hmObjects,
                             clientDomain._hmTypes,clientDomain._hmPVariables,clientDomain._hmCPF,clientInstance._alInitState,
@@ -337,6 +352,12 @@ public class PlannerUnified {
                             boolean suppress_object_cast_temp = RDDL.SUPPRESS_OBJECT_CAST;
                             RDDL.SUPPRESS_OBJECT_CAST = true;
                             LOG.info("** Actions received:  " + ds);
+                            // TODO: Publish to RDF
+//                            for (RDDL.PVAR_INST_DEF d : ds) {
+//                                updateAction(mapping, d);
+//                            }
+                            updateActions(mapping, ds, r+1);
+                            actions_for_this_round.add(ds);
                             RDDL.SUPPRESS_OBJECT_CAST = suppress_object_cast_temp;
                         }
                         try{
@@ -376,6 +397,8 @@ public class PlannerUnified {
                         rewardArray[r] = accum_reward;
                         accum_total_reward += accum_reward;
                         LOG.info("** Round reward: "+accum_reward);
+                        updateReward(mapping, r+1, String.valueOf(accum_reward));
+//                        updateActions(mapping, r+1, actions_for_this_round);
                     }
 
                     createAndProcessXMLRoundEnd(this.requestedInstance, r, accum_reward, h, timeLimit-System.currentTimeMillis()+start_time,immediate_reward);
@@ -440,8 +463,30 @@ public class PlannerUnified {
         }
     }
 
+    private void updateAction(URI mapping, PVAR_INST_DEF d) throws RMLMapperException, IOException, URISyntaxException, TransformerException {
+        updateKnowledgeBase("actions",d._sPredName.toString(),d, mapping,"Action");
+    }
 
+    private void updateActions(URI mapping,ArrayList<PVAR_INST_DEF> ds, int r) throws RMLMapperException, IOException, URISyntaxException, TransformerException {
+        updateKnowledgeBase("actions","round"+r,ds, mapping,"Actions");
+    }
 
+    private void updateActions(URI mapping, int r, ArrayList<Object> ds) throws RMLMapperException, IOException, URISyntaxException, TransformerException {
+        updateKnowledgeBase("actions","round"+r,ds, mapping,"Actions");
+    }
+
+    private void updateReward(URI mapping, int r, String reward) throws RMLMapperException, IOException, URISyntaxException, TransformerException {
+        updateKnowledgeBase("reward","round"+r,reward, mapping,"Reward");
+    }
+
+    private void updateKnowledgeBase(String subjectSuffix,String predicateSuffix, Object objectValue, URI mapping, String logMessage) throws RMLMapperException, IOException, URISyntaxException, TransformerException {
+        String subject = "<https://www.ajan.de/#" + subjectSuffix + "> ";
+        String predicate = "<https://www.ajan.de/#" + predicateSuffix + "> ";
+        String object = "'"+ objectValue +"' .";
+        String rdf = subject + predicate + object;
+        LOG.info("Publishing "+logMessage+" to RDF: " + rdf);
+        knowledgeBaseHelper.storeInKnowledgeBase(rdf, mapping, repository, beliefBase);
+    }
 
 
     private void initializeClient(State state, RDDL.INSTANCE instance, RDDL.NONFLUENTS nonFluents, RDDL.DOMAIN domain, Policy policy, Class c, DOMParser p, String instanceName){
