@@ -12,6 +12,7 @@
 @prefix ajan: <http://www.ajan.de/ajan-ns#> .
 @prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
 @prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
+@prefix mdp: <http://www.ajan.de/behavior/mdp-ns#> .
 @prefix mosim: <http://www.dfki.de/mosim-ns#> .
 @prefix suite: <http://www.dfki.de/suite-ns#> .
 @prefix aml: <https://w3id.org/i40/aml#> .
@@ -319,6 +320,63 @@ ajan:ASP {
 				rml:reference "location.country"
 			]
 		].
+}
+
+:JsonPositionInformationMapping {
+    :VenueMapping a rr:TriplesMap;
+		rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:referenceFormulation ql:JSONPath;
+			rml:iterator "$"
+		];
+		rr:subjectMap [
+			rr:template "http://ajan.de/mdp/position";
+			rr:class mdp:Position
+		];
+		rr:predicateObjectMap [
+			rr:predicate mdp:posX;
+		  	rr:objectMap [
+				rml:reference "pos.x";
+#				rr:datatype xsd:float
+			]
+		];
+		rr:predicateObjectMap [
+			rr:predicate mdp:posY;
+		  	rr:objectMap [
+				rml:reference "pos.y";
+#				rr:datatype xsd:float
+			]
+		];
+		rr:predicateObjectMap [
+			rr:predicate mdp:posZ;
+		  	rr:objectMap [
+				rml:reference "pos.z";
+#				rr:datatype xsd:float
+			]
+		];
+		rr:predicateObjectMap [
+			rr:predicate mdp:rotX;
+		  	rr:objectMap [
+				rml:reference "rot.x";
+#				rr:datatype xsd:float
+			]
+		];
+		rr:predicateObjectMap [
+			rr:predicate mdp:rotY;
+		  	rr:objectMap [
+				rml:reference "rot.y";
+#				rr:datatype xsd:float
+			]
+		];
+		rr:predicateObjectMap [
+			rr:predicate mdp:rotZ;
+		  	rr:objectMap [
+				rml:reference "rot.z";
+#				rr:datatype xsd:float
+			]
+		];
 }
 
 # --------------------------------
