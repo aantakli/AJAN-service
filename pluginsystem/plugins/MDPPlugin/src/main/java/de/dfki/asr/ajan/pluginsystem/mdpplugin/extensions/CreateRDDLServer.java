@@ -6,8 +6,10 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
+import de.dfki.asr.ajan.knowledge.AbstractBeliefBase;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.endpoint.RDDLPluginServer;
+import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.KnowledgeBaseHelper;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.MDPUtil;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.PlannerUnified;
 import lombok.Getter;
@@ -17,9 +19,11 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.repository.Repository;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 
 @Extension
@@ -35,7 +39,13 @@ public class CreateRDDLServer extends AbstractTDBLeafTask implements NodeExtensi
     @Getter @Setter
     private String label;
 
+    @RDF("bt:mapping")
+    @Getter @Setter
+    private URI mapping;
 
+    @RDF("bt:targetBase")
+    @Getter @Setter
+    private URI targetBase;
     @RDF("bt-mdp:port")
     @Getter @Setter
     private BehaviorSelectQuery port;
@@ -84,7 +94,10 @@ public class CreateRDDLServer extends AbstractTDBLeafTask implements NodeExtensi
             int numRounds = Integer.parseInt(MDPUtil.getStringMap(numOfRounds, this.getObject(), "numOfRounds"));
             long timeLimit = Long.parseLong(MDPUtil.getStringMap(this.timeLimit, this.getObject(), "timeLimit"));
 //            startServer(filesPath,instanceName,clientName,executePolicy,numRounds,1080000L);
-            startServer(filesPath,instanceName,clientName,executePolicy,numRounds,timeLimit);
+            AbstractBeliefBase beliefBase = KnowledgeBaseHelper.getBeliefs(this.getObject(), targetBase);
+            Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
+            startServer(filesPath,instanceName,clientName,executePolicy,numRounds,timeLimit,beliefBase, repo);
+
             report = toString()+ " SUCCEEDED";
             stat = Status.SUCCEEDED;
         } catch (URISyntaxException e) {
@@ -94,13 +107,13 @@ public class CreateRDDLServer extends AbstractTDBLeafTask implements NodeExtensi
         return new NodeStatus(stat, this.getObject().getLogger(), this.getClass(), report);
     }
 
-    private void startServer(String filesPath, String instanceName, String clientName, boolean executePolicy, int numRounds, long timeLimit) throws URISyntaxException{
+    private void startServer(String filesPath, String instanceName, String clientName, boolean executePolicy, int numRounds, long timeLimit, AbstractBeliefBase base,Repository repo) throws URISyntaxException{
 //        RDDLPluginServer.initServer(filesPath,portNumber);
         try {
             PlannerUnified planner = new PlannerUnified();
-            planner.serverInitialize(filesPath);
+            planner.serverInitialize(filesPath, base, repo);
             // TODO: parseString should be assigned
-            planner.dummyServerStart(numRounds,timeLimit,instanceName,clientName,"RDDL",executePolicy);
+            planner.dummyServerStart(numRounds,timeLimit,instanceName,clientName,"RDDL",executePolicy, mapping);
         } catch (Exception e) {
             e.printStackTrace();
         }
