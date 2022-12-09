@@ -46,17 +46,10 @@ public class CreateRDDLServer extends AbstractTDBLeafTask implements NodeExtensi
     @RDF("bt:targetBase")
     @Getter @Setter
     private URI targetBase;
-    @RDF("bt-mdp:port")
-    @Getter @Setter
-    private BehaviorSelectQuery port;
 
-    @RDF("bt-mdp:rddlFilesPath")
+    @RDF("bt-mdp:rddlDomainName")
     @Getter @Setter
-    private BehaviorSelectQuery rddlFilesPath;
-
-    @RDF("bt-mdp:rddlString")
-    @Getter @Setter
-    private BehaviorSelectQuery rddlString;
+    private BehaviorSelectQuery rddlDomainName;
 
     @RDF("bt-mdp:rddlInstanceName")
     @Getter @Setter
@@ -78,6 +71,13 @@ public class CreateRDDLServer extends AbstractTDBLeafTask implements NodeExtensi
     @Getter @Setter
     private BehaviorSelectQuery timeLimit;
 
+    @RDF("bt-mdp:domainContent")
+    @Getter @Setter
+    private BehaviorSelectQuery domainContent;
+
+    @RDF("bt-mdp:instanceContent")
+    @Getter @Setter
+    private BehaviorSelectQuery instanceContent;
 
 
     @Override
@@ -85,18 +85,18 @@ public class CreateRDDLServer extends AbstractTDBLeafTask implements NodeExtensi
         String report = toString();
         Status stat;
         try {
-            String portNumber = MDPUtil.getPortInfo(port,this.getObject());
-            String filesPath = MDPUtil.getFilesPath(rddlFilesPath, this.getObject());
-            String rddlDataString = MDPUtil.getRDDLString(rddlString, this.getObject());
+            String domainName = MDPUtil.getStringMap(rddlDomainName, this.getObject(), "rddlDomainName");
             String instanceName = MDPUtil.getStringMap(rddlInstanceName, this.getObject(), "rddlInstanceName");
             String clientName = MDPUtil.getStringMap(rddlClientName, this.getObject(), "rddlClientName");
+            String domainContent = MDPUtil.getStringMap(this.domainContent, this.getObject(), "domainContent");
+            String instanceContent = MDPUtil.getStringMap(this.instanceContent, this.getObject(), "instanceContent");
             boolean executePolicy = Boolean.parseBoolean(MDPUtil.getStringMap(rddlExecutePolicy, this.getObject(), "rddlExecutePolicy"));
             int numRounds = Integer.parseInt(MDPUtil.getStringMap(numOfRounds, this.getObject(), "numOfRounds"));
             long timeLimit = Long.parseLong(MDPUtil.getStringMap(this.timeLimit, this.getObject(), "timeLimit"));
 //            startServer(filesPath,instanceName,clientName,executePolicy,numRounds,1080000L);
             AbstractBeliefBase beliefBase = KnowledgeBaseHelper.getBeliefs(this.getObject(), targetBase);
             Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
-            startServer(filesPath,instanceName,clientName,executePolicy,numRounds,timeLimit,beliefBase, repo);
+            startServer(domainName,instanceName,clientName,executePolicy,numRounds,timeLimit,beliefBase, repo, domainContent, instanceContent);
 
             report = toString()+ " SUCCEEDED";
             stat = Status.SUCCEEDED;
@@ -107,13 +107,13 @@ public class CreateRDDLServer extends AbstractTDBLeafTask implements NodeExtensi
         return new NodeStatus(stat, this.getObject().getLogger(), this.getClass(), report);
     }
 
-    private void startServer(String filesPath, String instanceName, String clientName, boolean executePolicy, int numRounds, long timeLimit, AbstractBeliefBase base,Repository repo) throws URISyntaxException{
+    private void startServer(String domainName, String instanceName, String clientName, boolean executePolicy, int numRounds, long timeLimit, AbstractBeliefBase base,Repository repo, String domainContent, String instanceContent) throws URISyntaxException{
 //        RDDLPluginServer.initServer(filesPath,portNumber);
         try {
             PlannerUnified planner = new PlannerUnified();
-            planner.serverInitialize(filesPath, base, repo);
+            planner.serverInitialize(instanceName, instanceName, base, repo, domainContent, instanceContent);
             // TODO: parseString should be assigned
-            planner.dummyServerStart(numRounds,timeLimit,instanceName,clientName,"RDDL",executePolicy, mapping);
+            planner.dummyServerStart(numRounds,timeLimit,instanceName,clientName,"RDDL",executePolicy, mapping,domainContent, instanceContent);
         } catch (Exception e) {
             e.printStackTrace();
         }

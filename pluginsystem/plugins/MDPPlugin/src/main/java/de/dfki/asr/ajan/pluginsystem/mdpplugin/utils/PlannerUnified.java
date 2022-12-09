@@ -16,6 +16,7 @@ import org.xml.sax.SAXException;
 import rddl.RDDL;
 import rddl.State;
 import rddl.competition.*;
+import rddl.parser.parser;
 import rddl.policy.Policy;
 import rddl.viz.NullScreenDisplay;
 import rddl.viz.StateViz;
@@ -28,8 +29,8 @@ import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+//import java.nio.file.Files;
+//import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -94,7 +95,7 @@ public class PlannerUnified {
 
     private KnowledgeBaseHelper knowledgeBaseHelper;
 
-    public void serverInitialize(String filespath, AbstractBeliefBase beliefBase, Repository repo) throws Exception {
+    public void serverInitialize(String domainName, String instanceName, AbstractBeliefBase beliefBase, Repository repo,String domainContent, String instanceContent) throws Exception {
         rand = new RandomDataGenerator();
 //        timeAllowed = DEFAULT_TIME_ALLOWED;
         numRounds = DEFAULT_NUM_ROUNDS;
@@ -104,9 +105,12 @@ public class PlannerUnified {
         StateViz state_viz = new NullScreenDisplay(false);
 
         try{
-            SERVER_FILES_DIR = filespath;
-            File[] subdirs = new File(SERVER_FILES_DIR).listFiles(File::isDirectory);
-            serverRddl = new RDDL(SERVER_FILES_DIR);
+//            SERVER_FILES_DIR = filespath;
+//            File[] subdirs = new File(SERVER_FILES_DIR).listFiles(File::isDirectory);
+//            serverRddl = new RDDL(SERVER_FILES_DIR);
+            serverRddl = new RDDL();
+            serverRddl.addOtherRDDL(parser.parse(domainContent),domainName);
+            serverRddl.addOtherRDDL(parser.parse(instanceContent),instanceName);
         } catch (Exception e) {
             LOG.error("Error in server initialization"+e.getMessage());
         }
@@ -189,7 +193,7 @@ public class PlannerUnified {
         }
     }
 
-    public void dummyServerStart(int numRounds, long timeLimit, String problemName,String clientName,String inputLanguage,boolean executePolicy, URI mapping){
+    public void dummyServerStart(int numRounds, long timeLimit, String problemName,String clientName,String inputLanguage,boolean executePolicy, URI mapping, String domainContent, String instanceContent){
 
         try{
             long start_time = System.currentTimeMillis();
@@ -198,7 +202,7 @@ public class PlannerUnified {
             LOG.info("Instance requested: " + this.requestedInstance);
             if(this.serverRddl._tmInstanceNodes.containsKey(this.requestedInstance)) {
                 LOG.info("Instance found");
-                createXMLSessionInit(numRounds, (double) timeLimit);
+                createXMLSessionInit(numRounds, (double) timeLimit, domainContent, instanceContent);
                 processXMLSessionInit(problemName); // client side processing
                 clientInitialize(problemName,clientName);
                 // region client variables
@@ -638,7 +642,28 @@ public class PlannerUnified {
         this.clientTimeLimit = timeLimit;
     }
 
-    private void createXMLSessionInit(int numRounds, double timeLimit) {
+//    private void createXMLSessionInit(int numRounds, double timeLimit) {
+//        this.clientNumRounds = numRounds;
+//        this.clientTimeLimit = timeLimit;
+//        RDDL.INSTANCE instance = (RDDL.INSTANCE) this.serverRddl._tmInstanceNodes.get(this.requestedInstance);
+//        RDDL.DOMAIN domain = (RDDL.DOMAIN) this.serverRddl._tmDomainNodes.get(instance._sDomain);
+//        String domainFile = SERVER_FILES_DIR + "/" + domain._sFileName + "." + this.inputLanguage;
+//        String instanceFile = SERVER_FILES_DIR + "/" + instance._sFileName + "." + this.inputLanguage;
+//        StringBuilder task = null;
+//        try {
+//            task = new StringBuilder(new String(Files.readAllBytes(Paths.get(domainFile))));
+//            task.append(System.getProperty("line.separator"));
+//            task.append(System.getProperty("line.separator"));
+//            task.append(new String(Files.readAllBytes(Paths.get(instanceFile))));
+//            task.append(System.getProperty("line.separator"));
+//        } catch (IOException e) {
+//            LOG.error("Error in creating XML Session Init"+e.getMessage());
+//        }
+//        byte[] encodedBytes = Base64.getEncoder().encode(task.toString().getBytes());
+//        serverTask = new String(encodedBytes);
+//    }
+
+    private void createXMLSessionInit(int numRounds, double timeLimit, String domainContent, String instanceContent) {
         this.clientNumRounds = numRounds;
         this.clientTimeLimit = timeLimit;
         RDDL.INSTANCE instance = (RDDL.INSTANCE) this.serverRddl._tmInstanceNodes.get(this.requestedInstance);
@@ -647,12 +672,12 @@ public class PlannerUnified {
         String instanceFile = SERVER_FILES_DIR + "/" + instance._sFileName + "." + this.inputLanguage;
         StringBuilder task = null;
         try {
-            task = new StringBuilder(new String(Files.readAllBytes(Paths.get(domainFile))));
+            task = new StringBuilder(domainContent);
             task.append(System.getProperty("line.separator"));
             task.append(System.getProperty("line.separator"));
-            task.append(new String(Files.readAllBytes(Paths.get(instanceFile))));
+            task.append(instanceContent);
             task.append(System.getProperty("line.separator"));
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.error("Error in creating XML Session Init"+e.getMessage());
         }
         byte[] encodedBytes = Base64.getEncoder().encode(task.toString().getBytes());
@@ -839,6 +864,23 @@ public class PlannerUnified {
             }
         }
     }
+//    private void processXMLSessionInit(String instanceName){
+//        clientNumOfRounds = 30;
+//        clientTimeAllowed = 10.0;
+//        byte[] rddlDesc = null;
+//        rddlDesc = org.apache.xerces.impl.dv.util.Base64.decode(serverTask);
+//        Records rec = new Records();
+//        rec.fileAppend(instanceName + ".rddl", new String(rddlDesc), true);
+//        String userHome = System.getProperty("user.home");
+//        String absPath = userHome + System.getProperties().getProperty("file.separator") + instanceName + ".rddl";
+//
+//        try{
+//            clientRddl = new RDDL(absPath);
+//        } catch (Exception ex) {
+//            LOG.error("Error in processXMLSessionInit"+ex.getMessage());
+//        }
+//
+//    }
     private void processXMLSessionInit(String instanceName){
         clientNumOfRounds = 30;
         clientTimeAllowed = 10.0;
@@ -846,16 +888,20 @@ public class PlannerUnified {
         rddlDesc = org.apache.xerces.impl.dv.util.Base64.decode(serverTask);
         Records rec = new Records();
         rec.fileAppend(instanceName + ".rddl", new String(rddlDesc), true);
-        String userHome = System.getProperty("user.home");
-        String absPath = userHome + System.getProperties().getProperty("file.separator") + instanceName + ".rddl";
+//        String userHome = System.getProperty("user.home");
+//        String absPath = userHome + System.getProperties().getProperty("file.separator") + instanceName + ".rddl";
 
         try{
-            clientRddl = new RDDL(absPath);
+            String rddlContent = new String(rddlDesc);
+            clientRddl = new RDDL();
+            clientRddl.addOtherRDDL(parser.parse(rddlContent), instanceName);
+//            clientRddl = new RDDL(absPath);
         } catch (Exception ex) {
             LOG.error("Error in processXMLSessionInit"+ex.getMessage());
         }
-
     }
+
+
     private String createXMLSessionRequest(String instanceName) {
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
