@@ -1943,8 +1943,8 @@
     ];
     nd:parameter [
         a nd:Parameter;
-        nd:mapsTo bt-mdp:port;
-        nd:title "RDDL Server port: ?port";
+        nd:mapsTo bt-mdp:rddlDomainName;
+        nd:title "RDDL String: ?rddlDomainName";
         nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
@@ -1952,8 +1952,17 @@
     ];
     nd:parameter [
         a nd:Parameter;
-        nd:mapsTo bt-mdp:rddlFilesPath;
-        nd:title "RDDL File Path: ?rddlFilesPath";
+        nd:mapsTo bt-mdp:rddlInstanceName;
+        nd:title "RDDL String: ?rddlInstanceName";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+   ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:domainContent;
+        nd:title "RDDL File Path: ?domainContent";
         nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
@@ -1961,21 +1970,12 @@
     ];
     nd:parameter [
         a nd:Parameter;
-        nd:mapsTo bt-mdp:rddlString;
-        nd:title "RDDL String: ?rddlString";
+        nd:mapsTo bt-mdp:instanceContent;
+        nd:title "RDDL File Path: ?instanceContent";
         nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
         nd:type bt:SelectQuery;
-    ];
-    nd:parameter [
-            a nd:Parameter;
-            nd:mapsTo bt-mdp:rddlInstanceName;
-            nd:title "RDDL String: ?rddlInstanceName";
-            nd:input nd:Query;
-            bt:originBase "true";
-            bt:targetBase "false";
-            nd:type bt:SelectQuery;
     ];
     nd:parameter [
            a nd:Parameter;
