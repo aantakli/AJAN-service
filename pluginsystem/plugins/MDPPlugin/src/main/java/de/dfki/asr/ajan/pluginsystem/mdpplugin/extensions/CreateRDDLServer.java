@@ -88,8 +88,12 @@ public class CreateRDDLServer extends AbstractTDBLeafTask implements NodeExtensi
             String domainName = MDPUtil.getStringMap(rddlDomainName, this.getObject(), "rddlDomainName");
             String instanceName = MDPUtil.getStringMap(rddlInstanceName, this.getObject(), "rddlInstanceName");
             String clientName = MDPUtil.getStringMap(rddlClientName, this.getObject(), "rddlClientName");
+            this.domainContent.setSparql(processQueryString(this.domainContent.getSparql()));
             String domainContent = MDPUtil.getStringMap(this.domainContent, this.getObject(), "domainContent");
+            domainContent = processRDDLString(domainContent);
+            this.instanceContent.setSparql(processQueryString(this.instanceContent.getSparql()));
             String instanceContent = MDPUtil.getStringMap(this.instanceContent, this.getObject(), "instanceContent");
+            instanceContent = processRDDLString(instanceContent);
             boolean executePolicy = Boolean.parseBoolean(MDPUtil.getStringMap(rddlExecutePolicy, this.getObject(), "rddlExecutePolicy"));
             int numRounds = Integer.parseInt(MDPUtil.getStringMap(numOfRounds, this.getObject(), "numOfRounds"));
             long timeLimit = Long.parseLong(MDPUtil.getStringMap(this.timeLimit, this.getObject(), "timeLimit"));
@@ -105,6 +109,14 @@ public class CreateRDDLServer extends AbstractTDBLeafTask implements NodeExtensi
             stat = Status.FAILED;
         }
         return new NodeStatus(stat, this.getObject().getLogger(), this.getClass(), report);
+    }
+
+    private String processQueryString(String sparql) {
+        return sparql.replaceAll("\t","").replaceAll(" {2,}","").replaceAll("\n","   ");
+    }
+
+    private String processRDDLString(String rddl) {
+        return rddl.replaceAll(" {3}","\n");
     }
 
     private void startServer(String domainName, String instanceName, String clientName, boolean executePolicy, int numRounds, long timeLimit, AbstractBeliefBase base,Repository repo, String domainContent, String instanceContent) throws URISyntaxException{
