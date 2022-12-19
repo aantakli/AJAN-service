@@ -33,6 +33,7 @@ import com.taxonic.carml.util.RmlMappingLoader;
 import com.taxonic.carml.vocab.Rdf;
 import de.dfki.asr.ajan.common.CSVInput;
 import de.dfki.asr.ajan.common.SPARQLUtil;
+import de.dfki.asr.ajan.pluginsystem.mappingplugin.vocabularies.MappingVocabulary;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -40,6 +41,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 import javax.xml.transform.Transformer;
@@ -49,6 +51,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.xerces.dom.DeferredDocumentImpl;
 import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.repository.Repository;
 
 public final class MappingUtil {
@@ -81,6 +85,13 @@ public final class MappingUtil {
 
 		mapper.bindInputStream(resourceStream);
 		return mapper.map(mappingInput);
+	}
+
+	public static Model getJSONStatementModel(final InputStream resourceStream) throws IOException {
+		Model model = new LinkedHashModel();
+		String text = new String(resourceStream.readAllBytes(), StandardCharsets.UTF_8);
+		model.add(Values.bnode(), MappingVocabulary.HAS_JSON_STRING, Values.literal(text));
+		return model;
 	}
 
     public static Model getTriplesMaps(final Repository repo, final List<URI> mappings) throws URISyntaxException {
