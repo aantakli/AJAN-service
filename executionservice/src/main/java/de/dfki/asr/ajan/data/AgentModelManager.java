@@ -89,8 +89,11 @@ public class AgentModelManager {
         public String getManagedTDB(final Model model, final Resource resource) {
             Model nameModel = model.filter(resource, AJANVocabulary.AGENT_HAS_MANAGED_TDB, null);
             Optional<Resource> managedTDB = Models.objectResource(nameModel);
-            Model tdbModel = model.filter(managedTDB.get(), AJANVocabulary.AGENT_HAS_TDB_URL, null);
-            return getAnyURI(tdbModel, AJANVocabulary.AGENT_HAS_TDB_URL);
+            if (!managedTDB.isEmpty()) {
+                Model tdbModel = model.filter(managedTDB.get(), AJANVocabulary.AGENT_HAS_TDB_URL, null);
+                return getAnyURI(tdbModel, AJANVocabulary.AGENT_HAS_TDB_URL);
+            }
+            return "";
         }
 
         public void setCredentials(final CredentialsBuilder auth, final Model model, final Resource resource) {

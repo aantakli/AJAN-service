@@ -139,9 +139,13 @@ public class RDFAgentBuilder extends AgentBuilder {
         CredentialsBuilder auth = new CredentialsBuilder();
         Model nameModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_MANAGED_TDB, null);
         Optional<Resource> managedResource = Models.objectResource(nameModel);
-        modelManager.setCredentials(auth, initAgentModel, managedResource.get());
-        modelManager.setTokens(auth, initAgentModel, managedResource.get());
-        return auth.build();
+        if (!managedResource.isEmpty()) {
+            Resource managedRes = managedResource.get();
+            modelManager.setCredentials(auth, initAgentModel, managedRes);
+            modelManager.setTokens(auth, initAgentModel, managedRes);
+            return auth.build();
+        }
+        return null;
     }
 
     protected AgentBeliefBase createAgentKnowledge(final Resource agentTemplateRsc, final Credentials auth) throws UnauthorizedException, URISyntaxException {
