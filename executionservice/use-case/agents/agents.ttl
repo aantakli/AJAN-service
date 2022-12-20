@@ -7,7 +7,7 @@
 @prefix fn: <http://www.w3.org/2005/xpath-functions#> .
 
 <http://localhost:8090/rdf4j/repositories/agents#EV_f740c424-a1ec-4eb7-9aab-e006899ec7fb>
-  a <http://www.ajan.de/ajan-ns#ModelEvent>;
+  a <http://www.ajan.de/ajan-ns#MappingEvent>;
   rdfs:label "Default Event" .
 
 <http://localhost:8090/rdf4j/repositories/agents#EP_ebe8cc8e-f331-4120-a42c-c0d12e6b34d4>
