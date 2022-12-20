@@ -5,6 +5,8 @@ from rdflib import Graph, URIRef, BNode, Literal
 # Node logic to convert ./testFile.json into AIToC specific ASP rules
 class Json2ASPNode(AJANlib.LeafNode):
 
+    rdf_subject = 'http://www.ajan.de/behavior/asp-ns#JSON2ASP'
+    rdf_predicate = 'http://www.ajan.de/behavior/asp-ns#asRules'
     asp_type_predicates = {
           'Smooth through hole': 'smooth_through_hole'
         }
@@ -53,7 +55,7 @@ class Json2ASPNode(AJANlib.LeafNode):
         for s, p, o in input:
             if p == URIRef('http://www.ajan.de/ajan-mapping-ns#jsonString'):
                 resulting_rules = ' '.join(map(str, self.getASP(o)))
-                output.add((BNode(), URIRef('http://www.ajan.de/behavior/asp-ns#asRules'), Literal(resulting_rules)))
+                output.add((URIRef(self.rdf_subject), URIRef(self.rdf_predicate), Literal(resulting_rules)))
                 print(resulting_rules)
 
         return AJANlib.NodeResult(status=AJANlib.Status.SUCCEEDED, label='Converted JSON to ASP!', rdf_output=output)

@@ -141,6 +141,12 @@ ajan:ASP {
 			screwingTorque_unit(screw_B,nm) .
 			screwingTorque_unit(screw_C,nm) .
 		"""^^xsd:string .
+
+	:Abdeckung_Example
+		a asp:RuleSet ;
+		asp:asRules """
+			assembly_component(X) :- cover(X) .
+		"""^^xsd:string .
 	
 	:Gas_Pedal
 		a asp:RuleSet ;
