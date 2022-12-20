@@ -1,0 +1,614 @@
+[
+  {
+    "__isset": {
+      "GeometryConstraint": false,
+      "VelocityConstraint": false,
+      "AccelerationConstraint": false,
+      "PathConstraint": false,
+      "JointPathConstraint": false,
+      "PostureConstraint": false,
+      "JointConstraint": false,
+      "Properties": true
+    },
+    "ID": "PartProperties",
+    "GeometryConstraint": null,
+    "VelocityConstraint": null,
+    "AccelerationConstraint": null,
+    "PathConstraint": null,
+    "JointPathConstraint": null,
+    "PostureConstraint": null,
+    "JointConstraint": null,
+    "Properties": {
+      "Subsystem": "Cover",
+      "Category": "",
+      "Material": "ABS",
+      "Weight": "0",
+      "Size": "0,0,0",
+      "Flexibility": "Rigid",
+      "Name": "CoverB",
+      "ID": "BC2",
+      "Version": "1.0.0.0"
+    }
+  },
+  {
+    "__isset": {
+      "GeometryConstraint": true,
+      "VelocityConstraint": false,
+      "AccelerationConstraint": false,
+      "PathConstraint": false,
+      "JointPathConstraint": false,
+      "PostureConstraint": false,
+      "JointConstraint": false,
+      "Properties": true
+    },
+    "ID": "Smooth through hole",
+    "GeometryConstraint": {
+      "__isset": {
+        "ParentToConstraint": true,
+        "TranslationConstraint": true,
+        "RotationConstraint": false,
+        "WeightingFactor": true
+      },
+      "ParentObjectID": "",
+      "ParentToConstraint": {
+        "__isset": {
+          "Parent": false
+        },
+        "ID": "",
+        "Position": {
+          "X": -0.38015830516815186,
+          "Y": 1.0793495178222656,
+          "Z": -0.59100151062011719
+        },
+        "Rotation": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 0.0,
+          "W": 1.0
+        },
+        "Parent": null
+      },
+      "TranslationConstraint": {
+        "Type": 0,
+        "Limits": {
+          "X": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Y": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Z": {
+            "Min": 0.0,
+            "Max": 0.0
+          }
+        }
+      },
+      "RotationConstraint": {
+        "Limits": {
+          "X": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Y": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Z": {
+            "Min": 0.0,
+            "Max": 0.0
+          }
+        }
+      },
+      "WeightingFactor": 1.0
+    },
+    "VelocityConstraint": null,
+    "AccelerationConstraint": null,
+    "PathConstraint": null,
+    "JointPathConstraint": null,
+    "PostureConstraint": null,
+    "JointConstraint": null,
+    "Properties": {
+      "Diameter": "6"
+    }
+  },
+  {
+    "__isset": {
+      "GeometryConstraint": true,
+      "VelocityConstraint": false,
+      "AccelerationConstraint": false,
+      "PathConstraint": false,
+      "JointPathConstraint": false,
+      "PostureConstraint": false,
+      "JointConstraint": false,
+      "Properties": true
+    },
+    "ID": "Smooth through hole",
+    "GeometryConstraint": {
+      "__isset": {
+        "ParentToConstraint": true,
+        "TranslationConstraint": true,
+        "RotationConstraint": false,
+        "WeightingFactor": true
+      },
+      "ParentObjectID": "",
+      "ParentToConstraint": {
+        "__isset": {
+          "Parent": false
+        },
+        "ID": "",
+        "Position": {
+          "X": -0.37721240520477295,
+          "Y": 1.0818157196044922,
+          "Z": -0.94493007659912109
+        },
+        "Rotation": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 0.0,
+          "W": 1.0
+        },
+        "Parent": null
+      },
+      "TranslationConstraint": {
+        "Type": 0,
+        "Limits": {
+          "X": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Y": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Z": {
+            "Min": 0.0,
+            "Max": 0.0
+          }
+        }
+      },
+      "RotationConstraint": {
+        "Limits": {
+          "X": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Y": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Z": {
+            "Min": 0.0,
+            "Max": 0.0
+          }
+        }
+      },
+      "WeightingFactor": 1.0
+    },
+    "VelocityConstraint": null,
+    "AccelerationConstraint": null,
+    "PathConstraint": null,
+    "JointPathConstraint": null,
+    "PostureConstraint": null,
+    "JointConstraint": null,
+    "Properties": {
+      "Diameter": "6"
+    }
+  },
+  {
+    "__isset": {
+      "GeometryConstraint": true,
+      "VelocityConstraint": false,
+      "AccelerationConstraint": false,
+      "PathConstraint": false,
+      "JointPathConstraint": false,
+      "PostureConstraint": false,
+      "JointConstraint": false,
+      "Properties": true
+    },
+    "ID": "Smooth through hole",
+    "GeometryConstraint": {
+      "__isset": {
+        "ParentToConstraint": true,
+        "TranslationConstraint": true,
+        "RotationConstraint": false,
+        "WeightingFactor": true
+      },
+      "ParentObjectID": "",
+      "ParentToConstraint": {
+        "__isset": {
+          "Parent": false
+        },
+        "ID": "",
+        "Position": {
+          "X": -0.49033862352371216,
+          "Y": 1.0129909515380859,
+          "Z": -0.30885124206542969
+        },
+        "Rotation": {
+          "X": 0.0,
+          "Y": 0.7071068286895752,
+          "Z": 0.0,
+          "W": 0.7071068286895752
+        },
+        "Parent": null
+      },
+      "TranslationConstraint": {
+        "Type": 0,
+        "Limits": {
+          "X": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Y": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Z": {
+            "Min": 0.0,
+            "Max": 0.0
+          }
+        }
+      },
+      "RotationConstraint": {
+        "Limits": {
+          "X": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Y": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Z": {
+            "Min": 0.0,
+            "Max": 0.0
+          }
+        }
+      },
+      "WeightingFactor": 1.0
+    },
+    "VelocityConstraint": null,
+    "AccelerationConstraint": null,
+    "PathConstraint": null,
+    "JointPathConstraint": null,
+    "PostureConstraint": null,
+    "JointConstraint": null,
+    "Properties": {
+      "Diameter": "4.2"
+    }
+  },
+  {
+    "__isset": {
+      "GeometryConstraint": true,
+      "VelocityConstraint": false,
+      "AccelerationConstraint": false,
+      "PathConstraint": false,
+      "JointPathConstraint": false,
+      "PostureConstraint": false,
+      "JointConstraint": false,
+      "Properties": true
+    },
+    "ID": "Smooth through hole",
+    "GeometryConstraint": {
+      "__isset": {
+        "ParentToConstraint": true,
+        "TranslationConstraint": true,
+        "RotationConstraint": false,
+        "WeightingFactor": true
+      },
+      "ParentObjectID": "",
+      "ParentToConstraint": {
+        "__isset": {
+          "Parent": false
+        },
+        "ID": "",
+        "Position": {
+          "X": -0.49033862352371216,
+          "Y": 0.92299079895019531,
+          "Z": -0.30637168884277344
+        },
+        "Rotation": {
+          "X": 0.0,
+          "Y": 0.7071068286895752,
+          "Z": 0.0,
+          "W": 0.7071068286895752
+        },
+        "Parent": null
+      },
+      "TranslationConstraint": {
+        "Type": 0,
+        "Limits": {
+          "X": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Y": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Z": {
+            "Min": 0.0,
+            "Max": 0.0
+          }
+        }
+      },
+      "RotationConstraint": {
+        "Limits": {
+          "X": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Y": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Z": {
+            "Min": 0.0,
+            "Max": 0.0
+          }
+        }
+      },
+      "WeightingFactor": 1.0
+    },
+    "VelocityConstraint": null,
+    "AccelerationConstraint": null,
+    "PathConstraint": null,
+    "JointPathConstraint": null,
+    "PostureConstraint": null,
+    "JointConstraint": null,
+    "Properties": {
+      "Diameter": "4.2"
+    }
+  },
+  {
+    "__isset": {
+      "GeometryConstraint": true,
+      "VelocityConstraint": false,
+      "AccelerationConstraint": false,
+      "PathConstraint": false,
+      "JointPathConstraint": false,
+      "PostureConstraint": false,
+      "JointConstraint": false,
+      "Properties": true
+    },
+    "ID": "Smooth through hole",
+    "GeometryConstraint": {
+      "__isset": {
+        "ParentToConstraint": true,
+        "TranslationConstraint": true,
+        "RotationConstraint": false,
+        "WeightingFactor": true
+      },
+      "ParentObjectID": "",
+      "ParentToConstraint": {
+        "__isset": {
+          "Parent": false
+        },
+        "ID": "",
+        "Position": {
+          "X": -0.49033862352371216,
+          "Y": 0.79787445068359375,
+          "Z": -0.30436801910400391
+        },
+        "Rotation": {
+          "X": 0.0,
+          "Y": 0.7071068286895752,
+          "Z": 0.0,
+          "W": 0.7071068286895752
+        },
+        "Parent": null
+      },
+      "TranslationConstraint": {
+        "Type": 0,
+        "Limits": {
+          "X": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Y": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Z": {
+            "Min": 0.0,
+            "Max": 0.0
+          }
+        }
+      },
+      "RotationConstraint": {
+        "Limits": {
+          "X": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Y": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Z": {
+            "Min": 0.0,
+            "Max": 0.0
+          }
+        }
+      },
+      "WeightingFactor": 1.0
+    },
+    "VelocityConstraint": null,
+    "AccelerationConstraint": null,
+    "PathConstraint": null,
+    "JointPathConstraint": null,
+    "PostureConstraint": null,
+    "JointConstraint": null,
+    "Properties": {
+      "Diameter": "4.2"
+    }
+  },
+  {
+    "__isset": {
+      "GeometryConstraint": true,
+      "VelocityConstraint": false,
+      "AccelerationConstraint": false,
+      "PathConstraint": false,
+      "JointPathConstraint": false,
+      "PostureConstraint": false,
+      "JointConstraint": false,
+      "Properties": true
+    },
+    "ID": "Smooth through hole",
+    "GeometryConstraint": {
+      "__isset": {
+        "ParentToConstraint": true,
+        "TranslationConstraint": true,
+        "RotationConstraint": false,
+        "WeightingFactor": true
+      },
+      "ParentObjectID": "",
+      "ParentToConstraint": {
+        "__isset": {
+          "Parent": false
+        },
+        "ID": "",
+        "Position": {
+          "X": -0.31533077359199524,
+          "Y": 0.70003032684326172,
+          "Z": -0.82069110870361328
+        },
+        "Rotation": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 0.7071068286895752,
+          "W": -0.7071068286895752
+        },
+        "Parent": null
+      },
+      "TranslationConstraint": {
+        "Type": 0,
+        "Limits": {
+          "X": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Y": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Z": {
+            "Min": 0.0,
+            "Max": 0.0
+          }
+        }
+      },
+      "RotationConstraint": {
+        "Limits": {
+          "X": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Y": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Z": {
+            "Min": 0.0,
+            "Max": 0.0
+          }
+        }
+      },
+      "WeightingFactor": 1.0
+    },
+    "VelocityConstraint": null,
+    "AccelerationConstraint": null,
+    "PathConstraint": null,
+    "JointPathConstraint": null,
+    "PostureConstraint": null,
+    "JointConstraint": null,
+    "Properties": {
+      "Diameter": "8"
+    }
+  },
+  {
+    "__isset": {
+      "GeometryConstraint": true,
+      "VelocityConstraint": false,
+      "AccelerationConstraint": false,
+      "PathConstraint": false,
+      "JointPathConstraint": false,
+      "PostureConstraint": false,
+      "JointConstraint": false,
+      "Properties": true
+    },
+    "ID": "Smooth through hole",
+    "GeometryConstraint": {
+      "__isset": {
+        "ParentToConstraint": true,
+        "TranslationConstraint": true,
+        "RotationConstraint": false,
+        "WeightingFactor": true
+      },
+      "ParentObjectID": "",
+      "ParentToConstraint": {
+        "__isset": {
+          "Parent": false
+        },
+        "ID": "",
+        "Position": {
+          "X": -0.31498140096664429,
+          "Y": 0.70003032684326172,
+          "Z": -0.44929027557373047
+        },
+        "Rotation": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 0.7071068286895752,
+          "W": -0.7071068286895752
+        },
+        "Parent": null
+      },
+      "TranslationConstraint": {
+        "Type": 0,
+        "Limits": {
+          "X": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Y": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Z": {
+            "Min": 0.0,
+            "Max": 0.0
+          }
+        }
+      },
+      "RotationConstraint": {
+        "Limits": {
+          "X": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Y": {
+            "Min": 0.0,
+            "Max": 0.0
+          },
+          "Z": {
+            "Min": 0.0,
+            "Max": 0.0
+          }
+        }
+      },
+      "WeightingFactor": 1.0
+    },
+    "VelocityConstraint": null,
+    "AccelerationConstraint": null,
+    "PathConstraint": null,
+    "JointPathConstraint": null,
+    "PostureConstraint": null,
+    "JointConstraint": null,
+    "Properties": {
+      "Diameter": "8"
+    }
+  }
+]
