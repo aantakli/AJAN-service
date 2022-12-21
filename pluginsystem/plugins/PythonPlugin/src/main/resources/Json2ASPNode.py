@@ -5,16 +5,16 @@ from rdflib import Graph, URIRef, BNode, Literal
 # Node logic to convert ./testFile.json into AIToC specific ASP rules
 class Json2ASPNode(AJANlib.LeafNode):
 
-    rdf_subject = 'http://www.ajan.de/behavior/asp-ns#JSON2ASP'
-    rdf_predicate = 'http://www.ajan.de/behavior/asp-ns#asRules'
+    rdf_subject = "http://www.ajan.de/behavior/asp-ns#JSON2ASP"
+    rdf_predicate = "http://www.ajan.de/behavior/asp-ns#asRules"
     asp_type_predicates = {
-          'Smooth through hole': 'smooth_through_hole'
+          "Smooth through hole": "smooth_through_hole"
         }
 
     def readProperty(self, rule_set, inst, prop):
         for key in prop:
             predicate = 'has_{}'.format(key.lower())
-            rule_set.append(predicate + '(' + inst + ',\\x22' + prop[key] + '\\x22).')
+            rule_set.append(predicate + '(' + inst + ',\"' + prop[key] + '\").')
 
     def readPartProperty(self, rule_set, properties):
         index = properties['ID'].lower()
@@ -32,9 +32,7 @@ class Json2ASPNode(AJANlib.LeafNode):
         return instance
 
     def getASP(self, json_txt):
-        fixedQuotes = json_txt.replace('\\x27', '\\x22')
-        print(fixedQuotes)
-        annotation = json.loads(fixedQuotes)
+        annotation = json.loads(json_txt)
         asp_rules = []
         component_instance = ''
         index = 1
