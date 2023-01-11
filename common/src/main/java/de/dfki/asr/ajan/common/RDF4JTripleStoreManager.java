@@ -107,12 +107,20 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 	}
 
 	@Override
-	public TripleDataBase createSecuredAgentTripleDataBase(final String tdbId, final boolean overwrite, final Inferencing useInferencing, final Credentials agentAuth) throws TripleStoreException {
+	public TripleDataBase createSecuredAgentTripleDataBase(final String tdbId, final String managedTDB, final Inferencing useInferencing, final Credentials agentAuth) throws TripleStoreException {
 		try {
-			TripleDataBase agentTDB = convertToTripleDataBase(getInfos(tdbId, overwrite, useInferencing, true), agentAuth);
-			repoManager.setupAgentSecurityConfiguration(agentAuth);
-			return agentTDB;
-		} catch (URISyntaxException | RepositoryConfigException | RepositoryException ex) {
+			RepositoryInfo info;
+			if (managedTDB.isEmpty()) {
+				info = getInfos(tdbId, true, useInferencing, true);
+				repoManager.setupAgentSecurityConfiguration(agentAuth);
+			} else {
+				String idStr = managedTDB.substring(managedTDB.lastIndexOf('/') + 1);
+				info = new RepositoryInfo();
+				info.setId(idStr);
+				info.setLocation(new URL(managedTDB));
+			}
+			return convertToTripleDataBase(info, agentAuth);
+		} catch (MalformedURLException | URISyntaxException | RepositoryConfigException | RepositoryException ex) {
 			throw new TripleStoreException(ERROR_REPO_SETUP + ex.toString(), ex);
 		}
 	}

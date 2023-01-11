@@ -32,6 +32,7 @@ public class MappingVocabulary {
 	public final static IRI DATETIME_PREDICATE = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#DateTimePredicate");
 	
 	public final static IRI MIME_TEXT_TUTRLE = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#TextTurtle");
+	public final static IRI MIME_JSON = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#Json");
 	public final static IRI MIME_JSON_LD = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#JsonLD");
 	public final static IRI MIME_RDF_XML = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#RDFxml");
 
@@ -40,6 +41,8 @@ public class MappingVocabulary {
 	public final static IRI MP_HAS_Y = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#y");
 	public final static IRI MP_HAS_Z = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#z");
 	public final static IRI HAS_TIMEFORMAT = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#timeFormat");
+	
+	public final static IRI HAS_JSON_STRING = FACTORY.createIRI("http://www.ajan.de/ajan-mapping-ns#jsonString");
 
 	// RML Vocabulary
 	public final static IRI RML_REFERENCE_FORMULATION = FACTORY.createIRI("http://semweb.mmlab.be/ns/rml#referenceFormulation");

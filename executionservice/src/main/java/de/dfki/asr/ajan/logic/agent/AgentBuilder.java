@@ -72,7 +72,9 @@ public class AgentBuilder {
     @Getter @Setter
     protected Map<Resource, Behavior> behaviors;
     @Getter @Setter
-    protected boolean manageTDB;
+    protected String managedTDB;
+    @Getter @Setter
+    protected boolean overwrite;
     @Getter @Setter
     protected Map<URI, Event> events;
     @Getter @Setter
@@ -99,14 +101,17 @@ public class AgentBuilder {
     public Agent build() throws UnauthorizedException, URISyntaxException {
         LOG.info("Creating agent with ID: " + id);
         url = getAgentURI();
-        AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,manageTDB,inferencing,null));
+        AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,managedTDB,inferencing,null));
         addAgentInformationToKnowledge(beliefs);
         beliefs.update(initialKnowledge);
         connections = new ConcurrentHashMap<>();
         configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource(), true);
         configureBehaviorTree(beliefs, finalBehavior.getBehaviorTree(), finalBehavior.getResource(), true);
         configureBehaviorTrees(beliefs);
-        Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
+        if (managedTDB.isEmpty()) {
+            overwrite = true;
+        }
+        Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, overwrite, beliefs, events, endpoints, connections);
         LOG.info("Agent with ID " + id + " is created: " + agent.getUrl());
         return agent;
     }

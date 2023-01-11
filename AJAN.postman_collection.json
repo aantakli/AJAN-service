@@ -1,0 +1,284 @@
+{
+	"info": {
+		"_postman_id": "dac9d399-d97a-490f-a782-c41cb34ea4fc",
+		"name": "AJAN",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get all Agents",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/ajan/agents",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ajan",
+						"agents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create TestAgent",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "text/turtle",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix ajan: <http://www.ajan.de/ajan-ns#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n\r\n_:initAgent rdf:type ajan:AgentInitialisation ;\r\n    ajan:agentId \"TestAgent\" ;\r\n    ajan:agentTemplate <http://localhost:8090/rdf4j/repositories/agents#AG_540ff53c-578f-4744-9455-b256891dd0c5> .\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:8080/ajan/agents/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ajan",
+						"agents",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Agent with managed Repo",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "text/turtle",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix ajan: <http://www.ajan.de/ajan-ns#> .\r\n@prefix token: <http://www.ajan.de/ajan-ns/token#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n\r\n_:initAgent rdf:type ajan:AgentInitialisation ;\r\n    ajan:agentId \"TestAgent\" ;\r\n    ajan:agentTemplate <http://localhost:8090/rdf4j/repositories/agents#AG_540ff53c-578f-4744-9455-b256891dd0c5> ;\r\n    ajan:managedTDB [\r\n        ajan:tdbURL \"http://localhost:8090/rdf4j/repositories/WelcomeAgent\"^^xsd:anyURI ;\r\n    ] ."
+				},
+				"url": {
+					"raw": "http://localhost:8080/ajan/agents/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ajan",
+						"agents",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Agent with Credentials",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "text/turtle",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix ajan: <http://www.ajan.de/ajan-ns#> .\r\n@prefix token: <http://www.ajan.de/ajan-ns/token#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n\r\n_:initAgent rdf:type ajan:AgentInitialisation ;\r\n    ajan:agentId \"TestAgent\" ;\r\n    ajan:agentTemplate <http://localhost:8090/rdf4j/repositories/agents#AG_540ff53c-578f-4744-9455-b256891dd0c5> ;\r\n    ajan:managedTDB [\r\n        ajan:tdbURL \"http://localhost:8090/rdf4j/repositories/WelcomeAgent\"^^xsd:anyURI ;\r\n        ajan:agentLoginURL \"http://localhost:3000/welcome-praksis/integration/platform/auth/tcnLogin\"^^xsd:anyURI ;\r\n        ajan:agentUser \"AJAN_user\" ;\r\n        ajan:agentPassword \"AJAN_password\" ;\r\n    ] ."
+				},
+				"url": {
+					"raw": "http://localhost:8080/ajan/agents/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ajan",
+						"agents",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Agent with Tokens",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "text/turtle",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix ajan: <http://www.ajan.de/ajan-ns#> .\r\n@prefix token: <http://www.ajan.de/ajan-ns/token#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n\r\n_:initAgent rdf:type ajan:AgentInitialisation ;\r\n    ajan:agentId \"TestAgent\" ;\r\n    ajan:agentTemplate <http://localhost:8090/rdf4j/repositories/agents#AG_540ff53c-578f-4744-9455-b256891dd0c5> ;\r\n    ajan:managedTDB [\r\n        ajan:tdbURL \"http://localhost:8090/rdf4j/repositories/WelcomeAgent\"^^xsd:anyURI ;\r\n        ajan:accessToken [\r\n            token:value \"1234-5678-90\" ;\r\n            token:jsonField \"AccessToken\" ;\r\n            token:header \"Authorization\" ;\r\n        ] ;\r\n        ajan:refreshToken [\r\n            token:value \"0987-6543-21\" ;\r\n            token:jsonField \"RefreshToken\" ;\r\n            token:header \"RefreshToken\" ;\r\n        ]\r\n    ] ."
+				},
+				"url": {
+					"raw": "http://localhost:8080/ajan/agents/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ajan",
+						"agents",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Agent with Tokens and Credentials",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "text/turtle",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix ajan: <http://www.ajan.de/ajan-ns#> .\r\n@prefix token: <http://www.ajan.de/ajan-ns/token#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n\r\n_:initAgent rdf:type ajan:AgentInitialisation ;\r\n    ajan:agentId \"TestAgent\" ;\r\n    ajan:agentTemplate <http://localhost:8090/rdf4j/repositories/agents#AG_540ff53c-578f-4744-9455-b256891dd0c5> ;\r\n    ajan:managedTDB [\r\n        ajan:tdbURL \"http://localhost:8090/rdf4j/repositories/WelcomeAgent\"^^xsd:anyURI ;\r\n        ajan:agentLoginURL \"http://localhost:3000/welcome-praksis/integration/platform/auth/tcnLogin\"^^xsd:anyURI ;\r\n        ajan:agentUser \"AJAN_user\" ;\r\n        ajan:agentPassword \"AJAN_password\" ;\r\n        ajan:accessToken [\r\n            token:value \"1234-5678-90\" ;\r\n            token:jsonField \"AccessToken\" ;\r\n            token:header \"Authorization\" ;\r\n        ] ;\r\n        ajan:refreshToken [\r\n            token:value \"0987-6543-21\" ;\r\n            token:jsonField \"RefreshToken\" ;\r\n            token:header \"RefreshToken\" ;\r\n        ]\r\n    ] ."
+				},
+				"url": {
+					"raw": "http://localhost:8080/ajan/agents/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ajan",
+						"agents",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Agent with partial Token defs. but Credentials",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "text/turtle",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix ajan: <http://www.ajan.de/ajan-ns#> .\r\n@prefix token: <http://www.ajan.de/ajan-ns/token#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n\r\n_:initAgent rdf:type ajan:AgentInitialisation ;\r\n    ajan:agentId \"TestAgent\" ;\r\n    ajan:agentTemplate <http://localhost:8090/rdf4j/repositories/agents#AG_540ff53c-578f-4744-9455-b256891dd0c5> ;\r\n    ajan:managedTDB [\r\n        ajan:tdbURL \"http://localhost:8090/rdf4j/repositories/WelcomeAgent\"^^xsd:anyURI ;\r\n        ajan:agentLoginURL \"http://localhost:3000/welcome-praksis/integration/platform/auth/tcnLogin\"^^xsd:anyURI ;\r\n        ajan:agentUser \"AJAN_user\" ;\r\n        ajan:agentPassword \"AJAN_password\" ;\r\n        ajan:accessToken [\r\n            token:value \"\" ;\r\n            token:jsonField \"AccessToken\" ;\r\n            token:header \"Authorization\" ;\r\n        ] ;\r\n        ajan:refreshToken [\r\n            token:value \"\" ;\r\n            token:jsonField \"RefreshToken\" ;\r\n            token:header \"RefreshToken\" ;\r\n        ]\r\n    ] ."
+				},
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get TestAgent Information",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/ajan/agents/TestAgent",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ajan",
+						"agents",
+						"TestAgent"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete TestAgent",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/ajan/agents/TestAgent",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ajan",
+						"agents",
+						"TestAgent"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Communicate with TestAgent",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "text/turtle",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8080/ajan/agents/TestAgent?capability=default",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ajan",
+						"agents",
+						"TestAgent"
+					],
+					"query": [
+						{
+							"key": "capability",
+							"value": "default"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

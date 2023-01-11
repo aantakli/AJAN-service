@@ -20,7 +20,9 @@
 package de.dfki.asr.ajan.data;
 
 import de.dfki.asr.ajan.common.AJANVocabulary;
+import de.dfki.asr.ajan.common.CredentialsBuilder;
 import de.dfki.asr.ajan.common.SPARQLUtil;
+import de.dfki.asr.ajan.common.Token;
 import de.dfki.asr.ajan.exceptions.InitializationRDFValidationException;
 import java.util.Iterator;
 import java.util.Optional;
@@ -35,7 +37,7 @@ import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.util.Literals;
 import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
-import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.model.vocabulary.XSD;
 import org.eclipse.rdf4j.query.parser.ParsedGraphQuery;
 import org.eclipse.rdf4j.query.parser.ParsedQuery;
 import org.eclipse.rdf4j.queryrender.builder.QueryBuilder;
@@ -84,12 +86,75 @@ public class AgentModelManager {
             }
 	}
 
-        public String getReportURI(final Model initAgentModel) {
+        public String getManagedTDB(final Model model, final Resource resource) {
+            Model nameModel = model.filter(resource, AJANVocabulary.AGENT_HAS_MANAGED_TDB, null);
+            Optional<Resource> managedTDB = Models.objectResource(nameModel);
+            if (!managedTDB.isEmpty()) {
+                Model tdbModel = model.filter(managedTDB.get(), AJANVocabulary.AGENT_HAS_TDB_URL, null);
+                return getAnyURI(tdbModel, AJANVocabulary.AGENT_HAS_TDB_URL);
+            }
+            return "";
+        }
+
+        public void setCredentials(final CredentialsBuilder auth, final Model model, final Resource resource) {
+            Model loginModel = model.filter(resource, AJANVocabulary.AGENT_HAS_LOGIN_URL, null);
+            String loginUrl = getAnyURI(loginModel, AJANVocabulary.AGENT_HAS_LOGIN_URL);
+            if (!loginUrl.isEmpty()) {
+                auth.setLoginUrl(loginUrl);
+            }
+            Model userModel = model.filter(resource, AJANVocabulary.AGENT_HAS_USER, null);
+            String user = getString(userModel);
+            if (user != null) {
+                auth.setUser(user);
+            }
+            Model roleModel = model.filter(resource, AJANVocabulary.AGENT_HAS_ROLE, null);
+            String role = getString(roleModel);
+            if (role != null) {
+                auth.setRole(role);
+            }
+            Model pswdModel = model.filter(resource, AJANVocabulary.AGENT_HAS_PASSWORD, null);
+            String pswd = getString(pswdModel);
+            if (pswd != null) {
+                auth.setPassword(pswd);
+            }
+        }
+
+        public void setTokens(final CredentialsBuilder auth, final Model model, final Resource resource) {
+            Model tokenModel = model.filter(resource, AJANVocabulary.AGENT_HAS_ACCESS_TOKEN, null);
+            Optional<Resource> accessToken = Models.objectResource(tokenModel);
+            if (!accessToken.isEmpty()) {
+                auth.setAccessToken(getToken(model, accessToken.get()));
+            }
+            tokenModel = model.filter(resource, AJANVocabulary.AGENT_HAS_REFRESH_TOKEN, null);
+            Optional<Resource> refreshToken = Models.objectResource(tokenModel);
+            if (!refreshToken.isEmpty()) {
+                auth.setRefreshToken(getToken(model, refreshToken.get()));
+            }
+        }
+
+        private Token getToken(final Model model, final Resource resource) {
+            String value = getString(model.filter(resource, AJANVocabulary.TOKEN_HAS_VALUE, null));
+            String jsonField = getString(model.filter(resource, AJANVocabulary.TOKEN_HAS_JSON_FIELD, null));
+            String header = getString(model.filter(resource, AJANVocabulary.TOKEN_HAS_HEADER, null));
+            if (value == null) {
+                value = "";
+            }
+            if (jsonField == null || header == null) {
+                return null;
+            }
+            Token token = new Token();
+            token.setValue(value);
+            token.setJsonField(jsonField);
+            token.setHeader(header);
+            return token;
+        }
+
+        public String getAnyURI(final Model initAgentModel, final IRI predicate) {
             String report = "";
-            Optional<Literal> reportLiteral = Models.objectLiteral(initAgentModel.filter(null, AJANVocabulary.AGENT_HAS_REPORT_URI, null));
+            Optional<Literal> reportLiteral = Models.objectLiteral(initAgentModel.filter(null, predicate, null));
             if (reportLiteral.isPresent()) {
                 Literal uri = reportLiteral.get();
-                if (uri.getDatatype().equals(XMLSchema.ANYURI)) {
+                if (uri.getDatatype().equals(XSD.ANYURI)) {
                     report = uri.stringValue();
                 }
             }

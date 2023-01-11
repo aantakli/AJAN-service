@@ -19,7 +19,7 @@
 
 package de.dfki.asr.ajan;
 
-import de.dfki.asr.ajan.common.Credentials;
+import de.dfki.asr.ajan.common.CredentialsBuilder;
 import de.dfki.asr.ajan.common.RDF4JTripleStoreManager;
 import de.dfki.asr.ajan.common.TripleStoreManager;
 import java.net.MalformedURLException;
@@ -34,6 +34,13 @@ public class TripleStoreConfiguration {
 	@Value("${triplestore.url:http://localhost:8090/rdf4j}")
 	private String tripleStoreURL;
 
+        @Value("${tokenizer.constraint:/tokenizer/constraint}")
+	private String constraintUrl;
+        @Value("${tokenizer.users:/tokenizer/user}")
+	private String usersUrl;
+        @Value("${tokenizer.login:/tokenizer/token}")
+	private String loginUrl;
+
         @Value("${triplestore.user:}")
 	private String user;
 
@@ -45,7 +52,14 @@ public class TripleStoreConfiguration {
             if (tripleStoreURL != null && !tripleStoreURL.isEmpty()
                     && user != null && !user.isEmpty()
                     && pswd != null && !pswd.isEmpty()) {
-                return new RDF4JTripleStoreManager(new URL(tripleStoreURL), new Credentials(tripleStoreURL, user, "admin", pswd));
+                CredentialsBuilder builder = new CredentialsBuilder();
+                builder.setConstraintUrl(tripleStoreURL + constraintUrl);
+                builder.setUsersUrl(tripleStoreURL + usersUrl);
+                builder.setLoginUrl(tripleStoreURL + loginUrl);
+                builder.setUser(user);
+                builder.setRole("admin");
+                builder.setPassword(pswd);
+                return new RDF4JTripleStoreManager(new URL(tripleStoreURL), builder.build());
             }
             return new RDF4JTripleStoreManager(new URL(tripleStoreURL));
 	}

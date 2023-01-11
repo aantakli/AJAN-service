@@ -151,12 +151,12 @@ public class AgentManager {
 		return agent;
 	}
 
-        public Agent createAgent(final String id, final String template, final boolean manageTDB, final String knowledge, final RDFFormat format) throws URISyntaxException, IOException {
+        public Agent createAgent(final String id, final String template, final boolean overwrite, final String knowledge, final RDFFormat format) throws URISyntaxException, IOException {
                 agentParamBuilder.setId(id);
 		agentParamBuilder.setBaseURI(baseURI);
                 agentParamBuilder.setAgentTemplate(template);
 		agentParamBuilder.setAgentKnowledge(knowledge, format);
-                agentParamBuilder.setManageAgentTDB(manageTDB);
+                agentParamBuilder.setOverwriteValue(overwrite);
 		Agent agent = agentParamBuilder.build();
                 initiateAgent(agent);
 		return agent;
@@ -213,7 +213,7 @@ public class AgentManager {
 		if (!agentMap.containsKey(agent.getId())) {
 			throw new IllegalArgumentException("Agent with ID " + agent.getId() + " could not be found");
 		}
-                if (agent.isManageTDB()) {
+                if (agent.isOverwrite()) {
                     tripleStoreManager.removeTripleDataBase(agent.getBeliefs());
                 }
                 agentMap.remove(agent.getId());

@@ -142,6 +142,209 @@ ajan:ASP {
 			screwingTorque_unit(screw_C,nm) .
 		"""^^xsd:string .
 
+	:Abdeckung_Example
+		a asp:RuleSet ;
+		asp:asRules """
+			assembly_component(X) :- cover(X) .
+		"""^^xsd:string .
+	
+	:Gas_Pedal
+		a asp:RuleSet ;
+		asp:asRules """
+			% -----------------------------------
+			% Component Facts
+			% -----------------------------------
+
+			% Annota/Boiler -->
+
+			base(base_1) .
+			plate(plate_1) .
+			gas_pedal(gas_pedal_1) .
+
+			safety_screw_with_torque(screw_1,123,"nm") .
+			safety_screw_with_torque(screw_2,123,"nm") .
+			safety_screw_with_torque(screw_3,123,"nm") .
+
+			washer(washer_1) .
+			washer(washer_2) .
+			washer(washer_3) .
+
+			% <-- Annota/Boiler
+
+			% -----------------------------------
+			% Component Connection Facts
+			% -----------------------------------
+
+			% Annota/Boiler -->
+
+			connector_for(X,Y) :- base(X), plate(Y) .
+			connector_for(X,Y) :- plate(X), base(Y) .
+			connector_for(X,Y) :- plate(X), gas_pedal(Y) .
+			connector_for(X,Y) :- gas_pedal(X), plate(Y) .
+
+			% <-- Annota/Boiler
+
+			% -----------------------------------
+			% Screw Connection Facts
+			% -----------------------------------
+
+			% Annota/Boiler -->
+
+			screw_connection(gas_pedal_connection) .
+
+			has_base_component(gas_pedal_connection,base_1) .
+
+			has_connected_component(gas_pedal_connection,base_1) .
+			has_connected_component(gas_pedal_connection,plate_1) .
+			has_connected_component(gas_pedal_connection,gas_pedal_1) .
+
+			has_screw_connection_point(base_1,screw_point_1) .
+			has_screw_connection_point(base_1,screw_point_2) .
+			has_screw_connection_point(base_1,screw_point_3) .
+
+			has_screw_connection_point(plate_1,screw_point_1) .
+			has_screw_connection_point(plate_1,screw_point_2) .
+			has_screw_connection_point(plate_1,screw_point_3) .
+
+			has_screw_connection_point(gas_pedal_1,screw_point_1) .
+			has_screw_connection_point(gas_pedal_1,screw_point_2) .
+			has_screw_connection_point(gas_pedal_1,screw_point_3) .
+
+			% <-- Annota/Boiler
+
+			% Boiler -->
+
+			screw_point(screw_point_1) .
+			has_screw(screw_point_1,screw_1) .
+			has_washer(screw_point_1,washer_1) .
+
+			screw_point(screw_point_2) .
+			has_screw(screw_point_2,screw_2) .
+			has_washer(screw_point_2,washer_2) .
+
+			screw_point(screw_point_3) .
+			has_screw(screw_point_3,screw_3) .
+			has_washer(screw_point_3,washer_3) .
+
+			% <-- Boiler
+
+			% -----------------------------------
+			% General Rules
+			% -----------------------------------
+
+			% Boiler -->
+
+			has_component(X,Y) :- has_connected_component(X,Y) .
+			has_component(X,Y) :- has_screw_connection_point(X,P), screw_point(P), has_screw(P,Y) .
+			has_component(X,Y) :- has_screw_connection_point(X,P), screw_point(P), has_washer(P,Y) .
+
+			has_screw_connection_point(X,P) :- has_connected_component(X,Y), has_screw_connection_point(Y,P) .
+
+			assembly_component(X) :- base(X) .
+			assembly_component(X) :- plate(X) .
+			assembly_component(X) :- gas_pedal(X) .
+
+			screw(SCREW) :- safety_screw_with_torque(SCREW,NM,UNIT) .
+
+			component(X) :- assembly_component(X) .
+			component(X) :- screw(X) .
+			component(X) :- washer(X) .
+
+			connection(X) :- screw_connection(X) .
+
+			:- has_component(_,X), not component(X) .
+			:- has_screw_connection_point(_,X), not screw_point(X) .
+			:- has_screw(P,X), not screw(X) .
+			:- has_washer(P,X), not washer(X) .
+
+			% <-- Boiler
+
+			% -----------------------------------
+			% Planning Rules
+			% -----------------------------------
+
+			% Assembly_Component Planning Rules
+			% -----------------------------------
+
+			component_actions(S) :- S = #count{Y : has_connected_component(X,Y), not has_base_component(X,Y)} .
+			component_steps(START..END) :- component_actions(S), START = 1, END = S-1 .
+			component_step_last(MAX) :- MAX = #max{S : component_steps(S)} .
+
+			position(COMP_A,COMP_B,0) :- has_base_component(X,COMP_A), connector_for(COMP_A,COMP_B), assembly_component(COMP_B) .
+			1{position(COMP_A,COMP_B,STEP): connector_for(COMP_A,COMP_B)}1 :- component_steps(STEP) .
+
+			:- position(COMP_A,COMP_B,STEP_A), position(COMP_A,COMP_B,STEP_B), STEP_A != STEP_B .
+			:- position(COMP_A,COMP_B,STEP_A), position(COMP_B,COMP_A,STEP_B), STEP_A != STEP_B .
+			:- position(COMP_A,COMP_B,STEP_A), position(COMP_C,COMP_B,STEP_B), COMP_C != COMP_A, STEP_A != STEP_B .
+
+			action(position,COMP_A,COMP_B,STEP,0) :- position(COMP_A,COMP_B,STEP) .
+
+			sub_actions(0,1) .
+			sub_actions(STEP,S) :- S = #count{Y : action(_,_,_,STEP,Y)}, component_steps(STEP) .
+
+
+			% Screw_Point Planning Rules
+			% -----------------------------------
+
+			screw_actions(S) :- S = #count{Y : has_screw_connection_point(X,Y)} .
+			screw_steps(START..END) :- component_step_last(C), screw_actions(S), START = C+1, END = C+S .
+			screw_step_last(MAX) :- MAX = #max{S : screw_steps(S)} .
+
+			time(MAX..MAX+3) :- screw_step_last(MAX) .
+
+			1{screw_action(POINT,SCREW,WASHER,STEP): screw_connection(X), has_screw_connection_point(X,POINT), has_screw(POINT,SCREW), has_washer(POINT,WASHER)}1 :- screw_steps(STEP) .
+			:- screw_action(POINT,SCREW,WASHER,STEP_A), screw_action(POINT,SCREW,WASHER,STEP_B), STEP_A != STEP_B .
+
+			action(position,POINT,WASHER,STEP,0) :- screw_action(POINT,SCREW,WASHER,STEP) .
+			action(insert,POINT,SCREW,STEP,1) :- screw_action(POINT,SCREW,WASHER,STEP), has_washer(POINT,WASHER) .
+			action(insert,POINT,SCREW,STEP,2) :- screw_action(POINT,SCREW,NUT,STEP), has_nut(POINT,NUT) .
+
+			sub_actions(STEP,S) :- S = #count{Y : action(_,_,_,STEP,Y)}, screw_steps(STEP) .
+
+
+			% Tighten Planning Rules
+			% -----------------------------------
+
+			tighten_steps(START..END) :- screw_step_last(MAX), screw_actions(S), START = MAX + 1, END = START + S - 1 .
+			1{tighten(POINT,SCREW,STEP,0): screw_connection(X), has_screw_connection_point(X,POINT), has_screw(POINT,SCREW)}1 :- tighten_steps(STEP) .
+
+			:- tighten(POINT,SCREW,STEP_A,0), tighten(POINT,SCREW,STEP_B,0), STEP_A != STEP_B .
+
+			tighten_with(POINT,TORQUE,UNIT) :- action(tighten,POINT,SCREW,STEP), safety_screw_with_torque(SCREW,TORQUE,UNIT) .
+			sub_actions(STEP,S) :- S = #count{Y : action(_,_,_,STEP,Y)}, tighten_steps(STEP) .
+			action(tighten,POINT,SCREW,STEP,0) :- tighten(POINT,SCREW,STEP,0) .
+
+
+			% Action Rules
+			% -----------------------------------
+
+			action(ACTION,A,B,SUM + 1 + SUB_STEP) :- action(ACTION,A,B,STEP_A,SUB_STEP), SUM = #sum{S,STEP : sub_actions(STEP,S), STEP < STEP_A} .
+
+
+			%#show action/4 .
+			%#show tighten_with/3 .
+
+			% -----------------------------------
+			% Planning RESULT
+			% -----------------------------------
+
+			% action(position,base_1,plate_1,1) 
+			% action(position,plate_1,gas_pedal_1,2) 
+			% action(position,screw_point_3,washer_3,3)
+			% action(insert,screw_point_3,screw_3,4) 
+			% action(position,screw_point_1,washer_1,5)
+			% action(insert,screw_point_1,screw_1,6)
+			% action(position,screw_point_2,washer_2,7) 
+			% action(insert,screw_point_2,screw_2,8) 
+			% action(tighten,screw_point_3,screw_3,9) 
+			% action(tighten,screw_point_2,screw_2,10) 
+			% action(tighten,screw_point_1,screw_1,11)
+
+			% tighten_with(screw_point_1,123,"nm")
+			% tighten_with(screw_point_2,123,"nm")
+			% tighten_with(screw_point_3,123,"nm")
+		"""^^xsd:string .
+
 	:Domain_Rules
 		a asp:RuleSet ;
 		asp:asRules """

@@ -105,7 +105,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 				List<String> cmdLine = new ArrayList();
 				cmdLine.add(python.getPath());
 				cmdLine.add(main.getPath());
-				cmdLine.add("\"" + getScript()+ "\"");
+				cmdLine.add("\"" + handleQuotes(getScript()) + "\"");
 				cmdLine.add("\"" + readInputRDF() + "\"");
 				Process p = Runtime.getRuntime().exec(cmdLine.stream().toArray(String[]::new));
 				try (BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
@@ -130,7 +130,12 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 	private String readInputRDF() throws PythonException {
 		String input = loadBeliefs();
 		String removedControls = input.replaceAll("\n", " ").replaceAll("\r", " ").replaceAll("\t", " ");
-		return removedControls.replaceAll("\"", "'");
+		return handleQuotes(removedControls);
+	}
+
+	private String handleQuotes(String input) throws PythonException {
+		input = input.replaceAll("\"", "_AJAN_DQ_");
+		return input.replaceAll("'", "_AJAN_SQ_");
 	}
 
 	private String loadBeliefs() throws PythonException {

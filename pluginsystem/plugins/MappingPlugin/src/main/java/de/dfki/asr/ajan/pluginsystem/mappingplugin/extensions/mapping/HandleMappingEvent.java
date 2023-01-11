@@ -30,6 +30,7 @@ import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.*;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.utils.MappingUtil;
+import de.dfki.asr.ajan.pluginsystem.mappingplugin.vocabularies.MappingVocabulary;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -115,9 +116,13 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
     protected Model getModel() throws RMLMapperException, URISyntaxException, JsonProcessingException, RuntimeException, IOException, TransformerException {
         InputStream resourceStream = MappingUtil.getResourceStream(this.getObject().getEventInformation());
         if (resourceStream != null) {
-            Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
             if (mapping != null) {
+				if (mapping.equals(new URI(MappingVocabulary.MIME_JSON.stringValue()))) {
+					return MappingUtil.getJSONStatementModel(resourceStream);
+				} else {
+					Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
                 return MappingUtil.getMappedModel(MappingUtil.getTriplesMaps(repo, mapping), resourceStream);
+				}
             }
 			else {
 				throw new RMLMapperException("no mapping file selected!");

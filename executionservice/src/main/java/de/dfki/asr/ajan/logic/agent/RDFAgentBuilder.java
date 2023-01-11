@@ -42,6 +42,7 @@ import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.eclipse.rdf4j.RDF4JException;
 import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
 import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.repository.Repository;
@@ -90,7 +91,6 @@ public class RDFAgentBuilder extends AgentBuilder {
         id = getIdFromModel();
         LOG.info("Creating agent with ID: " + id);
         url = getAgentURI();
-        manageTDB = isTDBManagement();
         template = setTemplateFromResource();
 	LOG.info("--> Agent Template: " + template.stringValue() + getAgentResolved());
 	inferencing = Inferencing.NONE;
@@ -99,13 +99,14 @@ public class RDFAgentBuilder extends AgentBuilder {
         setBehaviorTreesFromResource(template);
 	LOG.info("--> Agent Behaviors " + getAgentResolved());
         initialKnowledge = modelManager.getAgentInitKnowledge(vf.createIRI(url), agentResource, initAgentModel, false);
-        Credentials auth = readCredentials(id);
+        overwrite = isManagedAgentTDB();
+        Credentials auth = readCredentials();
         AgentBeliefBase beliefs = createAgentKnowledge(template, auth);
         if (beliefs == null) {
             return null;
         }
         LOG.info("--> Agent beliefs: " + beliefs.getSparqlEndpoint() + " " + getAgentSet());
-        Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, manageTDB, beliefs, events, endpoints, connections);
+        Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, overwrite, beliefs, events, endpoints, connections);
         LOG.info("Created agent with ID " + id + ": " + url);
         return agent;
     }
@@ -129,11 +130,29 @@ public class RDFAgentBuilder extends AgentBuilder {
 	LOG.info("--> Agent endpoints " + getAgentSet());
     }
 
+    private boolean isManagedAgentTDB() {
+        managedTDB = modelManager.getManagedTDB(initAgentModel, agentResource);
+        return managedTDB.isEmpty();
+    }
+
+    private Credentials readCredentials() {
+        CredentialsBuilder auth = new CredentialsBuilder();
+        Model nameModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_MANAGED_TDB, null);
+        Optional<Resource> managedResource = Models.objectResource(nameModel);
+        if (!managedResource.isEmpty()) {
+            Resource managedRes = managedResource.get();
+            modelManager.setCredentials(auth, initAgentModel, managedRes);
+            modelManager.setTokens(auth, initAgentModel, managedRes);
+            return auth.build();
+        }
+        return null;
+    }
+
     protected AgentBeliefBase createAgentKnowledge(final Resource agentTemplateRsc, final Credentials auth) throws UnauthorizedException, URISyntaxException {
-        AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,manageTDB,Inferencing.NONE,auth));
+        AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,managedTDB,Inferencing.NONE,auth));
         try {
             addAgentInformationToKnowledge(beliefs);
-            reportURI = modelManager.getReportURI(initialKnowledge);
+            reportURI = modelManager.getAnyURI(initialKnowledge, AJANVocabulary.AGENT_HAS_REPORT_URI);
             beliefs.update(initialKnowledge);
             if (initialBehavior != null) {
                 configureBehaviorTree(beliefs, initialBehavior.getBehaviorTree(), initialBehavior.getResource(), true);
@@ -188,23 +207,6 @@ public class RDFAgentBuilder extends AgentBuilder {
         String agentID = modelManager.getLabel(idModel, "No AgentTemplate-literal for " + AJANVocabulary.AGENT_HAS_ID + " defined");
         id = agentID;
         return agentID;
-    }
-
-    private Credentials readCredentials(final String id) {
-        Model controllerModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_TOKEN_CONTROLLER, null);
-        String controller = modelManager.getString(controllerModel);
-        Model pswdModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_PASSWORD, null);
-        String pswd = modelManager.getString(pswdModel);
-        if(controller != null && !controller.equals("")
-                && pswd != null && !pswd.equals("")) {
-            return new Credentials(controller, id, id, pswd);
-        }
-        return null;
-    }
-
-    private boolean isTDBManagement() {
-        Model nameModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_MANAGE_TDB, null);
-        return modelManager.getBoolean(nameModel);
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")

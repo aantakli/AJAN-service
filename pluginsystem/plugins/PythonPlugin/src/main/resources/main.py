@@ -20,11 +20,17 @@ def runLeafNode(input: rdflib.Graph):
     print(result.rdf_output.serialize(format="turtle"))
     print('--------RDF')
 
+def rewriteQuotes(input):
+    input = input.replace("_AJAN_DQ_", "\"")
+    return input.replace("_AJAN_SQ_", "'")
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    codeInString = str(sys.argv[1])
-    rdf_input = str(sys.argv[2])
+    codeInString = rewriteQuotes(str(sys.argv[1]))
+    rdf_input = rewriteQuotes(str(sys.argv[2]))
+
+    print("Code:\n" + codeInString)
+    print("RDF:\n" + rdf_input)
 
     """rdf_input = str(sys.argv[1])
     codeInString = 'import AJANlib\n' \
