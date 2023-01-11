@@ -29,8 +29,8 @@ if __name__ == '__main__':
     codeInString = rewriteQuotes(str(sys.argv[1]))
     rdf_input = rewriteQuotes(str(sys.argv[2]))
 
-    print(codeInString)
-    print(rdf_input)
+    print("Code:\n" + codeInString)
+    print("RDF:\n" + rdf_input)
 
     """rdf_input = str(sys.argv[1])
     codeInString = 'import AJANlib\n' \
