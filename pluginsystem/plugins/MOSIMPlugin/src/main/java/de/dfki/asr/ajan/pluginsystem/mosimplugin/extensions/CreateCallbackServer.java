@@ -115,7 +115,7 @@ public class CreateCallbackServer extends AbstractTDBLeafTask implements NodeExt
 			this.getObject().getLogger().info(this.getClass(), "Starting the CoSimCallback server...");
 			coSimServer.serve();
 		} catch (TTransportException e) {
-			throw new SetupCallbackServerException("Caught TTransportException in start().");
+			throw new SetupCallbackServerException("Caught TTransportException in start().", e);
 		}
     }
 

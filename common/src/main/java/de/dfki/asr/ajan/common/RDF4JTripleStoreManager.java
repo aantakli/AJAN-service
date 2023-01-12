@@ -110,7 +110,7 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 	public TripleDataBase createSecuredAgentTripleDataBase(final String tdbId, final String managedTDB, final Inferencing useInferencing, final Credentials agentAuth) throws TripleStoreException {
 		try {
 			RepositoryInfo info;
-			if (managedTDB.isEmpty()) {
+			if (managedTDB == null || managedTDB.isEmpty()) {
 				info = getInfos(tdbId, true, useInferencing, true);
 				repoManager.setupAgentSecurityConfiguration(agentAuth);
 			} else {

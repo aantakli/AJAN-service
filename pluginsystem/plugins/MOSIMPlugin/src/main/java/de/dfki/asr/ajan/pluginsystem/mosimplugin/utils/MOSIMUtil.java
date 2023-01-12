@@ -85,7 +85,8 @@ public final class MOSIMUtil {
 										final Map<String,String> properties, 
 										final List<MConstraint> constraints,
 										final String startCdt,
-										final String endCdt){
+										final String endCdt,
+										final String avatarId){
 		MInstruction instruction = new MInstruction();
 		instruction.setID(instID);
 		instruction.setName(actionID);
@@ -98,6 +99,8 @@ public final class MOSIMUtil {
 			instruction.setStartCondition(startCdt);
 		if (endCdt != null && !endCdt.equals(""))
 			instruction.setEndCondition(endCdt);
+		if (avatarId != null && !avatarId.equals(""))
+			instruction.setAvatarID(avatarId);
 		return instruction;
 	}
 
@@ -295,8 +298,22 @@ public final class MOSIMUtil {
 		valuesNeeded.add("host");
 		valuesNeeded.add("port");
 		Map<String, String> results = MOSIMUtil.getResults(query,info, valuesNeeded);
-		host.put(results.get("host"), results.get("port"));
+		host.put("host", results.get("host"));
+		host.put("port", results.get("port"));
 		return host;
+	}
+
+	public static Map<String,String> getCoSimInfos(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
+		Map<String,String> coSim = new HashMap<>();
+		ArrayList<String> valuesNeeded = new ArrayList<>();
+		valuesNeeded.add("host");
+		valuesNeeded.add("port");
+		valuesNeeded.add("avatarId");
+		Map<String, String> results = MOSIMUtil.getResults(query,info, valuesNeeded);
+		coSim.put("host", results.get("host"));
+		coSim.put("port", results.get("port"));
+		coSim.put("avatarId", results.get("avatarId"));
+		return coSim;
 	}
 	
 	public static int getPortInfos(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
@@ -316,7 +333,7 @@ public final class MOSIMUtil {
 		Repository repo = BTUtil.getInitializedRepository(info, query.getOriginBase());
 		List<BindingSet> result = query.getResult(repo);
 		if(!result.isEmpty()){
-			for (String valueNeeded:valuesNeeded) {
+			for (String valueNeeded : valuesNeeded) {
 				for (BindingSet bindings : result) {
 					if (bindings.hasBinding(valueNeeded)) {
 						response.put(valueNeeded, bindings.getValue(valueNeeded).stringValue());

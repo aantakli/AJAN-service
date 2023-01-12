@@ -1489,7 +1489,7 @@
     nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mosim:host;
-	    nd:title "Host:Port";
+	    nd:title "Scene Service: ?host ?port";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
@@ -1568,8 +1568,8 @@
     ];
     nd:parameter [
 	    a nd:Parameter;
-	    nd:mapsTo bt-mosim:host;
-	    nd:title "Host:Port";
+	    nd:mapsTo bt-mosim:coSim;
+	    nd:title "CoSim: ?host ?port ?avatarId";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
@@ -1617,8 +1617,8 @@
     ];
     nd:parameter [
 	    a nd:Parameter;
-	    nd:mapsTo bt-mosim:host;
-	    nd:title "Host:Port";
+	    nd:mapsTo bt-mosim:coSim;
+	    nd:title "CoSim: ?host ?port ?avatarId";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
@@ -1708,7 +1708,7 @@
     nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mosim:host;
-	    nd:title "Host:Port";
+	    nd:title "Registry Service: ?host ?port";
 		nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
@@ -1752,7 +1752,7 @@
     nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mosim:host;
-	    nd:title "Host:Port";
+	    nd:title "Host: ?host ?port";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
@@ -1810,7 +1810,7 @@
 	nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mosim:host;
-	    nd:title "Walkpoint Service";
+	    nd:title "Walkpoint Service: ?host ?port";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
@@ -1868,7 +1868,7 @@
 	nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mosim:host;
-	    nd:title "PathPlanning Service";
+	    nd:title "PathPlanning Service: ?host ?port";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
