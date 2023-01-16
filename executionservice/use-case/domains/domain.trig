@@ -145,6 +145,8 @@ ajan:ASP {
 	:Abdeckung_Example
 		a asp:RuleSet ;
 		asp:asRules """
+			p :- not q .
+			q :- not p .
 			assembly_component(X) :- cover(X) .
 		"""^^xsd:string .
 	

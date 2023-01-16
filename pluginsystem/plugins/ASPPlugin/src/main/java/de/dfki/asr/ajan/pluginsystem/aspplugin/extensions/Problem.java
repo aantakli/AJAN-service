@@ -43,11 +43,12 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
+import org.eclipse.rdf4j.model.util.RDFCollections;
 import org.eclipse.rdf4j.repository.Repository;
 import org.pf4j.Extension;
 
@@ -130,12 +131,10 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
     protected Model readStableModels() {
 		Model origin = new LinkedHashModel();
 		int number = 0;
-		ModelBuilder builder = new ModelBuilder();
-		if (getWrite().getContext() != null)
-			builder.namedGraph(getWrite().getContext().toString() + number);
 		if (!getWrite().getRandom()) {
 			for (String stableModel : getFacts()) {
-				getNamedModel(builder,stableModel);
+				ModelBuilder builder = getBuilder(number);
+				getNamedModel(builder, stableModel);
 				Model model = builder.build();
 				model.getNamespaces().stream().forEach(origin::setNamespace);
 				model.stream().forEach(origin::add);
@@ -143,20 +142,36 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 			}
 		}
 		else {
+			ModelBuilder builder = getBuilder(number);
 			getNamedModel(builder,getRandomStableModel());
 			origin = builder.build();
 		}
 		return origin;
     }
 
+	private ModelBuilder getBuilder(int number) {
+		ModelBuilder builder = new ModelBuilder();
+		if (getWrite().getContext() != null) {
+			Resource graph = vf.createIRI(getWrite().getContext().toString() + "_" + number);
+			builder.add(graph, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, vf.createIRI(getWrite().getContext().toString()));
+			builder.namedGraph(graph);
+		}
+		return builder;
+	}
+
     private void getNamedModel(final ModelBuilder builder, final String stableModel) {
-		if (!getWrite().isSaveString()) {
-			Serializer.getGraphFromSolution(builder, stableModel);
+		BNode bnode = vf.createBNode();
+		builder.add(bnode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.RULE_SET);
+		if (getWrite().isSaveString()) {
+			builder.add(bnode, ASPVocabulary.AS_RULES, stableModel);
 		}
 		else {
-			BNode bnode = SimpleValueFactory.getInstance().createBNode();
-			builder.add(bnode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.RULE_SET);
-			builder.add(bnode, ASPVocabulary.AS_RULES, stableModel);
+			List<Resource> list = new ArrayList();
+			Serializer.getGraphFromSolution(builder, list, stableModel);
+			BNode head = vf.createBNode();
+			builder.add(bnode, ASPVocabulary.HAS_FACTS, head);
+			Model partsModel = RDFCollections.asRDF(list, head, new LinkedHashModel());
+			partsModel.forEach(stmt -> {builder.add(stmt.getSubject(),stmt.getPredicate(),stmt.getObject());});
 		}
     }
 
