@@ -24,7 +24,7 @@ You will need the following things properly installed on your computer.
 * run `installAJAN.bat` or cmd: `mvn install`
 
 ### Docker
-* [Download latest Docker-Image](https://hub.docker.com/r/aantakli/ajan-editor)
+* [Download latest Docker-Image](https://hub.docker.com/r/aantakli/ajan-service)
 * Read Docker [Wiki](https://github.com/aantakli/AJAN-service/wiki/Docker)
 
 ## Setup Triplestore
