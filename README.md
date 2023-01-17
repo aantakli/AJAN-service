@@ -13,8 +13,6 @@ You will need the following things properly installed on your computer.
 
 ## Installation
 
-## Installation
-
 ### Prebuild Installation
 * [Download latest release ZIP](https://github.com/aantakli/AJAN-service/releases)
 * Run `startALL.bat` if you are on Windows and `startALL.sh` if you are on Mac/Linux
