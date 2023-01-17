@@ -35,6 +35,8 @@ import de.dfki.asr.ajan.pluginsystem.aspplugin.vocabularies.ASPVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,7 +45,6 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.eclipse.rdf4j.model.BNode;
-import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
@@ -161,9 +162,15 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 
     private void getNamedModel(final ModelBuilder builder, final String stableModel) {
 		BNode bnode = vf.createBNode();
+		builder.add(bnode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.STABLE_MODEL);
 		builder.add(bnode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.RULE_SET);
 		if (getWrite().isSaveString()) {
-			builder.add(bnode, ASPVocabulary.AS_RULES, stableModel);
+			StringBuilder adaptedModel = new StringBuilder();
+			Iterator<String> iterator = Arrays.asList(stableModel.split(" ")).iterator();
+			while(iterator.hasNext()) {
+			   adaptedModel.append(iterator.next()).append(". ");
+			}
+			builder.add(bnode, ASPVocabulary.AS_RULES, adaptedModel.toString());
 		}
 		else {
 			List<Resource> list = new ArrayList();

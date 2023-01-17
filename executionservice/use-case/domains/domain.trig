@@ -13,6 +13,7 @@
 @prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
 @prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
 @prefix mosim: <http://www.dfki.de/mosim-ns#> .
+@prefix aitoc: <http://www.dfki.de/aitoc-ns#> .
 @prefix suite: <http://www.dfki.de/suite-ns#> .
 @prefix aml: <https://w3id.org/i40/aml#> .
 @prefix test: <http://test.de#> .
@@ -461,9 +462,9 @@ ajan:ASP {
 # JsonTest -----------------------
 # --------------------------------
 
-:JsonTWTMapping {
+:JsonRulesMapping {
 
-	:TWTMapping a rr:TriplesMap ;
+	:RulesMapping a rr:TriplesMap ;
 		rml:logicalSource [
 			rml:source [
 				a carml:Stream ;
@@ -473,14 +474,39 @@ ajan:ASP {
 		];
 
 		rr:subjectMap [
-			rr:template "http://www.ajan.de/twt/asp_input";
-			rr:class asp:RuleSet
+			rr:template "http://www.ajan.de/asp_input";
+			rr:class asp:RuleSet, aitoc:ASPInput
 		];
 
 		rr:predicateObjectMap [
 			rr:predicate asp:asRules ;
 			rr:objectMap [
 				rml:reference "rules" ;
+				rr:datatype xsd:string
+			]
+		] .
+}
+
+:JsonRequestMapping {
+
+	:RequestMapping a rr:TriplesMap ;
+		rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:referenceFormulation ql:JSONPath;
+			rml:iterator "$"
+		];
+
+		rr:subjectMap [
+			rr:template "http://www.dfki.de/aitoc-ns#RequestURI";
+			rr:class aitoc:ReasoningRequest
+		];
+
+		rr:predicateObjectMap [
+			rr:predicate <http://www.w3.org/2006/http#requestURI> ;
+			rr:objectMap [
+				rml:reference "responseURI" ;
 				rr:datatype xsd:string
 			]
 		] .

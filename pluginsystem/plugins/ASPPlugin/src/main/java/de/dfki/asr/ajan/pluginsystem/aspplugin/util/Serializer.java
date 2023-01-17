@@ -64,7 +64,7 @@ public final class Serializer {
 			}
 			BNode subject = vf.createBNode();
 			terms.add(subject);
-			builder.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.IS_FACT);
+			builder.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.FACT);
 			if (aspPredicate.startsWith("-")) {
 				builder.add(subject, ASPVocabulary.HAS_OPPOSITE, true);
 				builder.add(subject, ASPVocabulary.HAS_PREDICATE, aspPredicate.substring(1));
