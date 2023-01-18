@@ -80,6 +80,7 @@ ajan:ASP {
 			#show position_with/4 .
 
 			insert_with(CONN,STEP,COMP,OBJ,"Hand") :- action(insert,CONN,POINT,COMP,STEP), has_screw(POINT,COMP), has_matching(POINT,_,COMP), has_matching(POINT,_,OBJ), COMP != OBJ .
+			insert_with(CONN,STEP,COMP,OBJ,"Hand") :- action(insert,CONN,POINT,COMP,STEP), has_screw(POINT,COMP), not has_matching(POINT,_,COMP), has_matching(POINT,_,OBJ), COMP != OBJ .
 			#show insert_with/5 .
 
 			adjust_with(CONN,STEP,COMP,"Hand") :- action(adjust,CONN,_,COMP,STEP) .
