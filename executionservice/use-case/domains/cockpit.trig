@@ -47,22 +47,46 @@ ajan:ASP {
 			component(X) :- washer(X) .
 
 			washer(X) :- spring_washer(X) .
-			srew(X) :- safety_screw_with_torque(X) .
+			srew(X) :- hex_head_screw(X) .
+			nut(X) :- hex_nut(X) .
 			tool(X) :- screw_driver(X) .
+			tool(X) :- wrench(X) .
+
+			is_for("Socket wrench",SCREW) :- tool("Socket wrench"), screw(SCREW), has_head(SCREW,"hex") .
+			is_for("Socket wrench",NUT) :- tool("Socket wrench"), nut(NUT), has_shape(NUT,"hex") .
+			is_for("Philips Screwdriver",SCREW) :- tool("Socket wrench"), screw(SCREW), has_head(SCREW,"philips") .
+
+			torque_with("m6","2","Nm") .
+			torque_with("4.2","1.5","Nm") .
 
 			has_component(X,COMP) :- has_screw(X,COMP) .
 			has_component(X,COMP) :- has_nut(X,COMP) .
 			has_component(X,COMP) :- has_washer(X,COMP) .
 
+			component(COMP) :- has_matching(X,COMP,Y) .
+
+
+			% Rules for additional operation information
 			% The needed instance informations are defined in components.lp
-			% -----------------------------------
-			tighten_with(POINT,TOOL,TORQUE,UNIT) :- action(tighten,CONN,POINT,SCREW,STEP), 
-													safety_screw_with_torque(SCREW), 
-													has_optimal_torque(SCREW,TORQUE,UNIT), 
-													tool(TOOL), has_max_torque(MAX,UNIT), 
-													has_min_torque(MIN,UNIT), 
-													MIN <= TORQUE, 
-													MAX >= TORQUE .
+			% ----------------------------------
+
+			tighten_with(CONN,STEP,COMP,TOOL,VALUE,UNIT) :- action(tighten,CONN,POINT,COMP,STEP), tool(TOOL), is_for(TOOL,COMP), has_thread(COMP,TYPE), torque_with(TYPE,VALUE,UNIT) .
+			#show tighten_with/6 .
+
+			position_on(CONN,STEP,COMP,OBJ,COMP_B,OBJ_B) :- action(position,CONN,POINT,COMP,STEP), has_matching(POINT,COMP,OBJ), has_matching(POINT,COMP_B,OBJ_B), COMP != COMP_B .
+			position_on(CONN,STEP,COMP,COMP,OBJ_B,OBJ_B) :- action(position,CONN,POINT,COMP,STEP), has_washer(POINT,COMP), has_screw(POINT,OBJ_B), screw(OBJ_B), COMP != OBJ_B, not has_matching(POINT,OBJ_B,_) .
+			position_with(CONN,STEP,COMP,"Hand") :- action(position,CONN,_,COMP,STEP) .
+			#show position_on/6 .
+			#show position_with/4 .
+
+			insert_with(CONN,STEP,COMP,OBJ,"Hand") :- action(insert,CONN,POINT,COMP,STEP), has_screw(POINT,COMP), has_matching(POINT,_,COMP), has_matching(POINT,_,OBJ), COMP != OBJ .
+			#show insert_with/5 .
+
+			adjust_with(CONN,STEP,COMP,"Hand") :- action(adjust,CONN,_,COMP,STEP) .
+			#show adjust_with/4 .
+
+			turnon_with(CONN,STEP,COMP,SCREW,"Hand") :- action(turnon,CONN,PONIT,COMP,STEP), has_nut(POINT,COMP), has_screw(POINT,SCREW) .
+			#show turnon_with/5 .
 
 			% <-- Boiler
 
@@ -157,25 +181,51 @@ ajan:ASP {
 			assembly_component(storage_box_cover_1) .
 
 			screw(screw_1) .
+				has_head(screw_1,"hex") .
+				has_thread(screw_1,"m6") .
+				has_length(screw_1,20,"mm") .
 			screw(screw_2) .
+				has_head(screw_2,"hex") .
+				has_thread(screw_2,"m6") .
+				has_length(screw_2,20,"mm") .
 			screw(screw_3) .
+				has_head(screw_3,"hex") .
+				has_thread(screw_3,"m6") .
+				has_length(screw_3,20,"mm") .
 			screw(screw_4) .
+				has_head(screw_4,"hex") .
+				has_thread(screw_4,"m6") .
+				has_length(screw_4,20,"mm") .
 			screw(screw_5) .
+				has_head(screw_5,"philips") .
+				has_thread(screw_5,"4.2") .
+				has_length(screw_5,20,"mm") .
 			screw(screw_6) .
+				has_head(screw_6,"philips") .
+				has_thread(screw_6,"4.2") .
+				has_length(screw_6,20,"mm") .
 
-			nut(nut_1) .
-			nut(nut_2) .
-			nut(nut_3) .
-			nut(nut_4) .
-			nut(nut_5) .
-			nut(nut_6) .
+			hex_nut(nut_1) .
+				has_shape(nut_1,"hex") .
+				has_thread(nut_1,"m6") .
+			hex_nut(nut_2) .
+				has_shape(nut_2,"hex") .
+				has_thread(nut_2,"m6") .
+			hex_nut(nut_3) .
+				has_shape(nut_3,"hex") .
+				has_thread(nut_3,"m6") .
+			hex_nut(nut_4) .
+				has_shape(nut_4,"hex") .
+				has_thread(nut_4,"m6") .
+			hex_nut(nut_5) .
+				has_shape(nut_5,"hex") .
+				has_thread(nut_5,"m6") .
+			hex_nut(nut_6) .
+				has_shape(nut_6,"hex") .
+				has_thread(nut_6,"m6") .
 
-			safety_screw_with_torque(sechskant_schraube) .
-			has_optimal_torque(sechskant_schraube,12344,"nm") .
-
-			screw_driver(bosch_screw_driver) .
-			has_max_torque(bosch_screw_driver,12345,"nm") .
-			has_min_torque(bosch_screw_driver,1234,"nm") .
+			wrench("Socket wrench") .
+			screw_driver("Philips Screwdriver") .
 
 			% <-- Annota/Boiler
 		"""^^xsd:string .
@@ -184,7 +234,7 @@ ajan:ASP {
 		a asp:RuleSet ;
 		asp:asRules """
 			% Annota/Boiler -->
-
+			
 			% -----------------------------------
 			% Screw Clamp Connection Facts (Storage Box)
 			% -----------------------------------
@@ -193,8 +243,8 @@ ajan:ASP {
 			has_connection_point(prepro_location_1,prepro_point_1) .
 
 			position_point(prepro_point_1) .
-			has_opening(screw_point_1,prepro_location_1,hole_1) .
-			has_opening(screw_point_1,storage_box_1,hole_2) .
+			has_matching(prepro_point_1,prepro_location_1,matching_1) .
+			has_matching(prepro_point_1,storage_box_1,matching_2) .
 
 			screw_clamp_connection(storage_box_console_connection_1) .
 
@@ -202,8 +252,8 @@ ajan:ASP {
 			has_connection_point(storage_box_console_connection_1,screw_point_2) .
 
 			screw_point(screw_point_1) .
-			has_opening(screw_point_1,storage_box_console_1,hole_3) .
-			has_opening(screw_point_1,storage_box_1,hole_2) .
+			has_matching(screw_point_1,storage_box_console_1,hole_3) .
+			has_matching(screw_point_1,storage_box_1,screw_1) .
 			has_screw(screw_point_1,screw_1) .
 			has_nut(screw_point_1,nut_1) .
 			has_nut(screw_point_1,nut_2) .
@@ -211,8 +261,8 @@ ajan:ASP {
 
 			screw_point(screw_point_2) .
 			has_screw(screw_point_2,screw_2) .
-			has_opening(screw_point_2,storage_box_console_1,hole_4) .
-			has_opening(screw_point_2,storage_box_1,hole_5) .
+			has_matching(screw_point_2,storage_box_console_1,hole_4) .
+			has_matching(screw_point_2,storage_box_1,screw_2) .
 			has_nut(screw_point_2,nut_4) .
 			has_nut(screw_point_2,nut_5) .
 			has_nut(screw_point_2,nut_6) .
@@ -238,14 +288,14 @@ ajan:ASP {
 			has_connection_point(storage_box_connection_sechskant,screw_point_4) .
 
 			screw_point(screw_point_3) .
-			has_opening(screw_point_3,storage_box_1,hole_6) .
+			has_matching(screw_point_3,storage_box_1,hole_6) .
 			has_screw(screw_point_3,screw_3) .
-			has_nut(screw_point_3,nut_3) .
+			%has_nut(screw_point_3,nut_3) .
 
 			screw_point(screw_point_4) .
-			has_opening(screw_point_4,storage_box_1,hole_7) .
+			has_matching(screw_point_4,storage_box_1,hole_7) .
 			has_screw(screw_point_4,screw_4) .
-			has_washer(screw_point_4,washer_4) .
+			%has_washer(screw_point_4,washer_4) .
 
 			has_base(storage_box_connection_sechskant,storage_box_1) .
 			has_connected_component(storage_box_connection_sechskant,storage_box_1,0) .
@@ -264,11 +314,11 @@ ajan:ASP {
 			has_connection_point(storage_box_connection_blech,screw_point_6) .
 
 			screw_point(screw_point_5) .
-			has_opening(screw_point_5,storage_box_1,hole_8) .
+			has_matching(screw_point_5,storage_box_1,hole_8) .
 			has_screw(screw_point_5,screw_5) .
 
 			screw_point(screw_point_6) .
-			has_opening(screw_point_6,storage_box_1,hole_9) .
+			has_matching(screw_point_6,storage_box_1,hole_9) .
 			has_screw(screw_point_6,screw_6) .
 
 			has_base(storage_box_connection_blech,storage_box_1) .
@@ -287,7 +337,8 @@ ajan:ASP {
 			has_connection_point(storage_box_connection_cover,plugin_point_1) .
 
 			plugin_point(plugin_point_1) .
-			has_opening(plugin_point_1,storage_box_1,hole_10) .
+			has_matching(plugin_point_1,storage_box_1,hole_10) .
+			has_matching(plugin_point_1,storage_box_cover_1,hole_11) .
 
 			has_base(storage_box_connection_cover,storage_box_1) .
 			has_connected_component(storage_box_connection_cover,storage_box_1,0) .

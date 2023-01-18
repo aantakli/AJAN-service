@@ -166,9 +166,13 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 		builder.add(bnode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.RULE_SET);
 		if (getWrite().isSaveString()) {
 			StringBuilder adaptedModel = new StringBuilder();
-			Iterator<String> iterator = Arrays.asList(stableModel.split(" ")).iterator();
-			while(iterator.hasNext()) {
-			   adaptedModel.append(iterator.next()).append(". ");
+			for (String value : Arrays.asList(stableModel.split("\\) "))) {
+				if(value.endsWith(")")) {
+					adaptedModel.append(value).append(". ");
+				}
+				else {
+					adaptedModel.append(value).append("). ");
+				}
 			}
 			builder.add(bnode, ASPVocabulary.AS_RULES, adaptedModel.toString());
 		}
