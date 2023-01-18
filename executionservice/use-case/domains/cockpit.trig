@@ -151,11 +151,10 @@ ajan:ASP {
 			% Annota/Boiler -->
 
 			base(storage_box_console_1) .
-			storage_box_console(storage_box_console_1) .
-			storage_box(storage_box_1) .
-			storage_box_cover(storage_box_cover_1) .
-
-			has_prepro_location(storage_box_1,prepro_location_1) .
+			base(storage_box_console_1) .
+			assembly_component(storage_box_console_1) .
+			assembly_component(storage_box_1) .
+			assembly_component(storage_box_cover_1) .
 
 			screw(screw_1) .
 			screw(screw_2) .
@@ -190,12 +189,21 @@ ajan:ASP {
 			% Screw Clamp Connection Facts (Storage Box)
 			% -----------------------------------
 
+			has_prepro_location(storage_box_1,prepro_location_1) .
+			has_connection_point(prepro_location_1,prepro_point_1) .
+
+			position_point(prepro_point_1) .
+			has_opening(screw_point_1,prepro_location_1,hole_1) .
+			has_opening(screw_point_1,storage_box_1,hole_2) .
+
 			screw_clamp_connection(storage_box_console_connection_1) .
 
 			has_connection_point(storage_box_console_connection_1,screw_point_1) .
 			has_connection_point(storage_box_console_connection_1,screw_point_2) .
 
 			screw_point(screw_point_1) .
+			has_opening(screw_point_1,storage_box_console_1,hole_3) .
+			has_opening(screw_point_1,storage_box_1,hole_2) .
 			has_screw(screw_point_1,screw_1) .
 			has_nut(screw_point_1,nut_1) .
 			has_nut(screw_point_1,nut_2) .
@@ -203,6 +211,8 @@ ajan:ASP {
 
 			screw_point(screw_point_2) .
 			has_screw(screw_point_2,screw_2) .
+			has_opening(screw_point_2,storage_box_console_1,hole_4) .
+			has_opening(screw_point_2,storage_box_1,hole_5) .
 			has_nut(screw_point_2,nut_4) .
 			has_nut(screw_point_2,nut_5) .
 			has_nut(screw_point_2,nut_6) .
@@ -228,10 +238,12 @@ ajan:ASP {
 			has_connection_point(storage_box_connection_sechskant,screw_point_4) .
 
 			screw_point(screw_point_3) .
+			has_opening(screw_point_3,storage_box_1,hole_6) .
 			has_screw(screw_point_3,screw_3) .
 			has_nut(screw_point_3,nut_3) .
 
 			screw_point(screw_point_4) .
+			has_opening(screw_point_4,storage_box_1,hole_7) .
 			has_screw(screw_point_4,screw_4) .
 			has_washer(screw_point_4,washer_4) .
 
@@ -252,9 +264,11 @@ ajan:ASP {
 			has_connection_point(storage_box_connection_blech,screw_point_6) .
 
 			screw_point(screw_point_5) .
+			has_opening(screw_point_5,storage_box_1,hole_8) .
 			has_screw(screw_point_5,screw_5) .
 
 			screw_point(screw_point_6) .
+			has_opening(screw_point_6,storage_box_1,hole_9) .
 			has_screw(screw_point_6,screw_6) .
 
 			has_base(storage_box_connection_blech,storage_box_1) .
@@ -273,11 +287,13 @@ ajan:ASP {
 			has_connection_point(storage_box_connection_cover,plugin_point_1) .
 
 			plugin_point(plugin_point_1) .
+			has_opening(plugin_point_1,storage_box_1,hole_10) .
 
 			has_base(storage_box_connection_cover,storage_box_1) .
 			has_connected_component(storage_box_connection_cover,storage_box_1,0) .
 			has_connected_component(storage_box_connection_cover,storage_box_cover_1,1) .
 
+			has_connection_point_connection(storage_box_1,plugin_point_1) .
 			has_connection_point_connection(storage_box_cover_1,plugin_point_1) .
 
 			% <-- Annota/Boiler
@@ -359,7 +375,7 @@ ajan:ASP {
 			screw_clamp_prepro_position_start(CONN,STEP) :- screw_clamp_prepro_start(CONN,STEP) .
 			screw_clamp_prepro_position_end(CONN,STEP) :- screw_clamp_prepro_position_start(CONN,STEP) .
 
-			action(position,CONN,LOCATION,COMP,STEP,0) :- screw_clamp_prepro_position_start(CONN,STEP), has_connected_component(CONN,COMP,_), has_propro_location(COMP,LOCATION) .
+			action(position,CONN,POINT,COMP,STEP,0) :- screw_clamp_prepro_position_start(CONN,STEP), has_connected_component(CONN,COMP,_), has_prepro_location(COMP,LOCATION), has_connection_point(LOCATION,POINT) .
 
 			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_clamp_prepro_position_start(CONN,STEP) .
 
@@ -425,7 +441,7 @@ ajan:ASP {
 			screw_clamp_position_start(CONN,STEP+1) :- screw_clamp_prepro_end(CONN,STEP) .
 			screw_clamp_position_end(CONN,STEP) :- screw_clamp_position_start(CONN,STEP) .
 
-			action(position,CONN,LOCATION,COMP,STEP,0) :- screw_clamp_position_start(CONN,STEP), has_connected_component(CONN,COMP,1), has_base(CONN,LOCATION) .
+			action(position,CONN,POINT,COMP,STEP,0) :- screw_clamp_position_start(CONN,STEP), has_connected_component(CONN,COMP,1), has_connection_point(CONN,POINT), has_base(CONN,LOCATION) .
 
 			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_clamp_position_start(CONN,STEP) .
 
@@ -479,7 +495,7 @@ ajan:ASP {
 			plugin_step(CONN,plugin_assemble_step(START..START)) :- plugin_assemble_start(CONN,START) .
 			plugin_assemble_end(CONN,STEP) :- plugin_assemble_start(CONN,STEP), COUNT != 0, COUNT = #count{COMP : has_connected_component(CONN,COMP,ORDER), ORDER != 0}.
 
-			action(position,CONN,COMP_A,COMP_B,STEP,SUB_STEP-1) :- plugin_step(CONN,plugin_assemble_step(STEP)), has_connected_component(CONN,COMP_A,SUB_STEP-1), has_connected_component(CONN,COMP_B,SUB_STEP), COMP_A != COMP_B.
+			action(position,CONN,POINT,COMP_B,STEP,SUB_STEP-1) :- plugin_step(CONN,plugin_assemble_step(STEP)), has_connection_point(CONN,POINT), has_connected_component(CONN,COMP_A,SUB_STEP-1), has_connected_component(CONN,COMP_B,SUB_STEP), COMP_A != COMP_B.
 
 			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y), plugin_step(CONN,plugin_assemble_step(STEP))}, plugin_step(CONN,plugin_assemble_step(STEP)) .
 		"""^^xsd:string .
