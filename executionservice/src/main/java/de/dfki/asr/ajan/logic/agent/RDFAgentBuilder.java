@@ -132,7 +132,7 @@ public class RDFAgentBuilder extends AgentBuilder {
 
     private boolean isManagedAgentTDB() {
         managedTDB = modelManager.getManagedTDB(initAgentModel, agentResource);
-        return managedTDB.isEmpty();
+        return managedTDB == null || managedTDB.isEmpty();
     }
 
     private Credentials readCredentials() {
