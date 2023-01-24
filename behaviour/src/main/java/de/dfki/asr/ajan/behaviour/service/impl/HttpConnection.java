@@ -102,12 +102,12 @@ public class HttpConnection implements IConnection {
 	}
 
 	@Override
-	public Object execute() throws HttpResponseException, IOException, SAXException {
+	public Object execute() throws HttpResponseException, IOException, SAXException, IllegalArgumentException {
 		LOG.info("Executing request {}", request.toString());
 		return sendRequest();
 	}
 
-	private Object sendRequest() throws HttpResponseException, IOException, SAXException {
+	private Object sendRequest() throws HttpResponseException, IOException, SAXException, IllegalArgumentException {
 		try (CloseableHttpClient httpClient = HttpClientBuilder.create()
 				.setDefaultRequestConfig(requestConfig)
 				.setRetryHandler(new DefaultHttpRequestRetryHandler(2, false)).build();
@@ -134,7 +134,7 @@ public class HttpConnection implements IConnection {
 		return null;
 	}
 
-	private Object readContent(final CloseableHttpResponse response) throws IOException, SAXException {
+	private Object readContent(final CloseableHttpResponse response) throws IOException, SAXException, IllegalArgumentException {
 		String mimeType = getFormatFromResponse(response.getEntity());
 		InputStream content = response.getEntity().getContent();
 		MultivaluedMap mm = getReadHeaders(response.getAllHeaders());
@@ -176,7 +176,7 @@ public class HttpConnection implements IConnection {
 		return map;
 	}
 
-	private Model createModelFromResponse(final MultivaluedMap mm, final InputStream response, final String entityFormat) throws IOException {
+	private Model createModelFromResponse(final MultivaluedMap mm, final InputStream response, final String entityFormat) throws IOException, IllegalArgumentException {
 		String mime = entityFormat;
 		if (entityFormat.contains("charset")) {
 			mime = entityFormat.split(";")[0];
