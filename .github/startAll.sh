@@ -5,3 +5,4 @@
 sleep 5
 
 ./startAJAN.sh
+

@@ -97,7 +97,21 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: PythonPlugin
-          path: ./pluginsystem/plugins/PythonPlugin/target/
+          path: ./pluginsystem/plugins/PythonPlugin/target/    
+      - 
+        name: Remove default start scripts
+        run: |
+          rm -f \
+            *.sh \
+            *.bat \
+      - 
+        name: Copy start scripts for release
+        run: |
+          cp \
+            ./.github/*.sh .\
+          && \
+          cp \
+            ./.github/*.bat .\
       - 
         uses: vimtor/action-zip@v1
         with:
