@@ -116,7 +116,7 @@ jobs:
         uses: vimtor/action-zip@v1
         with:
           recursive: true
-          files: ./pluginsystem/ ./executionservice/target/executionservice-0.1.jar ./triplestore/target/triplestore-0.1-war-exec.jar ./executionservice/ startAll.bat startAll.sh startAJAN.sh startAJAN.bat startTriplestore.bat startTriplestore.sh
+          files: ./executionservice/use-case/editor/nodeDefinitions/editor_data.trig ./executionservice/use-case/editor/editorData/editor_data.trig ./pluginsystem/ ./executionservice/target/executionservice-0.1.jar ./triplestore/target/triplestore-0.1-war-exec.jar ./executionservice/ startAll.bat startAll.sh startAJAN.sh startAJAN.bat startTriplestore.bat startTriplestore.sh
           dest: ajanservice-${{ steps.commit.outputs.short }}.zip
       -
         name: Temporally save release.zip
