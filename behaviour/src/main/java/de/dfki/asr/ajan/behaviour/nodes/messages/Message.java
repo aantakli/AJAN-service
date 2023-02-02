@@ -19,6 +19,7 @@
 
 package de.dfki.asr.ajan.behaviour.nodes.messages;
 
+import de.dfki.asr.ajan.behaviour.exception.AJANRequestException;
 import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.*;
@@ -100,7 +101,7 @@ public class Message extends AbstractTDBLeafTask {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to malformed URI");
 		} catch (IOException | SAXException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to IO exception");
-		} catch (IllegalArgumentException ex) {
+		} catch (AJANRequestException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to wrong content-type in response");
 		}
 	}

@@ -19,6 +19,7 @@
 
 package de.dfki.asr.ajan.behaviour.load;
 
+import de.dfki.asr.ajan.behaviour.exception.AJANRequestException;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ServiceActionDefinition;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpConnection;
 import de.dfki.asr.ajan.pluginsystem.AJANPluginLoader;
@@ -103,7 +104,7 @@ public class ServiceClientTest {
 	}
 
 	@Test
-	public void shouldIncludeAcceptHeader() throws RDFBeanException, URISyntaxException, IOException, HttpException, SAXException {
+	public void shouldIncludeAcceptHeader() throws RDFBeanException, URISyntaxException, IOException, HttpException, SAXException, AJANRequestException {
 		HttpRequest request = performRequest("POSTAcceptTurtle");
 		assertThat(request.getFirstHeader("accept").getValue(), is(TURTLE));
 		assertThat(request.getRequestLine().getMethod(), is("POST"));
@@ -114,14 +115,14 @@ public class ServiceClientTest {
 	}
 
 	@Test
-	public void shouldModifyRequestLine() throws RDFBeanException, URISyntaxException, IOException, HttpException, SAXException {
+	public void shouldModifyRequestLine() throws RDFBeanException, URISyntaxException, IOException, HttpException, SAXException, AJANRequestException {
 		HttpRequest request = performRequest("GETviaHTTP10");
 		assertThat(request.getRequestLine().getMethod(), is("GET"));
 		assertThat(request.getRequestLine().getProtocolVersion().toString(), is("HTTP/1.0"));
 		assertThat(request.getFirstHeader("accept").getValue(), is(TURTLE));
 	}
 
-	private HttpRequest performRequest(final String serviceName) throws HttpException, URISyntaxException, RDFBeanException, IOException, SAXException {
+	private HttpRequest performRequest(final String serviceName) throws HttpException, URISyntaxException, RDFBeanException, IOException, SAXException, AJANRequestException {
 		ServiceActionDefinition s = getService(serviceName);
 		HttpConnection client = new HttpConnection(s.getRun());
 		client.setPayload("test");

@@ -22,6 +22,7 @@ package de.dfki.asr.ajan.behaviour.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.dfki.asr.ajan.behaviour.events.Event;
+import de.dfki.asr.ajan.behaviour.exception.AJANRequestException;
 import de.dfki.asr.ajan.common.AgentUtil;
 import static de.dfki.asr.ajan.common.AgentUtil.formatForMimeType;
 import de.dfki.asr.ajan.common.CSVInput;
@@ -102,12 +103,12 @@ public class HttpConnection implements IConnection {
 	}
 
 	@Override
-	public Object execute() throws HttpResponseException, IOException, SAXException, IllegalArgumentException {
+	public Object execute() throws HttpResponseException, IOException, SAXException, AJANRequestException {
 		LOG.info("Executing request {}", request.toString());
 		return sendRequest();
 	}
 
-	private Object sendRequest() throws HttpResponseException, IOException, SAXException, IllegalArgumentException {
+	private Object sendRequest() throws HttpResponseException, IOException, SAXException, AJANRequestException {
 		try (CloseableHttpClient httpClient = HttpClientBuilder.create()
 				.setDefaultRequestConfig(requestConfig)
 				.setRetryHandler(new DefaultHttpRequestRetryHandler(2, false)).build();
@@ -134,7 +135,7 @@ public class HttpConnection implements IConnection {
 		return null;
 	}
 
-	private Object readContent(final CloseableHttpResponse response) throws IOException, SAXException, IllegalArgumentException {
+	private Object readContent(final CloseableHttpResponse response) throws SAXException, AJANRequestException, IOException {
 		String mimeType = getFormatFromResponse(response.getEntity());
 		InputStream content = response.getEntity().getContent();
 		MultivaluedMap mm = getReadHeaders(response.getAllHeaders());
@@ -176,13 +177,17 @@ public class HttpConnection implements IConnection {
 		return map;
 	}
 
-	private Model createModelFromResponse(final MultivaluedMap mm, final InputStream response, final String entityFormat) throws IOException, IllegalArgumentException {
+	private Model createModelFromResponse(final MultivaluedMap mm, final InputStream response, final String entityFormat) throws AJANRequestException {
 		String mime = entityFormat;
 		if (entityFormat.contains("charset")) {
 			mime = entityFormat.split(";")[0];
 		}
-		Model model = Rio.parse(response, BASE_URI, formatForMimeType(mime));
-		return AgentUtil.setMessageInformation(model, mm);
+		try {
+			Model model = Rio.parse(response, BASE_URI, formatForMimeType(mime));
+			return AgentUtil.setMessageInformation(model, mm);
+		} catch (IOException | IllegalArgumentException ex) {
+			throw new AJANRequestException("Error while receiveing response", ex);
+		}
 	}
 
 	private JsonNode createJsonFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException {
