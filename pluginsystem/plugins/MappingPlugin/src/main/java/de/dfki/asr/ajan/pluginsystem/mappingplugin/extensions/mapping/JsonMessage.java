@@ -19,6 +19,7 @@
 package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.mapping;
 
 import com.badlogic.gdx.ai.btree.Task;
+import de.dfki.asr.ajan.behaviour.exception.AJANRequestException;
 import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
@@ -39,9 +40,12 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.transform.TransformerException;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.http.client.HttpResponseException;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
@@ -112,6 +116,8 @@ public class JsonMessage extends Message implements NodeExtension {
 			return new NodeStatus(Task.Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
 		} catch (IOException | URISyntaxException | MessageEvaluationException | InputMappingException | SAXException ex) {
 			return new NodeStatus(Task.Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to query evaluation error", ex);
+		} catch (AJANRequestException ex) {
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to wrong content-type in response. Expecting RDF-based content!");
 		}
 	}
 
