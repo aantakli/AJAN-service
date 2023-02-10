@@ -102,7 +102,7 @@ public class Message extends AbstractTDBLeafTask {
 		} catch (IOException | SAXException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to IO exception");
 		} catch (AJANRequestException ex) {
-			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to wrong content-type in response");
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to wrong content-type in response. Expecting RDF-based content!");
 		}
 	}
 

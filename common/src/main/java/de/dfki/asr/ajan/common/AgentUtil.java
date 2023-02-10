@@ -143,7 +143,7 @@ public final class AgentUtil {
 	public static RDFFormat formatForMimeType(final String mimeType) throws IllegalArgumentException {
 		Optional<RDFFormat> fileFormatForMIMEType = RDFWriterRegistry.getInstance().getFileFormatForMIMEType(mimeType);
 		if (!fileFormatForMIMEType.isPresent()) {
-			throw new IllegalArgumentException("No format known for Mime type " + mimeType);
+			throw new IllegalArgumentException("No format known for mime type " + mimeType);
 		}
 		return fileFormatForMIMEType.get();
 	}

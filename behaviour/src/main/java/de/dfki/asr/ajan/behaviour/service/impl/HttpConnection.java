@@ -186,7 +186,7 @@ public class HttpConnection implements IConnection {
 			Model model = Rio.parse(response, BASE_URI, formatForMimeType(mime));
 			return AgentUtil.setMessageInformation(model, mm);
 		} catch (IOException | IllegalArgumentException ex) {
-			throw new AJANRequestException("Error while receiveing response", ex);
+			throw new AJANRequestException("Error while parsing " + mime + " based response into RDF graph.", ex);
 		}
 	}
 
