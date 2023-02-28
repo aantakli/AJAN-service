@@ -20,6 +20,7 @@
 package de.dfki.asr.ajan.common;
 
 import de.dfki.asr.ajan.common.exceptions.AdaptSPARQLQueryException;
+import de.dfki.asr.ajan.common.exceptions.TripleStoreException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -176,8 +177,13 @@ public final class SPARQLUtil {
 		return renderedQuery;
 	}
 
-	public static Model queryRepository(final Repository repo, final String query) {
-		return Repositories.graphQuery(repo, query, r -> QueryResults.asModel(r));
+	@SuppressWarnings("PMD.AvoidCatchingGenericException")
+	public static Model queryRepository(final Repository repo, final String query) throws TripleStoreException {
+		try {
+			return Repositories.graphQuery(repo, query, r -> QueryResults.asModel(r));
+		} catch (Exception ex) {
+			throw new TripleStoreException("Unable to query repository!", ex);
+		}
 	}
 
 	public static TupleExpr getTupleExpr(final String query) {

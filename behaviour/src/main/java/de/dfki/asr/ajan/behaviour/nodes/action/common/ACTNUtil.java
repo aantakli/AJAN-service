@@ -32,6 +32,7 @@ import de.dfki.asr.ajan.behaviour.service.impl.HttpHeader;
 import static de.dfki.asr.ajan.common.AgentUtil.formatForMimeType;
 import de.dfki.asr.ajan.common.SPARQLUtil;
 import static de.dfki.asr.ajan.common.SPARQLUtil.getTupleExpr;
+import de.dfki.asr.ajan.common.exceptions.TripleStoreException;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -64,7 +65,7 @@ public final class ACTNUtil {
 
 	}
 
-	public static InputModel getInputModel(final Action action) {
+	public static InputModel getInputModel(final Action action) throws TripleStoreException {
 		return getInputModel(action.getInputs(), action.getObject());
 	}
 
@@ -83,7 +84,7 @@ public final class ACTNUtil {
 		return inputModel;
 	}
 
-	public static InputModel getInputModel(final List<BehaviorQuery> inputs, final Repository repo) {
+	public static InputModel getInputModel(final List<BehaviorQuery> inputs, final Repository repo) throws TripleStoreException {
 		InputModel inputModel = new InputModel();
 		for (BehaviorQuery input: inputs) {
 			inputModel = ACTNUtil.addInputToModel(repo, input, inputModel);
@@ -91,7 +92,7 @@ public final class ACTNUtil {
 		return inputModel;
 	}
 
-	public static InputModel addInputToModel(final Repository repo, final BehaviorQuery input, final InputModel inputModel) {
+	public static InputModel addInputToModel(final Repository repo, final BehaviorQuery input, final InputModel inputModel) throws TripleStoreException {
 		Model result = (Model) input.getResult(repo);
 		Iterator<Statement> itr = result.iterator();
 		while (itr.hasNext()) {

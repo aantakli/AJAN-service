@@ -27,6 +27,7 @@ import de.dfki.asr.ajan.behaviour.nodes.action.definition.InputModel;
 import de.dfki.asr.ajan.behaviour.nodes.action.TaskStep;
 import de.dfki.asr.ajan.behaviour.nodes.action.common.ACTNUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
+import de.dfki.asr.ajan.common.exceptions.TripleStoreException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.rdf4j.model.Resource;
@@ -45,19 +46,23 @@ public class LoadInputModel extends AbstractChainStep {
 	@Override
 	public Task.Status execute(final TaskContext context) {
 		Action action = context.get(Action.class);
-		InputModel inputModel = ACTNUtil.getInputModel(action);
-		if (inputModel == null) {
+		try {
+			InputModel inputModel = ACTNUtil.getInputModel(action);
+			if (inputModel == null) {
+				return Task.Status.FAILED;
+			}
+			Resource node = vf.createBNode();
+			if (validateURI(action.getUrl(), "http")) {
+				inputModel.add(node, BTVocabulary.BT_NODE, vf.createIRI(action.getUrl()));
+			} else {
+				inputModel.add(node, BTVocabulary.BT_NODE, vf.createBNode());
+			}
+			inputModel.add(node, RDFS.LABEL, vf.createLiteral(action.getLabel()));
+			context.put(inputModel);
+			return executeNext(context);
+		} catch (TripleStoreException ex) {
 			return Task.Status.FAILED;
 		}
-		Resource node = vf.createBNode();
-		if (validateURI(action.getUrl(), "http")) {
-			inputModel.add(node, BTVocabulary.BT_NODE, vf.createIRI(action.getUrl()));
-		} else {
-			inputModel.add(node, BTVocabulary.BT_NODE, vf.createBNode());
-		}
-		inputModel.add(node, RDFS.LABEL, vf.createLiteral(action.getLabel()));
-		context.put(inputModel);
-		return executeNext(context);
 	}
 
 	private static boolean validateURI(final String uri, final String schema) {
