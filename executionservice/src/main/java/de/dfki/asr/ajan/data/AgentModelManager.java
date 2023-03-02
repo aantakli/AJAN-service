@@ -89,7 +89,7 @@ public class AgentModelManager {
         public String getManagedTDB(final Model model, final Resource resource) {
             Model nameModel = model.filter(resource, AJANVocabulary.AGENT_HAS_MANAGED_TDB, null);
             Optional<Resource> managedTDB = Models.objectResource(nameModel);
-            if (!managedTDB.isEmpty()) {
+            if (managedTDB != null && !managedTDB.isEmpty()) {
                 Model tdbModel = model.filter(managedTDB.get(), AJANVocabulary.AGENT_HAS_TDB_URL, null);
                 return getAnyURI(tdbModel, AJANVocabulary.AGENT_HAS_TDB_URL);
             }
@@ -99,7 +99,7 @@ public class AgentModelManager {
         public void setCredentials(final CredentialsBuilder auth, final Model model, final Resource resource) {
             Model loginModel = model.filter(resource, AJANVocabulary.AGENT_HAS_LOGIN_URL, null);
             String loginUrl = getAnyURI(loginModel, AJANVocabulary.AGENT_HAS_LOGIN_URL);
-            if (!loginUrl.isEmpty()) {
+            if (loginUrl != null && !loginUrl.isEmpty()) {
                 auth.setLoginUrl(loginUrl);
             }
             Model userModel = model.filter(resource, AJANVocabulary.AGENT_HAS_USER, null);
