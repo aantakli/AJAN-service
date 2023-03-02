@@ -139,7 +139,7 @@ public class RDFAgentBuilder extends AgentBuilder {
         CredentialsBuilder auth = new CredentialsBuilder();
         Model nameModel = initAgentModel.filter(agentResource, AJANVocabulary.AGENT_HAS_MANAGED_TDB, null);
         Optional<Resource> managedResource = Models.objectResource(nameModel);
-        if (!managedResource.isPresent()) {
+        if (managedResource.isPresent()) {
             Resource managedRes = managedResource.get();
             modelManager.setCredentials(auth, initAgentModel, managedRes);
             modelManager.setTokens(auth, initAgentModel, managedRes);
