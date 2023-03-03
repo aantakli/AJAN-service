@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk-alpine
+FROM openjdk11:jre-11.0.18_10-alpine
 
 RUN apk update && apk add supervisor && apk add wget && apk add ca-certificates && apk add curl
 
