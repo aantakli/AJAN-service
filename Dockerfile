@@ -23,6 +23,6 @@ EXPOSE 8090/tcp
 ENV url="http://localhost:8090/rdf4j"
 ENV repoURL="http://localhost:8090/rdf4j/repositories/"
 ENV DloadTTLFiles="true"
-ENV DpublicHostName=localhost
+ENV DpublicHostName="localhost"
 
 ENTRYPOINT ["/bin/sh", "/app/startup.sh"]
