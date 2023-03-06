@@ -1,6 +1,6 @@
 FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine
 
-RUN apk update && apk add supervisor && apk add wget && apk add ca-certificates && apk add curl && apk add gcc && apk add libstdc++6 && apk add gcompat
+RUN apk update && apk add supervisor wget ca-certificates curl libgcc libstdc++ ncurses-libs
 
 WORKDIR app
 
