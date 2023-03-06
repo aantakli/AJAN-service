@@ -99,7 +99,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 
 	private NodeStatus runPythonScript() throws PythonException {
 		try {
-			File python = new File(getClass().getClassLoader().getResource("venv/Scripts/python.exe").getFile());
+			File python = getPython();
 			File main = new File(getClass().getClassLoader().getResource("main.py").getFile());
 			if (python.exists() && main.exists()) {
 				List<String> cmdLine = new ArrayList();
@@ -126,6 +126,23 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 			throw new PythonException("Problems with the Runtime environment!", ex);
 		}
 	}
+
+	private File getPython() {
+		String OS = System.getProperty("os.name").toLowerCase();
+		if (isWindows(OS))
+			return new File(getClass().getClassLoader().getResource("win_venv/Scripts/python.exe").getFile());
+		else if (isUnix(OS))
+			return new File(getClass().getClassLoader().getResource("nix_venv/bin/python").getFile());
+		else return null;
+	}
+	
+	private boolean isWindows(final String OS) {
+        return OS.contains("win");
+    }
+ 
+    private boolean isUnix(final String OS) {
+        return (OS.contains("nix") || OS.contains("nux") || OS.contains("aix"));
+    }
 
 	private String readInputRDF() throws PythonException {
 		String input = loadBeliefs();
