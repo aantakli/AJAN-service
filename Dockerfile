@@ -13,8 +13,8 @@ COPY pluginsystem/plugins ./pluginsystem/plugins
 RUN chmod +x /app/startup.sh
 RUN chmod +x /app/create.sh
 
-RUN chmod -R r-x /app/pluginsystem/plugins/PythonPlugin/target/classes
-RUN chmod -R r-x /app/pluginsystem/plugins/ASPPlugin/target/classes
+RUN chmod -R +rx /app/pluginsystem/plugins/PythonPlugin/target/classes
+RUN chmod -R +rx /app/pluginsystem/plugins/ASPPlugin/target/classes
 
 WORKDIR /logs
 VOLUME logs
