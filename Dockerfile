@@ -1,6 +1,9 @@
 FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine
 
-RUN apk update && apk add supervisor wget ca-certificates curl ncurses-libs libstdc++ python3 py3-pip
+RUN apk update && apk add supervisor wget ca-certificates curl ncurses-libs python3 py3-pip
+
+# Install compatible version of libstdc++
+RUN apk add libstdc++=8.4.0-r0
 
 WORKDIR app
 
