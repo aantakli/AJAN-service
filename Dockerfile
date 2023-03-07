@@ -13,9 +13,8 @@ COPY pluginsystem/plugins ./pluginsystem/plugins
 RUN chmod +x /app/startup.sh
 RUN chmod +x /app/create.sh
 
-RUN chmod +x /app/pluginsystem/plugins/PythonPlugin/target/classes/main.py
-RUN chmod +x /app/pluginsystem/plugins/PythonPlugin/target/classes/AJANlib.py
-RUN chmod +x /app/pluginsystem/plugins/PythonPlugin/target/classes/nix_venv/bin/python
+RUN chmod -R r-x /app/pluginsystem/plugins/PythonPlugin/target/classes
+RUN chmod -R r-x /app/pluginsystem/plugins/ASPPlugin/target/classes
 
 WORKDIR /logs
 VOLUME logs
