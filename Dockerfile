@@ -13,7 +13,7 @@ COPY pluginsystem/plugins ./pluginsystem/plugins
 RUN chmod +x /app/startup.sh
 RUN chmod +x /app/create.sh
 
-RUN chmod +x pluginsystem/plugins/PythonPlugin/src/main/resources/nix_venv/bin/python
+RUN chmod +x /app/pluginsystem/plugins/PythonPlugin/target/classes/nix_venv/bin/python
 
 WORKDIR /logs
 VOLUME logs
