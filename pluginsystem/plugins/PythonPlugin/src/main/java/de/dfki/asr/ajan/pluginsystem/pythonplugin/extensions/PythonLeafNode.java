@@ -104,12 +104,12 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 			if (python.exists() && main.exists()) {
 				List<String> cmdLine = new ArrayList();
 				cmdLine.add(python.getPath());
-				LOG.info(this.getClass(), python.getPath());
 				cmdLine.add(main.getPath());
-				LOG.info(this.getClass(), main.getPath());
-				cmdLine.add("\"" + handleQuotes(getScript()) + "\"");
-				cmdLine.add("\"" + readInputRDF() + "\"");
-				Process p = Runtime.getRuntime().exec(cmdLine.stream().toArray(String[]::new));
+				cmdLine.add(handleQuotes(getScript()));
+				cmdLine.add(readInputRDF());
+				ProcessBuilder pb = new ProcessBuilder(cmdLine);
+				pb.redirectErrorStream(true);
+				Process p = pb.start();
 				try (BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
 					return extractFormResult(in);
 				} finally {
