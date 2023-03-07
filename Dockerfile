@@ -1,6 +1,6 @@
 FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine
 
-RUN apk update && apk add supervisor wget ca-certificates curl libgcc libstdc++ ncurses-libs python3 py3-pip
+RUN apk update && apk add supervisor wget ca-certificates curl gcompat libgcc libstdc++ ncurses-libs python3 py3-pip
 RUN pip install clingo
 
 WORKDIR app
