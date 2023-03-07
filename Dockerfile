@@ -1,6 +1,6 @@
 FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine
 
-RUN apk update && apk add supervisor wget ca-certificates curl libstdc++ ncurses-libs python3 py3-pip
+RUN apk update && apk add supervisor wget ca-certificates curl ncurses-libs libstdc++ python3 py3-pip
 
 WORKDIR app
 
@@ -13,6 +13,7 @@ COPY pluginsystem/plugins ./pluginsystem/plugins
 RUN chmod +x /app/startup.sh
 RUN chmod +x /app/create.sh
 
+RUN chmod +x /app/pluginsystem/plugins/PythonPlugin/target/classes/main.py
 RUN chmod +x /app/pluginsystem/plugins/PythonPlugin/target/classes/nix_venv/bin/python
 
 WORKDIR /logs
