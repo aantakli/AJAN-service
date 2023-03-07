@@ -1,6 +1,9 @@
 FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine
 
-RUN apk update && apk add supervisor wget ca-certificates curl ncurses-libs libstdc++ python3 py3-pip
+RUN apk update && apk add supervisor wget ca-certificates curl python3 py3-pip
+
+# Install compatible version of libstdc++
+RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.12/main libstdc++=8.4.0-r0
 
 WORKDIR app
 
@@ -13,8 +16,8 @@ COPY pluginsystem/plugins ./pluginsystem/plugins
 RUN chmod +x /app/startup.sh
 RUN chmod +x /app/create.sh
 
-RUN chmod -R r-x /app/pluginsystem/plugins/PythonPlugin/target/classes
-RUN chmod -R r-x /app/pluginsystem/plugins/ASPPlugin/target/classes
+RUN chmod -R +rx /app/pluginsystem/plugins/PythonPlugin/target/classes
+RUN chmod -R +rx /app/pluginsystem/plugins/ASPPlugin/target/classes
 
 WORKDIR /logs
 VOLUME logs
