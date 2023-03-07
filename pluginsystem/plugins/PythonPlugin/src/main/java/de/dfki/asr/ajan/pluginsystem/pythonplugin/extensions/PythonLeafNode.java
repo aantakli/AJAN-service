@@ -105,6 +105,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 				List<String> cmdLine = new ArrayList();
 				cmdLine.add(python.getPath());
 				cmdLine.add(main.getPath());
+				LOG.info(this.getClass(), getScript());
 				cmdLine.add("\"" + handleQuotes(getScript()) + "\"");
 				cmdLine.add("\"" + readInputRDF() + "\"");
 				Process p = Runtime.getRuntime().exec(cmdLine.stream().toArray(String[]::new));
@@ -147,6 +148,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 	private String readInputRDF() throws PythonException {
 		String input = loadBeliefs();
 		String removedControls = input.replaceAll("\n", " ").replaceAll("\r", " ").replaceAll("\t", " ");
+		LOG.info(this.getClass(), removedControls);
 		return handleQuotes(removedControls);
 	}
 
@@ -176,6 +178,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 		boolean pyRDF = false;
 		String line;
 		while ( (line = in.readLine()) != null) {
+			LOG.info(this.getClass(), "Extracting PythonNode Output:\n");
 			LOG.info(this.getClass(), line);
 			switch (line) {
 				case "Status.SUCCEEDED":
