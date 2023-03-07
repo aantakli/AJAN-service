@@ -104,8 +104,9 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 			if (python.exists() && main.exists()) {
 				List<String> cmdLine = new ArrayList();
 				cmdLine.add(python.getPath());
+				LOG.info(this.getClass(), python.getPath());
 				cmdLine.add(main.getPath());
-				LOG.info(this.getClass(), getScript());
+				LOG.info(this.getClass(), main.getPath());
 				cmdLine.add("\"" + handleQuotes(getScript()) + "\"");
 				cmdLine.add("\"" + readInputRDF() + "\"");
 				Process p = Runtime.getRuntime().exec(cmdLine.stream().toArray(String[]::new));
@@ -148,7 +149,6 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 	private String readInputRDF() throws PythonException {
 		String input = loadBeliefs();
 		String removedControls = input.replaceAll("\n", " ").replaceAll("\r", " ").replaceAll("\t", " ");
-		LOG.info(this.getClass(), removedControls);
 		return handleQuotes(removedControls);
 	}
 
@@ -177,8 +177,8 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 		boolean pyLabel = false;
 		boolean pyRDF = false;
 		String line;
+		LOG.info(this.getClass(), "Extracting PythonNode Output:\n");
 		while ( (line = in.readLine()) != null) {
-			LOG.info(this.getClass(), "Extracting PythonNode Output:\n");
 			LOG.info(this.getClass(), line);
 			switch (line) {
 				case "Status.SUCCEEDED":
@@ -224,6 +224,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 	private void writeSolution(final String input) throws IOException {
 		Model model;
 		if (input.isEmpty()) {
+			LOG.info(this.getClass(), "Empty PythonNode solution!\n");
 			return;
 		}
 		model = Rio.parse(new ByteArrayInputStream(input.getBytes()),"http://www.ajan.de" , RDFFormat.TURTLE);
