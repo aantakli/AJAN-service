@@ -4,6 +4,7 @@ RUN apk update && apk add supervisor wget ca-certificates curl python3 py3-pip
 #RUN apk add --upgrade libstdc++
 RUN apk del libstdc++
 RUN apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.16/main/ libstdc++-11.2.1_git20220219-r2
+RUN apk info libstdc++
 
 WORKDIR app
 
