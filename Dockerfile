@@ -6,7 +6,8 @@ RUN apk info libstdc++
 
 RUN python3 -m pip install --upgrade pip
 RUN pip install clingo
-RUN export clingo=/usr/lib/python3/site-packages/clingo
+RUN export PATH=$PATH:/usr/lib/python3.9/site-packages/clingo
+RUN export clingo=/usr/lib/python3.9/site-packages/clingo
 
 WORKDIR app
 
@@ -21,6 +22,7 @@ RUN chmod +x /app/create.sh
 
 RUN chmod -R +rx /app/pluginsystem/plugins/PythonPlugin/target/classes
 RUN chmod -R +rx /app/pluginsystem/plugins/ASPPlugin/target/classes
+RUN chmod +x /usr/lib/python3.9/site-packages/clingo
 
 WORKDIR /logs
 VOLUME logs
