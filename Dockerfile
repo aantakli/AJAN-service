@@ -1,7 +1,8 @@
 FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine
 
-RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.12/main libstdc++=8.4.0-r0
 RUN apk update && apk add supervisor wget ca-certificates curl python3 py3-pip
+
+RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.12/main libstdc++=8.4.0-r0 --force
 
 WORKDIR app
 
