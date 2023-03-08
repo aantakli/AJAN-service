@@ -1,7 +1,7 @@
 FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine
 
-RUN apk update && apk add supervisor wget ca-certificates curl python3 py3-pip
 RUN apk add --no-cache libstdc++=11.2.1_git20220219-r2 --repository https://dl-cdn.alpinelinux.org/alpine/v3.16/main --allow-untrusted
+RUN apk update && apk add supervisor wget ca-certificates curl python3 py3-pip py3-wheel
 RUN apk info libstdc++
 
 RUN pip install clingo
