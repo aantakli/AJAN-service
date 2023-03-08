@@ -4,6 +4,7 @@ RUN apk add --no-cache libstdc++=11.2.1_git20220219-r2 --repository https://dl-c
 RUN apk update && apk add supervisor wget ca-certificates curl python3 py3-pip py3-wheel
 RUN apk info libstdc++
 
+RUN python -m pip install --upgrade pip
 RUN pip install clingo
 
 WORKDIR app
