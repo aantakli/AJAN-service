@@ -121,18 +121,23 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 	private boolean executeInternalSolver(Problem problem, final int i) {
 		ArrayList<String> facts = new ArrayList();
 		boolean stat = false;
-		try (Control control = new Control("--verbose", "0", "--const", "maxtime="+i)) {
-			control.add(problem.getRuleset());
-			control.ground();
-			try (SolveHandle handle = control.solve(Collections.emptyList(), null, SolveMode.YIELD)) {
-				while (handle.hasNext()) {
-					if (!stat) stat = true;
-					facts.add(handle.next().toString());
+		try {
+			try (Control control = new Control("--verbose", "0", "--const", "maxtime="+i)) {
+				control.add(problem.getRuleset());
+				control.ground();
+				try (SolveHandle handle = control.solve(Collections.emptyList(), null, SolveMode.YIELD)) {
+					while (handle.hasNext()) {
+						if (!stat) stat = true;
+						facts.add(handle.next().toString());
+					}
+					problem.setFacts(facts);
 				}
-				problem.setFacts(facts);
-            }
-			control.cleanup();
-		} catch (RuntimeException ex) {
+				control.cleanup();
+			} catch (RuntimeException ex) {
+				LOG.debug(ex.getMessage());
+				return false;
+			}
+		} catch (Exception ex) {
 			LOG.debug(ex.getMessage());
 			return false;
 		}
