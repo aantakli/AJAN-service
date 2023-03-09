@@ -1,20 +1,9 @@
 FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine
 
-#RUN apk add --no-cache libstdc++=11.2.1_git20220219-r2 --repository https://dl-cdn.alpinelinux.org/alpine/v3.16/main --allow-untrusted
 RUN apk update
 RUN apk add supervisor wget ca-certificates curl libstdc++ python3 py3-pip py3-wheel
-RUN apk info libstdc++
-
-# Setting up ASPPlugin
-RUN python3 -m pip install --upgrade pip
-RUN pip install clingo
-RUN mkdir /usr/lib/python3.9/scrpt
-RUN echo python3 /usr/lib/python3.9/site-packages/clingo > /usr/lib/python3.9/scrpt/clingo
-RUN chmod +x /usr/lib/python3.9/scrpt/clingo
-ENV PATH="$PATH:/usr/lib/python3.9/scrpt"
-
-# Setting up PythonPlugin
-RUN cp /usr/bin/python3 /app/pluginsystem/plugins/PythonPlugin/target/classes/nix_venv/bin/python
+apk add --no-cache libstdc++=11.2.1_git20220219-r2 --repository https://dl-cdn.alpinelinux.org/alpine/v3.16/main --allow-untrusted
+RUN apk list -I | grep -E 'libstdc++'
 
 WORKDIR app
 
@@ -26,6 +15,17 @@ COPY pluginsystem/plugins ./pluginsystem/plugins
 
 RUN chmod +x /app/startup.sh
 RUN chmod +x /app/create.sh
+
+# Setting up ASPPlugin
+RUN python3 -m pip install --upgrade pip
+RUN pip install clingo
+RUN mkdir /usr/lib/python3.9/scrpt
+RUN echo python3 /usr/lib/python3.9/site-packages/clingo > /usr/lib/python3.9/scrpt/clingo
+RUN chmod +x /usr/lib/python3.9/scrpt/clingo
+ENV PATH="$PATH:/usr/lib/python3.9/scrpt"
+
+# Setting up PythonPlugin
+RUN cp /usr/bin/python3 /app/pluginsystem/plugins/PythonPlugin/target/classes/nix_venv/bin/python
 
 RUN chmod -R +rx /app/pluginsystem/plugins/PythonPlugin/target/classes
 RUN chmod -R +rx /app/pluginsystem/plugins/ASPPlugin/target/classes
