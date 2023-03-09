@@ -6,6 +6,10 @@ RUN apk info libstdc++
 
 RUN python3 -m pip install --upgrade pip
 RUN pip install clingo
+RUN mkdir /usr/lib/python3.9/scrpt
+RUN echo python3 /usr/lib/python3.9/site-packages/clingo > /usr/lib/python3.9/scrpt/clingo
+RUN chmod +x /usr/lib/python3.9/scrpt/clingo
+RUN export PATH=$PATH:/usr/lib/python3.9/scrpt
 
 WORKDIR app
 
