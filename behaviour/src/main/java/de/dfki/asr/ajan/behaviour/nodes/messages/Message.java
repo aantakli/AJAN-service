@@ -100,7 +100,7 @@ public class Message extends AbstractTDBLeafTask {
 		} catch (URISyntaxException | MessageEvaluationException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to malformed URI");
 		} catch (IOException | SAXException ex) {
-			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to IO exception");
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to IO exception", ex);
 		} catch (AJANRequestException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to wrong content-type in response. Expecting RDF-based content!");
 		}
