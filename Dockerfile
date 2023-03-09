@@ -4,12 +4,13 @@ FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine
 RUN apk update && apk add supervisor wget ca-certificates curl libstdc++ python3 py3-pip py3-wheel
 RUN apk info libstdc++
 
+# Setting up clingo
 RUN python3 -m pip install --upgrade pip
 RUN pip install clingo
 RUN mkdir /usr/lib/python3.9/scrpt
 RUN echo python3 /usr/lib/python3.9/site-packages/clingo > /usr/lib/python3.9/scrpt/clingo
 RUN chmod +x /usr/lib/python3.9/scrpt/clingo
-RUN export PATH=$PATH:/usr/lib/python3.9/scrpt
+ENV PATH="$PATH:/usr/lib/python3.9/scrpt"
 
 WORKDIR app
 
