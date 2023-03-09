@@ -141,7 +141,10 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 
 	private boolean extractFactsFormSolverResult(final BufferedReader in, Problem problem) throws IOException, ClingoException {
  		ArrayList<String> factsFromSolver = new ArrayList();
+		ArrayList<String> factsFromPyClingo = new ArrayList();
  		boolean stat = true;
+		boolean pyclingo = false;
+		boolean readPyclingo = false;
 		String line;
 		/* example output of the solver:
 		 * ... more stupid stuff, looking for the Answer line
@@ -153,12 +156,23 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 		while ( (line = in.readLine()) != null) {
 			LOG.info(line);
 			if (line.startsWith("SATISFIABLE")) {
-				problem.setFacts(factsFromSolver);
+				if (pyclingo) {
+					problem.setFacts(factsFromPyClingo);
+					break;
+				} else {
+					problem.setFacts(factsFromSolver);
+				}
 			} else if (line.startsWith("UNSATISFIABLE")) {
 				stat = false;
 				break;
 			} else if (line.toLowerCase().contains("error") || line.startsWith("UNKNOWN") ) {
 				throw new ClingoException("Solver error:" + line, null);
+			} else if (line.startsWith("pyclingo")) {
+				pyclingo = true;
+			} else if (pyclingo && line.startsWith("Answer")) {
+				readPyclingo = true;
+			} else if (readPyclingo) {
+				factsFromPyClingo.add(line);
 			} else {
 				// preemptively read all other lines.
 				// they may be facts or error messages, but we won't know that
