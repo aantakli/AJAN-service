@@ -1,8 +1,8 @@
 @base <https://github.com/aantakli/AJAN-service/vocabularies/bt.ttl> .
 @prefix : <https://github.com/aantakli/AJAN-service/vocabularies/bt.ttl> .
-@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
-@prefix bt-state: <http://www.ajan.de/behavior/state-ns#> .
-@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix bt: <http://www.bt-ns.ajan-agents.de#> .
+@prefix bt-state: <http://www.bt-ns.ajan-agents.de/state-ns#> .
+@prefix ajan: <http://www.ajan-ns.ajan-agents.de#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
