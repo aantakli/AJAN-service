@@ -78,8 +78,9 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 				}
 			}
 		} catch (ClingoException ex) {
-			LOG.info("Environment variable not accessible!", ex);
-			LOG.info("Executing built in Clingo instead!", ex);
+			LOG.info("Environment variable not accessible!");
+			LOG.info("Executing built in Clingo instead!");
+			LOG.info(ex.getMessage());
 			for(int i = 1; i <= execution; i++) {
 				if(executeInternalSolver(problem, i)) {
 					solution = true;
@@ -94,6 +95,7 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 		StringBuilder solverCommandLine = new StringBuilder();
 		solverCommandLine.append(getCommandLineForSolver());
 		solverCommandLine.append(" --verbose=0");
+		solverCommandLine.append(" --models ").append(getModels().toString());
 		solverCommandLine.append(" --const maxtime=").append(i);
 		addCommandLines(solverCommandLine);
 		boolean stat = false;
@@ -121,14 +123,16 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 	private boolean executeInternalSolver(Problem problem, final int i) {
 		ArrayList<String> facts = new ArrayList();
 		boolean stat = false;
+		int models = getModels();
 		try {
 			try (Control control = new Control("--verbose", "0", "--const", "maxtime="+i)) {
 				control.add(problem.getRuleset());
 				control.ground();
 				try (SolveHandle handle = control.solve(Collections.emptyList(), null, SolveMode.YIELD)) {
-					while (handle.hasNext()) {
+					while (handle.hasNext() && models > 0) {
 						if (!stat) stat = true;
 						facts.add(handle.next().toString());
+						models--;
 					}
 					problem.setFacts(facts);
 				}
