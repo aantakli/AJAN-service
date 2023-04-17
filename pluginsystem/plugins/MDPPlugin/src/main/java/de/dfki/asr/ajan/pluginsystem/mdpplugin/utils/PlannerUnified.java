@@ -4,6 +4,8 @@ import de.dfki.asr.ajan.knowledge.AbstractBeliefBase;
 import de.dfki.asr.ajan.pluginsystem.mappingplugin.exceptions.RMLMapperException;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.xerces.parsers.DOMParser;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +25,6 @@ import rddl.viz.StateViz;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -44,6 +45,8 @@ import rddl.RDDL.PVAR_INST_DEF;
 
 
 public class PlannerUnified {
+
+    // region variables
     static Logger LOG = LoggerFactory.getLogger(PlannerUnified.class);
     public static String SERVER_FILES_DIR = "";
 
@@ -94,6 +97,11 @@ public class PlannerUnified {
     private Repository repository;
 
     private KnowledgeBaseHelper knowledgeBaseHelper;
+    private Model agentKnowledgeModel;
+    private Resource agentActionsResource;
+    private Resource agentRewardsResource;
+
+    //endregion
 
     public void serverInitialize(String domainName, String instanceName, AbstractBeliefBase beliefBase, Repository repo,String domainContent, String instanceContent) throws Exception {
         rand = new RandomDataGenerator();
@@ -103,7 +111,7 @@ public class PlannerUnified {
         this.beliefBase = beliefBase;
         this.repository = repo;
         knowledgeBaseHelper= new KnowledgeBaseHelper();
-        StateViz state_viz = new NullScreenDisplay(false);
+        this.stateViz = new NullScreenDisplay(false);
 
         try{
 //            SERVER_FILES_DIR = filespath;
@@ -115,6 +123,12 @@ public class PlannerUnified {
         } catch (Exception e) {
             LOG.error("Error in server initialization"+e.getMessage());
         }
+
+        // Initializing the Knowledge Base
+        ArrayList<Object> kb = knowledgeBaseHelper.initializeModel();
+        agentKnowledgeModel = (Model) kb.get(0);
+        agentActionsResource = (Resource) kb.get(1);
+        agentRewardsResource = (Resource) kb.get(2);
     }
     public void clientInitialize(String instanceName, String clientName) {
         State      clientState;
@@ -204,6 +218,14 @@ public class PlannerUnified {
             if(this.serverRddl._tmInstanceNodes.containsKey(this.requestedInstance)) {
                 LOG.info("Instance found");
                 createXMLSessionInit(numRounds, (double) timeLimit, domainContent, instanceContent);
+                boolean OUT_OF_TIME = false;
+                this.initializeState(this.serverRddl, this.requestedInstance);
+                double accum_total_reward = 0.0;
+                ArrayList<Double> rewards = new ArrayList<>();
+                int r = 0;
+                double[] rewardArray = new double[numRounds];
+                ArrayList<Object> kb;
+                //erver side complete
                 processXMLSessionInit(problemName); // client side processing
                 clientInitialize(problemName,clientName);
                 // region client variables
@@ -216,13 +238,15 @@ public class PlannerUnified {
                 double clientTotalTimeAllowed = clientTimeAllowed;
                 double clientEmergentTime = 3.0 * clientTotalStepLeft/(80 * 100);
                 //endregion
-                boolean OUT_OF_TIME = false;
-                this.initializeState(this.serverRddl, this.requestedInstance);
-                double accum_total_reward = 0.0;
-                ArrayList<Double> rewards = new ArrayList<>();
-                int r = 0;
-                double[] rewardArray = new double[numRounds];
+
                 for (rewardArray = new double[numRounds]; r < numRounds && !OUT_OF_TIME; r++){
+                    // initialize for this round in KnowledgeBase
+                    kb = knowledgeBaseHelper.initializeRound(r, agentKnowledgeModel, agentActionsResource);
+                    agentKnowledgeModel = (Model) kb.get(0);
+                    Resource roundActionResource = (Resource) kb.get(1);
+                    kb = knowledgeBaseHelper.initializeRound(r, agentKnowledgeModel, agentRewardsResource);
+                    agentKnowledgeModel = (Model) kb.get(0);
+                    Resource roundRewardResource = (Resource) kb.get(1);
                     ArrayList<Object> actions_for_this_round = new ArrayList<>();
                     double t0 = System.currentTimeMillis();
                     clientState.init(clientDomain._hmObjects, clientNonFluents!=null?clientNonFluents._hmObjects:null,clientInstance._hmObjects,
@@ -264,7 +288,9 @@ public class PlannerUnified {
                     int h = 0;
                     HashMap<RDDL.PVAR_NAME, HashMap<ArrayList<RDDL.LCONST>, Object>> observStore = null;
                     //endregion
+                    int turnNumber = 0;
                     do {
+                        turnNumber+=1;
                         // region server side processing
                         String msg = createXMLTurn(this.state, h+1, this.domain, observStore, (double)(timeLimit - System.currentTimeMillis() + start_time), immediate_reward);
                         //endregion
@@ -282,7 +308,7 @@ public class PlannerUnified {
                             break;
                         }
                         ArrayList<RDDL.PVAR_INST_DEF> client_obs = processXMLTurn(e,clientState);
-                        LOG.info("\n******************************************");
+                        LOG.info("******************************************");
                         LOG.info("New Turn Started. Starting initialization...");
                         LOG.info("******************************************");
                         LOG.info("Time left: " + clientTimeAllowed);
@@ -361,7 +387,8 @@ public class PlannerUnified {
 //                            for (RDDL.PVAR_INST_DEF d : ds) {
 //                                updateAction(mapping, d);
 //                            }
-                            updateActions(mapping, ds, r+1);
+//                            agentKnowledgeModel = knowledgeBaseHelper.updateModel(turnNumber, ds, roundActionResource,agentKnowledgeModel);
+//                            updateActions(mapping, ds, r+1);
                             actions_for_this_round.add(ds);
                             RDDL.SUPPRESS_OBJECT_CAST = suppress_object_cast_temp;
                         }
@@ -387,7 +414,7 @@ public class PlannerUnified {
                         rewards.add(immediate_reward);
                         accum_reward += cur_discount * immediate_reward;
                         cur_discount *= this.instance._dDiscount;
-//                        this.stateViz.display(this.state, h);
+                        this.stateViz.display(this.state, h);
                         state.advanceNextState();
                         OUT_OF_TIME = (System.currentTimeMillis() - start_time > clientTimeAllowed) && USE_TIMEOUT;
                         ++h;
@@ -396,13 +423,17 @@ public class PlannerUnified {
                             break;
                         }
                         //endregion
+                        agentKnowledgeModel = knowledgeBaseHelper.updateModel(turnNumber, ds, immediate_reward, roundActionResource,agentKnowledgeModel);
+                        beliefBase.update(agentKnowledgeModel);
                     } while(!OUT_OF_TIME && (this.instance._termCond !=null || h != this.instance._nHorizon) && (this.instance._termCond == null || !this.state.checkTerminationCondition(this.instance._termCond)));
                     //region serverside processing
                     if(this.executePolicy){
                         rewardArray[r] = accum_reward;
                         accum_total_reward += accum_reward;
                         LOG.info("** Round reward: "+accum_reward);
-                        updateReward(mapping, r+1, String.valueOf(accum_reward));
+                        agentKnowledgeModel = knowledgeBaseHelper.updateModel(accum_reward, roundRewardResource,agentKnowledgeModel);
+                        beliefBase.update(agentKnowledgeModel);
+//                        updateReward(mapping, r+1, String.valueOf(accum_reward));
 //                        updateActions(mapping, r+1, actions_for_this_round);
                     }
 
