@@ -65,7 +65,7 @@ public class PlannerUnified {
     private int clientNumOfRounds;
     private double clientTimeAllowed;
     private RDDL clientRddl;
-    private long randomSeed = 0;
+    private long randomSeed = 1;
     private RDDL.INSTANCE clientInstance;
     private boolean USE_TIMEOUT = true;
     private boolean MONITOR_EXECUTION = false;
@@ -97,6 +97,7 @@ public class PlannerUnified {
 
     public void serverInitialize(String domainName, String instanceName, AbstractBeliefBase beliefBase, Repository repo,String domainContent, String instanceContent) throws Exception {
         rand = new RandomDataGenerator();
+        rand.reSeed(randomSeed);
 //        timeAllowed = DEFAULT_TIME_ALLOWED;
         numRounds = DEFAULT_NUM_ROUNDS;
         this.beliefBase = beliefBase;
