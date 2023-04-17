@@ -8,7 +8,6 @@ import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.knowledge.AbstractBeliefBase;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import de.dfki.asr.ajan.pluginsystem.mdpplugin.endpoint.RDDLPluginServer;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.KnowledgeBaseHelper;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.MDPUtil;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.PlannerUnified;
@@ -82,7 +81,7 @@ public class CreateRDDLServer extends AbstractTDBLeafTask implements NodeExtensi
 
     @Override
     public NodeStatus executeLeaf() {
-        String report = toString();
+        String report;
         Status stat;
         try {
             String domainName = MDPUtil.getStringMap(rddlDomainName, this.getObject(), "rddlDomainName");
@@ -97,15 +96,14 @@ public class CreateRDDLServer extends AbstractTDBLeafTask implements NodeExtensi
             boolean executePolicy = Boolean.parseBoolean(MDPUtil.getStringMap(rddlExecutePolicy, this.getObject(), "rddlExecutePolicy"));
             int numRounds = Integer.parseInt(MDPUtil.getStringMap(numOfRounds, this.getObject(), "numOfRounds"));
             long timeLimit = Long.parseLong(MDPUtil.getStringMap(this.timeLimit, this.getObject(), "timeLimit"));
-//            startServer(filesPath,instanceName,clientName,executePolicy,numRounds,1080000L);
             AbstractBeliefBase beliefBase = KnowledgeBaseHelper.getBeliefs(this.getObject(), targetBase);
             Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
             startServer(domainName,instanceName,clientName,executePolicy,numRounds,timeLimit,beliefBase, repo, domainContent, instanceContent);
 
-            report = toString()+ " SUCCEEDED";
+            report = this + " SUCCEEDED";
             stat = Status.SUCCEEDED;
         } catch (URISyntaxException e) {
-            report = toString()+ "FAILED";
+            report = this + "FAILED";
             stat = Status.FAILED;
         }
         return new NodeStatus(stat, this.getObject().getLogger(), this.getClass(), report);
@@ -120,11 +118,9 @@ public class CreateRDDLServer extends AbstractTDBLeafTask implements NodeExtensi
     }
 
     private void startServer(String domainName, String instanceName, String clientName, boolean executePolicy, int numRounds, long timeLimit, AbstractBeliefBase base,Repository repo, String domainContent, String instanceContent) throws URISyntaxException{
-//        RDDLPluginServer.initServer(filesPath,portNumber);
         try {
             PlannerUnified planner = new PlannerUnified();
-            planner.serverInitialize(instanceName, instanceName, base, repo, domainContent, instanceContent);
-            // TODO: parseString should be assigned
+            planner.serverInitialize(domainName, instanceName, base, repo, domainContent, instanceContent);
             planner.dummyServerStart(numRounds,timeLimit,instanceName,clientName,"RDDL",executePolicy, mapping,domainContent, instanceContent);
         } catch (Exception e) {
             e.printStackTrace();
