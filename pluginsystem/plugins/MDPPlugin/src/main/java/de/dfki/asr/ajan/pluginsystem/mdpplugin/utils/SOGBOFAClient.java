@@ -255,7 +255,7 @@ public class SOGBOFAClient implements Runnable{
                 ArrayList<RDDL.PVAR_INST_DEF> obs = processXMLTurn(e,state);
 
                 //time allowed is deducted by 3 seconds to avoid time issue
-                LOG.info("\n******************************************");
+                LOG.info("******************************************");
                 LOG.info("New Turn Started. Starting initialization...");
                 LOG.info("******************************************");
                 LOG.info("Time left: " + timeAllowed);
