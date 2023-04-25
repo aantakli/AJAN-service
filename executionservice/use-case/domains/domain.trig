@@ -514,6 +514,22 @@ ajan:ASP {
 
 :JsonTestMapping {
 
+# JSON Input --------------------
+# {
+#   "venue":
+#   {
+#     "latitude": "51.0500000",
+#     "longitude": "3.7166700"
+#   },
+#   "location":
+#   {
+#     "continent": " EU",
+#     "country": "BE",
+#     "city": "Brussels"
+#  }
+# }
+# --------------------------------
+
 	# see https://rml.io/specs/rml/ for an example input
 
 	:VenueMapping a rr:TriplesMap;
@@ -554,6 +570,11 @@ ajan:ASP {
 
 # --------------------------------
 # CSVTest ------------------------
+# --------------------------------
+
+# CSV Input ----------------------
+# id,stop,latitude,longitude
+# 6523,25,50.901389,4.484444
 # --------------------------------
 
 :CSVTestMapping {
@@ -598,6 +619,17 @@ ajan:ASP {
 
 # --------------------------------
 # XMLTest ------------------------
+# --------------------------------
+
+# XML Input ----------------------
+# <transport>
+#     <bus id="25">
+#         <route>
+#             <stop id="645">International Airport</stop>
+#             <stop id="651">Conference center</stop>
+#         </route>
+#     </bus>
+# </transport>
 # --------------------------------
 
 :XMLTestMapping {
@@ -874,6 +906,12 @@ mosim:Mapping {
 			]
 		] .
 }
+
+# --------------------------------
+# AIToC --------------------------
+# --------------------------------
+
+
 
 # --------------------------------
 # AML ----------------------------

@@ -145,6 +145,8 @@ public class HttpConnection implements IConnection {
 			return createJsonFromResponse(mm, content);
 		} else if (mimeType.contains("application/xml") || mimeType.contains("text/xml")) {
 			return createXMLFromResponse(mm, content);
+		} else if (mimeType.contains("text/html")) {
+			return createHTMLFromResponse(mm, content);
 		} else if (mimeType.contains("text/csv")) {
 			return createCSVFromResponse(mm, content);
 		}
@@ -198,6 +200,11 @@ public class HttpConnection implements IConnection {
 
 	private Document createXMLFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException, SAXException {
 		Document input = AgentUtil.getXMLFromStream(response);
+		return AgentUtil.setMessageInformation(input, mm);
+	}
+
+	private Document createHTMLFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException, SAXException {
+		Document input = AgentUtil.getHTMLFromStream(response);
 		return AgentUtil.setMessageInformation(input, mm);
 	}
 

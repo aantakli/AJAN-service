@@ -1,8 +1,8 @@
-@base <https://github.com/aantakli/AJAN-service/vocabularies/actn.ttl> .
-@prefix : <https://github.com/aantakli/AJAN-service/vocabularies/actn.ttl> .
-@prefix actn: <http://www.actn-ns.ajan-agents.de#> .
-@prefix ajan: <http://www.ajan-ns.ajan-agents.de#> .
-@prefix bt: <http://www.bt-ns.ajan-agents.de#> .
+@base <https://github.com/aantakli/aantakli.github.io/edit/main/vocabularies/actn-ns/index.html> .
+@prefix : <https://github.com/aantakli/aantakli.github.io/edit/main/vocabularies/actn-ns/index.html> .
+@prefix actn: <http://www.ajan-agents.de/vocabularies/actn-ns/#> .
+@prefix ajan: <http://www.ajan-agents.de/vocabularies/ajan-ns/#> .
+@prefix bt: <http://www.ajan-agents.de/vocabularies/behavior/bt-ns/#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
