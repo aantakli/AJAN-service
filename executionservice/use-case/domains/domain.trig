@@ -17,14 +17,18 @@
 @prefix suite: <http://www.dfki.de/suite-ns#> .
 @prefix aml: <https://w3id.org/i40/aml#> .
 @prefix test: <http://test.de#> .
-@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>.
-@prefix transit: <http://vocab.org/transit/terms/>.
-@prefix gn: <http://www.geonames.org/ontology#>.
+@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix transit: <http://vocab.org/transit/terms/> .
+@prefix gn: <http://www.geonames.org/ontology#> .
+@prefix ctd: <http://connectd.api/> .
+@prefix iots: <http://iotschema.org/> .
+@prefix json: <http://some.json.ontology/> .
+@prefix ar: <http://aitoc.eu/active-registry-ns#> .
 
-@prefix rr: <http://www.w3.org/ns/r2rml#>.
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
 @prefix rml: <http://semweb.mmlab.be/ns/rml#> .
 @prefix ql: <http://semweb.mmlab.be/ns/ql#> .
-@prefix ex:     <http://www.example.com/>.
+@prefix ex:     <http://www.example.com/> .
 @prefix carml: <http://carml.taxonic.com/carml/> .
 
 
@@ -731,6 +735,76 @@ ajan:ASP {
 			]
 		] .
 }
+
+
+# --------------------------------
+# POSER - ------------------------
+# --------------------------------
+
+# RDF Input --------------------
+# 	ar:Message_1 a ar:Message ;
+# 		ar:action ar:Action_1 ;
+# 		ar:project ar:Project_1 ;
+# 		ar:email ar:EMail_1 ;
+# 		ar:password ar:Password_1 .
+#
+# 	ar:Action_1 a ar:Action ;
+# 		ar:value "listFiles" .
+# 	ar:Project_1 a ar:Project ;
+# 		ar:value "17" .
+# 	ar:EMail_1 a ar:EMail ;
+#		ar:value "bron@cko.test" .
+# 	ar:Password_1 a ar:Password ;
+# 		ar:value "XYZ" .
+# --------------------------------
+
+:InputDataType {
+    json:EntryPoint a ar:Message ;
+		ar:action ar:Action ;
+		ar:project ar:Project ;
+		ar:email ar:EMail ;
+		ar:password ar:Password .
+
+	ar:Action ar:value iots:Number .
+	ar:Project ar:value iots:Number .
+	ar:EMail ar:value iots:Number .
+	ar:Password ar:value iots:Number .
+}
+
+:ApiDescription {
+	ctd:JsonModel json:hasRoot ctd:Root .
+
+	ctd:Action a json:String ;
+		json:key "action"^^xsd:string ;
+		json:dataType ar:Action .
+
+	ctd:Project a json:String ;
+		json:key "project"^^xsd:string ;
+		json:dataType ar:Project .
+
+	ctd:EMail a json:String ;
+		json:key "email"^^xsd:string ;
+		json:dataType ar:EMail .
+
+	ctd:Password a json:String ;
+		json:key "password"^^xsd:string ;
+		json:dataType ar:Password .
+
+	ctd:Root a json:RootObject;
+		json:key "message"^^xsd:string ;
+		json:value ctd:Action, ctd:Project, ctd:EMail, ctd:Password ;
+		json:dataType ar:Message .
+}
+
+
+# JSON Output --------------------
+# {
+#     "action": "listFiles",
+#     "project": 17,
+#     "email": "bron@cko.test",
+#     "password": "XYZ"
+# }
+# --------------------------------
 
 
 # --------------------------------

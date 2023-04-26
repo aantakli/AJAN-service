@@ -26,8 +26,10 @@ import de.dfki.asr.ajan.behaviour.exception.AJANRequestException;
 import de.dfki.asr.ajan.common.AgentUtil;
 import static de.dfki.asr.ajan.common.AgentUtil.formatForMimeType;
 import de.dfki.asr.ajan.common.CSVInput;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -194,7 +196,9 @@ public class HttpConnection implements IConnection {
 
 	private JsonNode createJsonFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
-		JsonNode input =  mapper.readTree(response);
+		String text = new String(response.readAllBytes(), StandardCharsets.UTF_8);
+		LOG.info(text);
+		JsonNode input =  mapper.readTree(new ByteArrayInputStream(text.getBytes()));
 		return AgentUtil.setMessageInformation(input, mm);
 	}
 

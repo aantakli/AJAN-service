@@ -7,6 +7,7 @@
 @prefix http-methods: <http://www.w3.org/2008/http-methods#> .
 @prefix strips: <http://www.ajan.de/behavior/strips-ns#> .
 @prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+@prefix poser: <http://www.ajan.de/poser-ns#> .
 
 @prefix metagol: <http://www.ajan.de/behavior/metagol-ns#> .
 
@@ -845,7 +846,7 @@
 		nd:mapsTo bt:mapping;
 		nd:title "Mapping";
 		nd:input xsd:anyURI ;
-		nd:default "http://"^^xsd:anyURI;
+		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
 	] ;
 	nd:parameter [
 		a nd:Parameter;
@@ -1023,26 +1024,22 @@
     ];
 	nd:parameter [
 		a nd:Parameter;
-		nd:mapsTo bt:dataMapping;
+		nd:mapsTo poser:dataMapping;
 		nd:title "Data Mapping";
-		nd:input nd:Query;
-		bt:originBase "true";
-		bt:targetBase "false";
-		nd:type bt:ConstructQuery;
+		nd:input xsd:anyURI ;
+		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
 	];
 	nd:parameter [
 		a nd:Parameter;
-		nd:mapsTo bt:apiMapping;
+		nd:mapsTo poser:apiMapping;
 		nd:title "API Mapping";
-		nd:input nd:Query;
-		bt:originBase "true";
-		bt:targetBase "false";
-		nd:type bt:ConstructQuery;
+		nd:input xsd:anyURI ;
+		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
 	];
 	nd:parameter [
 		a nd:Parameter;
 		nd:mapsTo bt:mapping;
-		nd:title "Mapping";
+		nd:title "Response Mapping";
 		nd:input xsd:anyURI ;
 		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
 	];
@@ -1111,6 +1108,7 @@
 			nd:type bt:SelectQuery;
 			nd:title "(Opt) Dynamic Headers: ?hdrName ?fieldValue";
 			nd:input nd:Query;
+			nd:optional "true";
 			bt:originBase "true";
 			bt:targetBase "false";
 		] ;
