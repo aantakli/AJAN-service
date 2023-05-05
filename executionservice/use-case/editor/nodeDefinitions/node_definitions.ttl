@@ -445,7 +445,7 @@
 	nd:type bt:Message;
 	nd:style [
         a nd:StyleDef;
-        nd:color "#ff3af5";
+        nd:color "#fccafa";
         nd:shape nd:Polygon;
         nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
         nd:padding "700%";
@@ -609,7 +609,7 @@
     nd:type bt:QueryDomain;
     nd:style [
         a nd:StyleDef;
-        nd:color "#63ffb3";
+        nd:color "#fc7cb3";
         nd:shape nd:Polygon;
         nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
         nd:padding "700%";
@@ -867,7 +867,7 @@
     nd:type bt:QueryMappingDomain;
     nd:style [
         a nd:StyleDef;
-        nd:color "#00ff84";
+        nd:color "#fc2b86";
         nd:shape nd:Polygon;
         nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
         nd:padding "700%";
@@ -901,13 +901,13 @@
 
 :MappingMessage nd:class nd:Leaf;
 	nd:category "Message Nodes";
-	nd:name "MappingMessage";
+	nd:name "Mapping Message";
 	nd:labelType nd:Dynamic;
 	rdfs:label "DefaultMappingMessage";
 	nd:type bt:MappingMessage;
 	nd:style [
         a nd:StyleDef;
-        nd:color "#ff3af5";
+        nd:color "#ff8cf9";
         nd:shape nd:Polygon;
         nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
         nd:padding "700%";
@@ -964,7 +964,7 @@
 						nd:mapsTo http-core:fieldValue;
 						nd:title "Field Value";
 						nd:input xsd:string ;
-						nd:default "text/turtle"^^xsd:string;
+						nd:default "application/json"^^xsd:string;
 					] 
 				)
 			]
@@ -1015,7 +1015,7 @@
     nd:type bt:JsonMessage;
     nd:style [
         a nd:StyleDef;
-        nd:color "#00ff84";
+        nd:color "#ff3af5";
         nd:shape nd:Polygon;
         nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
         nd:padding "700%";
@@ -1096,7 +1096,7 @@
 						nd:mapsTo http-core:fieldValue;
 						nd:title "Field Value";
 						nd:input xsd:string ;
-						nd:default "text/turtle"^^xsd:string;
+						nd:default "application/json"^^xsd:string;
 					] 
 				)
 			]

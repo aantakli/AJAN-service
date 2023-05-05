@@ -20,6 +20,7 @@ package de.dfki.asr.ajan.common;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.opencsv.CSVReader;
 import java.io.ByteArrayOutputStream;
@@ -178,15 +179,20 @@ public final class AgentUtil {
 	}
 
 	public static JsonNode setMessageInformation(final JsonNode input, final MultivaluedMap<String, String> mm) {
-		ObjectNode info = (ObjectNode)input;
-		info.put("utc", OffsetDateTime.now(ZoneOffset.UTC).toString());
+		ObjectNode info = JsonNodeFactory.instance.objectNode();
+		info.set("message", input);
+		setMessageInformation2JSON(info, mm);
+		return info;
+	}
+
+	private static void setMessageInformation2JSON(final ObjectNode node, final MultivaluedMap<String, String> mm) {
+		node.put("utc", OffsetDateTime.now(ZoneOffset.UTC).toString());
 		for (Map.Entry<String, List<String>> entry: mm.entrySet()) {
-			info.put(entry.getKey(), OffsetDateTime.now(ZoneOffset.UTC).toString());
+			node.put(entry.getKey(), OffsetDateTime.now(ZoneOffset.UTC).toString());
 			for (String value: entry.getValue()) {
-				info.put(entry.getKey(), value);
+				node.put(entry.getKey(), value);
 			}
 		}
-		return info;
 	}
 
 	public static Document setMessageInformation(final Document input, final MultivaluedMap<String, String> mm) {
