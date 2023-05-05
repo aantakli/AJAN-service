@@ -131,7 +131,9 @@ public class JsonMessage extends Message implements NodeExtension {
 		Model apiModel = getPoserMappingModel(apiMapping, repo, JSON.API_DESCRIPTION);
 		dataModel.addAll(apiModel);
 		RdfToJson mapper = new RdfToJson();
-		payload = mapper.buildJsonString(inputModel, dataModel);
+		if (!inputModel.isEmpty()) {
+			payload = mapper.buildJsonString(inputModel, dataModel);
+		}
 		return payload;
 	}
 
