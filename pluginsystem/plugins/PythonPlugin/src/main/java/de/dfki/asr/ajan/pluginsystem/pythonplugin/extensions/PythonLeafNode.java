@@ -99,15 +99,17 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 
 	private NodeStatus runPythonScript() throws PythonException {
 		try {
-			File python = new File(getClass().getClassLoader().getResource("venv/Scripts/python.exe").getFile());
+			File python = getPython();
 			File main = new File(getClass().getClassLoader().getResource("main.py").getFile());
 			if (python.exists() && main.exists()) {
 				List<String> cmdLine = new ArrayList();
 				cmdLine.add(python.getPath());
 				cmdLine.add(main.getPath());
-				cmdLine.add("\"" + handleQuotes(getScript()) + "\"");
-				cmdLine.add("\"" + readInputRDF() + "\"");
-				Process p = Runtime.getRuntime().exec(cmdLine.stream().toArray(String[]::new));
+				cmdLine.add(handleQuotes(getScript()));
+				cmdLine.add(readInputRDF());
+				ProcessBuilder pb = new ProcessBuilder(cmdLine);
+				pb.redirectErrorStream(true);
+				Process p = pb.start();
 				try (BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
 					return extractFormResult(in);
 				} finally {
@@ -126,6 +128,23 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 			throw new PythonException("Problems with the Runtime environment!", ex);
 		}
 	}
+
+	private File getPython() {
+		String OS = System.getProperty("os.name").toLowerCase();
+		if (isWindows(OS))
+			return new File(getClass().getClassLoader().getResource("win_venv/Scripts/python.exe").getFile());
+		else if (isUnix(OS))
+			return new File(getClass().getClassLoader().getResource("nix_venv/bin/python").getFile());
+		else return null;
+	}
+	
+	private boolean isWindows(final String OS) {
+        return OS.contains("win");
+    }
+ 
+    private boolean isUnix(final String OS) {
+        return (OS.contains("nix") || OS.contains("nux") || OS.contains("aix"));
+    }
 
 	private String readInputRDF() throws PythonException {
 		String input = loadBeliefs();
@@ -158,6 +177,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 		boolean pyLabel = false;
 		boolean pyRDF = false;
 		String line;
+		LOG.info(this.getClass(), "Extracting PythonNode Output:\n");
 		while ( (line = in.readLine()) != null) {
 			LOG.info(this.getClass(), line);
 			switch (line) {
@@ -204,6 +224,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 	private void writeSolution(final String input) throws IOException {
 		Model model;
 		if (input.isEmpty()) {
+			LOG.info(this.getClass(), "Empty PythonNode solution!\n");
 			return;
 		}
 		model = Rio.parse(new ByteArrayInputStream(input.getBytes()),"http://www.ajan.de" , RDFFormat.TURTLE);

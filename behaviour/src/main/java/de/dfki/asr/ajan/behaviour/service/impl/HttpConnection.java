@@ -22,11 +22,14 @@ package de.dfki.asr.ajan.behaviour.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.dfki.asr.ajan.behaviour.events.Event;
+import de.dfki.asr.ajan.behaviour.exception.AJANRequestException;
 import de.dfki.asr.ajan.common.AgentUtil;
 import static de.dfki.asr.ajan.common.AgentUtil.formatForMimeType;
 import de.dfki.asr.ajan.common.CSVInput;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -102,12 +105,12 @@ public class HttpConnection implements IConnection {
 	}
 
 	@Override
-	public Object execute() throws HttpResponseException, IOException, SAXException {
+	public Object execute() throws HttpResponseException, IOException, SAXException, AJANRequestException {
 		LOG.info("Executing request {}", request.toString());
 		return sendRequest();
 	}
 
-	private Object sendRequest() throws HttpResponseException, IOException, SAXException {
+	private Object sendRequest() throws HttpResponseException, IOException, SAXException, AJANRequestException {
 		try (CloseableHttpClient httpClient = HttpClientBuilder.create()
 				.setDefaultRequestConfig(requestConfig)
 				.setRetryHandler(new DefaultHttpRequestRetryHandler(2, false)).build();
@@ -134,7 +137,7 @@ public class HttpConnection implements IConnection {
 		return null;
 	}
 
-	private Object readContent(final CloseableHttpResponse response) throws IOException, SAXException {
+	private Object readContent(final CloseableHttpResponse response) throws SAXException, AJANRequestException, IOException {
 		String mimeType = getFormatFromResponse(response.getEntity());
 		InputStream content = response.getEntity().getContent();
 		MultivaluedMap mm = getReadHeaders(response.getAllHeaders());
@@ -144,6 +147,8 @@ public class HttpConnection implements IConnection {
 			return createJsonFromResponse(mm, content);
 		} else if (mimeType.contains("application/xml") || mimeType.contains("text/xml")) {
 			return createXMLFromResponse(mm, content);
+		} else if (mimeType.contains("text/html")) {
+			return createHTMLFromResponse(mm, content);
 		} else if (mimeType.contains("text/csv")) {
 			return createCSVFromResponse(mm, content);
 		}
@@ -176,23 +181,34 @@ public class HttpConnection implements IConnection {
 		return map;
 	}
 
-	private Model createModelFromResponse(final MultivaluedMap mm, final InputStream response, final String entityFormat) throws IOException {
+	private Model createModelFromResponse(final MultivaluedMap mm, final InputStream response, final String entityFormat) throws AJANRequestException {
 		String mime = entityFormat;
 		if (entityFormat.contains("charset")) {
 			mime = entityFormat.split(";")[0];
 		}
-		Model model = Rio.parse(response, BASE_URI, formatForMimeType(mime));
-		return AgentUtil.setMessageInformation(model, mm);
+		try {
+			Model model = Rio.parse(response, BASE_URI, formatForMimeType(mime));
+			return AgentUtil.setMessageInformation(model, mm);
+		} catch (IOException | IllegalArgumentException ex) {
+			throw new AJANRequestException("Error while parsing " + mime + " based response into RDF graph.", ex);
+		}
 	}
 
 	private JsonNode createJsonFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
-		JsonNode input =  mapper.readTree(response);
+		String text = new String(response.readAllBytes(), StandardCharsets.UTF_8);
+		LOG.info(text);
+		JsonNode input =  mapper.readTree(new ByteArrayInputStream(text.getBytes()));
 		return AgentUtil.setMessageInformation(input, mm);
 	}
 
 	private Document createXMLFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException, SAXException {
 		Document input = AgentUtil.getXMLFromStream(response);
+		return AgentUtil.setMessageInformation(input, mm);
+	}
+
+	private Document createHTMLFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException, SAXException {
+		Document input = AgentUtil.getHTMLFromStream(response);
 		return AgentUtil.setMessageInformation(input, mm);
 	}
 

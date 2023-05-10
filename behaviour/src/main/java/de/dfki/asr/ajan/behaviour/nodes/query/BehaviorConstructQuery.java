@@ -22,6 +22,7 @@ package de.dfki.asr.ajan.behaviour.nodes.query;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.common.SPARQLUtil;
+import de.dfki.asr.ajan.common.exceptions.TripleStoreException;
 import java.net.URI;
 import lombok.Data;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -50,7 +51,7 @@ public class BehaviorConstructQuery implements BehaviorQuery {
 	private final ValueFactory vf = SimpleValueFactory.getInstance();
 
 	@Override
-	public Model getResult(final Repository repo) {
+	public Model getResult(final Repository repo) throws TripleStoreException {
 		reset = false;
 		result = SPARQLUtil.getNamedGraph(SPARQLUtil.queryRepository(repo, sparql));
 		return result;

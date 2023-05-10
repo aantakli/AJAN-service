@@ -43,22 +43,28 @@ public final class Serializer {
 
 	}
 
-	public static void getGraphFromSolution(ModelBuilder builder, String stableModel) {
+	public static void getGraphFromSolution(ModelBuilder builder, List<Resource> terms, String stableModel) {
 		List<String> statements = PatternUtil.getFacts(stableModel);
 		statements.stream().forEach((statement) -> {
-			extractStatement(builder, statement);
+			extractStatement(builder, terms, statement);
 		});
 	}
 
-	private static void extractStatement(ModelBuilder builder, String fact) {
+	private static void extractStatement(ModelBuilder builder, List<Resource> terms, String fact) {
 		ValueFactory vf = SimpleValueFactory.getInstance();
 		if (fact.startsWith("_t")) {
 			extractRDFStatements(PatternUtil.getTriple(fact),vf,builder);
 		}
 		else {
-			String aspPredicate = fact.substring(0,fact.indexOf("("));
+			String aspPredicate;
+			if (fact.contains("(")) {
+				aspPredicate = fact.substring(0,fact.indexOf("("));
+			} else {
+				aspPredicate = fact.substring(0,fact.indexOf("."));
+			}
 			BNode subject = vf.createBNode();
-			builder.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.IS_FACT);
+			terms.add(subject);
+			builder.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.FACT);
 			if (aspPredicate.startsWith("-")) {
 				builder.add(subject, ASPVocabulary.HAS_OPPOSITE, true);
 				builder.add(subject, ASPVocabulary.HAS_PREDICATE, aspPredicate.substring(1));
@@ -67,14 +73,16 @@ public final class Serializer {
 				builder.add(subject, ASPVocabulary.HAS_OPPOSITE, false);
 				builder.add(subject, ASPVocabulary.HAS_PREDICATE, aspPredicate);
 			}
-			String first = fact.substring(fact.indexOf("(")+1);
-			String last = first.substring(0,first.lastIndexOf(")."));
-			List<Literal> list = new ArrayList();
-			getParts(list,vf,last);
-			BNode head = vf.createBNode();
-			builder.add(subject, ASPVocabulary.HAS_FACTS, head);
-			Model partsModel = RDFCollections.asRDF(list, head, new LinkedHashModel());
-			partsModel.forEach(stmt -> {builder.add(stmt.getSubject(),stmt.getPredicate(),stmt.getObject());});
+			if (fact.contains("(")) {
+				String first = fact.substring(fact.indexOf("(")+1);
+				String last = first.substring(0,first.lastIndexOf(")."));
+				List<Literal> list = new ArrayList();
+				getParts(list,vf,last);
+				BNode head = vf.createBNode();
+				builder.add(subject, ASPVocabulary.HAS_TERMS, head);
+				Model partsModel = RDFCollections.asRDF(list, head, new LinkedHashModel());
+				partsModel.forEach(stmt -> {builder.add(stmt.getSubject(),stmt.getPredicate(),stmt.getObject());});
+			}
 		}
 	}
 

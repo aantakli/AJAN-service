@@ -22,7 +22,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
-import de.dfki.asr.ajan.behaviour.nodes.messages.QueryDomain;
 import de.dfki.asr.ajan.behaviour.nodes.messages.SyncMessage;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpBinding;

@@ -1,0 +1,819 @@
+# @base <http://localhost:8090/rdf4j/repositories/domain#> .
+
+@prefix agents: <http://localhost:8090/rdf4j/repositories/agents#> .
+@prefix behaviors: <http://localhost:8090/rdf4j/repositories/behaviors#> .
+@prefix : <http://localhost:8090/rdf4j/repositories/domain#> .
+@prefix services: <http://localhost:8090/rdf4j/repositories/services#> .
+
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+@prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
+@prefix mosim: <http://www.dfki.de/mosim-ns#> .
+@prefix suite: <http://www.dfki.de/suite-ns#> .
+@prefix aml: <https://w3id.org/i40/aml#> .
+@prefix test: <http://test.de#> .
+@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>.
+@prefix transit: <http://vocab.org/transit/terms/>.
+@prefix gn: <http://www.geonames.org/ontology#>.
+
+@prefix rr: <http://www.w3.org/ns/r2rml#>.
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix ex:     <http://www.example.com/>.
+@prefix carml: <http://carml.taxonic.com/carml/> .
+
+
+ajan:ASP {
+	:Cockpit_LP
+		a asp:RuleSet ;
+		asp:asRules """
+			% -----------------------------------
+			% General Rules
+			% -----------------------------------
+
+			% Boiler -->
+
+			connection(X) :- screw_connection(X) .
+			connection(X) :- screw_clamp_connection(X) .
+			connection(X) :- plugin_connection(X) .
+
+			component(X) :- assembly_component(X) .
+			component(X) :- screw(X) .
+			component(X) :- nut(X) .
+			component(X) :- washer(X) .
+
+			washer(X) :- spring_washer(X) .
+			srew(X) :- hex_head_screw(X) .
+			nut(X) :- hex_nut(X) .
+			tool(X) :- screw_driver(X) .
+			tool(X) :- wrench(X) .
+
+			wrench("Socket wrench") .
+			screw_driver("Philips Screwdriver") .
+			screw_driver("Torx Screwdriver") .
+
+			%is_for("Socket wrench",SCREW) :- tool("Socket wrench"), screw(SCREW), has_screw_head(SCREW,TYPE), has_type(TYPE,"Hex"), has_round_threaded_shaft(SCREW,THREAD), has_thread(THREAD,"M6") .
+			%is_for("Socket wrench",NUT) :- tool("Socket wrench"), nut(NUT), has_screw_head(NUT,TYPE), has_type(TYPE,"Hex"), has_threaded_hole(NUT,THREAD), has_thread(THREAD,"M8") .
+			%is_for("Torx Screwdriver",SCREW) :- tool("Torx Screwdriver"), screw(SCREW), has_screw_head(SCREW,TYPE), has_type(TYPE,"Torx"), has_round_threaded_shaft(SCREW,THREAD), has_thread(THREAD,"4.2") .
+			%is_for("Philips Screwdriver",SCREW) :- tool("Philips Screwdriver"), screw(SCREW), has_screw_head(SCREW,TYPE), has_type(TYPE,"Philips"), has_round_threaded_shaft(SCREW,THREAD), has_thread(THREAD,"4.6") .
+			%is_for("Torx Screwdriver",SCREW) :- tool("Torx Screwdriver"), screw(SCREW), has_screw_head(SCREW,TYPE), has_type(TYPE,"Torx"), has_round_threaded_shaft(SCREW,THREAD), has_thread(THREAD,"4.8") .
+
+			%torque_screw_with("M6","2","Nm") .
+			%torque_screw_with("M8","2","Nm") .
+			%torque_screw_with("4.2","1.5","Nm") .
+			%torque_screw_with("4.6","1.5","Nm") .
+			%torque_screw_with("4.8","1.5","Nm") .
+
+			%attachment_for_screw("M6","10") .
+			%attachment_for_screw("M8","11") .
+			%attachment_for_screw("4.2","12") .
+			%attachment_for_screw("4.6","13") .
+			%attachment_for_screw("4.8","14") .
+
+			has_component(X,COMP) :- has_screw(X,COMP) .
+			has_component(X,COMP) :- has_nut(X,COMP) .
+			has_component(X,COMP) :- has_washer(X,COMP) .
+
+			component(COMP) :- has_matching(X,COMP,Y) .
+
+
+			% Rules for additional operation information
+			% The needed instance informations are defined in components.lp
+			% ----------------------------------
+
+			tighten_with(CONN,STEP,COMP,VALUE,UNIT,TOOL,ATTACHEMENT) :- action(tighten,CONN,POINT,COMP,STEP), tool(TOOL), is_for(TOOL,COMP), has_round_threaded_shaft(COMP,FEATURE), has_thread(FEATURE,TYPE), attachment_for_screw(TYPE,ATTACHEMENT), torque_screw_with(TYPE,VALUE,UNIT) .
+			tighten_with(CONN,STEP,COMP,VALUE,UNIT,TOOL,ATTACHEMENT) :- action(tighten,CONN,POINT,COMP,STEP), tool(TOOL), is_for(TOOL,COMP), has_threaded_hole(COMP,FEATURE), has_thread(FEATURE,TYPE), attachment_for_screw(TYPE,ATTACHEMENT), torque_screw_with(TYPE,VALUE,UNIT) .
+			#show tighten_with/7 .
+
+			position_on(CONN,STEP,COMP,OBJ,COMP_B,OBJ_B) :- action(position,CONN,POINT,COMP,STEP), has_matching(POINT,COMP,OBJ), has_matching(POINT,COMP_B,OBJ_B), COMP != COMP_B .
+			position_on(CONN,STEP,COMP,COMP,OBJ_B,OBJ_B) :- action(position,CONN,POINT,COMP,STEP), has_washer(POINT,COMP), has_screw(POINT,OBJ_B), screw(OBJ_B), COMP != OBJ_B, not has_matching(POINT,OBJ_B,_) .
+			position_with(CONN,STEP,COMP,"Hand") :- action(position,CONN,_,COMP,STEP) .
+			#show position_on/6 .
+			#show position_with/4 .
+
+			insert_with(CONN,STEP,COMP,OBJ,"Hand") :- action(insert,CONN,POINT,COMP,STEP), has_screw(POINT,COMP), has_matching(POINT,_,COMP), has_matching(POINT,_,OBJ), COMP != OBJ .
+			insert_with(CONN,STEP,COMP,OBJ,"Hand") :- action(insert,CONN,POINT,COMP,STEP), has_screw(POINT,COMP), not has_matching(POINT,_,COMP), has_matching(POINT,_,OBJ), COMP != OBJ .
+			#show insert_with/5 .
+
+			adjust_with(CONN,STEP,COMP,"Hand") :- action(adjust,CONN,_,COMP,STEP) .
+			#show adjust_with/4 .
+
+			turnon_with(CONN,STEP,COMP,SCREW,"Hand") :- action(turnon,CONN,PONIT,COMP,STEP), has_nut(POINT,COMP), has_screw(POINT,SCREW) .
+			#show turnon_with/5 .
+
+			% <-- Boiler
+
+			% -----------------------------------
+			% Processing Rules
+			% -----------------------------------
+
+			connection_step(0..END-1) :- END = #count{CONN: connection(CONN)} .
+
+			1{plan_connection(CONN,STEP): connection(CONN)}1 :- connection_step(STEP) .
+
+			:- plan_connection(CONN,STEP_A), plan_connection(CONN,STEP_B), STEP_A != STEP_B .
+
+			action(assemble,CONN,STEP) :- plan_connection(CONN,STEP) .
+
+
+			% Action Rules
+			% -----------------------------------
+
+			action(ACTION,CONN,A,B,SUM + 1 + SUB_STEP) :- action(ACTION,CONN,A,B,STEP_A,SUB_STEP), SUM = #sum{S,STEP : sub_actions(CONN,STEP,S), STEP < STEP_A} .
+
+			% -----------------------------------
+			% RESULT Filters
+			% -----------------------------------
+
+			%#show connection/1 .
+
+			%#show action/6 .
+			#show action/5 .
+			#show action/3 .
+		"""^^xsd:string .
+	
+	:Components_LP
+		a asp:RuleSet ;
+		asp:asRules """
+		% -----------------------------------
+		% Component Facts
+		% -----------------------------------
+
+		% Annota/Boiler -->
+
+		% Component facts
+		% ---------------
+
+		base(main_support_430) .
+
+		assembly_component(main_support_430) .
+			connecting_part(main_support_430) .
+			has_smooth_through_hole(main_support_430,feature_430_1) .
+			has_diameter(feature_430_1,8) .
+			has_smooth_through_hole(main_support_430,feature_430_2) .
+			has_diameter(feature_430_2,8) .
+			has_smooth_through_hole(main_support_430,feature_430_3) .
+			has_diameter(feature_430_3,8) .
+			has_smooth_through_hole(main_support_430,feature_430_4) .
+			has_diameter(feature_430_4,8) .
+
+
+		% Cover -----------------------------------------
+
+		assembly_component(cover_427) .
+			has_smooth_through_hole(cover_427,feature_427_1) .
+			has_diameter(feature_427_1,6) .
+			has_smooth_through_hole(cover_427,feature_427_2) .
+			has_diameter(feature_427_2,6) .
+			has_smooth_through_hole(cover_427,feature_427_3) .
+			has_diameter(feature_427_3,"4.2") .
+			has_smooth_through_hole(cover_427,feature_427_4) .
+			has_diameter(feature_427_4,"4.2") .
+			has_smooth_through_hole(cover_427,feature_427_5) .
+			has_diameter(feature_427_5,"4.2") .
+			has_smooth_through_hole(cover_427,feature_427_6) .
+			has_diameter(feature_427_6,8) .
+			has_smooth_through_hole(cover_427,feature_427_7) .
+			has_diameter(feature_427_7,8) .
+
+		assembly_component(small_cover_426) .
+			has_smooth_through_hole(small_cover_426,feature_426_1) .
+			has_diameter(feature_426_1,8) .
+			has_smooth_through_hole(small_cover_426,feature_426_2) .
+			has_diameter(feature_426_2,8) .
+
+
+		% Support Corner -----------------------------------------
+
+		assembly_component(support_corner_1_428) .
+			connecting_part(support_corner_1_428) .
+			has_smooth_through_hole(support_corner_1_428,feature_428_1) .
+			has_diameter(feature_428_1,"4.2") .
+			has_smooth_through_hole(support_corner_1_428,feature_428_2) .
+			has_diameter(feature_428_2,"4.2") .
+			
+		assembly_component(support_corner_2_443) .
+			connecting_part(support_corner_2_443) .
+			has_smooth_through_hole(support_corner_2_443,feature_443_1) .
+			has_diameter(feature_443_1,"4.2") .
+			has_smooth_through_hole(support_corner_2_443,feature_443_2) .
+			has_diameter(feature_443_2,"4.2") .
+
+
+		% 7x Nut Clips -----------------------------------------
+		% 4x Nut Clips V1 --------------------------------------
+
+		assembly_component(u_type_nut_clip_v1_1_429) .
+			fastener(u_type_nut_clip_v1_1_429) .
+			snapon(u_type_nut_clip_v1_1_429) .
+			connecting_part(u_type_nut_clip_v1_1_429) .
+			snapon(u_type_nut_clip_v1_1_429) .
+			nut(u_type_nut_clip_v1_1_429) .
+			has_threaded_hole(u_type_nut_clip_v1_1_429,feature_429_1) .
+			has_thread(feature_429_1,"4.8") .
+			has_length(feature_429_1,2) .
+			has_thread_direction(feature_429_1,"right") .
+			has_surface(u_type_nut_clip_v1_1_429,feature_429_2) .
+			has_width(feature_429_2,15) .
+			has_depth(feature_429_2,5) .
+			has_function(feature_429_2,"Contact") .
+
+		assembly_component(u_type_nut_clip_v1_2_438) .
+			fastener(u_type_nut_clip_v1_2_438) .
+			snapon(u_type_nut_clip_v1_2_438) .
+			connecting_part(u_type_nut_clip_v1_2_438) .
+			snapon(u_type_nut_clip_v1_2_438) .
+			nut(u_type_nut_clip_v1_2_438) .
+			has_threaded_hole(u_type_nut_clip_v1_2_438,feature_438_1) .
+			has_thread(feature_438_1,"4.8") .
+			has_length(feature_438_1,2) .
+			has_thread_direction(feature_438_1,"right") .
+			has_surface(u_type_nut_clip_v1_2_438,feature_438_2) .
+			has_width(feature_438_2,15) .
+			has_depth(feature_438_2,5) .
+			has_function(feature_438_2,"Contact") .
+
+		assembly_component(u_type_nut_clip_v1_3_439) .
+			fastener(u_type_nut_clip_v1_3_439) .
+			snapon(u_type_nut_clip_v1_3_439) .
+			connecting_part(u_type_nut_clip_v1_3_439) .
+			snapon(u_type_nut_clip_v1_3_439) .
+			nut(u_type_nut_clip_v1_3_439) .
+			has_threaded_hole(u_type_nut_clip_v1_3_439,feature_439_1) .
+			has_thread(feature_439_1,"4.8") .
+			has_length(feature_439_1,2) .
+			has_thread_direction(feature_439_1,"right") .
+			has_surface(u_type_nut_clip_v1_3_439,feature_439_2) .
+			has_width(feature_439_2,15) .
+			has_depth(feature_439_2,5) .
+			has_function(feature_439_2,"Contact") .
+			
+		assembly_component(u_type_nut_clip_v1_4_440) .
+			fastener(u_type_nut_clip_v1_4_440) .
+			snapon(u_type_nut_clip_v1_4_440) .
+			connecting_part(u_type_nut_clip_v1_4_440) .
+			snapon(u_type_nut_clip_v1_4_440) .
+			nut(u_type_nut_clip_v1_4_440) .
+			has_threaded_hole(u_type_nut_clip_v1_4_440,feature_440_1) .
+			has_thread(feature_440_1,"4.8") .
+			has_length(feature_440_1,2) .
+			has_thread_direction(feature_440_1,"right") .
+			has_surface(u_type_nut_clip_v1_4_440,feature_440_2) .
+			has_width(feature_440_2,15) .
+			has_depth(feature_440_2,5) .
+			has_function(feature_440_2,"Contact") .
+
+		% 3x Nut Clips V2 --------------------------------------
+
+		assembly_component(u_type_nut_clip_v2_1_437) .
+			fastener(u_type_nut_clip_v2_1_437) .
+			snapon(u_type_nut_clip_v2_1_437) .
+			snapon(u_type_nut_clip_v2_1_437) .
+			nut(u_type_nut_clip_v2_1_437) .
+			has_threaded_hole(u_type_nut_clip_v2_1_437,feature_437_1) .
+			has_thread(feature_437_1,"M6") .
+			has_length(feature_437_1,5) .
+			has_thread_direction(feature_437_1,"right") .
+
+		assembly_component(u_type_nut_clip_v2_2_441) .
+			fastener(u_type_nut_clip_v2_2_441) .
+			snapon(u_type_nut_clip_v2_2_441) .
+			snapon(u_type_nut_clip_v2_2_441) .
+			nut(u_type_nut_clip_v2_2_441) .
+			has_threaded_hole(u_type_nut_clip_v2_2_441,feature_441_1) .
+			has_thread(feature_441_1,"M6") .
+			has_length(feature_441_1,5) .
+			has_thread_direction(feature_441_1,"right") .
+
+		assembly_component(u_type_nut_clip_v2_3_442) .
+			fastener(u_type_nut_clip_v2_3_442) .
+			snapon(u_type_nut_clip_v2_3_442) .
+			snapon(u_type_nut_clip_v2_3_442) .
+			nut(u_type_nut_clip_v2_3_442) .
+			has_threaded_hole(u_type_nut_clip_v2_3_442,feature_442_1) .
+			has_thread(feature_442_1,"M6") .
+			has_length(feature_442_1,5) .
+			has_thread_direction(feature_442_1,"right") .
+
+			
+		% 4x Tapping Screw -----------------------------------------
+		% 2x Screw Short -------------------------------------------
+			
+		assembly_component(self_tapping_screw_1_431) .
+			fastener(self_tapping_screw_1_431) .
+			screw(self_tapping_screw_1_431) .
+			has_round_threaded_shaft(self_tapping_screw_1_431,feature_431_1) .
+			has_thread(feature_431_1,"4.8") .
+			has_length(feature_431_1,10) .
+			has_screw_head(self_tapping_screw_1_431,feature_431_2) .
+			has_type(feature_431_2,"Torx") .
+			has_size(feature_431_2,5) .
+
+		assembly_component(self_tapping_screw_2_444) .
+			fastener(self_tapping_screw_2_444) .
+			screw(self_tapping_screw_2_444) .
+			has_round_threaded_shaft(self_tapping_screw_2_444,feature_444_1) .
+			has_thread(feature_444_1,"4.8") .
+			has_length(feature_444_1,10) .
+			has_screw_head(self_tapping_screw_2_444,feature_444_2) .
+			has_type(feature_444_2,"Torx") .
+			has_size(feature_444_2,5) .
+
+		% 2x Screw Long --------------------------------------------
+
+		assembly_component(self_tapping_screw_long_1_432) .
+			fastener(self_tapping_screw_long_1_432) .
+			screw(self_tapping_screw_long_1_432) .
+			has_screw_head(self_tapping_screw_long_1_432,feature_432_1) .
+			has_type(feature_432_1,"Torx") .
+			has_size(feature_432_1,5) .
+			has_tyoe(feature_432_1,"Star") .
+			has_round_threaded_shaft(self_tapping_screw_long_1_432,feature_432_2) .
+			has_thread(feature_432_2,"4.8") .
+			has_length(feature_432_2,20) .
+			has_thread_type_and_size(feature_432_2,"4.8") .
+
+		assembly_component(self_tapping_screw_long_2_445) .
+			fastener(self_tapping_screw_long_2_445) .
+			screw(self_tapping_screw_long_2_445) .
+			has_screw_head(self_tapping_screw_long_2_445,feature_445_1) .
+			has_type(feature_445_1,"Torx") .
+			has_size(feature_445_1,5) .
+			has_tyoe(feature_445_1,"Star") .
+			has_round_threaded_shaft(self_tapping_screw_long_2_445,feature_445_2) .
+			has_thread(feature_445_2,"4.8") .
+			has_length(feature_445_2,20) .
+			has_thread_type_and_size(feature_445_2,"4.8") .
+
+
+		% 7x Hex Screw ----------------------------------------------
+		% 2x Hex Screw m8x12 ----------------------------------------
+
+		assembly_component(m8x12_hex_head_screw_1_435) .
+			fastener(m8x12_hex_head_screw_1_435) .
+			screw(m8x12_hex_head_screw_1_435) .
+			has_screw_head(m8x12_hex_head_screw_1_435,feature_435_1) .
+			has_type(feature_435_1,"Hex") .
+			has_size(feature_435_1,13) .
+			has_round_threaded_shaft(m8x12_hex_head_screw_1_435,feature_435_2) .
+			has_thread(feature_435_2,"M8") .
+			has_length(feature_435_2,12) .
+
+		assembly_component(m8x12_hex_head_screw_2_448) .
+			fastener(m8x12_hex_head_screw_2_448) .
+			screw(m8x12_hex_head_screw_2_448) .
+			has_screw_head(m8x12_hex_head_screw_2_448,feature_448_1) .
+			has_type(feature_448_1,"Hex") .
+			has_size(feature_448_1,13) .
+			has_round_threaded_shaft(m8x12_hex_head_screw_2_448,feature_448_2) .
+			has_thread(feature_448_2,"M8") .
+			has_length(feature_448_2,12) .
+
+		% 3x Hex Screw m6x20 ----------------------------------------
+
+		assembly_component(m6x20_hex_head_screw_1_434) .
+			fastener(m6x20_hex_head_screw_1_434) .
+			screw(m6x20_hex_head_screw_1_434) .
+			has_screw_head(m6x20_hex_head_screw_1_434,feature_434_1) .
+			has_type(feature_434_1,"Hex") .
+			has_size(feature_434_1,13) .
+			has_round_threaded_shaft(m6x20_hex_head_screw_1_434,feature_434_2) .
+			has_thread(feature_434_2,"M6") .
+			has_length(feature_434_2,20) .
+
+		assembly_component(m6x20_hex_head_screw_2_446) .
+			fastener(m6x20_hex_head_screw_2_446) .
+			screw(m6x20_hex_head_screw_2_446) .
+			has_screw_head(m6x20_hex_head_screw_2_446,feature_446_1) .
+			has_type(feature_446_1,"Hex") .
+			has_size(feature_446_1,13) .
+			has_round_threaded_shaft(m6x20_hex_head_screw_2_446,feature_446_2) .
+			has_thread(feature_446_2,"M6") .
+			has_length(feature_446_2,20) .
+
+		assembly_component(m6x20_hex_head_screw_3_447) .
+			fastener(m6x20_hex_head_screw_3_447) .
+			screw(m6x20_hex_head_screw_3_447) .
+			has_screw_head(m6x20_hex_head_screw_3_447,feature_447_1) .
+			has_type(feature_447_1,"Hex") .
+			has_size(feature_447_1,13) .
+			has_round_threaded_shaft(m6x20_hex_head_screw_3_447,feature_447_2) .
+			has_thread(feature_447_2,"M6") .
+			has_length(feature_447_2,20) .
+
+		% 2x Hex Screw m8x70 ----------------------------------------
+
+		assembly_component(m8x70_hex_head_screw_1_436) .
+			fastener(m8x70_hex_head_screw_1_436) .
+			screw(m8x70_hex_head_screw_1_436) .
+			has_screw_head(m8x70_hex_head_screw_1_436,feature_436_1) .
+			has_type(feature_436_1,"Torx") .
+			has_size(feature_436_1,5) .
+			has_round_threaded_shaft(m8x70_hex_head_screw_1_436,feature_436_2) .
+			has_thread(feature_436_2,"4.8") .
+			has_length(feature_436_2,20) .
+
+		assembly_component(m8x70_hex_head_screw_2_449) .
+			fastener(m8x70_hex_head_screw_2_449) .
+			screw(m8x70_hex_head_screw_2_449) .
+			has_screw_head(m8x70_hex_head_screw_2_449,feature_449_1) .
+			has_type(feature_449_1,"Torx") .
+			has_size(feature_449_1,5) .
+			has_round_threaded_shaft(m8x70_hex_head_screw_2_449,feature_449_2) .
+			has_thread(feature_449_2,"4.8") .
+			has_length(feature_449_2,20) .
+			
+		% 6x Nuts --------------------------------------------------
+			
+		assembly_component(m8_hex_nut_1_433) .
+			fastener(m8_hex_nut_1_433) .
+			nut(m8_hex_nut_1_433) .
+			has_threaded_hole(m8_hex_nut_1_433,feature_433_1) .
+			has_thread(feature_433_1,"M8") .
+			has_length(feature_433_1,8) .
+			has_thread_direction(feature_433_1,"right") .
+			has_screw_head(m8_hex_nut_1_433,feature_433_2) .
+			has_type(feature_433_2,"Hex") .
+			has_size(feature_433_2,13) .
+
+		assembly_component(m8_hex_nut_2_450) .
+			fastener(m8_hex_nut_2_450) .
+			nut(m8_hex_nut_2_450) .
+			has_threaded_hole(m8_hex_nut_2_450,feature_450_1) .
+			has_thread(feature_450_1,"M8") .
+			has_length(feature_450_1,8) .
+			has_thread_direction(feature_450_1,"right") .
+			has_screw_head(m8_hex_nut_2_450,feature_450_2) .
+			has_type(feature_450_2,"Hex") .
+			has_size(feature_450_2,13) .
+
+		assembly_component(m8_hex_nut_3_451) .
+			fastener(m8_hex_nut_3_451) .
+			nut(m8_hex_nut_3_451) .
+			has_threaded_hole(m8_hex_nut_3_451,feature_451_1) .
+			has_thread(feature_451_1,"M8") .
+			has_length(feature_451_1,8) .
+			has_thread_direction(feature_451_1,"right") .
+			has_screw_head(m8_hex_nut_3_451,feature_451_2) .
+			has_type(feature_451_2,"Hex") .
+			has_size(feature_451_2,13) .
+
+		assembly_component(m8_hex_nut_4_452) .
+			fastener(m8_hex_nut_4_452) .
+			nut(m8_hex_nut_4_452) .
+			has_threaded_hole(m8_hex_nut_4_452,feature_452_1) .
+			has_thread(feature_452_1,"M8") .
+			has_length(feature_452_1,8) .
+			has_thread_direction(feature_452_1,"right") .
+			has_screw_head(m8_hex_nut_4_452,feature_452_2) .
+			has_type(feature_452_2,"Hex") .
+			has_size(feature_452_2,13) .
+
+		assembly_component(m8_hex_nut_5_453) .
+			fastener(m8_hex_nut_5_453) .
+			nut(m8_hex_nut_5_453) .
+			has_threaded_hole(m8_hex_nut_5_453,feature_453_1) .
+			has_thread(feature_453_1,"M8") .
+			has_length(feature_453_1,8) .
+			has_thread_direction(feature_453_1,"right") .
+			has_screw_head(m8_hex_nut_5_453,feature_453_2) .
+			has_type(feature_453_2,"Hex") .
+			has_size(feature_453_2,13) .
+
+		assembly_component(m8_hex_nut_6_454) .
+			fastener(m8_hex_nut_6_454) .
+			nut(m8_hex_nut_6_454) .
+			has_threaded_hole(m8_hex_nut_6_454,feature_454_1) .
+			has_thread(feature_454_1,"M8") .
+			has_length(feature_454_1,8) .
+			has_thread_direction(feature_454_1,"right") .
+			has_screw_head(m8_hex_nut_6_454,feature_454_2) .
+			has_type(feature_454_2,"Hex") .
+			has_size(feature_454_2,13) .
+
+		% <-- Annota/Boiler
+		"""^^xsd:string .
+		
+	:Connections_LP
+		a asp:RuleSet ;
+		asp:asRules """
+			% Annota/Boiler -->
+
+			% -----------------------------------
+			% Screw Clamp Connection Facts (Storage Box)
+			% -----------------------------------
+
+			has_prepro_location(cover_427,prepro_location_1) .
+			has_connection_point(prepro_location_1,prepro_point_1) .
+
+			position_point(prepro_point_1) .
+			has_matching(prepro_point_1,prepro_location_1,matching_1) .
+			has_matching(prepro_point_1,cover_427,matching_2) .
+
+			screw_clamp_connection(storage_box_console_connection_1) .
+
+			has_connection_point(storage_box_console_connection_1,screw_point_1) .
+			has_connection_point(storage_box_console_connection_1,screw_point_2) .
+
+			screw_point(screw_point_1) .
+			has_matching(screw_point_1,main_support_430,feature_430_1) .
+			has_matching(screw_point_1,cover_427,m8x70_hex_head_screw_1_436) .
+			has_screw(screw_point_1,m8x70_hex_head_screw_1_436) .
+			has_nut(screw_point_1,m8_hex_nut_1_433) .
+			has_nut(screw_point_1,m8_hex_nut_2_450) .
+			has_nut(screw_point_1,m8_hex_nut_3_451) .
+
+			screw_point(screw_point_2) .
+			has_screw(screw_point_2,m8x70_hex_head_screw_2_449) .
+			has_matching(screw_point_2,main_support_430,feature_430_2) .
+			has_matching(screw_point_2,cover_427,m8x70_hex_head_screw_2_449) .
+			has_nut(screw_point_2,m8_hex_nut_4_452) .
+			has_nut(screw_point_2,m8_hex_nut_5_453) .
+			has_nut(screw_point_2,m8_hex_nut_6_454) .
+
+			has_base(storage_box_console_connection_1,main_support_430) .
+			has_connected_component(storage_box_console_connection_1,main_support_430,0) .
+			has_connected_component(storage_box_console_connection_1,cover_427,1) .
+
+			has_connection_point_connection(main_support_430,screw_point_1) .
+			has_connection_point_connection(main_support_430,screw_point_2) .
+
+			has_connection_point_connection(cover_427,screw_point_1) .
+			has_connection_point_connection(cover_427,screw_point_2) .
+
+
+			% -----------------------------------
+			% Screw Connection Facts (Sechskantschrauben)
+			% -----------------------------------
+
+			screw_connection(storage_box_connection_sechskant) .
+
+			has_connection_point(storage_box_connection_sechskant,screw_point_3) .
+			has_connection_point(storage_box_connection_sechskant,screw_point_4) .
+
+			screw_point(screw_point_3) .
+			has_matching(screw_point_3,cover_427,feature_427_1) .
+			has_screw(screw_point_3,m6x20_hex_head_screw_1_434) .
+
+			screw_point(screw_point_4) .
+			has_matching(screw_point_4,cover_427,feature_427_2) .
+			has_screw(screw_point_4,m6x20_hex_head_screw_2_446) .
+
+			has_base(storage_box_connection_sechskant,cover_427) .
+			has_connected_component(storage_box_connection_sechskant,cover_427,0) .
+
+			has_connection_point_connection(cover_427,screw_point_3) .
+			has_connection_point_connection(cover_427,screw_point_4) .
+
+
+			% -----------------------------------
+			% Screw Connection Facts (Blechschrauben)
+			% -----------------------------------
+
+			screw_connection(storage_box_connection_blech) .
+
+			has_connection_point(storage_box_connection_blech,screw_point_5) .
+			has_connection_point(storage_box_connection_blech,screw_point_6) .
+
+			screw_point(screw_point_5) .
+			has_matching(screw_point_5,cover_427,feature_427_4) .
+			has_screw(screw_point_5,self_tapping_screw_1_431) .
+
+			screw_point(screw_point_6) .
+			has_matching(screw_point_6,cover_427,feature_427_5) .
+			has_screw(screw_point_6,self_tapping_screw_2_444) .
+
+			has_base(storage_box_connection_blech,cover_427) .
+			has_connected_component(storage_box_connection_blech,cover_427,0) .
+
+			has_connection_point_connection(cover_427,screw_point_5) .
+			has_connection_point_connection(cover_427,screw_point_6) .
+
+
+			% -----------------------------------
+			% Plug-in Connection Facts (Cover)
+			% -----------------------------------
+
+			plugin_connection(storage_box_connection_cover) .
+
+			has_connection_point(storage_box_connection_cover,plugin_point_1) .
+
+			plugin_point(plugin_point_1) .
+			has_matching(plugin_point_1,cover_427,feature_427_6) .
+			has_matching(plugin_point_1,small_cover_426,feature_426_1) .
+
+			has_base(storage_box_connection_cover,cover_427) .
+			has_connected_component(storage_box_connection_cover,cover_427,0) .
+			has_connected_component(storage_box_connection_cover,small_cover_426,1) .
+
+			has_connection_point_connection(cover_427,plugin_point_1) .
+			has_connection_point_connection(small_cover_426,plugin_point_1) .
+
+			% <-- Annota/Boiler
+		"""^^xsd:string .
+
+	:Screw_Planning_LP
+		a asp:RuleSet ;
+		asp:asRules """
+			% -----------------------------------
+			% Processing Rules
+			% -----------------------------------
+
+			screw_connection_start(CONN,END + 1) :- screw_connection(CONN), END = 0 .
+			screw_connection_end(CONN,END) :- screw_tighten_end(CONN,END) .
+
+			% Assembly_Component Planning Rules
+			% -----------------------------------
+
+			screw_assemble_start(CONN,STEP) :- screw_connection_start(CONN,STEP) .
+			screw_step(CONN,screw_assemble_step(START..START)) :- screw_assemble_start(CONN,START) .
+			screw_assemble_end(CONN,STEP) :- screw_assemble_start(CONN,STEP), COUNT != 0, COUNT = #count{COMP : has_connected_component(CONN,COMP,ORDER), ORDER != 0}.
+
+			action(position,CONN,COMP_A,COMP_B,STEP,SUB_STEP-1) :- screw_step(CONN,screw_assemble_step(STEP)), has_connected_component(CONN,COMP_A,SUB_STEP-1), has_connected_component(CONN,COMP_B,SUB_STEP), COMP_A != COMP_B.
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y), screw_step(CONN,screw_assemble_step(STEP))}, screw_step(CONN,screw_assemble_step(STEP)) .
+
+
+			% Screw_Point Planning Rules
+			% -----------------------------------
+
+			screw_insert_start(CONN,STEP+1) :- screw_assemble_end(CONN,STEP) .
+			screw_insert_start(CONN,STEP) :- not screw_assemble_end(CONN,STEP), screw_connection_start(CONN,STEP) .
+			screw_step(CONN,screw_insert_step(START..START+END-1)) :- screw_insert_start(CONN,START), END = #count{POINT : has_connection_point(CONN,POINT)} .
+			screw_insert_end(CONN,STEP+COUNT) :- screw_insert_start(CONN,STEP), COUNT = #count{POINT : has_connection_point(CONN,POINT)}.
+
+			1{screw_action(POINT,CONN,STEP): has_connection_point(CONN,POINT)}1 :- screw_step(CONN,screw_insert_step(STEP)) .
+			:- screw_action(POINT,CONN,STEP_A), screw_action(POINT,CONN,STEP_B), STEP_A != STEP_B .
+
+			action(position,CONN,POINT,COMP,STEP,0) :- screw_action(POINT,CONN,STEP), has_washer(POINT,COMP) .
+			action(insert,CONN,POINT,COMP,STEP,0) :- screw_action(POINT,CONN,STEP), has_screw(POINT,COMP), not has_washer(POINT,_) .
+			action(insert,CONN,POINT,COMP,STEP,1) :- screw_action(POINT,CONN,STEP), has_screw(POINT,COMP), has_washer(POINT,_) .
+			action(turnon,CONN,POINT,COMP,STEP,1) :- screw_action(POINT,CONN,STEP), has_nut(POINT,COMP), not has_washer(POINT,_) .
+			action(turnon,CONN,POINT,COMP,STEP,2) :- screw_action(POINT,CONN,STEP), has_nut(POINT,COMP), has_washer(POINT,_) .
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_step(CONN,screw_insert_step(STEP)) .
+
+
+			% Tighten Planning Rules
+			% -----------------------------------
+
+			screw_tighten_start(CONN,STEP+1) :- screw_insert_end(CONN,STEP) .
+			screw_step(CONN,screw_tighten_step(START..START+END-1)) :- screw_tighten_start(CONN,START), END = #count{POINT : has_connection_point(CONN,POINT)} .
+			screw_tighten_end(CONN,STEP+COUNT) :- screw_tighten_start(CONN,STEP), COUNT = #count{POINT : has_connection_point(CONN,POINT)}.
+
+			1{tighten_action(POINT,CONN,STEP,0): has_connection_point(CONN,POINT)}1 :- screw_step(CONN,screw_tighten_step(STEP)) .
+
+			:- tighten_action(POINT,CONN,STEP_A,0), tighten_action(POINT,CONN,STEP_B,0), STEP_A != STEP_B .
+
+			action(tighten,CONN,POINT,COMP,STEP,0) :- tighten_action(POINT,CONN,STEP,0), has_screw(POINT,COMP), not has_nut(POINT,_) .
+			action(tighten,CONN,POINT,COMP,STEP,0) :- tighten_action(POINT,CONN,STEP,0), has_nut(POINT,COMP) .
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_step(CONN,screw_tighten_step(STEP)) .
+		"""^^xsd:string .
+
+	:Screw_Clamp_Preprocessing_LP
+		a asp:RuleSet ;
+		asp:asRules """
+			% -----------------------------------
+			% Preprocessing Rules
+			% -----------------------------------
+
+			screw_clamp_prepro_start(CONN,START) :- screw_clamp_connection_start(CONN,START) .
+			screw_clamp_prepro_end(CONN,END) :- screw_clamp_prepro_assemble_last(CONN,END) .
+
+
+			% Position preprocessing Planning Rules
+			% -----------------------------------
+
+			screw_clamp_prepro_position_start(CONN,STEP) :- screw_clamp_prepro_start(CONN,STEP) .
+			screw_clamp_prepro_position_end(CONN,STEP) :- screw_clamp_prepro_position_start(CONN,STEP) .
+
+			action(position,CONN,POINT,COMP,STEP,0) :- screw_clamp_prepro_position_start(CONN,STEP), has_connected_component(CONN,COMP,_), has_prepro_location(COMP,LOCATION), has_connection_point(LOCATION,POINT) .
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_clamp_prepro_position_start(CONN,STEP) .
+
+
+			% Turnon preprocessing Planning Rules
+			% -----------------------------------
+
+			screw_clamp_prepro_turnon_start(CONN,END + 1) :- screw_clamp_prepro_position_end(CONN,END) .
+
+			connection_prepro_steps(CONN,NUM) :- NUM = #count{POINT : has_connection_point(CONN,POINT)}, screw_clamp_connection(CONN) .
+			screw_clamp_prepro_step(CONN,screw_clamp_turnon_step(START..START+END-1)) :- screw_clamp_prepro_turnon_start(CONN,START), connection_prepro_steps(CONN,END) .
+			screw_clamp_prepro_sub_step(POINT,screw_clamp_prepro_turnon_sub_step(0..END-1)) :- END = #count{NUT : has_nut(POINT,NUT)}, screw_clamp_connection(CONN), has_connection_point(CONN,POINT) .
+			screw_clamp_prepro_turnon_last(CONN,COUNT + START - 1) :- COUNT = #count{NUT : has_nut(POINT,NUT), has_connection_point(CONN,POINT)}, screw_clamp_prepro_turnon_start(CONN,START) .
+
+			1{turnon_screw_clamp_point(CONN,POINT,STEP): has_connection_point(CONN,POINT)}1 :- screw_clamp_prepro_step(CONN,screw_clamp_turnon_step(STEP)).
+
+			:- turnon_screw_clamp_point(CONN,POINT,STEP_A), turnon_screw_clamp_point(CONN,POINT,STEP_B), STEP_A != STEP_B .
+
+			1{selected_nut_order(POINT,NUT,STEP): has_nut(POINT,NUT)}1 :- screw_clamp_prepro_sub_step(POINT,screw_clamp_prepro_turnon_sub_step(STEP)), has_connection_point(CONN,POINT), screw_clamp_connection(CONN) .
+
+			first_nut(POINT,NUT) :- selected_nut_order(POINT,NUT,0) .
+			-first_nut(POINT,NUT) :- not first_nut(POINT,NUT), has_nut(POINT,NUT) .
+			last_nut(POINT,NUT) :- MAX = #max{STEP : selected_nut_order(POINT,NUT,STEP)}, selected_nut_order(POINT,NUT,MAX) .
+
+			action(turnon,CONN,POINT,NUT,STEP,SUB_STEP) :- selected_nut_order(POINT,NUT,SUB_STEP), turnon_screw_clamp_point(CONN,POINT,STEP), has_connection_point(CONN,POINT) .
+
+			:- action(turnon,CONN,POINT,NUT,STEP,SUB_STEP_A), action(turnon,CONN,POINT,NUT,STEP,SUB_STEP_B), SUB_STEP_A != SUB_STEP_B.
+			:- action(turnon,CONN,POINT,NUT,STEP_A,SUB_STEP), action(turnon,CONN,POINT,NUT,STEP_B,SUB_STEP), STEP_A != STEP_B.
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_clamp_prepro_step(CONN,screw_clamp_turnon_step(STEP)) .
+
+
+			% Insert preprocessing Planning Rules
+			% -----------------------------------
+
+			screw_clamp_prepro_assemble_start(CONN,END + 1) :- screw_clamp_prepro_turnon_last(CONN,END) .
+			screw_clamp_prepro_step(CONN,screw_clamp_assemble_step(START..START+END-1)) :- screw_clamp_prepro_assemble_start(CONN,START), connection_prepro_steps(CONN,END) .
+			screw_clamp_prepro_sub_step(POINT,screw_clamp_prepro_assemble_sub_step(0..2)) :- screw_clamp_prepro_step(CONN,screw_clamp_assemble_step(END)), has_connection_point(CONN,POINT).
+			screw_clamp_prepro_assemble_last(CONN,COUNT + START - 1) :- COUNT = #count{STEP : screw_clamp_prepro_sub_step(POINT,screw_clamp_prepro_assemble_sub_step(STEP)), has_connection_point(CONN,POINT)}, screw_clamp_prepro_assemble_start(CONN,START) .
+
+			1{assemble_screw_clamp_point(CONN,POINT,STEP): has_connection_point(CONN,POINT)}1 :- screw_clamp_prepro_step(CONN,screw_clamp_assemble_step(STEP)).
+
+			:- assemble_screw_clamp_point(CONN,POINT,STEP_A), assemble_screw_clamp_point(CONN,POINT,STEP_B), STEP_A != STEP_B .
+
+			action(insert,CONN,POINT,SCREW,STEP,0) :- assemble_screw_clamp_point(CONN,POINT,STEP), has_screw(POINT,SCREW) .
+			action(tighten,CONN,POINT,SCREW,STEP,1) :- assemble_screw_clamp_point(CONN,POINT,STEP), has_screw(POINT,SCREW) .
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_clamp_prepro_step(CONN,screw_clamp_assemble_step(STEP)) .
+		"""^^xsd:string .
+
+	:Screw_Clamp_Planning_LP
+		a asp:RuleSet ;
+		asp:asRules """
+			% -----------------------------------
+			% Processing Rules
+			% -----------------------------------
+
+			screw_clamp_connection_start(CONN,END + 1) :- screw_clamp_connection(CONN), END = 0 .
+
+			% Position processing Planning Rules
+			% -----------------------------------
+
+			screw_clamp_position_start(CONN,STEP+1) :- screw_clamp_prepro_end(CONN,STEP) .
+			screw_clamp_position_end(CONN,STEP) :- screw_clamp_position_start(CONN,STEP) .
+
+			action(position,CONN,POINT,COMP,STEP,0) :- screw_clamp_position_start(CONN,STEP), has_connected_component(CONN,COMP,1), has_connection_point(CONN,POINT), has_base(CONN,LOCATION) .
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_clamp_position_start(CONN,STEP) .
+
+
+			% Adjust processing Planning Rules
+			% -----------------------------------
+
+			screw_clamp_adjust_start(CONN,STEP+1) :- screw_clamp_position_end(CONN,STEP) .
+			screw_clamp_step(CONN,screw_clamp_adjust_step(START..START+END-1)) :- screw_clamp_adjust_start(CONN,START), END = #count{POINT : has_connection_point(CONN,POINT)} .
+			screw_clamp_adjust_end(CONN,STEP+COUNT) :- screw_clamp_adjust_start(CONN,STEP), COUNT = #count{POINT : has_connection_point(CONN,POINT)}.
+
+			1{adjust_action(CONN,POINT,STEP): has_connection_point(CONN,POINT)}1 :- screw_clamp_step(CONN,screw_clamp_adjust_step(STEP)) .
+
+			:- adjust_action(CONN,POINT,STEP_A), adjust_action(CONN,POINT,STEP_B), STEP_A != STEP_B .
+
+			action(adjust,CONN,POINT,NUT,STEP,0) :- adjust_action(CONN,POINT,STEP), selected_nut_order(POINT,NUT,0) .
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_clamp_adjust_start(CONN,STEP) .
+
+
+			% Tightening processing Planning Rules
+			% -----------------------------------
+
+			screw_clamp_tighten_start(CONN,STEP+1) :- screw_clamp_adjust_end(CONN,STEP) .
+			screw_clamp_step(CONN,screw_clamp_tighten_step(START..START+END-1)) :- screw_clamp_tighten_start(CONN,START), END = #count{POINT : has_connection_point(CONN,POINT)} .
+			screw_clamp_tighten_end(CONN,STEP) :- screw_clamp_adjust_start(CONN,STEP), COUNT = #count{POINT : has_connection_point(CONN,POINT)}.
+
+			1{tighten_action(CONN,POINT,STEP): has_connection_point(CONN,POINT)}1 :- screw_clamp_step(CONN,screw_clamp_tighten_step(STEP)) .
+
+			:- tighten_action(CONN,POINT,STEP_A), tighten_action(CONN,POINT,STEP_B), STEP_A != STEP_B .
+
+			action(tighten,CONN,POINT,NUT,STEP,SUB_STEP) :- tighten_action(CONN,POINT,STEP), -first_nut(POINT,NUT), selected_nut_order(POINT,NUT,SUB_STEP) .
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_clamp_tighten_start(CONN,STEP) .
+		"""^^xsd:string .
+
+	:Plugin_Planning_LP
+		a asp:RuleSet ;
+		asp:asRules """
+			% -----------------------------------
+			% Plug-in Rules
+			% -----------------------------------
+
+			plugin_connection_start(CONN,END + 1) :- plugin_connection(CONN), END = 0 .
+			plugin_connection_end(CONN,END) :- plugin_position_end(CONN,END) .
+
+			% Assemble Planning Rules
+			% -----------------------------------
+
+			plugin_assemble_start(CONN,STEP) :- plugin_connection_start(CONN,STEP) .
+			plugin_step(CONN,plugin_assemble_step(START..START)) :- plugin_assemble_start(CONN,START) .
+			plugin_assemble_end(CONN,STEP) :- plugin_assemble_start(CONN,STEP), COUNT != 0, COUNT = #count{COMP : has_connected_component(CONN,COMP,ORDER), ORDER != 0}.
+
+			action(position,CONN,POINT,COMP_B,STEP,SUB_STEP-1) :- plugin_step(CONN,plugin_assemble_step(STEP)), has_connection_point(CONN,POINT), has_connected_component(CONN,COMP_A,SUB_STEP-1), has_connected_component(CONN,COMP_B,SUB_STEP), COMP_A != COMP_B.
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y), plugin_step(CONN,plugin_assemble_step(STEP))}, plugin_step(CONN,plugin_assemble_step(STEP)) .
+		"""^^xsd:string .
+}

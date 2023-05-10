@@ -19,6 +19,7 @@
 
 package de.dfki.asr.ajan.behaviour.nodes.messages;
 
+import de.dfki.asr.ajan.behaviour.exception.AJANRequestException;
 import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.*;
@@ -38,6 +39,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -46,6 +48,7 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.resultio.TupleQueryResultFormat;
 import org.eclipse.rdf4j.repository.Repository;
@@ -74,7 +77,9 @@ public class Message extends AbstractTDBLeafTask {
 	@Getter @Setter
 	private URI targetBase;
 
+	@Getter @Setter
 	protected String requestURI;
+	@Getter @Setter
 	protected HttpConnection request;
 
 	@Override
@@ -86,30 +91,32 @@ public class Message extends AbstractTDBLeafTask {
 	public NodeStatus executeLeaf() {
 		try {
 			setRequestUri();
-			if (binding.getBtHeaders() != null) {
-				binding.setAddHeaders(BTUtil.getInitializedRepository(getObject(), binding.getBtHeaders().getOriginBase()));
+			if (getBinding().getBtHeaders() != null) {
+				getBinding().setAddHeaders(BTUtil.getInitializedRepository(getObject(), getBinding().getBtHeaders().getOriginBase()));
 			}
-			binding.setRequestURI(new URI(requestURI));
-			request = new HttpConnection(binding);
+			getBinding().setRequestURI(new URI(getRequestURI()));
+			setRequest(new HttpConnection(getBinding()));
 			prepareRequest();
-			if (!checkResponse(request.execute())) {
+			if (!checkResponse(getRequest().execute())) {
 				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to malformed response model");
 			}
 			return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
 		} catch (URISyntaxException | MessageEvaluationException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to malformed URI");
 		} catch (IOException | SAXException ex) {
-			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to IO exception");
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to IO exception", ex);
+		} catch (AJANRequestException ex) {
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to wrong content-type in response. Expecting RDF-based content!");
 		}
 	}
 
 	protected void prepareRequest() throws URISyntaxException, IOException, MessageEvaluationException {
 		String payload = null;
-		if (binding.getPayload() != null) {
-			payload = getInput(binding);
+		if (getBinding().getPayload() != null) {
+			payload = getInput(getBinding());
 		}
 		if (payload != null) {
-			request.setPayload(payload);
+			getRequest().setPayload(payload);
 		}
 	}
 
@@ -117,10 +124,10 @@ public class Message extends AbstractTDBLeafTask {
 		if (response instanceof Model) {
 			Model model = (Model) response;
 			if (model.isEmpty()) {
-				model.add(vf.createIRI(requestURI), BTVocabulary.HAS_RESPONSE, BTVocabulary.EMPTY);
-				return updateBeliefs(AgentUtil.setNamedGraph(model, new URI(requestURI)), targetBase);
+				model.add(vf.createIRI(getRequestURI()), BTVocabulary.HAS_RESPONSE, BTVocabulary.EMPTY);
+				return updateBeliefs(AgentUtil.setNamedGraph(model, new URI(getRequestURI())), getTargetBase());
 			}
-			return updateBeliefs(AgentUtil.setNamedGraph(model, new URI(requestURI)), targetBase);
+			return updateBeliefs(AgentUtil.setNamedGraph(model, new URI(getRequestURI())), getTargetBase());
 		}
 		return true;
 	}
@@ -144,8 +151,8 @@ public class Message extends AbstractTDBLeafTask {
 
 	@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
 	protected void setRequestUri() throws URISyntaxException, MessageEvaluationException {
-		Repository repo = BTUtil.getInitializedRepository(getObject(), queryURI.getOriginBase());
-		List<BindingSet> result = queryURI.getResult(repo);
+		Repository repo = BTUtil.getInitializedRepository(getObject(), getQueryURI().getOriginBase());
+		List<BindingSet> result = getQueryURI().getResult(repo);
 		if (result.isEmpty()) {
 			throw new MessageEvaluationException("No ?requestURI defined in Message description");
 		}
@@ -154,7 +161,7 @@ public class Message extends AbstractTDBLeafTask {
 		if (strValue == null) {
 			throw new MessageEvaluationException("No ?requestURI defined in Message description");
 		} else {
-			requestURI = strValue.stringValue();
+			setRequestURI(strValue.stringValue());
 		}
 	}
 
@@ -177,7 +184,17 @@ public class Message extends AbstractTDBLeafTask {
 		} else {
 			BehaviorConstructQuery construct = new BehaviorConstructQuery();
 			construct.setSparql(query.getSparql());
-			return ACTNUtil.getModelPayload(construct.getResult(repo), mimeType);
+			return getPayload(construct.getResult(repo), mimeType);
+		}
+	}
+
+	protected String getPayload(final Model model, final String mimeType) throws UnsupportedEncodingException {
+		Model nameModel = model.filter(null, AJANVocabulary.HAS_PLAIN_TXT, null);
+		Optional<String> plainTxt = Models.objectString(nameModel);
+		if (plainTxt.isPresent()) {
+			return plainTxt.get();
+		} else {
+			return ACTNUtil.getModelPayload(model, mimeType);
 		}
 	}
 
@@ -195,8 +212,8 @@ public class Message extends AbstractTDBLeafTask {
 
 	@Override
 	public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
-		if (mode.equals(BTUtil.ModelMode.DETAIL) && queryURI != null) {
-			queryURI.setResultModel(getInstance(root.getInstance()), BTVocabulary.QUERY_URI_RESULT, model);
+		if (mode.equals(BTUtil.ModelMode.DETAIL) && getQueryURI() != null) {
+			getQueryURI().setResultModel(getInstance(root.getInstance()), BTVocabulary.QUERY_URI_RESULT, model);
 		}
 		return super.getModel(model, root, mode);
 	}

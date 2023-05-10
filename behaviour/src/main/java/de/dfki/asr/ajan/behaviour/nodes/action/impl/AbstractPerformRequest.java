@@ -20,6 +20,7 @@
 package de.dfki.asr.ajan.behaviour.nodes.action.impl;
 
 import com.badlogic.gdx.ai.btree.Task;
+import de.dfki.asr.ajan.behaviour.exception.AJANRequestException;
 import de.dfki.asr.ajan.behaviour.exception.ActionBindingException;
 import de.dfki.asr.ajan.behaviour.nodes.action.AbstractChainStep;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.TaskContext;
@@ -51,14 +52,14 @@ public abstract class AbstractPerformRequest extends AbstractChainStep {
 		try {
 			ResultModel output = issueRequest(getConnection(context));
 			context.put(output);
-		} catch (URISyntaxException | IOException | ActionBindingException | SAXException ex) {
+		} catch (URISyntaxException | IOException | ActionBindingException | SAXException | AJANRequestException ex) {
 			LOG.error("Failed to perform Action request", ex);
 			return Task.Status.FAILED;
 		}
 		return executeNext(context);
 	}
 
-	private ResultModel issueRequest(final IConnection connection) throws IOException, ActionBindingException, SAXException {
+	private ResultModel issueRequest(final IConnection connection) throws IOException, ActionBindingException, SAXException, AJANRequestException {
 		connection.setPayload(getInput(inputModel));
 		ResultModel output = new ResultModel();
 		Object response = connection.execute();

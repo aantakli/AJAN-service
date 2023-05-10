@@ -78,8 +78,9 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 				}
 			}
 		} catch (ClingoException ex) {
-			LOG.info("Environment variable not accessible!", ex);
-			LOG.info("Executing built in Clingo instead!", ex);
+			LOG.info("Environment variable not accessible!");
+			LOG.info("Executing built in Clingo instead!");
+			LOG.info(ex.getMessage());
 			for(int i = 1; i <= execution; i++) {
 				if(executeInternalSolver(problem, i)) {
 					solution = true;
@@ -94,6 +95,7 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 		StringBuilder solverCommandLine = new StringBuilder();
 		solverCommandLine.append(getCommandLineForSolver());
 		solverCommandLine.append(" --verbose=0");
+		solverCommandLine.append(" --models ").append(getModels().toString());
 		solverCommandLine.append(" --const maxtime=").append(i);
 		addCommandLines(solverCommandLine);
 		boolean stat = false;
@@ -121,18 +123,25 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 	private boolean executeInternalSolver(Problem problem, final int i) {
 		ArrayList<String> facts = new ArrayList();
 		boolean stat = false;
-		try (Control control = new Control("--verbose", "0", "--const", "maxtime="+i)) {
-			control.add(problem.getRuleset());
-			control.ground();
-			try (SolveHandle handle = control.solve(Collections.emptyList(), null, SolveMode.YIELD)) {
-				while (handle.hasNext()) {
-					if (!stat) stat = true;
-					facts.add(handle.next().toString());
+		int models = getModels();
+		try {
+			try (Control control = new Control("--verbose", "0", "--const", "maxtime="+i)) {
+				control.add(problem.getRuleset());
+				control.ground();
+				try (SolveHandle handle = control.solve(Collections.emptyList(), null, SolveMode.YIELD)) {
+					while (handle.hasNext() && models > 0) {
+						if (!stat) stat = true;
+						facts.add(handle.next().toString());
+						models--;
+					}
+					problem.setFacts(facts);
 				}
-				problem.setFacts(facts);
-            }
-			control.cleanup();
-		} catch (RuntimeException ex) {
+				control.cleanup();
+			} catch (RuntimeException ex) {
+				LOG.debug(ex.getMessage());
+				return false;
+			}
+		} catch (Exception ex) {
 			LOG.debug(ex.getMessage());
 			return false;
 		}
@@ -141,7 +150,10 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 
 	private boolean extractFactsFormSolverResult(final BufferedReader in, Problem problem) throws IOException, ClingoException {
  		ArrayList<String> factsFromSolver = new ArrayList();
+		ArrayList<String> factsFromPyClingo = new ArrayList();
  		boolean stat = true;
+		boolean pyclingo = false;
+		boolean readPyclingo = false;
 		String line;
 		/* example output of the solver:
 		 * ... more stupid stuff, looking for the Answer line
@@ -153,12 +165,23 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 		while ( (line = in.readLine()) != null) {
 			LOG.info(line);
 			if (line.startsWith("SATISFIABLE")) {
-				problem.setFacts(factsFromSolver);
+				if (pyclingo) {
+					problem.setFacts(factsFromPyClingo);
+					break;
+				} else {
+					problem.setFacts(factsFromSolver);
+				}
 			} else if (line.startsWith("UNSATISFIABLE")) {
 				stat = false;
 				break;
 			} else if (line.toLowerCase().contains("error") || line.startsWith("UNKNOWN") ) {
 				throw new ClingoException("Solver error:" + line, null);
+			} else if (line.startsWith("pyclingo")) {
+				pyclingo = true;
+			} else if (pyclingo && line.startsWith("Answer")) {
+				readPyclingo = true;
+			} else if (readPyclingo) {
+				factsFromPyClingo.add(line);
 			} else {
 				// preemptively read all other lines.
 				// they may be facts or error messages, but we won't know that

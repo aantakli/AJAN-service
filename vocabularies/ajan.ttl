@@ -1,0 +1,367 @@
+@base <https://github.com/aantakli/aantakli.github.io/edit/main/vocabularies/ajan-ns/index.html> .
+@prefix : <https://github.com/aantakli/aantakli.github.io/edit/main/vocabularies/ajan-ns/index.html> .
+@prefix ajan: <http://www.ajan-agents.de/vocabularies/ajan-ns/#> .
+@prefix bt: <http://www.ajan-agents.de/vocabularies/behavior/bt-ns/#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ---------------------------------------------------
+# AJAN Classes
+# ---------------------------------------------------
+
+ajan:Agent 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The AJAN Agent type" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "Agent" .
+
+ajan:This 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Pointer in the AKB of an agent to its uri" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "This" .
+
+ajan:Template 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The AJAN Template class" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "Template" .
+
+ajan:AgentTemplate
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The class indicating an AJAN Agent Template to initiate single agents" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "AgentTemplate" ;
+	rdfs:subClassOf ajan:Template .
+
+ajan:AgentInitialisation
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The RDF:type to indicate an AJAN init message, which points to the wanted Agent Template and the agent ID to be used" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "AgentInitialisation" .
+
+ajan:Knowledge 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Defines a single AJAN RDF repository" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "Knowledge" .
+
+ajan:Event 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Defines a AJAN Event" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "Event" .
+
+ajan:Endpoint 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Defines a AJAN Ednpoint, or a Agent HTTP interface" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "Event" .
+
+ajan:Behavior 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Defines a AJAN Behavior, which acts like a wrapper for SPARQL-BTs within an Agent Template and is triggerd by a Event" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "Behavior" .
+
+ajan:InitialBehavior 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Defines a AJAN Behavior, which is executed by the agent directly after its creation" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "Behavior" .
+
+ajan:FinalBehavior 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Defines a AJAN Behavior, which is executed by the agent right after its deletion" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "Behavior" .
+
+
+# AJAN Knowledge Classes ---------------------------
+
+ajan:AgentKnowledge 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The AKB or agent knowledge base of a single agent" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "AgentKnowledge" ;
+	rdfs:subClassOf ajan:Knowledge .
+
+ajan:ExecutionKnowledge 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The EKB or execution knowledge base of a single initiated SPARQL-BT" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "ExecutionKnowledge" ;
+	rdfs:subClassOf ajan:Knowledge .
+
+ajan:BehaviorKnowledge 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The Behaviors repository of an AJAN service, which stores all available SPARQL-BT definitions" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "BehaviorKnowledge" ;
+	rdfs:subClassOf ajan:Knowledge .
+
+ajan:DomainKnowledge 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The Domain repository of an AJAN service, which stores all domain relevant informations, e.g., mappings, to which all initiated agents have access" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "DomainKnowledge" ;
+	rdfs:subClassOf ajan:Knowledge .
+
+ajan:ServiceKnowledge 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The Service repository of an AJAN service, which stores all known service and action definitions" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "ServiceKnowledge" ;
+	rdfs:subClassOf ajan:Knowledge .
+
+ajan:TemplateKnowledge
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The Teamplates repository of an AJAN service, which stores all available Agent Teamplates" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "TemplateKnowledge" ;
+	rdfs:subClassOf ajan:Knowledge .
+
+ajan:ManagedTDB
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "If a AKB is managed by another repository, e.g. with credentials and so on, this class indicates that" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "ManagedTDB" .
+
+
+# AJAN Event Classes ---------------------------
+
+ajan:ModelEvent
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A RDF-graph based AJAN Event, which triggers SPARQL-BTs" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "ModelEvent" ;
+	rdfs:subClassOf ajan:Event .
+
+ajan:MappingEvent
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A AJAN Event which stores event information not as a RDF-graph but as a string stream to map, e.g. JSON into RDF" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "MappingEvent" ;
+	rdfs:subClassOf ajan:Event .
+
+ajan:ModelQueueEvent
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "An AJAN event based on an RDF graph that can contain multiple ModelEvents to prevent an event from being overwritten by a new one while the old one is still being processed" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "ModelQueueEvent" ;
+	rdfs:subClassOf ajan:ModelEvent .
+
+ajan:MappingQueueEvent
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "An AJAN event based on an RDF graph that can contain multiple MappingEvent to prevent an event from being overwritten by a new one while the old one is still being processed" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "MappingQueueEvent" ;
+	rdfs:subClassOf ajan:MappingEvent .
+
+ajan:Goal
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A AJAN Goal, which triggers SPARQL-BTs like AJAN Events but has additional pre- and postconditions" ;
+	rdfs:isDefinedBy : ;
+	rdfs:label "Goal" ;
+	rdfs:subClassOf ajan:Event .
+
+
+# ---------------------------------------------------
+# AJAN Properties
+# ---------------------------------------------------
+
+# AJAN Agent Teamplate Properties -------------------
+
+ajan:agentInitKnowledge
+	rdf:type rdf:Property ;
+	rdfs:comment "Points to a triple in the RDF-graph which has to be stored in the newly created agent knowledge" ;
+	rdfs:label "agentInitKnowledge" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:AgentTemplate ;
+	rdfs:range rdf:Resource .
+
+ajan:endpoint
+	rdf:type rdf:Property ;
+	rdfs:comment "Points to a AJAN Endpoint" ;
+	rdfs:label "endpoint" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:AgentTemplate ;
+	rdfs:range ajan:Endpoint .
+
+ajan:event
+	rdf:type rdf:Property ;
+	rdfs:comment "Points to a AJAN Event" ;
+	rdfs:label "event" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:AgentTemplate ,
+		ajan:Endpoint ;
+	rdfs:range ajan:Event .
+
+ajan:behavior
+	rdf:type rdf:Property ;
+	rdfs:comment "Points to a AJAN Behavior" ;
+	rdfs:label "behavior" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:AgentTemplate ;
+	rdfs:range ajan:Behavior .
+
+ajan:initialBehavior
+	rdf:type rdf:Property ;
+	rdfs:comment "Points to a AJAN Intitial Behavior" ;
+	rdfs:label "initialBehavior" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:AgentTemplate ;
+	rdfs:range ajan:InitialBehavior .
+
+ajan:finalBehavior
+	rdf:type rdf:Property ;
+	rdfs:comment "Points to a AJAN Final Behavior" ;
+	rdfs:label "finalBehavior" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:AgentTemplate ;
+	rdfs:range ajan:FinalBehavior .
+
+ajan:trigger
+	rdf:type rdf:Property ;
+	rdfs:comment "Points to the AJAN Event which triggers the AJAN Behavior" ;
+	rdfs:label "trigger" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:Behavior ;
+	rdfs:range ajan:Event .
+
+ajan:bt
+	rdf:type rdf:Property ;
+	rdfs:comment "Points to a SPARQL-BT within a AJAN Behavior" ;
+	rdfs:label "bt" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:Behavior ;
+	rdfs:range bt:BehaviorTree .
+
+ajan:clearEKB
+	rdf:type rdf:Property ;
+	rdfs:comment "Indicates if the EKB of an AJAN Behavior needs to be cleared after execution" ;
+	rdfs:label "clearEKB" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:Behavior ;
+	rdfs:range xsd:boolean .
+
+ajan:capability
+	rdf:type rdf:Property ;
+	rdfs:comment "Defines the capability http property value of an AJAN Endpoint" ;
+	rdfs:label "capability" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:Endpoint ;
+	rdfs:range xsd:string .
+
+
+# AJAN Initialize Agent Properties -------------------
+
+ajan:agentId
+	rdf:type rdf:Property ;
+	rdfs:comment "Defines the ID of the agent which needs to be initialized. This ID is used to create the URI of an agent" ;
+	rdfs:label "agentId" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:AgentInitialisation ;
+	rdfs:range xsd:string .
+	
+	ajan:managedTDB
+	rdf:type rdf:Property ;
+	rdfs:comment "Indicates within an AJAN initialisation message if the AKB is externally managed" ;
+	rdfs:label "managedTDB" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:AgentInitialisation ;
+	rdfs:range ajan:ManagedTDB .
+
+ajan:tdbURL
+	rdf:type rdf:Property ;
+	rdfs:comment "URL of a managed triple data base (TDB)" ;
+	rdfs:label "tdbURL" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:ManagedTDB ;
+	rdfs:range xsd:anyURI .
+
+ajan:agentLoginURL
+	rdf:type rdf:Property ;
+	rdfs:comment "URL to login to the managed TDB" ;
+	rdfs:label "agentLoginURL" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:ManagedTDB ;
+	rdfs:range xsd:anyURI .
+
+ajan:agentUser
+	rdf:type rdf:Property ;
+	rdfs:comment "User of a managed TDB" ;
+	rdfs:label "agentUser" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:ManagedTDB ;
+	rdfs:range xsd:string .
+
+ajan:agentRole
+	rdf:type rdf:Property ;
+	rdfs:comment "Role of a managed TDB" ;
+	rdfs:label "agentRole" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:ManagedTDB ;
+	rdfs:range xsd:string .
+
+ajan:agentPassword
+	rdf:type rdf:Property ;
+	rdfs:comment "Password of a managed TDB" ;
+	rdfs:label "agentPassword" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:ManagedTDB ;
+	rdfs:range xsd:string .
+
+
+# AJAN Agent Properties -------------------
+
+ajan:agentURI
+	rdf:type rdf:Property ;
+	rdfs:comment "The URI of an AJAN Agent" ;
+	rdfs:label "agentURI" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:Agent ;
+	rdfs:range xsd:anyURI .
+
+ajan:agentKnowledge
+	rdf:type rdf:Property ;
+	rdfs:comment "The URI of to the AKB of an AJAN agent" ;
+	rdfs:label "agentKnowledge" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:Agent ;
+	rdfs:range xsd:anyURI .
+
+ajan:agentTemplate
+	rdf:type rdf:Property ;
+	rdfs:comment "The used Agent Template" ;
+	rdfs:label "agentTemplate" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain ajan:AgentInitialisation,
+		ajan:Agent ;
+	rdfs:range ajan:AgentTemplate .

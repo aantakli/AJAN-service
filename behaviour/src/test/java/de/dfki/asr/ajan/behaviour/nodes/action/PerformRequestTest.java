@@ -19,6 +19,7 @@
 
 package de.dfki.asr.ajan.behaviour.nodes.action;
 
+import de.dfki.asr.ajan.behaviour.exception.AJANRequestException;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.*;
 import de.dfki.asr.ajan.behaviour.nodes.action.impl.service.http.PerformHttpExecuteRequest;
 import de.dfki.asr.ajan.behaviour.nodes.action.impl.AbstractPerformRequest;
@@ -49,7 +50,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 
-@SuppressWarnings("PMD.SignatureDeclareThrowsException")
+@SuppressWarnings({"PMD.SignatureDeclareThrowsException","PMD.ExcessiveImports"})
 public class PerformRequestTest extends AbstractTaskStepTest {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PerformRequestTest.class);
@@ -90,7 +91,7 @@ public class PerformRequestTest extends AbstractTaskStepTest {
 		testServer.register(PATH, dumbResponse);
 	}
 
-	private void setupService() throws IOException, SAXException {
+	private void setupService() throws IOException, SAXException, AJANRequestException {
 		Mockito.doReturn(service).when(context).get(ServiceActionDefinition.class);
 		Mockito.doReturn(new InputModel()).when(context).get(InputModel.class);
 		Mockito.doReturn(connection).when(context).get(HttpConnection.class);

@@ -47,6 +47,7 @@ import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 
 @RDFBean("bt:Root")
+@SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.EmptyCatchBlock"})
 public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNode, Listener {
 
 	private boolean block;
@@ -114,7 +115,9 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 				String report = BTUtil.createReport(getUrl(), getInstance().stringValue(), leafStatus, debug, new LinkedHashModel());
 				BTUtil.sendReport(this.getObject(),report);
 			}
-			this.getObject().getLogger().info(this.getClass(), "Runtime (" + Long.toString(System.currentTimeMillis() - before) + "ms)");
+			try {
+				this.getObject().getLogger().info(this.getClass(), "Runtime (" + Long.toString(System.currentTimeMillis() - before) + "ms)");
+			} catch (Exception ex) { }
 			block = false;
 			if (goalProducer != null) {
 				goalProducer.reportGoalStatus(status);

@@ -22,6 +22,7 @@ package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import de.dfki.asr.ajan.behaviour.exception.AJANRequestException;
 import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
@@ -120,6 +121,8 @@ public class ILASPInput extends Problem implements NodeExtension {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due transmission problems", ex);
 		} catch (MessageEvaluationException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to malformed request URI", ex);
+		} catch (AJANRequestException ex) {
+			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to wrong content-type in response. Expecting RDF-based content!");
 		}
     }
 
@@ -151,7 +154,7 @@ public class ILASPInput extends Problem implements NodeExtension {
 		return mapper.valueToTree(statements.toArray());
 	}
 
-	private void sendToIlasp(final ObjectNode payload) throws URISyntaxException, MessageEvaluationException, IOException, SAXException {
+	private void sendToIlasp(final ObjectNode payload) throws URISyntaxException, MessageEvaluationException, IOException, SAXException, AJANRequestException {
 		if (binding.getBtHeaders() != null) {
 			binding.setAddHeaders(BTUtil.getInitializedRepository(getObject(), binding.getBtHeaders().getOriginBase()));
 		}

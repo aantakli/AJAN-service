@@ -29,6 +29,7 @@ import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Body;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Fact;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Rule;
 import de.dfki.asr.ajan.pluginsystem.aspplugin.extensions.parts.Term;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.vocabularies.ASPVocabulary;
 import de.dfki.asr.rdfbeans.BehaviorBeanManager;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -50,28 +51,34 @@ public final class Deserializer {
 
 	public static void addRuleSet(StringBuilder set, Model model) {
 		model.stream().forEach((statement) -> {
-			if (statement.getSubject() instanceof BNode) {
-				set.append("_t(_b(\"").
-					append(statement.getSubject().stringValue()).
-					append("\")");
+			if (statement.getPredicate().equals(ASPVocabulary.AS_RULES)) {
+				if (statement.getObject().isLiteral()) {
+					set.append(statement.getObject().stringValue());
+				}
 			} else {
-				set.append("_t(\"").
-					append(statement.getSubject().stringValue()).
-					append("\"");
-			}
-			set.append(",\"").append(statement.getPredicate().stringValue());
-			if(statement.getObject() instanceof Literal) {
-				Literal literal = (Literal) statement.getObject();
-				set.append("\",_l(\"").append(statement.getObject().stringValue()).
-					append("\",\"").append(literal.getDatatype()).
-					append("\")).");
-			} else if (statement.getObject() instanceof BNode) {
-				set.append("\",_b(\"").
-					append(statement.getObject().stringValue()).
-					append("\")).");
-			} else {
-				set.append("\",\"").append(statement.getObject().stringValue()).
-				append("\").");
+				if (statement.getSubject() instanceof BNode) {
+					set.append("_t(_b(\"").
+						append(statement.getSubject().stringValue()).
+						append("\")");
+				} else {
+					set.append("_t(\"").
+						append(statement.getSubject().stringValue()).
+						append("\"");
+				}
+				set.append(",\"").append(statement.getPredicate().stringValue());
+				if(statement.getObject() instanceof Literal) {
+					Literal literal = (Literal) statement.getObject();
+					set.append("\",_l(\"").append(statement.getObject().stringValue()).
+						append("\",\"").append(literal.getDatatype()).
+						append("\")).");
+				} else if (statement.getObject() instanceof BNode) {
+					set.append("\",_b(\"").
+						append(statement.getObject().stringValue()).
+						append("\")).");
+				} else {
+					set.append("\",\"").append(statement.getObject().stringValue()).
+					append("\").");
+				}
 			}
 		});
 	}

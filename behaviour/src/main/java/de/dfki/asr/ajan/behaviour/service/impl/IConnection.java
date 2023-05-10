@@ -20,6 +20,7 @@
 package de.dfki.asr.ajan.behaviour.service.impl;
 
 import de.dfki.asr.ajan.behaviour.events.Event;
+import de.dfki.asr.ajan.behaviour.exception.AJANRequestException;
 import java.io.IOException;
 import java.util.UUID;
 import org.xml.sax.SAXException;
@@ -35,7 +36,7 @@ public interface IConnection {
 	void setPayload(final String payload);
 	void setEvent(final Event event);
 
-	Object execute() throws IOException, SAXException;
+	Object execute() throws IOException, SAXException, AJANRequestException;
 	void response(final Object info);
 	void response(final Object info, final String id);
 }

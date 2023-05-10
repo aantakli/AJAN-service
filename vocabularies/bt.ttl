@@ -1,0 +1,559 @@
+@base <https://github.com/aantakli/aantakli.github.io/edit/main/vocabularies/behavior/bt-ns/index.html> .
+@prefix : <https://github.com/aantakli/aantakli.github.io/edit/main/vocabularies/behavior/bt-ns/index.html> .
+@prefix bt: <http://www.ajan-agents.de/vocabularies/behavior/bt-ns/#> .
+@prefix bt-state: <http://www.ajan-agents.de/vocabularies/behavior/bt-ns/state-ns#> .
+@prefix ajan: <http://www.ajan-agents.de/vocabularies/ajan-ns/#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix http-core: <http://www.w3.org/2006/http#> .
+
+
+# ---------------------------------------------------
+# SPARQL-BT Classes
+# ---------------------------------------------------
+
+bt:Task 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A single Node of a SPARQL-BT" ;
+	rdfs:isDefinedBy : ;
+    rdfs:label "Task" .
+
+bt:BranchTask
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A SPARQL-BT branch node" ;
+    rdfs:label "BranchTask" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt:Task .
+
+bt:SingleChildTask
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A SPARQL-BT branch node with single child" ;
+    rdfs:label "SingleChildTask" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt:BranchTask .
+
+bt:MultiChildTask
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A SPARQL-BT branch node with multiple children" ;
+    rdfs:label "MultiChildTask" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt:BranchTask .
+
+bt:BehaviorTree 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A reference to a SPARQL-BT" ;
+    rdfs:label "BehaviorTree" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt:SingleChildTask .
+	
+bt:Root 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The root node of a SPARQL-BT" ;
+    rdfs:label "Root" ;
+	owl:equivalentClass bt:BehaviorTree ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt:SingleChildTask .
+
+bt:Composite 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A composite node of a SPARQL-BT" ;
+    rdfs:label "Composite" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt:MultiChildTask .
+
+bt:Decorator 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A composite node of a SPARQL-BT" ;
+    rdfs:label "Decorator" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt:SingleChildTask .
+
+bt:Leaf 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A leaf node of a SPARQL-BT without childs" ;
+    rdfs:label "Leaf" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt:Task .
+
+bt-state:Sate
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The node state of a SPARQL-BT node" ;
+    rdfs:label "Sate" ;
+	rdfs:isDefinedBy : .
+
+
+# SPARQL-BT Composite Classes ---------------------------
+
+bt:Sequence
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Sequence node of a SPARQL-BT" ;
+    rdfs:label "Sequence" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/libgdx/gdx-ai/wiki/Behavior-Trees#sequence> ;
+	rdfs:subClassOf bt:Composite .
+
+bt:Priority 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Priority node of a SPARQL-BT" ;
+    rdfs:label "Priority" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/libgdx/gdx-ai/wiki/Behavior-Trees#selector> ;
+	rdfs:subClassOf bt:Composite .
+
+bt:Parallel 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Parallel node of a SPARQL-BT with a sequence policy" ;
+    rdfs:label "Parallel" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/libgdx/gdx-ai/wiki/Behavior-Trees#parallel> ;
+	rdfs:subClassOf bt:Composite .
+
+bt:PrioParallel 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Parallel node of a SPARQL-BT with a selector policy" ;
+    rdfs:label "PrioParallel" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/libgdx/gdx-ai/wiki/Behavior-Trees#parallel> ;
+	rdfs:subClassOf bt:Parallel .
+
+
+# SPARQL-BT Decorator Classes ---------------------------
+
+bt:UntilFail 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Repeates child until it fails" ;
+    rdfs:label "UntilFail" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/libgdx/gdx-ai/wiki/Behavior-Trees#decorator> ;
+	rdfs:subClassOf bt:Decorator .
+
+bt:UntilSuccess 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Repeates child until it succeeded" ;
+    rdfs:label "UntilSuccess" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/libgdx/gdx-ai/wiki/Behavior-Trees#decorator> ;
+	rdfs:subClassOf bt:Decorator .
+
+bt:Invert 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Inverts child state" ;
+    rdfs:label "Invert" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/libgdx/gdx-ai/wiki/Behavior-Trees#decorator> ;
+	rdfs:subClassOf bt:Decorator .
+
+bt:Random 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Child states will be randomly chosen" ;
+    rdfs:label "Random" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/libgdx/gdx-ai/wiki/Behavior-Trees#decorator> ;
+	rdfs:subClassOf bt:Decorator .
+
+bt:IsFailing  
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Child state is always converted to FAILED" ;
+    rdfs:label "IsFailing " ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/libgdx/gdx-ai/wiki/Behavior-Trees#decorator> ;
+	rdfs:subClassOf bt:Decorator .
+
+bt:IsSucceeding   
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Child state is always converted to SUCCEEDED" ;
+    rdfs:label "IsSucceeding  " ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/libgdx/gdx-ai/wiki/Behavior-Trees#decorator> ;
+	rdfs:subClassOf bt:Decorator .
+
+
+# SPARQL-BT Leaf Classes ---------------------------
+
+bt:Condition   
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A SBT Condition is a BT leaf node that makes a binary statement about the presence of a graph-pattern in an RDF dataset. It returns two states after execution: SUCCEEDED or FAILED and can be used to formulate state conditions of an agent. Thereby, it performs one SPARQL 1.1 ASK query on a defined RDF dataset. The dataset can be a default graph or a named graph and is represented by its SPARQL endpoint URI. To define a SPARQL ASK query, the complete language space of the SPARQL 1.1 language with regard to ASK operations can be used." ;
+    rdfs:label "Condition" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/aantakli/AJAN-service/wiki/SPARQL-BT-Leaf-Nodes> ;
+	rdfs:subClassOf bt:Leaf .
+
+bt:Update   
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "This leaf node returns two states after execution: SUCCEEDED or FAILED and can be used to create, delete or update RDF data. Thereby, it performs one SPARQL 1.1 UPDATE query on a defined RDF dataset. The dataset can be a default graph or a named graph and is represented by its SPARQL endpoint URI. To define a SPARQL UPDATE query, the complete language space of the SPARQL 1.1 UPDATE language can be used." ;
+    rdfs:label "Update" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/aantakli/AJAN-service/wiki/SPARQL-BT-Leaf-Nodes> ;
+	rdfs:subClassOf bt:Leaf .
+
+bt:Action   
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A SBT Action is a BT leaf node which performs an external service-based or 'internal' plugin-based action. Here, a SPARQL query is used to read the input data (bt:inputs) for the action and then execute it with that input based on its specified action definition (bt:definition). Possible returned action outputs are then stored in the specified target repository (b:targetBase). This node returns three states after execution: SUCCEEDED, RUNNING or FAILED. To define the action input, it performs one SPARQL 1.1 CONSTRUCT query to create a RDF dataset. The dataset can be a default graph or a named graph and is represented by its SPARQL endpoint URI. To define a SPARQL CONSTRUCT query, the complete language space of the SPARQL 1.1 language with regard to CONSTRUCT operations can be used." ;
+    rdfs:label "Action" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/aantakli/AJAN-service/wiki/SPARQL-BT-Leaf-Nodes> ;
+	rdfs:subClassOf bt:Leaf .
+
+bt:Write    
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "This leaf node copies an RDF graph from one (origin base) repository to another (target base). It produces: SUCCEEDED or FAILED, if the copy operation can be stopped by a wrong query or if no connection to a repository can be established. During execution, it performs one SPARQL 1.1 CONSTRUCT query on a defined RDF dataset and stores this dataset in the specified target repository. The current content of the target repository is not taken into account. Data can become inconsistent accordingly. The dataset can be a default graph or a named graph. To define a SPARQL CONSTRUCT query, the complete language space of the SPARQL 1.1 language can be used." ;
+    rdfs:label "Write" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/aantakli/AJAN-service/wiki/SPARQL-BT-Leaf-Nodes> ;
+	rdfs:subClassOf bt:Leaf .
+
+bt:LoadBehavior
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Loads and executes SPARQL-BT based on a given SPARQL-BT URI" ;
+    rdfs:label "LoadBehavior" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/aantakli/AJAN-service/wiki/SPARQL-BT-Leaf-Nodes> ;
+	rdfs:subClassOf bt:Leaf .
+
+bt:EventProducer
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A SBT Event Producer leaf node creates predefined events with RDF content. To create such content (bt:content) a SPARQL 1.1 CONSTRUCT query is used. The resulting graph is stored in the instantiated event. The complete SPARQL 1.1 language space with regard to CONSTRUCT operations can be used for this purpose. A SBT Event Producer node returns two states after execution: SUCCEEDED, if the specified event type is present and the query is valid; and FAILED, if the specified event type is not present or the query is invalid." ;
+    rdfs:label "EventProducer" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/aantakli/AJAN-service/wiki/SPARQL-BT-Events> ;
+	rdfs:subClassOf bt:Leaf .
+
+bt:GoalProducer
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A SBT Goal Producer leaf node initiates a predefined event goal (with the keyword ajan:goal) with RDF content. To create such content a SPARQL 1.1 SELECT query is used. The resulting binding set have to match (with names and data types) to the defined variableset in the goal definition (see AJAN Goal chapter in Agent Template). The complete SPARQL 1.1 language space with regard to SELECT operations can be used for this purpose. A SBT Goal Producer node returns three states after execution: RUNNING, if the specified goal type is present, the query result is valid in regard to the goal specification and the triggered SBT is in RUNNING state; SUCCEEDED, if the triggered and already finished SBT produced a agent state which fits to the goal postcondition definition; and FAILED, if the specified goal type is not present or the query result is invalid in regard to the goal specification or the triggered and already finished SBT produced a agent state which doesn't fit to the goal postcondition definition." ;
+    rdfs:label "GoalProducer" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/aantakli/AJAN-service/wiki/SPARQL-BT-Events> ;
+	rdfs:subClassOf bt:Leaf .
+
+bt:HandleEvent
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+    rdfs:comment "A SBT Event Handler leaf node has access to incoming RDF based event information of the SBT in which the Event Handler is executed. To query such information a SPARQL 1.1 CONSTRUCT query is used. The complete SPARQL 1.1 language space with regard to CONSTRUCT operations can be used for this purpose. To read out information from a specific event, the predicate IRI bt:event points to that event (see agent template definition). A SBT Event Handler node returns two states after execution: SUCCEEDED, if the CONSTRUCT query created a RDF graph with at least one statement; and FAILED, if the CONSTRUCT query created an empty RDF graph. If no query is defined the incoming Event dataset is stored as is. The resulting RDF graph is then stored in the specified knowledge base. To store the resulting RDF graph as a Named Graph, two reserved predicates can be used in the resulting Construct Graph: ajan:rdfContext and ajan:rdfUUIDContext" ;
+	rdfs:label "HandleEvent" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/aantakli/AJAN-service/wiki/SPARQL-BT-Events> ;
+	rdfs:subClassOf bt:Leaf .
+
+bt:Succeess
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Always succeeds" ;
+    rdfs:label "Succeess" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/libgdx/gdx-ai/wiki/Behavior-Trees#leaf-tasks> ;
+	rdfs:subClassOf bt:Leaf .
+
+bt:Fail
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Always fails" ;
+    rdfs:label "Fail" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/libgdx/gdx-ai/wiki/Behavior-Trees#leaf-tasks> ;
+	rdfs:subClassOf bt:Leaf .
+
+bt:Wait
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Waits for x milliseconds" ;
+    rdfs:label "Wait" ;
+	rdfs:isDefinedBy : ,
+		<https://github.com/libgdx/gdx-ai/wiki/Behavior-Trees#leaf-tasks> ;
+	rdfs:subClassOf bt:Leaf .
+
+bt:Message
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Is sending a HTTP request to a LD Resource" ;
+    rdfs:label "Message" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt:Leaf .
+
+bt:SyncMessage
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Is sending a HTTP request to a LD Resource and saves response into target base" ;
+    rdfs:label "SyncMessage" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt:Leaf .
+
+bt:QueryDomain
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "Is sending a HTTP GET request to a LD Resource" ;
+    rdfs:label "QueryDomain" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt:Leaf .
+
+# SPARQL-BT Query Classes ---------------------------
+
+bt:Query 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A SPARQL query in a SPARQL-BT" ;
+    rdfs:label "Query" ;
+	rdfs:isDefinedBy : .
+
+bt:AskQuery 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A SPARQL ASK query in a SPARQL-BT" ;
+    rdfs:label "AskQuery" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt:Query .
+
+bt:SelectQuery 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A SPARQL SELECT query in a SPARQL-BT" ;
+    rdfs:label "SelectQuery" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt:Query .
+	
+bt:ConstructQuery 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A SPARQL CONSTRUCT query in a SPARQL-BT" ;
+    rdfs:label "ConstructQuery" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt:Query .
+
+bt:UpdateQuery 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "A SPARQL UPDATE in a SPARQL-BT" ;
+    rdfs:label "UpdateQuery" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt:Query .
+
+
+# SPARQL-BT Sate Classes ---------------------------
+
+bt-state:Fresh 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The state indicates the intial state of a SPARQL-BT node" ;
+    rdfs:label "Fresh" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt-state:Sate .
+
+bt-state:Running 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The state indicates the RUNNING state of a SPARQL-BT node" ;
+    rdfs:label "Running" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt-state:Sate .
+
+bt-state:Success 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The state indicates the SUCCEEDED state of a SPARQL-BT node" ;
+    rdfs:label "Success" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt-state:Sate .
+
+bt-state:Fail 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The state indicates the FAILED state of a SPARQL-BT node" ;
+    rdfs:label "Fail" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt-state:Sate .
+
+bt-state:Unclear 
+	rdf:type rdfs:Class ,
+			 owl:Class ;
+	rdfs:comment "The state indicates the state of a SPARQL-BT node is unclear, e.g. due to an internal error" ;
+    rdfs:label "Unclear" ;
+	rdfs:isDefinedBy : ;
+	rdfs:subClassOf bt-state:Sate .
+
+
+# ---------------------------------------------------
+# SPARQL-BT Properties
+# ---------------------------------------------------
+
+bt:hasState
+	rdf:type rdf:Property ;
+	rdfs:comment "referes to the state of a single SPARQL-BT node" ;
+    rdfs:label "hasState" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:Task ;
+	rdfs:range bt-state:Sate .
+
+bt:hasChild
+	rdf:type rdf:Property ;
+	rdfs:comment "A connection to a SPARQL-BT node" ;
+    rdfs:label "hasChild" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:SingleChildTask ;
+	rdfs:range bt:Task .
+
+bt:hasChildren
+	rdf:type rdf:Property ;
+	rdfs:comment "A connection to a List of SPARQL-BT node" ;
+    rdfs:label "hasChildren" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:MultiChildTask ;
+	rdfs:range rdf:List .
+
+bt:query
+	rdf:type rdf:Property ;
+	rdfs:comment "Points to a Query of a SPARQL-BT" ;
+    rdfs:label "query" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:Task ;
+	rdfs:range bt:Query .
+
+bt:originBase 
+	rdf:type rdf:Property ;
+	rdfs:comment "The RDF repository to query" ;
+    rdfs:label "originBase " ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:Query ;
+	rdfs:range xsd:anyURI .
+
+bt:targetBase 
+	rdf:type rdf:Property ;
+	rdfs:comment "The RDF repository to store query result" ;
+    rdfs:label "targetBase " ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:ConstructQuery,
+		bt:Leaf;
+	rdfs:range xsd:anyURI .
+
+bt:sparql
+	rdf:type rdf:Property ;
+	rdfs:comment "The query string of a SPARQL-BT Query" ;
+    rdfs:label "sparql" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:Query ;
+	rdfs:range xsd:string .
+
+bt:join
+	rdf:type rdf:Property ;
+	rdfs:comment "Defines wether a Parallel child node is reexecuted while sibling is in running state" ;
+    rdfs:label "join" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:Parallel ;
+	rdfs:range xsd:boolean .
+
+bt:context
+	rdf:type rdf:Property ;
+	rdfs:comment "Defines RDF graph name for resulting RDF graph of that node" ;
+    rdfs:label "context" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:Leaf ;
+	rdfs:range xsd:anyURI .
+
+bt:event
+	rdf:type rdf:Property ;
+	rdfs:comment "Defines the AJAN Event (ajan:Event) to which it is pointing" ;
+    rdfs:label "event" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:Leaf ;
+	rdfs:range ajan:Event .
+
+bt:goal
+	rdf:type rdf:Property ;
+	rdfs:comment "Defines the AJAN Goal (ajan:Goal) to which it is pointing" ;
+    rdfs:label "goal" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:Leaf ;
+	rdfs:range ajan:Goal .
+
+bt:content
+	rdf:type rdf:Property ;
+	rdfs:comment "Defines a RDF graph which is created via a SPARQL CONSTRUCT query" ;
+    rdfs:label "content" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:Leaf ;
+	rdfs:range bt:ConstructQuery .
+
+bt:definition
+	rdf:type rdf:Property ;
+	rdfs:comment "Defines the AJAN Action Definition (actn:Action) to which it is pointing" ;
+    rdfs:label "definition" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:Action ;
+	rdfs:range xsd:anyURI .
+
+bt:inputs
+	rdf:type rdf:Property ;
+	rdfs:comment "Defines multiple RDF graphs which are created via a SPARQL CONSTRUCT query (bt:ConstructQuery) to create the action input" ;
+    rdfs:label "inputs" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:Action ;
+	rdfs:range rdf:List .
+
+bt:state
+	rdf:type rdf:Property ;
+	rdfs:comment "Points to the state of an initialized SPARQL-BT" ;
+    rdfs:label "state" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:Task ;
+	rdfs:range bt-state:State .
+
+bt:queryUri
+	rdf:type rdf:Property ;
+	rdfs:comment "Defining the request URI using SPARQL SELECT query" ;
+    rdfs:label "queryUri" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:Message ;
+	rdfs:range bt:SelectQuery .
+
+bt:binding
+	rdf:type rdf:Property ;
+	rdfs:comment "Defining the request URI using SPARQL SELECT query" ;
+    rdfs:label "binding" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:Message ;
+	rdfs:range http-core:Request .
+
+bt:headers
+	rdf:type rdf:Property ;
+	rdfs:comment "Defining additional HTTP headers using SPARQL SELECT query" ;
+    rdfs:label "headers" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain http-core:Request ;
+	rdfs:range bt:SelectQuery .
+
+bt:validate
+	rdf:type rdf:Property ;
+	rdfs:comment "Checking responded RDF graph via SPARQL CONSTRUCT and save the result into selected target base" ;
+    rdfs:label "validate" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain http-core:Request ;
+	rdfs:range bt:SelectQuery .
