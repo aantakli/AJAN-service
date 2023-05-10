@@ -392,6 +392,20 @@ public final class MOSIMUtil {
 		model.add(transIRI, rdfType, MOSIMVocabulary.M_CONSTRAINT);
 		model.add(transIRI, MOSIMVocabulary.HAS_ID, vf.createLiteral(constr.ID));
 		model.add(transIRI, MOSIMVocabulary.HAS_OBJECT, vf.createLiteral(encodeObjectBase64(constr)));
+		setConstraintProperties(model, transIRI, constr);
+	}
+
+	public static void setConstraintProperties(final Model model, final Resource subject, final MConstraint constr) {
+		if (constr.isSetProperties() && !constr.Properties.isEmpty()) {
+			IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
+			for (Map.Entry<String,String> prop: constr.Properties.entrySet()) {
+				Resource propIRI = vf.createBNode();
+				model.add(subject, MOSIMVocabulary.HAS_CONSTRAINT_PROPERTY, propIRI);
+				model.add(propIRI, rdfType, MOSIMVocabulary.M_CONSTRAINT_PROPERTY);
+				model.add(propIRI, MOSIMVocabulary.HAS_KEY, vf.createLiteral(prop.getKey()));
+				model.add(propIRI, MOSIMVocabulary.HAS_VALUE, vf.createLiteral(prop.getValue()));
+			}
+		}
 	}
 
 	public static String encodeObjectBase64(final Object object) throws IOException {
