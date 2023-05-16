@@ -284,7 +284,7 @@ public final class SPARQLUtil {
 		return new SameTerm(new ValueConstant(resource), new Var(var));
 	}
 
-	public static String queryNamedGraph (final String graphName) {
+	public static String queryNamedGraph(final String graphName) {
 		return "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <" + graphName + "> { ?s ?p ?o }}";
 	}
 
