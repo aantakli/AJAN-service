@@ -13,19 +13,10 @@ You will need the following things properly installed on your computer.
 
 ## Installation
 
-### Prebuild Installation
-* [Download latest release ZIP](https://github.com/aantakli/AJAN-service/releases)
-* Run `startALL.bat` if you are on Windows and `startALL.sh` if you are on Mac/Linux
-
-### Clean Installation
 * cmd: `git clone <repository-url>` this repository
 * cmd: `cd AJAN-service`
 * cmd: `git submodule update --init --recursive`
 * run `installAJAN.bat` or cmd: `mvn install`
-
-### Docker
-* [Download latest Docker-Image](https://hub.docker.com/r/aantakli/ajan-service)
-* Read Docker [Wiki](https://github.com/aantakli/AJAN-service/wiki/Docker)
 
 ## Setup Triplestore
 
@@ -38,8 +29,8 @@ Start AJAN-Triplestore (see below), visit `http://localhost:8090/workbench/` and
 									-Dtriplestore.initialData.domainFolderPath=executionservice/use-case/domains 
 									-Dtriplestore.initialData.serviceFolderPath=executionservice/use-case/services 
 									-Dtriplestore.initialData.behaviorsFolderPath=executionservice/use-case/behaviors 
-									-Dtriplestore.initialData.behaviorsFolderPath=executionservice/use-case/editor/nodeDefinitions
-									-Dtriplestore.initialData.behaviorsFolderPath=executionservice/use-case/editor/editorData
+									-Dtriplestore.initialData.nodeDefinitionsFolderPath=executionservice/use-case/editor/nodeDefinitions 
+									-Dtriplestore.initialData.editorDataFolderPath=executionservice/use-case/editor/editorData 
 									-Dpf4j.mode=development 
 									-Dserver.port=8080 
 									-DloadTTLFiles=true 

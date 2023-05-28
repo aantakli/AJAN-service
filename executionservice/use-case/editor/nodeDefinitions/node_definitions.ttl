@@ -204,7 +204,6 @@
 				nd:type bt:SelectQuery;
 				nd:title "Select Query: ?intValue";
 				nd:input nd:Query;
-				nd:optional "true";
 				bt:originBase "true";
 				bt:targetBase "false";
 			]
@@ -397,7 +396,6 @@
         nd:mapsTo bt:query;
         nd:title "Ask Query";
 		nd:input nd:Query;
-		nd:default "ASK WHERE {?s ?p ?o}"^^xsd:string;
 		bt:originBase "true";
 		bt:targetBase "false";
 		nd:type bt:AskQuery;
@@ -428,7 +426,6 @@
         a nd:Parameter;
         nd:mapsTo bt:behaviorUri;
         nd:title "Select Query: ?behaviorURI";
-		nd:default """SELECT ?behaviorURI WHERE {VALUES ?behaviorURI {"http://"}}"""^^xsd:string;
         nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
@@ -506,7 +503,6 @@
 			nd:type bt:SelectQuery;
 			nd:title "(Opt) Dynamic Headers: ?hdrName ?fieldValue";
 			nd:input nd:Query;
-			nd:optional "true";
 			bt:originBase "true";
 			bt:targetBase "false";
 		] ;
@@ -540,7 +536,7 @@
 
 :GoalProducer nd:class nd:Leaf;
 	nd:category "Event & Goal Nodes";
-	nd:name "Produce Goal";
+	nd:name "GoalProducer";
     nd:labelType nd:Dynamic;
     rdfs:label "DefaultGoalProducer";
     nd:type bt:GoalProducer;
@@ -616,22 +612,21 @@
         nd:paddingTo "width";
         nd:icon "icons8-new-post.png";
     ];
-	nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo bt:targetBase;
-		nd:title "Target Base";
-		nd:input nd:Repo ;
-	];
-	nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo bt:queryUri;
-		nd:title "Select Query: ?requestURI";
-		nd:input nd:Query;
-		bt:originBase "true";
-		bt:targetBase "false";
-		nd:type bt:SelectQuery;
-		nd:type bt:QueryUri;
-    ]
+	nd:parameters ( [
+            a nd:Parameter;
+            nd:mapsTo bt:targetBase;
+            nd:title "Target Base";
+            nd:input nd:Repo ;
+        ][
+	        a nd:Parameter;
+	        nd:mapsTo bt:queryUri;
+	        nd:title "Select Query: ?requestURI";
+	        nd:input nd:Query;
+	        bt:originBase "true";
+	        bt:targetBase "false";
+	        nd:type bt:SelectQuery;
+	        nd:type bt:QueryUri;
+    ] )
 .
 
 :Update nd:class nd:Leaf;
@@ -809,13 +804,14 @@
         nd:paddingTo "width";
         nd:icon "wait.png";
     ];
-	nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo bt:milliseconds;
-		nd:title "Milliseconds";
-		nd:input xsd:int ;
-		nd:default 0;
-	]
+	nd:parameters ([
+            a nd:Parameter;
+            nd:mapsTo bt:milliseconds;
+            nd:title "Milliseconds";
+            nd:input xsd:int ;
+            nd:default 0;
+        ]
+    )
 .
 
 # --------------- Mapping -------------------
@@ -835,28 +831,29 @@
         nd:paddingTo "width";
         nd:icon "handle-json-event.png";
     ];
-    nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo ajan:event;
-		nd:input nd:EventGoal;
-		nd:title "Event/Goal";
-	];
-    nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo bt:mapping;
-		nd:title "Mapping";
-		nd:input xsd:anyURI ;
-		nd:default "http://"^^xsd:anyURI;
-	] ;
-	nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo bt:validate;
-		nd:title "Construct Query";
-		nd:input nd:Query;
-		bt:originBase "false";
-		bt:targetBase "true";
-		nd:type bt:ConstructQuery;
-	]
+    nd:parameters (
+		[
+			a nd:Parameter;
+			nd:mapsTo ajan:event;
+			nd:input nd:EventGoal;
+			nd:title "Event/Goal";
+		]
+    	[
+            a nd:Parameter;
+            nd:mapsTo bt:mapping;
+            nd:title "Mapping";
+            nd:input xsd:anyURI ;
+            nd:default "http://"^^xsd:anyURI;
+        ][
+	        a nd:Parameter;
+	        nd:mapsTo bt:validate;
+	        nd:title "Construct Query";
+	        nd:input nd:Query;
+	        bt:originBase "false";
+	        bt:targetBase "true";
+	        nd:type bt:ConstructQuery;
+    	]
+    )
 .
 
 :QueryMappingDomain nd:class nd:Leaf;
@@ -874,29 +871,27 @@
         nd:paddingTo "width";
         nd:icon "icons8-new-post.png";
     ];
-	nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo bt:mapping;
-		nd:title "Mapping";
-		nd:input xsd:anyURI ;
-		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
-	];
-	nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo bt:targetBase;
-		nd:title "Target Base";
-		nd:input nd:Repo ;
-	];
-	nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo bt:queryUri;
-		nd:title "Select Query: ?requestURI";
-		nd:input nd:Query;
-		bt:originBase "true";
-		bt:targetBase "false";
-		nd:type bt:SelectQuery;
-		nd:type bt:QueryUri;
-    ]
+	nd:parameters ( [
+            a nd:Parameter;
+            nd:mapsTo bt:mapping;
+            nd:title "Mapping";
+            nd:input xsd:anyURI ;
+            nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
+        ][
+            a nd:Parameter;
+            nd:mapsTo bt:targetBase;
+            nd:title "Target Base";
+            nd:input nd:Repo ;
+        ][
+	        a nd:Parameter;
+	        nd:mapsTo bt:queryUri;
+	        nd:title "Select Query: ?requestURI";
+	        nd:input nd:Query;
+	        bt:originBase "true";
+	        bt:targetBase "false";
+	        nd:type bt:SelectQuery;
+	        nd:type bt:QueryUri;
+    ] )
 .
 
 :MappingMessage nd:class nd:Leaf;
@@ -914,47 +909,43 @@
         nd:paddingTo "width";
         nd:icon "icons8-new-post.png";
     ];
-	nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo bt:dataMapping;
-		nd:title "Data Mapping";
-		nd:input nd:Query;
-		bt:originBase "true";
-		bt:targetBase "false";
-		nd:type bt:ConstructQuery;
-	];
-	nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo bt:apiMapping;
-		nd:title "API Mapping";
-		nd:input nd:Query;
-		bt:originBase "true";
-		bt:targetBase "false";
-		nd:type bt:ConstructQuery;
-	];
-	nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo bt:mapping;
-		nd:title "Mapping";
-		nd:input xsd:anyURI ;
-		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
-	];
-	nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo bt:targetBase;
-		nd:title "Target Base";
-		nd:input nd:Repo ;
-	];
-	nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo bt:queryUri;
-		nd:title "Select Query: ?requestURI";
-		nd:input nd:Query;
-		bt:originBase "true";
-		bt:targetBase "false";
-		nd:type bt:SelectQuery;
-		nd:type bt:QueryUri;
-	];
+	nd:parameters ( [
+			a nd:Parameter;
+			nd:mapsTo bt:dataMapping;
+			nd:title "Data Mapping";
+			nd:input nd:Query;
+			bt:originBase "true";
+			bt:targetBase "false";
+			nd:type bt:ConstructQuery;
+        ][
+            a nd:Parameter;
+			nd:mapsTo bt:apiMapping;
+			nd:title "API Mapping";
+			nd:input nd:Query;
+			bt:originBase "true";
+			bt:targetBase "false";
+			nd:type bt:ConstructQuery;
+        ][
+            a nd:Parameter;
+            nd:mapsTo bt:mapping;
+            nd:title "Mapping";
+            nd:input xsd:anyURI ;
+            nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
+        ][
+            a nd:Parameter;
+            nd:mapsTo bt:targetBase;
+            nd:title "Target Base";
+            nd:input nd:Repo ;
+        ][
+	        a nd:Parameter;
+	        nd:mapsTo bt:queryUri;
+	        nd:title "Select Query: ?requestURI";
+	        nd:input nd:Query;
+	        bt:originBase "true";
+	        bt:targetBase "false";
+	        nd:type bt:SelectQuery;
+	        nd:type bt:QueryUri;
+		] );
 	nd:parameterSet [
 		a nd:ParameterSet;
 		nd:mapsTo bt:binding;
@@ -1012,7 +1003,7 @@
 			nd:mapsTo http-core:body;
 			nd:title "HTTP Body";
 			nd:type actn:Payload;
-			nd:parameters ([
+			nd:parameter [
 				a nd:Parameter;
 				nd:mapsTo bt:query;
 				nd:title "Construct Query";
@@ -1020,7 +1011,7 @@
 				bt:originBase "true";
 				bt:targetBase "false";
 				nd:type bt:ConstructQuery;
-			])
+			]
 		]
 	]
 .
@@ -1040,21 +1031,20 @@
         nd:paddingTo "width";
         nd:icon "icons8-new-post.png";
     ];
-	nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo bt:targetBase;
-		nd:title "Target Base";
-		nd:input nd:Repo ;
-	];
-	nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo bt:timeMapping;
-		nd:title "Construct Query";
-		nd:input nd:Query;
-		bt:originBase "true";
-		bt:targetBase "false";
-		nd:type bt:ConstructQuery;
-    ]
+	nd:parameters ( [
+            a nd:Parameter;
+            nd:mapsTo bt:targetBase;
+            nd:title "Target Base";
+            nd:input nd:Repo ;
+        ][
+	        a nd:Parameter;
+	        nd:mapsTo bt:timeMapping;
+	        nd:title "Construct Query";
+	        nd:input nd:Query;
+	        bt:originBase "true";
+	        bt:targetBase "false";
+	        nd:type bt:ConstructQuery;
+    ] )
 .
 
 
@@ -1075,20 +1065,19 @@
         nd:paddingTo "width";
         nd:icon "icons8-plan.png";
     ];
-    nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo bt:resetBehavior;
-		nd:input xsd:boolean;
-		nd:default "true"^^xsd:boolean;
-		nd:title "Reset Behavior";
-    ];
-	nd:parameter [
-		a nd:Parameter;
-		nd:mapsTo strips:randomExecute;
-		nd:input xsd:boolean;
-		nd:default "true"^^xsd:boolean;
-		nd:title "Random Execute";
-    ];
+    nd:parameters ([
+            a nd:Parameter;
+            nd:mapsTo bt:resetBehavior;
+            nd:input xsd:boolean;
+            nd:default "true"^^xsd:boolean;
+            nd:title "Reset Behavior";
+        ][
+            a nd:Parameter;
+            nd:mapsTo strips:randomExecute;
+            nd:input xsd:boolean;
+            nd:default "true"^^xsd:boolean;
+            nd:title "Random Execute";
+        ]);
     nd:list [
         a nd:List;
         nd:mapsTo strips:actions;
@@ -1105,7 +1094,6 @@
         nd:title "Goal States";
         nd:parameter [
             a nd:Parameter;
-			#nd:mapsTo rdf:first;
             nd:input nd:Query;
             bt:originBase "true";
             bt:targetBase "false";
@@ -1120,7 +1108,6 @@
         nd:title "Initial States";
         nd:parameter [
             a nd:Parameter;
-			#nd:mapsTo rdf:first;
             nd:input nd:Query;
             bt:originBase "true";
             bt:targetBase "false";
