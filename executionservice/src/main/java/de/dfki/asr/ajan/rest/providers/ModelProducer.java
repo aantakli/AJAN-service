@@ -94,6 +94,7 @@ public class ModelProducer {
 		model.add(factory.createStatement(agentResource, AJANVocabulary.AGENT_HAS_ID, factory.createLiteral(agent.getId())));
                 model.add(factory.createStatement(agentResource, AJANVocabulary.AGENT_HAS_TEMPLATE, agent.getTemplate()));
 		model.add(factory.createStatement(agentResource, AJANVocabulary.AGENT_HAS_KNOWLEDGE, agentKnowledge));
+                model.add(factory.createStatement(agentResource, AJANVocabulary.AGENT_HAS_REPORT_URI, factory.createLiteral(agent.getReportURI())));
 		agent.getBehaviors().forEach((k,v) -> {
                     URI uri;
                     try {

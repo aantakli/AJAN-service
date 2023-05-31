@@ -50,7 +50,7 @@ public class Breakpoint extends AbstractTDBLeafTask {
 		debug.setDebugging(true);
 		BTRoot bt = this.getObject().getBt();
 		NodeStatus leafStatus = new NodeStatus(null, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
-		String report = BTUtil.createReport(getUrl(), bt.getInstance().stringValue(), leafStatus, debug, new LinkedHashModel());
+		String report = BTUtil.createReport(getUrl(), bt, leafStatus, debug, new LinkedHashModel());
 		BTUtil.sendReport(this.getObject(),report);
 		return Status.SUCCEEDED;
 	}

@@ -104,6 +104,7 @@ public class BTVocabulary {
 	public final static IRI HAS_TIMESTAMP = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#timeStamp");
 	public final static IRI HAS_DEBUGGING = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#debugging");
 	public final static IRI HAS_RESPONSE = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#response");
+	public final static IRI HAS_DEFINITION = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#definition");
 
 	public final static IRI ST_FRESH = FACTORY.createIRI("http://www.ajan.de/behavior/state-ns#Fresh");
 	public final static IRI ST_RUNNING = FACTORY.createIRI("http://www.ajan.de/behavior/state-ns#Running");

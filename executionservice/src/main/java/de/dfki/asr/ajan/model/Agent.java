@@ -34,6 +34,7 @@ import static lombok.AccessLevel.NONE;
 import org.eclipse.rdf4j.model.Resource;
 
 @Data
+@SuppressWarnings({"PMD.TooManyFields"})
 public class Agent {
 	private final String url;
 	private final String id;
@@ -46,6 +47,7 @@ public class Agent {
 	private final Map<URI,Event> events;
 	private final Map<String,Endpoint> endpoints;
 	private final Map<URI,IConnection> connections;
+        private final String reportURI;
 
 	@Getter(NONE) @Setter(NONE)
 	private final Object LOCK = new Object();

@@ -196,7 +196,7 @@ public final class BTUtil {
 			if (debug.isDebugging()) {
 				detail = debugModel;
 			}
-			String report = BTUtil.createReport(url, bt.getInstance().stringValue(), leafStatus, debug, detail);
+			String report = BTUtil.createReport(url, bt, leafStatus, debug, detail);
 			BTUtil.sendReport(info, report);
 		}
 	}
@@ -217,13 +217,17 @@ public final class BTUtil {
 		}
 	}
 
-	public static String createReport(final String url, final String btUrl, final NodeStatus state, final Debug debug, final Model detail) {
+	public static String createReport(final String url, final BTRoot bt, final NodeStatus state, final Debug debug, final Model detail) {
 		Model reportModel = new LinkedHashModel();
 		Resource report = VF.createIRI(debug.getAgentURI() + "/report/" + UUID.randomUUID());
 		reportModel.add(report, RDF.TYPE, BTVocabulary.REPORT);
 		reportModel.add(report, AJANVocabulary.HAS_AGENT, VF.createIRI(debug.getAgentURI()));
-		reportModel.add(report, AJANVocabulary.BEHAVIOR_HAS_BT, VF.createIRI(btUrl));
+		reportModel.add(report, AJANVocabulary.BEHAVIOR_HAS_BT, VF.createIRI(bt.getInstance().stringValue()));
+		reportModel.add(report, BTVocabulary.HAS_DEFINITION, VF.createIRI(bt.getDefinition().stringValue()));
 		reportModel.add(report, BTVocabulary.BT_NODE, VF.createIRI(url));
+		if (state.getStatus() != null) {
+			reportModel.add(report, BTVocabulary.HAS_STATE, VF.createLiteral(state.getStatus().name()));
+		}
 		reportModel.add(report, RDFS.LABEL, VF.createLiteral(state.getLabel()));
 		if (debug.isDebugging()) {
 			reportModel.add(report, BTVocabulary.HAS_DEBUGGING, VF.createLiteral(true));

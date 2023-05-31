@@ -402,7 +402,7 @@
 		];
 
 		rr:subjectMap [
-			rr:template "http://aitoc.eu/active-registry-ns#ARFile/{name}";
+			rr:template "http://aitoc.eu/active-registry-ns#ARFile/{name.name}";
 			rr:class ar:File
 		] ;
 

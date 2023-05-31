@@ -106,7 +106,7 @@ public class RDFAgentBuilder extends AgentBuilder {
             return null;
         }
         LOG.info("--> Agent beliefs: " + beliefs.getSparqlEndpoint() + " " + getAgentSet());
-        Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, overwrite, beliefs, events, endpoints, connections);
+        Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, overwrite, beliefs, events, endpoints, connections, reportURI);
         LOG.info("Created agent with ID " + id + ": " + url);
         return agent;
     }
