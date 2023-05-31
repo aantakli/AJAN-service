@@ -32,7 +32,7 @@ RUN chmod -R +rx /app/pluginsystem/plugins/ASPPlugin/target/classes
 RUN chmod +x /usr/lib/python3.9/site-packages/clingo
 
 WORKDIR /logs
-VOLUME logs
+VOLUME /logs
 VOLUME /app/executionservice/use-case
 
 EXPOSE 8080/tcp
