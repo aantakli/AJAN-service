@@ -52,7 +52,7 @@ public class Condition extends AbstractTDBLeafTask {
 	public Resource getType() {
 		return BTVocabulary.CONDITION;
 	}
-
+	
 	@Override
 	public void reset() {
 		query.setReset(true);

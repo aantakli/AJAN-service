@@ -1,8 +1,8 @@
-@base <https://github.com/aantakli/AJAN-service/vocabularies/bt.ttl> .
-@prefix : <https://github.com/aantakli/AJAN-service/vocabularies/bt.ttl> .
-@prefix bt: <http://www.bt-ns.ajan-agents.de#> .
-@prefix bt-state: <http://www.bt-ns.ajan-agents.de/state-ns#> .
-@prefix ajan: <http://www.ajan-ns.ajan-agents.de#> .
+@base <https://github.com/aantakli/aantakli.github.io/edit/main/vocabularies/behavior/bt-ns/index.html> .
+@prefix : <https://github.com/aantakli/aantakli.github.io/edit/main/vocabularies/behavior/bt-ns/index.html> .
+@prefix bt: <http://www.ajan-agents.de/vocabularies/behavior/bt-ns/#> .
+@prefix bt-state: <http://www.ajan-agents.de/vocabularies/behavior/bt-ns/state-ns#> .
+@prefix ajan: <http://www.ajan-agents.de/vocabularies/ajan-ns/#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
@@ -372,7 +372,7 @@ bt-state:Running
 	rdf:type rdfs:Class ,
 			 owl:Class ;
 	rdfs:comment "The state indicates the RUNNING state of a SPARQL-BT node" ;
-    rdfs:label "Fresh" ;
+    rdfs:label "Running" ;
 	rdfs:isDefinedBy : ;
 	rdfs:subClassOf bt-state:Sate .
 
@@ -404,6 +404,14 @@ bt-state:Unclear
 # ---------------------------------------------------
 # SPARQL-BT Properties
 # ---------------------------------------------------
+
+bt:hasState
+	rdf:type rdf:Property ;
+	rdfs:comment "referes to the state of a single SPARQL-BT node" ;
+    rdfs:label "hasState" ;
+	rdfs:isDefinedBy : ;
+	rdfs:domain bt:Task ;
+	rdfs:range bt-state:Sate .
 
 bt:hasChild
 	rdf:type rdf:Property ;

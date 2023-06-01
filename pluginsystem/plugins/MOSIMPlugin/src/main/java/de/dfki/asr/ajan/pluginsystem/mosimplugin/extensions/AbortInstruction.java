@@ -73,7 +73,7 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 	@Getter @Setter
 	private String label;
 
-	@RDF("bt-mosim:host")
+	@RDF("bt-mosim:coSim")
 	@Getter @Setter
 	private BehaviorSelectQuery query;
 
@@ -83,6 +83,7 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 
 	private String host;
 	private int port;
+	private String avatarId;
 
 	@RDF("bt-mosim:instructionID")
 	@Setter
@@ -96,11 +97,11 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 	@Override
 	public NodeStatus executeLeaf() {
 		try {
-			Map<String,String> hostMap = MOSIMUtil.getHostInfos(query, this.getObject());
-			if(!hostMap.isEmpty()) {
-				Map.Entry<String,String> entry = hostMap.entrySet().iterator().next();
-				host = entry.getKey();
-				port = Integer.parseInt(entry.getValue());
+			Map<String,String> cosim = MOSIMUtil.getCoSimInfos(query, this.getObject());
+			if(!cosim.isEmpty()) {
+				host = cosim.get("host");
+				port = Integer.parseInt(cosim.get("port"));
+				avatarId = cosim.get("avatarId");
 				if (abortInstruction()) {
 					String report = toString() + " SUCCEEDED";
 					return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
@@ -123,7 +124,7 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 				List<String> ids = getInstructionIDs();
 				MBoolResponse response;
 				if (ids.isEmpty()) {
-					response = client.Abort();
+					response = client.Abort(avatarId);
 				} else {
 					response = client.AbortInstructions(ids);
 				}

@@ -7,6 +7,7 @@
 @prefix http-methods: <http://www.w3.org/2008/http-methods#> .
 @prefix strips: <http://www.ajan.de/behavior/strips-ns#> .
 @prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+@prefix poser: <http://www.ajan.de/poser-ns#> .
 
 @prefix metagol: <http://www.ajan.de/behavior/metagol-ns#> .
 
@@ -444,7 +445,7 @@
 	nd:type bt:Message;
 	nd:style [
         a nd:StyleDef;
-        nd:color "#ff3af5";
+        nd:color "#fccafa";
         nd:shape nd:Polygon;
         nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
         nd:padding "700%";
@@ -608,7 +609,7 @@
     nd:type bt:QueryDomain;
     nd:style [
         a nd:StyleDef;
-        nd:color "#63ffb3";
+        nd:color "#fc7cb3";
         nd:shape nd:Polygon;
         nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
         nd:padding "700%";
@@ -845,7 +846,7 @@
 		nd:mapsTo bt:mapping;
 		nd:title "Mapping";
 		nd:input xsd:anyURI ;
-		nd:default "http://"^^xsd:anyURI;
+		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
 	] ;
 	nd:parameter [
 		a nd:Parameter;
@@ -866,7 +867,7 @@
     nd:type bt:QueryMappingDomain;
     nd:style [
         a nd:StyleDef;
-        nd:color "#00ff84";
+        nd:color "#fc2b86";
         nd:shape nd:Polygon;
         nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
         nd:padding "700%";
@@ -900,13 +901,13 @@
 
 :MappingMessage nd:class nd:Leaf;
 	nd:category "Message Nodes";
-	nd:name "Json Message";
-    nd:labelType nd:Dynamic;
-    rdfs:label "DefaultMappingMessage";
-    nd:type bt:JsonMessage;
-    nd:style [
+	nd:name "Mapping Message";
+	nd:labelType nd:Dynamic;
+	rdfs:label "DefaultMappingMessage";
+	nd:type bt:MappingMessage;
+	nd:style [
         a nd:StyleDef;
-        nd:color "#00ff84";
+        nd:color "#ff8cf9";
         nd:shape nd:Polygon;
         nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
         nd:padding "700%";
@@ -915,26 +916,130 @@
     ];
 	nd:parameter [
 		a nd:Parameter;
-		nd:mapsTo bt:dataMapping;
+		nd:mapsTo bt:mapping;
+		nd:title "Mapping";
+		nd:input xsd:anyURI ;
+		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
+	];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt:targetBase;
+	    nd:title "Target Base";
+	    nd:input nd:Repo;
+    ];
+    nd:parameterSet [
+        a nd:ParameterSet;
+        nd:mapsTo bt:binding;
+        nd:type http-core:Request;
+        nd:title "Binding Configuration";
+        nd:parameters ([
+	        a nd:Parameter;
+	        nd:mapsTo http-core:httpVersion;
+	        nd:title "HTTP Version";
+	        nd:default "1.1"^^xsd:string;
+	        nd:input xsd:string;
+	    ][
+	        a nd:Parameter;
+	        nd:mapsTo http-core:mthd;
+	        nd:title "HTTP Method";
+	        nd:input xsd:anyURI ;
+	        nd:default "http://www.w3.org/2008/http-methods#POST"^^xsd:anyURI;
+	    ]);
+		nd:list [
+			a nd:List;
+			nd:title "HTTP Headers";
+	        nd:mapsTo http-core:headers;
+			nd:parameterSet [
+				a nd:ParameterSet;
+				nd:title "HTTP Header";
+				nd:type http-core:Header;
+				nd:parameters ( [
+						a nd:Parameter;
+						nd:mapsTo http-core:hdrName;
+						nd:title "Header Name";
+						nd:input xsd:anyURI ;
+						nd:default "http://www.w3.org/2008/http-headers#content-type"^^xsd:anyURI;
+					] [
+						a nd:Parameter;
+						nd:mapsTo http-core:fieldValue;
+						nd:title "Field Value";
+						nd:input xsd:string ;
+						nd:default "application/json"^^xsd:string;
+					] 
+				)
+			]
+		];
+		nd:parameter [
+			a nd:Parameter;
+			nd:mapsTo bt:headers;
+			nd:type bt:SelectQuery;
+			nd:title "(Opt) Dynamic Headers: ?hdrName ?fieldValue";
+			nd:input nd:Query;
+			nd:optional "true";
+			bt:originBase "true";
+			bt:targetBase "false";
+		] ;
+        nd:parameterSet [
+	        a nd:ParameterSet;
+	        nd:mapsTo http-core:body;
+	        nd:title "HTTP Body";
+            nd:type actn:Payload;
+			nd:parameter [
+				a nd:Parameter;
+				nd:mapsTo bt:query;
+				nd:title "Construct Query";
+				nd:input nd:Query;
+				bt:originBase "true";
+				bt:targetBase "false";
+				nd:type bt:ConstructQuery;
+			]
+	    ];
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt:queryUri;
+        nd:type bt:QueryUri;
+        nd:type bt:SelectQuery;
+        nd:title "Select Query: ?requestURI";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+    ]
+.
+
+:JsonMessage nd:class nd:Leaf;
+	nd:category "Message Nodes";
+	nd:name "Json Message";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultMappingMessage";
+    nd:type bt:JsonMessage;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ff3af5";
+        nd:shape nd:Polygon;
+        nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "icons8-new-post.png";
+    ];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo poser:dataMapping;
 		nd:title "Data Mapping";
-		nd:input nd:Query;
-		bt:originBase "true";
-		bt:targetBase "false";
-		nd:type bt:ConstructQuery;
+		nd:input xsd:anyURI ;
+		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
 	];
 	nd:parameter [
 		a nd:Parameter;
-		nd:mapsTo bt:apiMapping;
+		nd:mapsTo poser:apiMapping;
 		nd:title "API Mapping";
-		nd:input nd:Query;
-		bt:originBase "true";
-		bt:targetBase "false";
-		nd:type bt:ConstructQuery;
+		nd:input xsd:anyURI ;
+		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
 	];
 	nd:parameter [
 		a nd:Parameter;
 		nd:mapsTo bt:mapping;
-		nd:title "Mapping";
+		nd:title "Response Mapping";
 		nd:input xsd:anyURI ;
 		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
 	];
@@ -991,7 +1096,7 @@
 						nd:mapsTo http-core:fieldValue;
 						nd:title "Field Value";
 						nd:input xsd:string ;
-						nd:default "text/turtle"^^xsd:string;
+						nd:default "application/json"^^xsd:string;
 					] 
 				)
 			]
@@ -1003,6 +1108,7 @@
 			nd:type bt:SelectQuery;
 			nd:title "(Opt) Dynamic Headers: ?hdrName ?fieldValue";
 			nd:input nd:Query;
+			nd:optional "true";
 			bt:originBase "true";
 			bt:targetBase "false";
 		] ;
@@ -1502,7 +1608,7 @@
     nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mosim:host;
-	    nd:title "Host:Port";
+	    nd:title "Scene Service: ?host ?port";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
@@ -1581,8 +1687,8 @@
     ];
     nd:parameter [
 	    a nd:Parameter;
-	    nd:mapsTo bt-mosim:host;
-	    nd:title "Host:Port";
+	    nd:mapsTo bt-mosim:coSim;
+	    nd:title "CoSim: ?host ?port ?avatarId";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
@@ -1630,8 +1736,8 @@
     ];
     nd:parameter [
 	    a nd:Parameter;
-	    nd:mapsTo bt-mosim:host;
-	    nd:title "Host:Port";
+	    nd:mapsTo bt-mosim:coSim;
+	    nd:title "CoSim: ?host ?port ?avatarId";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
@@ -1721,7 +1827,7 @@
     nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mosim:host;
-	    nd:title "Host:Port";
+	    nd:title "Registry Service: ?host ?port";
 		nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
@@ -1765,7 +1871,7 @@
     nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mosim:host;
-	    nd:title "Host:Port";
+	    nd:title "Host: ?host ?port";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
@@ -1823,7 +1929,7 @@
 	nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mosim:host;
-	    nd:title "Walkpoint Service";
+	    nd:title "Walkpoint Service: ?host ?port";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
@@ -1881,7 +1987,7 @@
 	nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mosim:host;
-	    nd:title "PathPlanning Service";
+	    nd:title "PathPlanning Service: ?host ?port";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";

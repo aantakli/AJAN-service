@@ -161,10 +161,9 @@ public class MMUInstruction extends AbstractInstruction {
         if (mmu.isEmpty()) {
             return false;
         }
-        MInstruction instruction = MOSIMUtil.createMInstruction(instID, actionID, mmu, instProps, mConstraints, startCond, endCond);
+        MInstruction instruction = MOSIMUtil.createMInstruction(instID, actionID, mmu, instProps, mConstraints, startCond, endCond, avatarID);
         instructionDef = MOSIMUtil.getInstructionDef(instruction);
 		Map<String, String> coSimProperties = new HashMap<>();
-		coSimProperties.put("AvatarID", avatarID);
 		return client.AssignInstruction(instruction, coSimProperties).Successful;
     }
 

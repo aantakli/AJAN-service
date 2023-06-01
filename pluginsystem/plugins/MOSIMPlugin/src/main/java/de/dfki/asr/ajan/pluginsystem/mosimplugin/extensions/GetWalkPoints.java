@@ -102,9 +102,8 @@ public class GetWalkPoints extends AbstractTDBLeafTask implements NodeExtension 
 		try {
 			Map<String,String> hostMap = MOSIMUtil.getHostInfos(query, this.getObject());
 			if(!hostMap.isEmpty()) {
-				Map.Entry<String,String> entry = hostMap.entrySet().iterator().next();
-				host = entry.getKey();
-				port = Integer.parseInt(entry.getValue());
+				host = hostMap.get("host");
+				port = Integer.parseInt(hostMap.get("port"));
 				targetObj = getWalkTarget();
 				List<MWalkPoint> walkPoints = getWalkPoints();
 				Model inputModel = getWalkPointsModel(walkPoints);

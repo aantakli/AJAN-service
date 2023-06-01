@@ -65,12 +65,13 @@ public class UnregisterListener extends AbstractTDBLeafTask implements NodeExten
 	@Getter @Setter
 	private String label;
 
-	@RDF("bt-mosim:host")
+	@RDF("bt-mosim:coSim")
 	@Getter @Setter
 	private BehaviorSelectQuery query;
 
 	private String host;
 	private int port;
+	private String avatarId;
 	private String eventtype;
 
 	@RDF("bt-mosim:callback")
@@ -94,11 +95,11 @@ public class UnregisterListener extends AbstractTDBLeafTask implements NodeExten
 	@Override
 	public NodeStatus executeLeaf() {
 		try {
-			Map<String,String> hostMap = MOSIMUtil.getHostInfos(query,this.getObject());
-			if(!hostMap.isEmpty()) {
-				Map.Entry<String,String> entry = hostMap.entrySet().iterator().next();
-				host = entry.getKey();
-				port = Integer.parseInt(entry.getValue());
+			Map<String,String> cosim = MOSIMUtil.getCoSimInfos(query,this.getObject());
+			if(!cosim.isEmpty()) {
+				host = cosim.get("host");
+				port = Integer.parseInt(cosim.get("port"));
+				avatarId = cosim.get("avatarId");
 				eventtype = MOSIMUtil.getEventType(eventTypeQuery, this.getObject());
 				try {
 					unregisterEventCallback();
@@ -129,7 +130,7 @@ public class UnregisterListener extends AbstractTDBLeafTask implements NodeExten
         transport.open();
         TProtocol protocol = new TCompactProtocol(transport);
 		MCoSimulationAccess.Client client = new MCoSimulationAccess.Client(protocol);
-		MBoolResponse registered = client.UnregisterAtEvent(address, eventtype);
+		MBoolResponse registered = client.UnregisterAtEvent(address, eventtype, avatarId);
 		transport.close();
 		return registered.Successful;
 	}

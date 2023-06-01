@@ -102,6 +102,7 @@ public class AJANVocabulary {
 	public final static IRI UUID_CONTEXT = FACTORY.createIRI("http://www.ajan.de/ajan-ns#UUIDContext");
 	public final static IRI HAS_RDF_CONTEXT = FACTORY.createIRI("http://www.ajan.de/ajan-ns#rdfContext");
 	public final static IRI HAS_RDF_UUID_CONTEXT = FACTORY.createIRI("http://www.ajan.de/ajan-ns#rdfUUIDContext");
+	public final static IRI HAS_PLAIN_TXT = FACTORY.createIRI("http://www.ajan.de/ajan-ns#plainText");
 
 	public final static IRI ASYNC_REQUEST_URI = FACTORY.createIRI("http://www.ajan.de/actn#asyncRequestURI");
 

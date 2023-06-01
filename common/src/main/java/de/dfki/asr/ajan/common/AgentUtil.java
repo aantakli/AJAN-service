@@ -20,6 +20,7 @@ package de.dfki.asr.ajan.common;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.opencsv.CSVReader;
 import java.io.ByteArrayOutputStream;
@@ -28,6 +29,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Iterator;
@@ -36,7 +38,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.ws.rs.core.MultivaluedMap;
 import org.apache.commons.validator.UrlValidator;
-import org.apache.xerces.dom.DeferredDocumentImpl;
+import org.apache.xerces.dom.DocumentImpl;
 import org.apache.xerces.parsers.DOMParser;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
@@ -51,6 +53,9 @@ import org.eclipse.rdf4j.query.GraphQueryResult;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFWriterRegistry;
 import org.eclipse.rdf4j.rio.Rio;
+import org.jsoup.Jsoup;
+import org.jsoup.helper.W3CDom;
+import org.jsoup.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -174,19 +179,24 @@ public final class AgentUtil {
 	}
 
 	public static JsonNode setMessageInformation(final JsonNode input, final MultivaluedMap<String, String> mm) {
-		ObjectNode info = (ObjectNode)input;
-		info.put("utc", OffsetDateTime.now(ZoneOffset.UTC).toString());
-		for (Map.Entry<String, List<String>> entry: mm.entrySet()) {
-			info.put(entry.getKey(), OffsetDateTime.now(ZoneOffset.UTC).toString());
-			for (String value: entry.getValue()) {
-				info.put(entry.getKey(), value);
-			}
-		}
+		ObjectNode info = JsonNodeFactory.instance.objectNode();
+		info.set("message", input);
+		setMessageInformation2JSON(info, mm);
 		return info;
 	}
 
+	private static void setMessageInformation2JSON(final ObjectNode node, final MultivaluedMap<String, String> mm) {
+		node.put("utc", OffsetDateTime.now(ZoneOffset.UTC).toString());
+		for (Map.Entry<String, List<String>> entry: mm.entrySet()) {
+			node.put(entry.getKey(), OffsetDateTime.now(ZoneOffset.UTC).toString());
+			for (String value: entry.getValue()) {
+				node.put(entry.getKey(), value);
+			}
+		}
+	}
+
 	public static Document setMessageInformation(final Document input, final MultivaluedMap<String, String> mm) {
-		DeferredDocumentImpl doc = (DeferredDocumentImpl) input;
+		DocumentImpl doc = (DocumentImpl) input;
 		Element root = doc.getDocumentElement();
 		root.setAttribute("utc", OffsetDateTime.now(ZoneOffset.UTC).toString());
 		for (Map.Entry<String, List<String>> entry: mm.entrySet()) {
@@ -213,6 +223,12 @@ public final class AgentUtil {
 		DOMParser parser = new DOMParser();
 		parser.parse(new InputSource(is));
 		return parser.getDocument();
+	}
+
+	public static Document getHTMLFromStream(final InputStream is) throws SAXException, IOException {
+		String html = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+		W3CDom w3cDom = new W3CDom();
+		return w3cDom.fromJsoup(Jsoup.parse(html, Parser.xmlParser()));
 	}
 
 	public static CSVInput getCSVFromStream(final InputStream is) throws IOException {

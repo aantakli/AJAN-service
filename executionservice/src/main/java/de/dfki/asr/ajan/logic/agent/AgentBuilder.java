@@ -111,7 +111,7 @@ public class AgentBuilder {
         if (managedTDB.isEmpty()) {
             overwrite = true;
         }
-        Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, overwrite, beliefs, events, endpoints, connections);
+        Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, overwrite, beliefs, events, endpoints, connections, reportURI);
         LOG.info("Agent with ID " + id + " is created: " + agent.getUrl());
         return agent;
     }

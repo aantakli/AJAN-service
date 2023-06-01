@@ -49,7 +49,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import org.apache.xerces.dom.DeferredDocumentImpl;
+import org.apache.xerces.dom.DocumentImpl;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.util.Values;
@@ -65,7 +65,7 @@ public final class MappingUtil {
         if (input instanceof JsonNode) {
             return MappingUtil.getJSONResourceStream(input);
         }
-		if (input instanceof DeferredDocumentImpl) {
+		if (input instanceof DocumentImpl) {
 			return MappingUtil.getXMLResourceStream(input);
         }
 		if (input instanceof CSVInput) {
@@ -125,7 +125,7 @@ public final class MappingUtil {
     }
 
     private static InputStream getXMLResourceStream(final Object eventInfo) throws IOException, TransformerException {
-		DeferredDocumentImpl input = (DeferredDocumentImpl) eventInfo;
+		DocumentImpl input = (DocumentImpl) eventInfo;
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		Transformer transformer = TransformerFactory.newInstance().newTransformer();
 		DOMSource source = new DOMSource(input);

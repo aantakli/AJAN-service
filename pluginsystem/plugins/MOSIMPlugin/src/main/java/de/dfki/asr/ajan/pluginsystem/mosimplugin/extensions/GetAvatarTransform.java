@@ -95,9 +95,8 @@ public class GetAvatarTransform extends AbstractTDBLeafTask implements NodeExten
 		try {
 			Map<String,String> hostMap = MOSIMUtil.getHostInfos(query,this.getObject());
 			if(!hostMap.isEmpty()) {
-				Map.Entry<String,String> entry = hostMap.entrySet().iterator().next();
-				host = entry.getKey();
-				port = Integer.parseInt(entry.getValue());
+				host = hostMap.get("host");
+				port = Integer.parseInt(hostMap.get("port"));
 				List<String> id = getAvatarID(avatarID, this.getObject());
 				MTransform transform = getAvatarTransform(id.get(1));
 				Model inputModel = getInputModel(transform, id);

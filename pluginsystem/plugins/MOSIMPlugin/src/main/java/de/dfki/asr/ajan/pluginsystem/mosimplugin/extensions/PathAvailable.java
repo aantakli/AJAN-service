@@ -111,9 +111,8 @@ public class PathAvailable extends AbstractTDBLeafTask implements NodeExtension 
 		try {
 			Map<String,String> hostMap = MOSIMUtil.getHostInfos(service,this.getObject());
 			if(!hostMap.isEmpty()) {
-				Map.Entry<String,String> entry = hostMap.entrySet().iterator().next();
-				host = entry.getKey();
-				port = Integer.parseInt(entry.getValue());
+				host = hostMap.get("host");
+				port = Integer.parseInt(hostMap.get("port"));
 				if(checkPath()) {
 					String report = toString() + " SUCCEEDED";
 					return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);

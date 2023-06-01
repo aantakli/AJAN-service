@@ -32,6 +32,7 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.util.Literals;
@@ -77,14 +78,50 @@ public class AgentModelManager {
                 ParsedGraphQuery query = SPARQLUtil.getDescribeQuery(resourcesIter);
                 if (repo) {
                     initKnowledge = SPARQLUtil.queryRepository(agentRepo, query);
+                    getInitKnowledgeFromGraph(agentResource, initAgentModel, initKnowledge, agentURI, repo);
                 } else {
                     initKnowledge = SPARQLUtil.queryModel(initAgentModel, query);
+                    getInitKnowledgeFromGraph(agentResource, initAgentModel, initKnowledge, agentURI, repo);
                 }
                 return setAgentURI(agentURI, agentResource, initKnowledge);
             } else {
                 return new LinkedHashModel();
             }
 	}
+
+        @SuppressWarnings("PMD.ExcessiveParameterList")
+        private void getInitKnowledgeFromGraph(final Resource agentResource, final Model initAgentModel, final Model model, final Resource agentURI, final boolean repo) {
+            Iterator<Resource> resourcesIter = resourceManager.getResources(agentResource, initAgentModel, AJANVocabulary.AGENT_HAS_INITKNOWLEDGE);
+            while (resourcesIter.hasNext()) {
+                Resource resource = resourcesIter.next();
+                if (!resource.isBNode() && !resource.isLiteral()) {
+                    String graphQuery = SPARQLUtil.queryNamedGraph(resource.stringValue());
+                    Model result;
+                    if(repo) {
+                        result = SPARQLUtil.queryRepository(agentRepo, graphQuery);
+                    } else {
+                        result = SPARQLUtil.queryModel(initAgentModel, graphQuery);
+                    }
+                    appendInitKnowledgeModel(agentResource, agentURI, model, result, resource);
+                }
+            }
+        }
+
+        @SuppressWarnings("PMD.ExcessiveParameterList")
+        private void appendInitKnowledgeModel(final Resource agentResource, final Resource agentURI, final Model initKnowledge, final Model graphModel, final Resource resource) {
+            if (graphModel.isEmpty()) {
+                return;
+            }
+            initKnowledge.remove(agentResource, AJANVocabulary.AGENT_HAS_INITKNOWLEDGE, resource);
+            for (Statement stmt : graphModel) {
+                if (stmt.getSubject().equals(AJANVocabulary.AGENT_THIS)) {
+                    initKnowledge.add(agentURI, stmt.getPredicate(), stmt.getObject());
+                } else {
+                    initKnowledge.add(agentURI, AJANVocabulary.AGENT_HAS_INITKNOWLEDGE, stmt.getSubject());
+                    initKnowledge.add(stmt);
+                }
+            }
+        }
 
         public String getManagedTDB(final Model model, final Resource resource) {
             Model nameModel = model.filter(resource, AJANVocabulary.AGENT_HAS_MANAGED_TDB, null);

@@ -85,7 +85,8 @@ public final class MOSIMUtil {
 										final Map<String,String> properties, 
 										final List<MConstraint> constraints,
 										final String startCdt,
-										final String endCdt){
+										final String endCdt,
+										final String avatarId){
 		MInstruction instruction = new MInstruction();
 		instruction.setID(instID);
 		instruction.setName(actionID);
@@ -98,6 +99,8 @@ public final class MOSIMUtil {
 			instruction.setStartCondition(startCdt);
 		if (endCdt != null && !endCdt.equals(""))
 			instruction.setEndCondition(endCdt);
+		if (avatarId != null && !avatarId.equals(""))
+			instruction.setAvatarID(avatarId);
 		return instruction;
 	}
 
@@ -295,8 +298,22 @@ public final class MOSIMUtil {
 		valuesNeeded.add("host");
 		valuesNeeded.add("port");
 		Map<String, String> results = MOSIMUtil.getResults(query,info, valuesNeeded);
-		host.put(results.get("host"), results.get("port"));
+		host.put("host", results.get("host"));
+		host.put("port", results.get("port"));
 		return host;
+	}
+
+	public static Map<String,String> getCoSimInfos(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
+		Map<String,String> coSim = new HashMap<>();
+		ArrayList<String> valuesNeeded = new ArrayList<>();
+		valuesNeeded.add("host");
+		valuesNeeded.add("port");
+		valuesNeeded.add("avatarId");
+		Map<String, String> results = MOSIMUtil.getResults(query,info, valuesNeeded);
+		coSim.put("host", results.get("host"));
+		coSim.put("port", results.get("port"));
+		coSim.put("avatarId", results.get("avatarId"));
+		return coSim;
 	}
 	
 	public static int getPortInfos(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
@@ -316,7 +333,7 @@ public final class MOSIMUtil {
 		Repository repo = BTUtil.getInitializedRepository(info, query.getOriginBase());
 		List<BindingSet> result = query.getResult(repo);
 		if(!result.isEmpty()){
-			for (String valueNeeded:valuesNeeded) {
+			for (String valueNeeded : valuesNeeded) {
 				for (BindingSet bindings : result) {
 					if (bindings.hasBinding(valueNeeded)) {
 						response.put(valueNeeded, bindings.getValue(valueNeeded).stringValue());
@@ -375,6 +392,20 @@ public final class MOSIMUtil {
 		model.add(transIRI, rdfType, MOSIMVocabulary.M_CONSTRAINT);
 		model.add(transIRI, MOSIMVocabulary.HAS_ID, vf.createLiteral(constr.ID));
 		model.add(transIRI, MOSIMVocabulary.HAS_OBJECT, vf.createLiteral(encodeObjectBase64(constr)));
+		setConstraintProperties(model, transIRI, constr);
+	}
+
+	public static void setConstraintProperties(final Model model, final Resource subject, final MConstraint constr) {
+		if (constr.isSetProperties() && !constr.Properties.isEmpty()) {
+			IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
+			for (Map.Entry<String,String> prop: constr.Properties.entrySet()) {
+				Resource propIRI = vf.createBNode();
+				model.add(subject, MOSIMVocabulary.HAS_CONSTRAINT_PROPERTY, propIRI);
+				model.add(propIRI, rdfType, MOSIMVocabulary.M_CONSTRAINT_PROPERTY);
+				model.add(propIRI, MOSIMVocabulary.HAS_KEY, vf.createLiteral(prop.getKey()));
+				model.add(propIRI, MOSIMVocabulary.HAS_VALUE, vf.createLiteral(prop.getValue()));
+			}
+		}
 	}
 
 	public static String encodeObjectBase64(final Object object) throws IOException {

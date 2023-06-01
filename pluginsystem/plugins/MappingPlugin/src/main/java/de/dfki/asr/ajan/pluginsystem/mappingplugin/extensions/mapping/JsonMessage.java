@@ -40,16 +40,15 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.transform.TransformerException;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.http.client.HttpResponseException;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.repository.Repository;
 import org.xml.sax.SAXException;
 import org.pf4j.Extension;
@@ -84,11 +83,11 @@ public class JsonMessage extends Message implements NodeExtension {
 
 	@RDF("poser:dataMapping")
 	@Getter @Setter
-	private BehaviorConstructQuery dataMapping;
+	private URI dataMapping;
 
 	@RDF("poser:apiMapping")
 	@Getter @Setter
-	private BehaviorConstructQuery apiMapping;
+	private URI apiMapping;
 	
 	@RDF("bt:mapping")
 	@Getter @Setter
@@ -127,14 +126,24 @@ public class JsonMessage extends Message implements NodeExtension {
 			throw new InputMappingException("No payload or Mapping defined!");
 		}
 		Model inputModel = getInputModel(binding);
-		Repository dataRepo =  BTUtil.getInitializedRepository(getObject(), dataMapping.getOriginBase());
-		Model dataModel = modifyResponse(dataMapping.getResult(dataRepo), JSON.INPUT_DATA_TYPE.toString());
-		Repository apiRepo =  BTUtil.getInitializedRepository(getObject(), apiMapping.getOriginBase());
-		Model apiModel = modifyResponse(apiMapping.getResult(apiRepo), JSON.API_DESCRIPTION.toString());
+		Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
+		Model dataModel = getPoserMappingModel(dataMapping, repo, JSON.INPUT_DATA_TYPE);
+		Model apiModel = getPoserMappingModel(apiMapping, repo, JSON.API_DESCRIPTION);
 		dataModel.addAll(apiModel);
 		RdfToJson mapper = new RdfToJson();
-		payload = mapper.buildJsonString(inputModel, dataModel);
+		if (!inputModel.isEmpty()) {
+			payload = mapper.buildJsonString(inputModel, dataModel);
+		}
 		return payload;
+	}
+
+	protected Model getPoserMappingModel(final URI mapping, final Repository repo, final Resource context) throws URISyntaxException {
+		if (mapping != null) {
+			Model poserModel = MappingUtil.getTriplesMaps(repo, mapping);
+			return modifyResponse(poserModel, context.toString());
+		} else {
+			return new LinkedHashModel();
+		}
 	}
 
 	protected Model getInputModel(final HttpBinding binding) throws URISyntaxException {

@@ -87,9 +87,8 @@ public class GetAvailableMMUs extends AbstractTDBLeafTask implements NodeExtensi
 		try {
 			Map<String,String> hostMap = MOSIMUtil.getHostInfos(query,this.getObject());
 			if(!hostMap.isEmpty()) {
-				Entry<String,String> entry = hostMap.entrySet().iterator().next();
-				host = entry.getKey();
-				port = Integer.parseInt(entry.getValue());
+				host = hostMap.get("host");
+				port = Integer.parseInt(hostMap.get("port"));
 				Map<MMUDescription,List<MIPAddress>> mmus = getMMUs();
 				Model inputModel = getInputModel(mmus);
 				MOSIMUtil.writeInput(inputModel, repository.toString(), this.getObject());

@@ -22,7 +22,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
-import de.dfki.asr.ajan.behaviour.nodes.messages.SyncMessage;
+import de.dfki.asr.ajan.behaviour.nodes.messages.Message;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpBinding;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpHeader;
@@ -51,40 +51,39 @@ import org.eclipse.rdf4j.repository.Repository;
 import org.pf4j.Extension;
 
 @Extension
-@RDFBean("bt:QueryMappingDomain")
-public class QueryMappingDomain extends SyncMessage implements NodeExtension {
+@RDFBean("bt:MappingMessage")
+public class MappingMessage extends Message implements NodeExtension {
 
-    @RDFSubject
-    @Getter
-    @Setter
-    private String url;
+    @Getter @Setter
+	@RDFSubject
+	private String url;
 
-    @RDF("rdfs:label")
-    @Getter
-    @Setter
-    private String label;
+	@RDF("rdfs:label")
+	@Getter @Setter
+	private String label;
 
-    @RDF("bt:mapping")
-    @Getter
-    @Setter
+	@RDF("bt:queryUri")
+	@Setter @Getter
+	private BehaviorSelectQuery queryURI;
+
+	@RDF("bt:binding")
+	@Setter @Getter
+	private HttpBinding binding;
+
+	@RDF("bt:targetBase")
+	@Getter @Setter
+	private URI targetBase;
+
+	@RDF("bt:mapping")
+    @Getter @Setter
     private URI mapping;
-
-    @RDF("bt:targetBase")
-    @Getter
-    @Setter
-    private URI targetBase;
-
-    @RDF("bt:queryUri")
-    @Getter
-    @Setter
-    private BehaviorSelectQuery queryURI;
 
     private Model domainResponse;
 	private Model mappingFile;
 
     @Override
     public Resource getType() {
-        return vf.createIRI("http://www.ajan.de/behavior/mapping#QueryMappingDomain");
+        return vf.createIRI("http://www.ajan.de/behavior/mapping#MappingMessage");
     }
 
     @Override
@@ -148,12 +147,13 @@ public class QueryMappingDomain extends SyncMessage implements NodeExtension {
 	}
 
     @Override
-    protected boolean checkResponse(final Object response) {
-        if (response instanceof Model) {
-            domainResponse = (Model) response;
-        } else {
+	protected boolean checkResponse(final Object response) throws URISyntaxException {
+		if (response instanceof Model) {
+			return saveResponse((Model)response);
+		}  else {
 			try {
                 domainResponse = getModel(response);
+				return saveResponse(domainResponse);
             } catch (URISyntaxException | TransformerException | IOException ex) {
 				this.getObject().getLogger().info(this.getClass(), "Malformed response! Mime Type is not supported!", ex);
                 return false;
@@ -162,17 +162,19 @@ public class QueryMappingDomain extends SyncMessage implements NodeExtension {
                 return false;
             }
         }
-        return updateBeliefs(modifyResponse(domainResponse), targetBase);
-    }
+	}
+
+	protected boolean saveResponse(final Model model) throws URISyntaxException {
+		if (model.isEmpty()) {
+			model.add(vf.createIRI(requestURI), BTVocabulary.HAS_RESPONSE, BTVocabulary.EMPTY);
+			return updateBeliefs(AgentUtil.setNamedGraph(model, new URI(requestURI)), targetBase);
+		}
+		return updateBeliefs(AgentUtil.setNamedGraph(model, new URI(requestURI)), targetBase);
+	}
 
     protected Model getModel(final Object response) throws URISyntaxException, IOException, RuntimeException, JsonProcessingException, TransformerException {
 		InputStream resourceStream = MappingUtil.getResourceStream(response);
         return MappingUtil.getMappedModel(mappingFile, resourceStream);
-    }
-
-    @Override
-    protected Model modifyResponse(final Model model) {
-        return AgentUtil.setNamedGraph(model.iterator(), super.requestURI);
     }
 
     @Override
@@ -182,7 +184,7 @@ public class QueryMappingDomain extends SyncMessage implements NodeExtension {
 
     @Override
     public String toString() {
-        return "QueryMappingDomain (" + getLabel() + ")";
+        return "MappingMessage (" + getLabel() + ")";
     }
 
     @Override

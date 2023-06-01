@@ -17,14 +17,18 @@
 @prefix suite: <http://www.dfki.de/suite-ns#> .
 @prefix aml: <https://w3id.org/i40/aml#> .
 @prefix test: <http://test.de#> .
-@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>.
-@prefix transit: <http://vocab.org/transit/terms/>.
-@prefix gn: <http://www.geonames.org/ontology#>.
+@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix transit: <http://vocab.org/transit/terms/> .
+@prefix gn: <http://www.geonames.org/ontology#> .
+@prefix ctd: <http://connectd.api/> .
+@prefix iots: <http://iotschema.org/> .
+@prefix json: <http://some.json.ontology/> .
+@prefix ar: <http://aitoc.eu/active-registry-ns#> .
 
-@prefix rr: <http://www.w3.org/ns/r2rml#>.
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
 @prefix rml: <http://semweb.mmlab.be/ns/rml#> .
 @prefix ql: <http://semweb.mmlab.be/ns/ql#> .
-@prefix ex:     <http://www.example.com/>.
+@prefix ex:     <http://www.example.com/> .
 @prefix carml: <http://carml.taxonic.com/carml/> .
 
 
@@ -462,59 +466,25 @@ ajan:ASP {
 # JsonTest -----------------------
 # --------------------------------
 
-:JsonRulesMapping {
-
-	:RulesMapping a rr:TriplesMap ;
-		rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$"
-		];
-
-		rr:subjectMap [
-			rr:template "http://www.ajan.de/asp_input";
-			rr:class asp:RuleSet, aitoc:ASPInput
-		];
-
-		rr:predicateObjectMap [
-			rr:predicate asp:asRules ;
-			rr:objectMap [
-				rml:reference "rules" ;
-				rr:datatype xsd:string
-			]
-		] .
-}
-
-:JsonRequestMapping {
-
-	:RequestMapping a rr:TriplesMap ;
-		rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$"
-		];
-
-		rr:subjectMap [
-			rr:template "http://www.dfki.de/aitoc-ns#RequestURI";
-			rr:class aitoc:ReasoningRequest
-		];
-
-		rr:predicateObjectMap [
-			rr:predicate <http://www.w3.org/2006/http#requestURI> ;
-			rr:objectMap [
-				rml:reference "responseURI" ;
-				rr:datatype xsd:string
-			]
-		] .
-}
-
-:JsonTestMapping {
+# JSON Input --------------------
+# {
+#   "venue":
+#   {
+#     "latitude": "51.0500000",
+#     "longitude": "3.7166700"
+#   },
+#   "location":
+#   {
+#     "continent": " EU",
+#     "country": "BE",
+#     "city": "Brussels"
+#  }
+# }
+# --------------------------------
 
 	# see https://rml.io/specs/rml/ for an example input
+
+:JsonTestMapping {
 
 	:VenueMapping a rr:TriplesMap;
 		rml:logicalSource [
@@ -522,7 +492,7 @@ ajan:ASP {
 				a carml:Stream ;
 			] ;
 			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$"
+			rml:iterator "$.message"
 		];
 
 		rr:subjectMap [
@@ -554,6 +524,11 @@ ajan:ASP {
 
 # --------------------------------
 # CSVTest ------------------------
+# --------------------------------
+
+# CSV Input ----------------------
+# id,stop,latitude,longitude
+# 6523,25,50.901389,4.484444
 # --------------------------------
 
 :CSVTestMapping {
@@ -600,6 +575,17 @@ ajan:ASP {
 # XMLTest ------------------------
 # --------------------------------
 
+# XML Input ----------------------
+# <transport>
+#     <bus id="25">
+#         <route>
+#             <stop id="645">International Airport</stop>
+#             <stop id="651">Conference center</stop>
+#         </route>
+#     </bus>
+# </transport>
+# --------------------------------
+
 :XMLTestMapping {
 
 	# see https://rml.io/specs/rml/ for an example input
@@ -633,73 +619,6 @@ ajan:ASP {
 			]
 		].
 }
-
-# --------------------------------
-# SM -----------------------------
-# --------------------------------
-
-:SMMapping {
-
-	:PowerHistory
-		rml:logicalSource [
-			rml:referenceFormulation ql:JSONInput;
-			rml:iterator "$.array[*]"
-		] ;
-
-		rr:subjectMap [
-			rr:template "http://www.ajan.de/ajan-mapping-ns#Timeseries/{time}" ;
-			rr:class suite:DataPoint ;
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate suite:time ;
-			rr:objectMap [
-				rml:reference "time" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		rr:predicateObjectMap [
-			rr:predicate suite:power ;
-			rr:objectMap [
-				rml:reference "power" ;
-				rr:datatype xsd:float
-			]
-		] .
-}
-
-# --------------------------------
-# Muaz ---------------------------
-# --------------------------------
-
-:MuazMapping {
-
-	:PredictionHistory
-		rml:logicalSource [
-			rml:referenceFormulation ql:JSONInput;
-			rml:iterator "$.array[*]"
-		] ;
-
-		rr:subjectMap [
-			rr:template "http://www.ajan.de/ajan-mapping-ns#Predictions/{time}" ;
-			rr:class suite:DataPoint ;
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate suite:time ;
-			rr:objectMap [
-				rml:reference "time" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		rr:predicateObjectMap [
-			rr:predicate suite:value ;
-			rr:objectMap [
-				rml:reference "value" ;
-				rr:datatype xsd:float
-			]
-		] .
-}
-
 
 # --------------------------------
 # MOSIM --------------------------
@@ -876,6 +795,9 @@ mosim:Mapping {
 }
 
 # --------------------------------
+# AIToC --------------------------
+# --------------------------------
+
 # AML ----------------------------
 # --------------------------------
 
