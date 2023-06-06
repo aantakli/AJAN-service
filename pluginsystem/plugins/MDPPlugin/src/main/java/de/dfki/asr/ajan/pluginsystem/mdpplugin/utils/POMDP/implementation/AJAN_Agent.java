@@ -123,7 +123,7 @@ public class AJAN_Agent extends DSPOMDP {
 
     @Override
     public void PrintObs(State state, int obs) {
-        System.out.println(String.valueOf(obs));
+        System.out.println(obs);
     }
 
     @Override

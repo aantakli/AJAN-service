@@ -17,7 +17,7 @@ public abstract class State {
         this.weight = weight;
         return this;
     }
-};
+}
 
 //abstract class StateIndexer {
 //  public abstract int NumStates();
