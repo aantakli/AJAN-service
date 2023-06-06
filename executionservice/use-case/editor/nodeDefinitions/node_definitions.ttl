@@ -2067,6 +2067,89 @@
         bt:targetBase "false";
         nd:type bt:SelectQuery;
     ].
+:CreatePOMDPProblem nd:class nd:Leaf;
+        nd:category "MDP Nodes";
+        nd:name "CreatePOMDPProblem";
+        nd:labelType nd:Dynamic;
+        rdfs:label "DefaultPOMDPProblem";
+        nd:type bt-mdp:CreatePOMDPProblem;
+        nd:style[
+            a nd:StyleDef;
+            nd:color "#ebe8ed";
+            nd:shape nd:Ellipse;
+            nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+            nd:padding "700%";
+            nd:paddingTo "width";
+            nd:icon "mqtt_broker.png";
+        ];
+        nd:list [
+            a nd:List;
+            nd:mapsTo bt-mdp:states;
+            nd:title "States";
+            nd:parameterSet [
+                a nd:ParameterSet;
+                nd:title "State Set";
+                nd:type bt-mdp:State;
+                nd:parameters([
+                    a nd:Parameter;
+                    nd:mapsTo bt-mdp:state-name;
+                    nd:input xsd:string;
+                    nd:default "";
+                    nd:title "Name";
+                ][
+                    a nd:Parameter;
+                    nd:mapsTo bt-mdp:state-value;
+                    nd:input xsd:int;
+                    nd:title "Value";
+                ]);
+            ];
+        ];
+        nd:list [
+            a nd:List;
+            nd:mapsTo bt-mdp:actions;
+            nd:title "Actions";
+            nd:parameterSet [
+                a nd:ParameterSet;
+                nd:title "Action Set";
+                nd:type bt-mdp:Action;
+                nd:parameters([
+                    a nd:Parameter;
+                    nd:mapsTo bt-mdp:action-name;
+                    nd:input xsd:string;
+                    nd:default "";
+                    nd:title "Name";
+                ][
+                    a nd:Parameter;
+                    nd:mapsTo bt-mdp:action-value;
+                    nd:input xsd:int;
+                    nd:title "Value";
+                ]);
+            ];
+        ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo bt-mdp:observationFunction;
+            nd:input nd:Query;
+            bt:originBase "true";
+            bt:targetBase "false";
+            nd:title "Observation Function:?ObservationProbability";
+            nd:type bt:SelectQuery;
+        ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo bt-mdp:transitionFunction;
+            nd:input nd:Query;
+            bt:originBase "true";
+            bt:targetBase "false";
+            nd:title "Transition Function:";
+            nd:type bt:SelectQuery;
+        ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo bt-mdp:solver;
+            nd:input xsd:string;
+            nd:title "Solver Name:";
+        ].
 # --------------- MQTT Plugin -------------------
 
 
