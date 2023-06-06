@@ -37,4 +37,8 @@ public final class MDPUtil {
     public static String getInstanceName(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
         return getStringMap(query, info, "instanceName");
     }
+
+    public static double getObservationProbability(final BehaviorSelectQuery query, final AgentTaskInformation info) throws URISyntaxException {
+        return Double.parseDouble(getStringMap(query, info,"observationProbability"));
+    }
 }
