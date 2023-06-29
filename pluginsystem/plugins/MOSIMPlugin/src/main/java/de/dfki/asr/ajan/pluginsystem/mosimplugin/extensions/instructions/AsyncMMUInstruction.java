@@ -26,7 +26,6 @@ import de.dfki.asr.ajan.behaviour.nodes.action.definition.InputModel;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ResultModel;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
-import de.mosim.mmi.constraints.MConstraint;
 import de.mosim.mmi.mmu.MInstruction;
 import de.mosim.mmi.cosim.MCoSimulationAccess;
 import de.mosim.mmi.mmu.MSimulationEvent;
@@ -36,8 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -47,40 +44,18 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pf4j.Extension;
 
 @Extension
 @RDFBean("bt-mosim:AsyncMMUBinding")
 public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 
-    private String mmu = "";
-	private String finalEvent = "end";
-	private String actionName;
-
-	private ArrayList<Value> properties;
-	private Map<String,String> instProps;
-
-	private ArrayList<Value> constraints;
-	private List<MConstraint> mConstraints = null;
-
-	private String avatarID = "";
-	private String startCond = "";
-	private String endCond = "";
 	private Resource instRoot = null;
 	private String timeStamp = "";
 
+	private InstructionParameters parameters;
 	private String instructionDef = "";
-	
-	@Getter @Setter
-    private String cosimHost;
-	@Getter @Setter
-    private int cosimPort;
-	
-	protected static final Logger LOG = LoggerFactory.getLogger(AsyncMMUInstruction.class);
 
     private final static String CONSUME = 
 			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
@@ -147,36 +122,16 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
     }
 
 	@Override
-    protected void readInput(final InputModel inputModel, final AgentTaskInformation info) {
-		try {
-			mmu = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_MMU);
-			avatarID = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_AVATAR_ID);
-			if (avatarID.isEmpty())
-				avatarID = "";
-			finalEvent = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_FINAL_EVENT);
-			if (finalEvent.isEmpty())
-				finalEvent = "end";
-			actionName = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_ACTION_NAME);
-			properties = MOSIMUtil.getObjects(inputModel, null, MOSIMVocabulary.HAS_MMU_PROPERTY);
-			instProps = MOSIMUtil.createGeneralProperties(properties, inputModel);
-			constraints = MOSIMUtil.getObjects(inputModel, null, MOSIMVocabulary.HAS_CONSTRAINT);
-			if (!constraints.isEmpty())
-				mConstraints = MOSIMUtil.createConstraints(MOSIMUtil.getConstraintObj64(constraints, inputModel));
-			startCond = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_START_CONDITION);
-			endCond = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_END_CONDITION);
-			cosimHost = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_HOST);
-			cosimPort = Integer.parseInt(MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_PORT));
-			LOG.info(mmu);
-		} catch (URISyntaxException ex) {
-
-		}
+    protected InstructionParameters readInput(final InputModel inputModel, final AgentTaskInformation info) {
+		parameters = new InstructionParameters(inputModel);
+		return parameters;
     }
 
 	@Override
-    protected boolean performOperation(final MCoSimulationAccess.Client client, final String actionID) throws TException {
-		if (mmu.isEmpty()) 
+    protected boolean performOperation(final MCoSimulationAccess.Client client, final String actionID, final InstructionParameters parameters) throws TException {
+		if (parameters.getMmu().isEmpty()) 
 			return false;
-		MInstruction instruction = MOSIMUtil.createMInstruction(instID, actionID, mmu, instProps, mConstraints, startCond, endCond, avatarID);
+		MInstruction instruction = MOSIMUtil.createMInstruction(instID, actionID, parameters);
 		instructionDef = MOSIMUtil.getInstructionDef(instruction);
 		Map<String, String> coSimProperties = new HashMap<>();
 		return client.AssignInstruction(instruction, coSimProperties).Successful;
@@ -186,7 +141,7 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 	public void setResponse(String id, Object response) {
 		if (response instanceof MSimulationEvent) {
 			MSimulationEvent event = (MSimulationEvent)response;
-			if (event.Type.equals(finalEvent) && event.Reference.equals(instID)) {
+			if (event.Type.equals(parameters.getFinalEvent()) && event.Reference.equals(instID)) {
 				ResultModel model = new ResultModel();
 				model.add(instRoot, RDF.TYPE, ACTNVocabulary.SUCCESS);
 				getEvent().setEventInformation(id, model);
@@ -214,15 +169,15 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 
 	private Model getUpdateModel(final UUID id) {
 		ResultModel model = new ResultModel();
-		if (!actionName.equals("")) {
-			model.add(instRoot, MOSIMVocabulary.HAS_ACTION_NAME, vf.createLiteral(actionName));
+		if (!parameters.getActionName().equals("")) {
+			model.add(instRoot, MOSIMVocabulary.HAS_ACTION_NAME, vf.createLiteral(parameters.getActionName()));
 		}
 		model.add(instRoot, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, MOSIMVocabulary.INSTRUCTION);
 		model.add(instRoot, MOSIMVocabulary.HAS_INSTRUCTION_ID, vf.createLiteral(instID));
 		model.add(instRoot, MOSIMVocabulary.HAS_ACTION_URL, vf.createLiteral(url));
 		model.add(instRoot, MOSIMVocabulary.HAS_ACTION_ID, vf.createLiteral(id.toString()));
 		model.add(instRoot, MOSIMVocabulary.HAS_TIMESTAMP, vf.createLiteral(timeStamp));
-		model.add(instRoot, MOSIMVocabulary.HAS_MMU, vf.createLiteral(mmu));
+		model.add(instRoot, MOSIMVocabulary.HAS_MMU, vf.createLiteral(parameters.getMmu()));
 		if (!instructionDef.isEmpty())
 				model.add(instRoot, MOSIMVocabulary.HAS_JSON_INSTRUCTION, vf.createLiteral(instructionDef));
 		return model;
@@ -236,7 +191,7 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 
 	private void abortInstruction() {
 		try {
-			try (TTransport transport = new TSocket(cosimHost, cosimPort)) {
+			try (TTransport transport = new TSocket(parameters.getCosimHost(), parameters.getCosimPort())) {
 				transport.open();
 				TProtocol protocol = new TCompactProtocol(transport);
 				MCoSimulationAccess.Client client = new MCoSimulationAccess.Client(protocol);

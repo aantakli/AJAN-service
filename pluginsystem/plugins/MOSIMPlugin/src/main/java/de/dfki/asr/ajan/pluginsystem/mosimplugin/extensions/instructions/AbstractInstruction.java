@@ -92,9 +92,9 @@ public abstract class AbstractInstruction extends ThriftAction {
         this.url = url;
         String id = UUID.randomUUID().toString();
         LOG.info("Run " + this.getLable() + " with ID: " + UUID.randomUUID().toString());
-        readInput(inputModel, info);
+        InstructionParameters parameters = readInput(inputModel, info);
         try {
-            executeOperation(id);
+            executeOperation(id, parameters);
         } catch (ConditionEvaluationException | URISyntaxException | LoadPredicateException ex) {
             java.util.logging.Logger.getLogger(AbstractInstruction.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -108,16 +108,16 @@ public abstract class AbstractInstruction extends ThriftAction {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    protected abstract void readInput(final InputModel inputModel, final AgentTaskInformation info);
+    protected abstract InstructionParameters readInput(final InputModel inputModel, final AgentTaskInformation info);
 
-    protected void executeOperation(String actionID) throws ConditionEvaluationException, URISyntaxException, LoadPredicateException {
+    protected void executeOperation(String actionID, InstructionParameters parameters) throws ConditionEvaluationException, URISyntaxException, LoadPredicateException {
         try {
-            try (TTransport transport = new TSocket(getCosimHost(), getCosimPort())) {
+            try (TTransport transport = new TSocket(parameters.getCosimHost(), parameters.getCosimPort())) {
                 transport.open();
                 TProtocol protocol = new TCompactProtocol(transport);
                 MCoSimulationAccess.Client client = new MCoSimulationAccess.Client(protocol);
                 instID = UUID.randomUUID().toString();
-                performOperation(client, actionID);
+                performOperation(client, actionID, parameters);
                 transport.close();
             }
         } catch (TException ex) {
@@ -125,11 +125,7 @@ public abstract class AbstractInstruction extends ThriftAction {
         }
     }
 
-    protected abstract boolean performOperation(final MCoSimulationAccess.Client client, final String actionID) throws TException;
-
-    protected abstract String getCosimHost();
-
-    protected abstract int getCosimPort();
+    protected abstract boolean performOperation(final MCoSimulationAccess.Client client, final String actionID, final InstructionParameters parameters) throws TException;
 
     @Override
     public ResultModel abort(InputModel inputModel) {

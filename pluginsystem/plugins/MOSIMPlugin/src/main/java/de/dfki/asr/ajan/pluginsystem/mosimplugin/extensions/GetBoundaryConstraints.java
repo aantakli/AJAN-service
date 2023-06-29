@@ -24,14 +24,16 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
-import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
+import de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.instructions.InstructionParameters;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.utils.MOSIMUtil;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
-import de.mosim.mmi.core.MIPAddress;
-import de.mosim.mmi.core.MParameter;
-import de.mosim.mmi.mmu.MMUDescription;
-import de.mosim.mmi.register.MMIRegisterService;
+import de.mosim.mmi.constraints.MConstraint;
+import de.mosim.mmi.cosim.MCoSimulationAccess;
+import de.mosim.mmi.mmu.MInstruction;
+import de.mosim.mmi.mmu.MotionModelUnit;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -50,13 +52,14 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.repository.Repository;
 import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
 @Extension
 @Component
-@RDFBean("bt-mosim:GetAvailableMMUs")
-public class GetAvailableMMUs extends AbstractTDBLeafTask implements NodeExtension {
+@RDFBean("bt-mosim:GetBoundaryConstraints")
+public class GetBoundaryConstraints extends AbstractTDBLeafTask implements NodeExtension {
 	@RDFSubject
 	@Getter @Setter
 	private String url;
@@ -65,12 +68,9 @@ public class GetAvailableMMUs extends AbstractTDBLeafTask implements NodeExtensi
 	@Getter @Setter
 	private String label;
 
-	@RDF("bt-mosim:host")
+	@RDF("bt-mosim:instruction")
 	@Getter @Setter
-	private BehaviorSelectQuery query;
-
-	private String host;
-	private int port;
+	private BehaviorConstructQuery query;
 
 	@RDF("bt:targetBase")
 	@Getter @Setter
@@ -78,66 +78,56 @@ public class GetAvailableMMUs extends AbstractTDBLeafTask implements NodeExtensi
 
 	@Override
 	public Resource getType() {
-		return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#GetAvailableMMUs");
+		return vf.createIRI("http://www.ajan.de/behavior/mosim-ns#GetBoundaryConstraints");
 	}
 
 	@Override
 	public NodeStatus executeLeaf() {
 		try {
-			Map<String,String> hostMap = MOSIMUtil.getHostInfos(query,this.getObject());
-			if(!hostMap.isEmpty()) {
-				host = hostMap.get("host");
-				port = Integer.parseInt(hostMap.get("port"));
-				Map<MMUDescription,List<MIPAddress>> mmus = getMMUs();
-				Model inputModel = getInputModel(mmus);
-				MOSIMUtil.writeInput(inputModel, repository.toString(), this.getObject());
-				String report = toString() + " SUCCEEDED";
-				return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
+			InstructionParameters parameters = new InstructionParameters(getInputModel());
+			List<MConstraint> constraints = getBoundaries(parameters);
+			if (constraints == null) {
+				String report = toString() + " FAILED";
+				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
 			}
-		} catch (URISyntaxException ex) {
+			MOSIMUtil.writeInput(getResultModel(constraints, parameters), repository.toString(), this.getObject());
+			String report = toString() + " SUCCEEDED";
+			return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
+		} catch (URISyntaxException | IOException ex) {
 			String report = toString() + " FAILED";
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
 		}
-		String report = toString() + " FAILED";
-		return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report);
 	}
 
-	private Map<MMUDescription,List<MIPAddress>> getMMUs() {
-		try {
-			try (TTransport transport = new TSocket(host, port)) {
-				transport.open();
-				TProtocol protocol = new TCompactProtocol(transport);
-				MMIRegisterService.Client client = new MMIRegisterService.Client(protocol);
-				return client.GetAvailableMMUs(host);
-			}
-		} catch (TException ex) {
-			this.getObject().getLogger().info(this.getClass(), "Could not load List<MMUDescription>", ex);
-			return null;
-		}
+	private Model getInputModel() throws URISyntaxException {
+		Repository origin = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
+		return query.getResult(origin);
 	}
 
-	private Model getInputModel(final Map<MMUDescription,List<MIPAddress>> mmus) {
+	private Model getResultModel(final List<MConstraint> constraints, InstructionParameters parameters) throws IOException {
 		Model model = new LinkedHashModel();
 		IRI rdfType = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
-		int i = 1;
-		for (MMUDescription mmu: mmus.keySet()) {
-			Resource subject = vf.createBNode();
-			model.add(subject, rdfType, MOSIMVocabulary.MMU_DESCRIPTION);
-			model.add(subject, MOSIMVocabulary.HAS_ORDER, vf.createLiteral(i));
-			model.add(subject, MOSIMVocabulary.HAS_ID, vf.createLiteral(mmu.ID));
-			model.add(subject, MOSIMVocabulary.HAS_NAME, vf.createLiteral(mmu.Name));
-			model.add(subject, MOSIMVocabulary.HAS_MOTION_TYPE, vf.createLiteral(mmu.MotionType));
-			if (mmu.isSetParameters()) {
-				for (MParameter param: mmu.Parameters) {
-					if (param.Required)
-						model.add(subject, MOSIMVocabulary.HAS_PARAMETER, vf.createLiteral(param.Name));
-					else
-						model.add(subject, MOSIMVocabulary.HAS_OPTIONAL_PARAMETER, vf.createLiteral(param.Name));
-				}
-			}
-			i += 1;
+		Resource subject = vf.createIRI("http://www.ajan.de/behavior/mosim-ns#GetBoundaryConstraints/" + parameters.getActionName());
+		model.add(subject, rdfType, MOSIMVocabulary.BOUNDERY_CONSTRAINTS);
+		for (MConstraint contst: constraints) {
+			MOSIMUtil.setConstraint(model, subject, contst);
 		}
 		return model;
+	}
+
+	private List<MConstraint> getBoundaries(final InstructionParameters parameters) {
+		try {
+			try (TTransport transport = new TSocket(parameters.getCosimHost(), parameters.getCosimPort())) {
+				transport.open();
+				TProtocol protocol = new TCompactProtocol(transport);
+				MCoSimulationAccess.Client client = new MCoSimulationAccess.Client(protocol);
+				MInstruction instruction = MOSIMUtil.createMInstruction(parameters.getActionName() + "_1", parameters.getActionName(), parameters);
+				return client.GetBoundaryConstraints(instruction);
+			}
+		} catch (TException ex) {
+			this.getObject().getLogger().info(this.getClass(), "Could not load List<MConstraint>", ex);
+			return null;
+		}
 	}
 
 	@Override
@@ -147,7 +137,7 @@ public class GetAvailableMMUs extends AbstractTDBLeafTask implements NodeExtensi
 
 	@Override
 	public String toString() {
-		return "GetAvailableMMUs (" + getLabel() + ")";
+		return "GetBoundaryConstraints (" + getLabel() + ")";
 	}
 	
 	@Override
