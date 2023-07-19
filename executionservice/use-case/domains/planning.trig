@@ -1,0 +1,374 @@
+# @base <http://localhost:8090/rdf4j/repositories/domain#> .
+
+@prefix agents: <http://localhost:8090/rdf4j/repositories/agents#> .
+@prefix behaviors: <http://localhost:8090/rdf4j/repositories/behaviors#> .
+@prefix : <http://localhost:8090/rdf4j/repositories/domain#> .
+@prefix services: <http://localhost:8090/rdf4j/repositories/services#> .
+
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+@prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
+@prefix mosim: <http://www.dfki.de/mosim-ns#> .
+@prefix suite: <http://www.dfki.de/suite-ns#> .
+@prefix aml: <https://w3id.org/i40/aml#> .
+@prefix test: <http://test.de#> .
+@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>.
+@prefix transit: <http://vocab.org/transit/terms/>.
+@prefix gn: <http://www.geonames.org/ontology#>.
+
+@prefix rr: <http://www.w3.org/ns/r2rml#>.
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix ex:     <http://www.example.com/>.
+@prefix carml: <http://carml.taxonic.com/carml/> .
+
+
+ajan:ASP {
+	:Assembly_LP
+		a asp:RuleSet ;
+		asp:asRules """
+			% -----------------------------------
+			% General Rules
+			% -----------------------------------
+
+			% Boiler -->
+
+			connection_point(POINT) :- screw_point(POINT) .
+
+			connection(X) :- screw_connection(X) .
+			connection(X) :- screw_clamp_connection(X) .
+			connection(X) :- plugin_connection(X) .
+
+			component(X) :- assembly_component(X) .
+			component(X) :- screw(X) .
+			component(X) :- nut(X) .
+			component(X) :- washer(X) .
+
+			component_connection(COMP,CONN) :- component(COMP), has_connected_component(CONN,COMP,_) .
+			component_connection_count(COMP,COUNT) :- component(COMP), COUNT = #count{CONN : component_connection(COMP,CONN)} .
+			component_connection_step(COMP,CONN,STEP) :- component_connection(COMP,CONN), plan_connection(CONN,STEP) .
+			component_first_connection(COMP,CONN) :- MIN = #min{STEP : component_connection_step(COMP,_,STEP)}, component_connection_step(COMP,CONN,MIN) .
+
+			%#show component_connection/2 .
+			%#show component_connection_count/2 .
+			%#show component_connection_step/3 .
+			%#show component_first_connection/2 .
+
+			washer(X) :- spring_washer(X) .
+			srew(X) :- hex_head_screw(X) .
+			nut(X) :- hex_nut(X) .
+
+			tool("Hand") .
+			tool(X) :- screw_driver(X) .
+			tool(X) :- wrench(X) .
+
+			is_for("Socket wrench",SCREW) :- tool("Socket wrench"), screw(SCREW), has_head(SCREW,"hex") .
+			is_for("Socket wrench",NUT) :- tool("Socket wrench"), nut(NUT), has_shape(NUT,"hex") .
+			is_for("Philips Screwdriver",SCREW) :- tool("Socket wrench"), screw(SCREW), has_head(SCREW,"philips") .
+
+			torque_with("m6","2","Nm") .
+			torque_with("4.2","1.5","Nm") .
+
+			has_component(X,COMP) :- has_screw(X,COMP) .
+			has_component(X,COMP) :- has_nut(X,COMP) .
+			has_component(X,COMP) :- has_washer(X,COMP) .
+
+			component(COMP) :- has_matching(X,COMP,Y) .
+
+
+			% Rules for additional operation information
+			% The needed instance informations are defined in components.lp
+			% ----------------------------------
+
+			tighten_with(CONN,STEP,COMP,"Screw Driver") :- action(tighten,CONN,POINT,COMP,STEP), tool(TOOL), not is_for(TOOL,COMP) .
+			tighten_with(CONN,STEP,COMP,TOOL,VALUE,UNIT) :- action(tighten,CONN,POINT,COMP,STEP), tool(TOOL), is_for(TOOL,COMP), has_thread(COMP,TYPE), torque_with(TYPE,VALUE,UNIT) .
+			#show tighten_with/4 .
+			#show tighten_with/6 .
+
+			position_on(CONN,STEP,COMP,OBJ,COMP_B,OBJ_B) :- action(position,CONN,POINT,COMP,STEP), has_matching(POINT,COMP,OBJ), has_matching(POINT,COMP_B,OBJ_B), COMP != COMP_B .
+			position_on(CONN,STEP,COMP,COMP,OBJ_B,OBJ_B) :- action(position,CONN,POINT,COMP,STEP), has_washer(POINT,COMP), has_screw(POINT,OBJ_B), screw(OBJ_B), COMP != OBJ_B, not has_matching(POINT,OBJ_B,_) .
+			position_with(CONN,STEP,COMP,"Hand") :- action(position,CONN,_,COMP,STEP) .
+			#show position_on/6 .
+			#show position_with/4 .
+
+			insert_with(CONN,STEP,COMP,OBJ,"Hand") :- action(insert,CONN,POINT,COMP,STEP), has_screw(POINT,COMP), has_matching(POINT,_,COMP), has_matching(POINT,_,OBJ), COMP != OBJ .
+			insert_with(CONN,STEP,COMP,OBJ,"Hand") :- action(insert,CONN,POINT,COMP,STEP), has_screw(POINT,COMP), not has_matching(POINT,_,COMP), has_matching(POINT,_,OBJ), COMP != OBJ .
+			#show insert_with/5 .
+
+			adjust_with(CONN,STEP,COMP,"Hand") :- action(adjust,CONN,_,COMP,STEP) .
+			#show adjust_with/4 .
+
+			turnon_with(CONN,STEP,COMP,SCREW,"Hand") :- action(turnon,CONN,PONIT,COMP,STEP), has_nut(POINT,COMP), has_screw(POINT,SCREW) .
+			%#show turnon_with/5 .
+
+			sub_action(CONN, STEP,0,COMP_1,COMP_2,POINT, "plug in") :- action(plugin,CONN,COMP_1,COMP_2,STEP), has_connection_point(CONN,POINT).
+			plugin_with(CONN,STEP,COMP_2,"Hand") :- action(plugin,CONN,_,COMP_2,STEP) .
+			#show plugin_with/4 .
+
+			% <-- Boiler
+
+			% -----------------------------------
+			% Processing Rules
+			% -----------------------------------
+
+			connection_step(0..END-1) :- END = #count{CONN: connection(CONN)} .
+
+			1{plan_connection(CONN,STEP): connection(CONN)}1 :- connection_step(STEP) .
+
+			:- plan_connection(CONN,STEP_A), plan_connection(CONN,STEP_B), STEP_A != STEP_B .
+			:- plan_connection(CONN_A,STEP_A), 
+			   plan_connection(CONN_B,STEP_B),
+			   plan_connection(CONN_C,STEP_C), 
+			   component_connect_connections_together(COMP,ID,CONN_A),
+			   component_connect_connections_together(COMP,ID,CONN_B),
+			   component_connect_connections_together(COMP_C,ID_C,CONN_C),
+			   COMP_C != COMP,
+			   STEP_A < STEP_C,
+			   STEP_C < STEP_B .
+			:- plan_connection(CONN,STEP), start_connection(CONN), STEP > 0 .
+
+			action(assemble,CONN,STEP) :- plan_connection(CONN,STEP) .
+
+
+			% Action Rules
+			% -----------------------------------
+
+			action(ACTION,CONN,A,B,SUM + 1 + SUB_STEP) :- action(ACTION,CONN,A,B,STEP_A,SUB_STEP), SUM = #sum{S,STEP : sub_actions(CONN,STEP,S), STEP < STEP_A} .
+
+			% -----------------------------------
+			% RESULT Filters
+			% -----------------------------------
+
+			%#show connection/1 .
+
+			%#show action/6 .
+			#show action/5 .
+			#show action/3 .
+		"""^^xsd:string .
+
+
+	:Screw_Planning_LP
+		a asp:RuleSet ;
+		asp:asRules """
+			% -----------------------------------
+			% Processing Rules
+			% -----------------------------------
+
+			screw_connection_start(CONN,END + 1) :- screw_connection(CONN), END = 0 .
+			screw_connection_end(CONN,END) :- screw_tighten_end(CONN,END) .
+
+			% Assembly_Component Planning Rules
+			% -----------------------------------
+
+			screw_assemble_start(CONN,STEP) :- screw_connection_start(CONN,STEP) .
+			screw_step(CONN,screw_assemble_step(START..START)) :- screw_assemble_start(CONN,START) .
+			screw_assemble_end(CONN,STEP) :- screw_assemble_start(CONN,STEP), COUNT != 0, COUNT = #count{COMP : has_connected_component(CONN,COMP,ORDER), ORDER != 0}.
+
+			position_screwing_component(CONN_A,COMP_A,COMP_B,STEP,SUB_STEP-1) :- screw_step(CONN_A,screw_assemble_step(STEP)), 
+																		has_connected_component(CONN_A,COMP_A,SUB_STEP-1), 
+																		has_connected_component(CONN_A,COMP_B,SUB_STEP),
+																		component_first_connection(COMP_B,CONN_A) .
+
+			%#show position_screwing_component/5 .	
+
+			adjust_screwing_component(CONN_A,COMP_A,COMP_B,STEP,SUB_STEP-1) :- screw_step(CONN_A,screw_assemble_step(STEP)), 
+																		has_connected_component(CONN_A,COMP_A,SUB_STEP-1), 
+																		has_connected_component(CONN_A,COMP_B,SUB_STEP),
+																		has_base(CONN_A,COMP_A), COMP_A != COMP_B, PLAN_STEP_A > PLAN_STEP_B,
+																		plan_connection(CONN_A,PLAN_STEP_A), plan_connection(CONN_B,PLAN_STEP_B),
+																		component_connection(COMP_B,CONN_A), component_connection(COMP_B,CONN_B) .
+
+			%#show adjust_screwing_component/5 .				  
+
+			action(position,CONN_A,COMP_A,COMP_B,STEP,SUB_STEP-1) :- position_screwing_component(CONN_A,COMP_A,COMP_B,STEP,SUB_STEP-1) .
+			action(adjust,CONN_A,COMP_A,COMP_B,STEP,SUB_STEP-1) :- adjust_screwing_component(CONN_A,COMP_A,COMP_B,STEP,SUB_STEP-1) .
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y), screw_step(CONN,screw_assemble_step(STEP))}, screw_step(CONN,screw_assemble_step(STEP)) .
+
+
+			% Screw_Point Planning Rules
+			% -----------------------------------
+
+			screw_insert_start(CONN,STEP+1) :- screw_assemble_end(CONN,STEP) .
+			screw_insert_start(CONN,STEP) :- not screw_assemble_end(CONN,STEP), screw_connection_start(CONN,STEP) .
+			screw_step(CONN,screw_insert_step(START..START+END-1)) :- screw_insert_start(CONN,START), END = #count{POINT : has_connection_point(CONN,POINT)} .
+			screw_insert_end(CONN,STEP+COUNT) :- screw_insert_start(CONN,STEP), COUNT = #count{POINT : has_connection_point(CONN,POINT)}.
+
+			1{screw_action(POINT,CONN,STEP): has_connection_point(CONN,POINT)}1 :- screw_step(CONN,screw_insert_step(STEP)) .
+			:- screw_action(POINT,CONN,STEP_A), screw_action(POINT,CONN,STEP_B), STEP_A != STEP_B .
+
+			action(position,CONN,POINT,COMP,STEP,0) :- screw_action(POINT,CONN,STEP), has_washer(POINT,COMP) .
+			action(insert,CONN,POINT,COMP,STEP,0) :- screw_action(POINT,CONN,STEP), has_screw(POINT,COMP), not has_washer(POINT,_) .
+			action(insert,CONN,POINT,COMP,STEP,1) :- screw_action(POINT,CONN,STEP), has_screw(POINT,COMP), has_washer(POINT,_) .
+			action(turnon,CONN,POINT,COMP,STEP,1) :- screw_action(POINT,CONN,STEP), has_nut(POINT,COMP), not has_washer(POINT,_) .
+			action(turnon,CONN,POINT,COMP,STEP,2) :- screw_action(POINT,CONN,STEP), has_nut(POINT,COMP), has_washer(POINT,_) .
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_step(CONN,screw_insert_step(STEP)) .
+
+
+			% Tighten Planning Rules
+			% -----------------------------------
+
+			screw_tighten_start(CONN,STEP+1) :- screw_insert_end(CONN,STEP) .
+			screw_step(CONN,screw_tighten_step(START..START+END-1)) :- screw_tighten_start(CONN,START), END = #count{POINT : has_connection_point(CONN,POINT)} .
+			screw_tighten_end(CONN,STEP+COUNT) :- screw_tighten_start(CONN,STEP), COUNT = #count{POINT : has_connection_point(CONN,POINT)}.
+
+			1{tighten_action(POINT,CONN,STEP,0): has_connection_point(CONN,POINT)}1 :- screw_step(CONN,screw_tighten_step(STEP)) .
+
+			:- tighten_action(POINT,CONN,STEP_A,0), tighten_action(POINT,CONN,STEP_B,0), STEP_A != STEP_B .
+
+			action(tighten,CONN,POINT,COMP,STEP,0) :- tighten_action(POINT,CONN,STEP,0), has_screw(POINT,COMP), not has_nut(POINT,_) .
+			action(tighten,CONN,POINT,COMP,STEP,0) :- tighten_action(POINT,CONN,STEP,0), has_nut(POINT,COMP) .
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_step(CONN,screw_tighten_step(STEP)) .
+		"""^^xsd:string .
+
+	:Screw_Clamp_Preprocessing_LP
+		a asp:RuleSet ;
+		asp:asRules """
+			% -----------------------------------
+			% Preprocessing Rules
+			% -----------------------------------
+
+			screw_clamp_prepro_start(CONN,START) :- screw_clamp_connection_start(CONN,START) .
+			screw_clamp_prepro_end(CONN,END) :- screw_clamp_prepro_assemble_last(CONN,END) .
+
+
+			% Position preprocessing Planning Rules
+			% -----------------------------------
+
+			screw_clamp_prepro_position_start(CONN,STEP) :- screw_clamp_prepro_start(CONN,STEP) .
+			screw_clamp_prepro_position_end(CONN,STEP) :- screw_clamp_prepro_position_start(CONN,STEP) .
+
+			action(position,CONN,POINT,COMP,STEP,0) :- screw_clamp_prepro_position_start(CONN,STEP), has_connected_component(CONN,COMP,_), has_prepro_location(COMP,LOCATION), has_connection_point(LOCATION,POINT) .
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_clamp_prepro_position_start(CONN,STEP) .
+
+
+			% Turnon preprocessing Planning Rules
+			% -----------------------------------
+
+			screw_clamp_prepro_turnon_start(CONN,END + 1) :- screw_clamp_prepro_position_end(CONN,END) .
+
+			connection_prepro_steps(CONN,NUM) :- NUM = #count{POINT : has_connection_point(CONN,POINT)}, screw_clamp_connection(CONN) .
+			screw_clamp_prepro_step(CONN,screw_clamp_turnon_step(START..START+END-1)) :- screw_clamp_prepro_turnon_start(CONN,START), connection_prepro_steps(CONN,END) .
+			screw_clamp_prepro_sub_step(POINT,screw_clamp_prepro_turnon_sub_step(0..END-1)) :- END = #count{NUT : has_nut(POINT,NUT)}, screw_clamp_connection(CONN), has_connection_point(CONN,POINT) .
+			screw_clamp_prepro_turnon_last(CONN,COUNT + START - 1) :- COUNT = #count{NUT : has_nut(POINT,NUT), has_connection_point(CONN,POINT)}, screw_clamp_prepro_turnon_start(CONN,START) .
+
+			1{turnon_screw_clamp_point(CONN,POINT,STEP): has_connection_point(CONN,POINT)}1 :- screw_clamp_prepro_step(CONN,screw_clamp_turnon_step(STEP)).
+
+			:- turnon_screw_clamp_point(CONN,POINT,STEP_A), turnon_screw_clamp_point(CONN,POINT,STEP_B), STEP_A != STEP_B .
+
+			1{selected_nut_order(POINT,NUT,STEP): has_nut(POINT,NUT)}1 :- screw_clamp_prepro_sub_step(POINT,screw_clamp_prepro_turnon_sub_step(STEP)), has_connection_point(CONN,POINT), screw_clamp_connection(CONN) .
+
+			first_nut(POINT,NUT) :- selected_nut_order(POINT,NUT,0) .
+			-first_nut(POINT,NUT) :- not first_nut(POINT,NUT), has_nut(POINT,NUT) .
+			last_nut(POINT,NUT) :- MAX = #max{STEP : selected_nut_order(POINT,NUT,STEP)}, selected_nut_order(POINT,NUT,MAX) .
+
+			action(turnon,CONN,POINT,NUT,STEP,SUB_STEP) :- selected_nut_order(POINT,NUT,SUB_STEP), turnon_screw_clamp_point(CONN,POINT,STEP), has_connection_point(CONN,POINT) .
+
+			:- action(turnon,CONN,POINT,NUT,STEP,SUB_STEP_A), action(turnon,CONN,POINT,NUT,STEP,SUB_STEP_B), SUB_STEP_A != SUB_STEP_B.
+			:- action(turnon,CONN,POINT,NUT,STEP_A,SUB_STEP), action(turnon,CONN,POINT,NUT,STEP_B,SUB_STEP), STEP_A != STEP_B.
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_clamp_prepro_step(CONN,screw_clamp_turnon_step(STEP)) .
+
+
+			% Insert preprocessing Planning Rules
+			% -----------------------------------
+
+			screw_clamp_prepro_assemble_start(CONN,END + 1) :- screw_clamp_prepro_turnon_last(CONN,END) .
+			screw_clamp_prepro_step(CONN,screw_clamp_assemble_step(START..START+END-1)) :- screw_clamp_prepro_assemble_start(CONN,START), connection_prepro_steps(CONN,END) .
+			screw_clamp_prepro_sub_step(POINT,screw_clamp_prepro_assemble_sub_step(0..2)) :- screw_clamp_prepro_step(CONN,screw_clamp_assemble_step(END)), has_connection_point(CONN,POINT).
+			screw_clamp_prepro_assemble_last(CONN,COUNT + START - 1) :- COUNT = #count{STEP : screw_clamp_prepro_sub_step(POINT,screw_clamp_prepro_assemble_sub_step(STEP)), has_connection_point(CONN,POINT)}, screw_clamp_prepro_assemble_start(CONN,START) .
+
+			1{assemble_screw_clamp_point(CONN,POINT,STEP): has_connection_point(CONN,POINT)}1 :- screw_clamp_prepro_step(CONN,screw_clamp_assemble_step(STEP)).
+
+			:- assemble_screw_clamp_point(CONN,POINT,STEP_A), assemble_screw_clamp_point(CONN,POINT,STEP_B), STEP_A != STEP_B .
+
+			action(insert,CONN,POINT,SCREW,STEP,0) :- assemble_screw_clamp_point(CONN,POINT,STEP), has_screw(POINT,SCREW) .
+			action(tighten,CONN,POINT,SCREW,STEP,1) :- assemble_screw_clamp_point(CONN,POINT,STEP), has_screw(POINT,SCREW) .
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_clamp_prepro_step(CONN,screw_clamp_assemble_step(STEP)) .
+		"""^^xsd:string .
+
+	:Screw_Clamp_Planning_LP
+		a asp:RuleSet ;
+		asp:asRules """
+			% -----------------------------------
+			% Processing Rules
+			% -----------------------------------
+
+			screw_clamp_connection_start(CONN,END + 1) :- screw_clamp_connection(CONN), END = 0 .
+
+			% Position processing Planning Rules
+			% -----------------------------------
+
+			screw_clamp_position_start(CONN,STEP+1) :- screw_clamp_prepro_end(CONN,STEP) .
+			screw_clamp_position_end(CONN,STEP) :- screw_clamp_position_start(CONN,STEP) .
+
+			action(position,CONN,POINT,COMP,STEP,0) :- screw_clamp_position_start(CONN,STEP), has_connected_component(CONN,COMP,1), has_connection_point(CONN,POINT), has_base(CONN,LOCATION) .
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_clamp_position_start(CONN,STEP) .
+
+
+			% Adjust processing Planning Rules
+			% -----------------------------------
+
+			screw_clamp_adjust_start(CONN,STEP+1) :- screw_clamp_position_end(CONN,STEP) .
+			screw_clamp_step(CONN,screw_clamp_adjust_step(START..START+END-1)) :- screw_clamp_adjust_start(CONN,START), END = #count{POINT : has_connection_point(CONN,POINT)} .
+			screw_clamp_adjust_end(CONN,STEP+COUNT) :- screw_clamp_adjust_start(CONN,STEP), COUNT = #count{POINT : has_connection_point(CONN,POINT)}.
+
+			1{adjust_action(CONN,POINT,STEP): has_connection_point(CONN,POINT)}1 :- screw_clamp_step(CONN,screw_clamp_adjust_step(STEP)) .
+
+			:- adjust_action(CONN,POINT,STEP_A), adjust_action(CONN,POINT,STEP_B), STEP_A != STEP_B .
+
+			action(adjust,CONN,POINT,NUT,STEP,0) :- adjust_action(CONN,POINT,STEP), selected_nut_order(POINT,NUT,0) .
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_clamp_adjust_start(CONN,STEP) .
+
+
+			% Tightening processing Planning Rules
+			% -----------------------------------
+
+			screw_clamp_tighten_start(CONN,STEP+1) :- screw_clamp_adjust_end(CONN,STEP) .
+			screw_clamp_step(CONN,screw_clamp_tighten_step(START..START+END-1)) :- screw_clamp_tighten_start(CONN,START), END = #count{POINT : has_connection_point(CONN,POINT)} .
+			screw_clamp_tighten_end(CONN,STEP) :- screw_clamp_adjust_start(CONN,STEP), COUNT = #count{POINT : has_connection_point(CONN,POINT)}.
+
+			1{tighten_action(CONN,POINT,STEP): has_connection_point(CONN,POINT)}1 :- screw_clamp_step(CONN,screw_clamp_tighten_step(STEP)) .
+
+			:- tighten_action(CONN,POINT,STEP_A), tighten_action(CONN,POINT,STEP_B), STEP_A != STEP_B .
+
+			action(tighten,CONN,POINT,NUT,STEP,SUB_STEP) :- tighten_action(CONN,POINT,STEP), -first_nut(POINT,NUT), selected_nut_order(POINT,NUT,SUB_STEP) .
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_clamp_tighten_start(CONN,STEP) .
+		"""^^xsd:string .
+
+	:Plugin_Planning_LP
+		a asp:RuleSet ;
+		asp:asRules """
+			% -----------------------------------
+			% Plug-in Rules
+			% -----------------------------------
+
+			plugin_connection_start(CONN,END) :- plugin_connection(CONN), END = 0 .
+			plugin_connection_end(CONN,END) :- plugin_assemble_end(CONN,END) .
+
+
+			% Assemble Planning Rules
+			% -----------------------------------
+
+			plugin_assemble_start(CONN,STEP) :- plugin_connection_start(CONN,STEP) .
+			plugin_step(CONN,plugin_assemble_step(START..START)) :- plugin_assemble_start(CONN,START) .
+			plugin_assemble_end(CONN,STEP+1) :- plugin_assemble_start(CONN,STEP).
+
+			action(plugin,CONN,COMP_A,COMP_B,STEP,0) :- plugin_step(CONN,plugin_assemble_step(STEP)), 
+														has_connection_point(CONN,POINT), has_connected_component(CONN,COMP_A,SUB_STEP_A), 
+														has_connected_component(CONN,COMP_B,SUB_STEP_B), COMP_A != COMP_B, has_base(CONN,COMP_A).
+
+			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y), plugin_step(CONN,plugin_assemble_step(STEP))}, plugin_step(CONN,plugin_assemble_step(STEP)) .
+		"""^^xsd:string .
+}

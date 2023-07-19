@@ -1,0 +1,1029 @@
+# @base <http://localhost:8090/rdf4j/repositories/domain#> .
+
+@prefix agents: <http://localhost:8090/rdf4j/repositories/agents#> .
+@prefix behaviors: <http://localhost:8090/rdf4j/repositories/behaviors#> .
+@prefix : <http://localhost:8090/rdf4j/repositories/domain#> .
+@prefix services: <http://localhost:8090/rdf4j/repositories/services#> .
+
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+@prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
+@prefix mosim: <http://www.dfki.de/mosim-ns#> .
+@prefix suite: <http://www.dfki.de/suite-ns#> .
+@prefix aml: <https://w3id.org/i40/aml#> .
+@prefix test: <http://test.de#> .
+@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>.
+@prefix transit: <http://vocab.org/transit/terms/>.
+@prefix gn: <http://www.geonames.org/ontology#>.
+
+@prefix rr: <http://www.w3.org/ns/r2rml#>.
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix ex:     <http://www.example.com/>.
+@prefix carml: <http://carml.taxonic.com/carml/> .
+
+
+ajan:ASP {
+	
+	:Components_Hyllis_LP
+		a asp:RuleSet ;
+		asp:asRules """
+			% -----------------------------------
+			% Component Facts
+			% -----------------------------------
+
+			assembly_component(shelf1_490) . 
+			plate(shelf1_490) . 
+			has_smooth_blind_hole(shelf1_490,feature_490_1) . has_diameter(feature_490_1,"5.1") . has_depth(feature_490_1,20) . 
+			has_smooth_blind_hole(shelf1_490,feature_490_2) . has_diameter(feature_490_2,"5.1") . has_depth(feature_490_2,20) . 
+			has_smooth_blind_hole(shelf1_490,feature_490_3) . has_diameter(feature_490_3,"5.1") . has_depth(feature_490_3,20) . 
+			has_smooth_blind_hole(shelf1_490,feature_490_4) . has_diameter(feature_490_4,"5.1") . has_depth(feature_490_4,20) . 
+			has_smooth_blind_hole(shelf1_490,feature_490_5) . has_diameter(feature_490_5,"5.1") . has_depth(feature_490_5,20) . 
+			has_smooth_blind_hole(shelf1_490,feature_490_6) . has_diameter(feature_490_6,"5.1") . has_depth(feature_490_6,20) . 
+			has_smooth_blind_hole(shelf1_490,feature_490_7) . has_diameter(feature_490_7,"5.1") . has_depth(feature_490_7,20) . 
+			has_smooth_blind_hole(shelf1_490,feature_490_8) . has_diameter(feature_490_8,"5.1") . has_depth(feature_490_8,20) .
+
+			assembly_component(shelf2_491) . 
+			plate(shelf2_491) . 
+			has_smooth_blind_hole(shelf2_491,feature_491_1) . has_diameter(feature_491_1,"5.1") . has_depth(feature_491_1,20) . 
+			has_smooth_blind_hole(shelf2_491,feature_491_2) . has_diameter(feature_491_2,"5.1") . has_depth(feature_491_2,20) . 
+			has_smooth_blind_hole(shelf2_491,feature_491_3) . has_diameter(feature_491_3,"5.1") . has_depth(feature_491_3,20) . 
+			has_smooth_blind_hole(shelf2_491,feature_491_4) . has_diameter(feature_491_4,"5.1") . has_depth(feature_491_4,20) . 
+			has_smooth_blind_hole(shelf2_491,feature_491_5) . has_diameter(feature_491_5,"5.1") . has_depth(feature_491_5,20) . 
+			has_smooth_blind_hole(shelf2_491,feature_491_6) . has_diameter(feature_491_6,"5.1") . has_depth(feature_491_6,20) . 
+			has_smooth_blind_hole(shelf2_491,feature_491_7) . has_diameter(feature_491_7,"5.1") . has_depth(feature_491_7,20) . 
+			has_smooth_blind_hole(shelf2_491,feature_491_8) . has_diameter(feature_491_8,"5.1") . has_depth(feature_491_8,20) . 
+
+			assembly_component(shelf3_492) . 
+			plate(shelf3_492) . 
+			has_smooth_blind_hole(shelf3_492,feature_492_1) . has_diameter(feature_492_1,"5.1") . has_depth(feature_492_1,20) . 
+			has_smooth_blind_hole(shelf3_492,feature_492_2) . has_diameter(feature_492_2,"5.1") . has_depth(feature_492_2,20) . 
+			has_smooth_blind_hole(shelf3_492,feature_492_3) . has_diameter(feature_492_3,"5.1") . has_depth(feature_492_3,20) . 
+			has_smooth_blind_hole(shelf3_492,feature_492_4) . has_diameter(feature_492_4,"5.1") . has_depth(feature_492_4,20) . 
+			has_smooth_blind_hole(shelf3_492,feature_492_5) . has_diameter(feature_492_5,"5.1") . has_depth(feature_492_5,20) . 
+			has_smooth_blind_hole(shelf3_492,feature_492_6) . has_diameter(feature_492_6,"5.1") . has_depth(feature_492_6,20) . 
+			has_smooth_blind_hole(shelf3_492,feature_492_7) . has_diameter(feature_492_7,"5.1") . has_depth(feature_492_7,20) . 
+			has_smooth_blind_hole(shelf3_492,feature_492_8) . has_diameter(feature_492_8,"5.1") . has_depth(feature_492_8,20) . 
+
+			assembly_component(shelf4_493) . 
+			plate(shelf4_493) . 
+			has_smooth_blind_hole(shelf4_493,feature_493_1) . has_diameter(feature_493_1,"5.1") . has_depth(feature_493_1,20) . 
+			has_smooth_blind_hole(shelf4_493,feature_493_2) . has_diameter(feature_493_2,"5.1") . has_depth(feature_493_2,20) . 
+			has_smooth_blind_hole(shelf4_493,feature_493_3) . has_diameter(feature_493_3,"5.1") . has_depth(feature_493_3,20) . 
+			has_smooth_blind_hole(shelf4_493,feature_493_4) . has_diameter(feature_493_4,"5.1") . has_depth(feature_493_4,20) . 
+			has_smooth_blind_hole(shelf4_493,feature_493_5) . has_diameter(feature_493_5,"5.1") . has_depth(feature_493_5,20) . 
+			has_smooth_blind_hole(shelf4_493,feature_493_6) . has_diameter(feature_493_6,"5.1") . has_depth(feature_493_6,20) . 
+			has_smooth_blind_hole(shelf4_493,feature_493_7) . has_diameter(feature_493_7,"5.1") . has_depth(feature_493_7,20) . 
+			has_smooth_blind_hole(shelf4_493,feature_493_8) . has_diameter(feature_493_8,"5.1") . has_depth(feature_493_8,20) . 
+
+			assembly_component(leg1_494) . 
+			has_surface(leg1_494,feature_494_1) . has_width(feature_494_1,50) . has_depth(feature_494_1,50) . has_function(feature_494_1,"Contact") . 
+			has_smooth_through_hole(leg1_494,feature_494_2) . has_diameter(feature_494_2,"5.1") . 
+			has_smooth_through_hole(leg1_494,feature_494_3) . has_diameter(feature_494_3,"5.1") . 
+			has_smooth_through_hole(leg1_494,feature_494_4) . has_diameter(feature_494_4,"5.1") . 
+			has_smooth_through_hole(leg1_494,feature_494_5) . has_diameter(feature_494_5,"5.1") . 
+			has_smooth_through_hole(leg1_494,feature_494_6) . has_diameter(feature_494_6,"5.1") . 
+			has_smooth_through_hole(leg1_494,feature_494_7) . has_diameter(feature_494_7,"5.1") . 
+			has_smooth_through_hole(leg1_494,feature_494_8) . has_diameter(feature_494_8,"5.1") . 
+			has_smooth_through_hole(leg1_494,feature_494_9) . has_diameter(feature_494_9,"5.1") . 
+			has_smooth_through_hole(leg1_494,feature_494_10) . has_diameter(feature_494_10,"5.1") . 
+			has_smooth_through_hole(leg1_494,feature_494_11) . has_diameter(feature_494_11,"5.1") . 
+
+			assembly_component(stand1_498) . 
+			plate(stand1_498) . 
+			has_surface(stand1_498,feature_498_1) . has_width(feature_498_1,50) . has_depth(feature_498_1,50) . has_function(feature_498_1,"Contact") . 
+
+			assembly_component(stand2_499) . 
+			plate(stand2_499) . 
+			has_surface(stand2_499,feature_499_1) . has_width(feature_499_1,50) . has_depth(feature_499_1,50) . has_function(feature_499_1,"Contact") . 
+
+			assembly_component(stand3_500) . 
+			plate(stand3_500) . 
+			has_surface(stand3_500,feature_500_1) . has_width(feature_500_1,50) . has_depth(feature_500_1,50) . has_function(feature_500_1,"Contact") . 
+
+			assembly_component(stand4_501) . 
+			plate(stand4_501) . 
+			has_surface(stand4_501,feature_501_1) . has_width(feature_501_1,50) . has_depth(feature_501_1,50) . has_function(feature_501_1,"Contact") . 
+
+			assembly_component(screw1_502) . 
+			fastener(screw1_502) . screw(screw1_502) . 
+			has_round_threaded_shaft(screw1_502,feature_502_1) . has_thread(feature_502_1,"M4") . has_length(feature_502_1,10) . has_thread_direction(feature_502_1,"right") . 
+			has_screw_head(screw1_502,feature_502_2) . has_type(feature_502_2,"Philips") . has_size(feature_502_2,5) . 
+
+			assembly_component(screw2_504) . 
+			fastener(screw2_504) . screw(screw2_504) . 
+			has_round_threaded_shaft(screw2_504,feature_504_1) . has_thread(feature_504_1,"M4") . has_length(feature_504_1,10) . has_thread_direction(feature_504_1,"right") . 
+			has_screw_head(screw2_504,feature_504_2) . has_type(feature_504_2,"Philips") . has_size(feature_504_2,5) . 
+
+			assembly_component(screw3_505) . 
+			fastener(screw3_505) . screw(screw3_505) . 
+			has_round_threaded_shaft(screw3_505,feature_505_1) . has_thread(feature_505_1,"M4") . has_length(feature_505_1,10) . has_thread_direction(feature_505_1,"right") . 
+			has_screw_head(screw3_505,feature_505_2) . has_type(feature_505_2,"Philips") . has_size(feature_505_2,5) . 
+
+			assembly_component(screw4_506) . 
+			fastener(screw4_506) . screw(screw4_506) . 
+			has_round_threaded_shaft(screw4_506,feature_506_1) . has_thread(feature_506_1,"M4") . has_length(feature_506_1,10) . has_thread_direction(feature_506_1,"right") . 
+			has_screw_head(screw4_506,feature_506_2) . has_type(feature_506_2,"Philips") . has_size(feature_506_2,5) . 
+
+			assembly_component(screw5_507) . 
+			fastener(screw5_507) . screw(screw5_507) . 
+			has_round_threaded_shaft(screw5_507,feature_507_1) . has_thread(feature_507_1,"M4") . has_length(feature_507_1,10) . has_thread_direction(feature_507_1,"right") . 
+			has_screw_head(screw5_507,feature_507_2) . has_type(feature_507_2,"Philips") . has_size(feature_507_2,5) . 
+
+			assembly_component(screw6_508) . 
+			fastener(screw6_508) . screw(screw6_508) . 
+			has_round_threaded_shaft(screw6_508,feature_508_1) . has_thread(feature_508_1,"M4") . has_length(feature_508_1,10) . has_thread_direction(feature_508_1,"right") . 
+			has_screw_head(screw6_508,feature_508_2) . has_type(feature_508_2,"Philips") . has_size(feature_508_2,5) . 
+
+			assembly_component(screw7_509) . 
+			fastener(screw7_509) . screw(screw7_509) . 
+			has_round_threaded_shaft(screw7_509,feature_509_1) . has_thread(feature_509_1,"M4") . has_length(feature_509_1,10) . has_thread_direction(feature_509_1,"right") . 
+			has_screw_head(screw7_509,feature_509_2) . has_type(feature_509_2,"Philips") . has_size(feature_509_2,5) . 
+
+			assembly_component(screw8_510) . 
+			fastener(screw8_510) . screw(screw8_510) . 
+			has_round_threaded_shaft(screw8_510,feature_510_1) . has_thread(feature_510_1,"M4") . has_length(feature_510_1,10) . has_thread_direction(feature_510_1,"right") . 
+			has_screw_head(screw8_510,feature_510_2) . has_type(feature_510_2,"Philips") . has_size(feature_510_2,5) . 
+
+			assembly_component(screw9_511) . 
+			fastener(screw9_511) . screw(screw9_511) . 
+			has_round_threaded_shaft(screw9_511,feature_511_1) . has_thread(feature_511_1,"M4") . has_length(feature_511_1,10) . has_thread_direction(feature_511_1,"right") . 
+			has_screw_head(screw9_511,feature_511_2) . has_type(feature_511_2,"Philips") . has_size(feature_511_2,5) . 
+
+			assembly_component(screw10_512) . 
+			fastener(screw10_512) . screw(screw10_512) . 
+			has_round_threaded_shaft(screw10_512,feature_512_1) . has_thread(feature_512_1,"M4") . has_length(feature_512_1,10) . has_thread_direction(feature_512_1,"right") . 
+			has_screw_head(screw10_512,feature_512_2) . has_type(feature_512_2,"Philips") . has_size(feature_512_2,5) . 
+
+			assembly_component(screw11_513) . 
+			fastener(screw11_513) . screw(screw11_513) . 
+			has_round_threaded_shaft(screw11_513,feature_513_1) . has_thread(feature_513_1,"M4") . has_length(feature_513_1,10) . has_thread_direction(feature_513_1,"right") . 
+			has_screw_head(screw11_513,feature_513_2) . has_type(feature_513_2,"Philips") . has_size(feature_513_2,5) . 
+
+			assembly_component(screw12_514) . 
+			fastener(screw12_514) . screw(screw12_514) . 
+			has_round_threaded_shaft(screw12_514,feature_514_1) . has_thread(feature_514_1,"M4") . has_length(feature_514_1,10) . has_thread_direction(feature_514_1,"right") . 
+			has_screw_head(screw12_514,feature_514_2) . has_type(feature_514_2,"Philips") . has_size(feature_514_2,5) . 
+
+
+			assembly_component(screw13_515) . 
+			fastener(screw13_515) . screw(screw13_515) . 
+			has_round_threaded_shaft(screw13_515,feature_515_1) . has_thread(feature_515_1,"M4") . has_length(feature_515_1,10) . has_thread_direction(feature_515_1,"right") . 
+			has_screw_head(screw13_515,feature_515_2) . has_type(feature_515_2,"Philips") . has_size(feature_515_2,5) . 
+
+			assembly_component(screw14_516) . 
+			fastener(screw14_516) . screw(screw14_516) . 
+			has_round_threaded_shaft(screw14_516,feature_516_1) . has_thread(feature_516_1,"M4") . has_length(feature_516_1,10) . has_thread_direction(feature_516_1,"right") . 
+			has_screw_head(screw14_516,feature_516_2) . has_type(feature_516_2,"Philips") . has_size(feature_516_2,5) . 
+
+			assembly_component(screw15_517) . 
+			fastener(screw15_517) . screw(screw15_517) . 
+			has_round_threaded_shaft(screw15_517,feature_517_1) . has_thread(feature_517_1,"M4") . has_length(feature_517_1,10) . has_thread_direction(feature_517_1,"right") . 
+			has_screw_head(screw15_517,feature_517_2) . has_type(feature_517_2,"Philips") . has_size(feature_517_2,5) . 
+
+			assembly_component(screw16_518) . 
+			fastener(screw16_518) . screw(screw16_518) . 
+			has_round_threaded_shaft(screw16_518,feature_518_1) . has_thread(feature_518_1,"M4") . has_length(feature_518_1,10) . has_thread_direction(feature_518_1,"right") . 
+			has_screw_head(screw16_518,feature_518_2) . has_type(feature_518_2,"Philips") . has_size(feature_518_2,5) . 
+
+			assembly_component(screw17_519) . 
+			fastener(screw17_519) . screw(screw17_519) . 
+			has_round_threaded_shaft(screw17_519,feature_519_1) . has_thread(feature_519_1,"M4") . has_length(feature_519_1,10) . has_thread_direction(feature_519_1,"right") . 
+			has_screw_head(screw17_519,feature_519_2) . has_type(feature_519_2,"Philips") . has_size(feature_519_2,5) . 
+
+			assembly_component(screw18_520) . 
+			fastener(screw18_520) . screw(screw18_520) . 
+			has_round_threaded_shaft(screw18_520,feature_520_1) . has_thread(feature_520_1,"M4") . has_length(feature_520_1,10) . has_thread_direction(feature_520_1,"right") . 
+			has_screw_head(screw18_520,feature_520_2) . has_type(feature_520_2,"Philips") . has_size(feature_520_2,5) . 
+
+			assembly_component(screw19_521) . 
+			fastener(screw19_521) . screw(screw19_521) . 
+			has_round_threaded_shaft(screw19_521,feature_521_1) . has_thread(feature_521_1,"M4") . has_length(feature_521_1,10) . has_thread_direction(feature_521_1,"right") . 
+			has_screw_head(screw19_521,feature_521_2) . has_type(feature_521_2,"Philips") . has_size(feature_521_2,5) . 
+
+			assembly_component(screw20_522) . 
+			fastener(screw20_522) . screw(screw20_522) . 
+			has_round_threaded_shaft(screw20_522,feature_522_1) . has_thread(feature_522_1,"M4") . has_length(feature_522_1,10) . has_thread_direction(feature_522_1,"right") . 
+			has_screw_head(screw20_522,feature_522_2) . has_type(feature_522_2,"Philips") . has_size(feature_522_2,5) . 
+
+			assembly_component(screw21_523) . 
+			fastener(screw21_523) . screw(screw21_523) . 
+			has_round_threaded_shaft(screw21_523,feature_523_1) . has_thread(feature_523_1,"M4") . has_length(feature_523_1,10) . has_thread_direction(feature_523_1,"right") . 
+			has_screw_head(screw21_523,feature_523_2) . has_type(feature_523_2,"Philips") . has_size(feature_523_2,5) . 
+
+			assembly_component(screw22_524) . 
+			fastener(screw22_524) . screw(screw22_524) . 
+			has_round_threaded_shaft(screw22_524,feature_524_1) . has_thread(feature_524_1,"M4") . has_length(feature_524_1,10) . has_thread_direction(feature_524_1,"right") . 
+			has_screw_head(screw22_524,feature_524_2) . has_type(feature_524_2,"Philips") . has_size(feature_524_2,5) . 
+
+			assembly_component(screw23_525) . 
+			fastener(screw23_525) . screw(screw23_525) . 
+			has_round_threaded_shaft(screw23_525,feature_525_1) . has_thread(feature_525_1,"M4") . has_length(feature_525_1,10) . has_thread_direction(feature_525_1,"right") . 
+			has_screw_head(screw23_525,feature_525_2) . has_type(feature_525_2,"Philips") . has_size(feature_525_2,5) . 
+
+			assembly_component(screw24_526) . 
+			fastener(screw24_526) . screw(screw24_526) . 
+			has_round_threaded_shaft(screw24_526,feature_526_1) . has_thread(feature_526_1,"M4") . has_length(feature_526_1,10) . has_thread_direction(feature_526_1,"right") . 
+			has_screw_head(screw24_526,feature_526_2) . has_type(feature_526_2,"Philips") . has_size(feature_526_2,5) . 
+
+			assembly_component(screw25_527) . 
+			fastener(screw25_527) . screw(screw25_527) . 
+			has_round_threaded_shaft(screw25_527,feature_527_1) . has_thread(feature_527_1,"M4") . has_length(feature_527_1,10) . has_thread_direction(feature_527_1,"right") . 
+			has_screw_head(screw25_527,feature_527_2) . has_type(feature_527_2,"Philips") . has_size(feature_527_2,5) . 
+
+			assembly_component(screw26_528) . 
+			fastener(screw26_528) . screw(screw26_528) . 
+			has_round_threaded_shaft(screw26_528,feature_528_1) . has_thread(feature_528_1,"M4") . has_length(feature_528_1,10) . has_thread_direction(feature_528_1,"right") . 
+			has_screw_head(screw26_528,feature_528_2) . has_type(feature_528_2,"Philips") . has_size(feature_528_2,5) . 
+
+			assembly_component(screw27_529) . 
+			fastener(screw27_529) . screw(screw27_529) . 
+			has_round_threaded_shaft(screw27_529,feature_529_1) . has_thread(feature_529_1,"M4") . has_length(feature_529_1,10) . has_thread_direction(feature_529_1,"right") . 
+			has_screw_head(screw27_529,feature_529_2) . has_type(feature_529_2,"Philips") . has_size(feature_529_2,5) . 
+
+			assembly_component(screw28_530) . 
+			fastener(screw28_530) . screw(screw28_530) . 
+			has_round_threaded_shaft(screw28_530,feature_530_1) . has_thread(feature_530_1,"M4") . has_length(feature_530_1,10) . has_thread_direction(feature_530_1,"right") . 
+			has_screw_head(screw28_530,feature_530_2) . has_type(feature_530_2,"Philips") . has_size(feature_530_2,5) . 
+
+			assembly_component(screw29_531) . 
+			fastener(screw29_531) . screw(screw29_531) . 
+			has_round_threaded_shaft(screw29_531,feature_531_1) . has_thread(feature_531_1,"M4") . has_length(feature_531_1,10) . has_thread_direction(feature_531_1,"right") . 
+			has_screw_head(screw29_531,feature_531_2) . has_type(feature_531_2,"Philips") . has_size(feature_531_2,5) . 
+
+			assembly_component(screw30_532) . 
+			fastener(screw30_532) . screw(screw30_532) . 
+			has_round_threaded_shaft(screw30_532,feature_532_1) . has_thread(feature_532_1,"M4") . has_length(feature_532_1,10) . has_thread_direction(feature_532_1,"right") . 
+			has_screw_head(screw30_532,feature_532_2) . has_type(feature_532_2,"Philips") . has_size(feature_532_2,5) . 
+
+			assembly_component(screw31_533) . 
+			fastener(screw31_533) . screw(screw31_533) . 
+			has_round_threaded_shaft(screw31_533,feature_533_1) . has_thread(feature_533_1,"M4") . has_length(feature_533_1,10) . has_thread_direction(feature_533_1,"right") . 
+			has_screw_head(screw31_533,feature_533_2) . has_type(feature_533_2,"Philips") . has_size(feature_533_2,5) . 
+
+			assembly_component(screw32_534) . 
+			fastener(screw32_534) . screw(screw32_534) . 
+			has_round_threaded_shaft(screw32_534,feature_534_1) . has_thread(feature_534_1,"M4") . has_length(feature_534_1,10) . has_thread_direction(feature_534_1,"right") . 
+			has_screw_head(screw32_534,feature_534_2) . has_type(feature_534_2,"Philips") . has_size(feature_534_2,5) . 
+
+			assembly_component(leg2_542) . 
+			has_surface(leg2_542,feature_542_1) . has_width(feature_542_1,50) . has_depth(feature_542_1,50) . has_function(feature_542_1,"Contact") . 
+			has_smooth_through_hole(leg2_542,feature_542_2) . has_diameter(feature_542_2,"5.1") . 
+			has_smooth_through_hole(leg2_542,feature_542_3) . has_diameter(feature_542_3,"5.1") . 
+			has_smooth_through_hole(leg2_542,feature_542_4) . has_diameter(feature_542_4,"5.1") . 
+			has_smooth_through_hole(leg2_542,feature_542_5) . has_diameter(feature_542_5,"5.1") . 
+			has_smooth_through_hole(leg2_542,feature_542_6) . has_diameter(feature_542_6,"5.1") . 
+			has_smooth_through_hole(leg2_542,feature_542_7) . has_diameter(feature_542_7,"5.1") . 
+			has_smooth_through_hole(leg2_542,feature_542_8) . has_diameter(feature_542_8,"5.1") . 
+			has_smooth_through_hole(leg2_542,feature_542_9) . has_diameter(feature_542_9,"5.1") . 
+			has_smooth_through_hole(leg2_542,feature_542_10) . has_diameter(feature_542_10,"5.1") . 
+			has_smooth_through_hole(leg2_542,feature_542_11) . has_diameter(feature_542_11,"5.1") . 
+
+			assembly_component(leg3_543) . 
+			has_surface(leg3_543,feature_543_1) . has_width(feature_543_1,50) . has_depth(feature_543_1,50) . has_function(feature_543_1,"Contact") . 
+			has_smooth_through_hole(leg3_543,feature_543_2) . has_diameter(feature_543_2,"5.1") . 
+			has_smooth_through_hole(leg3_543,feature_543_3) . has_diameter(feature_543_3,"5.1") . 
+			has_smooth_through_hole(leg3_543,feature_543_4) . has_diameter(feature_543_4,"5.1") . 
+			has_smooth_through_hole(leg3_543,feature_543_5) . has_diameter(feature_543_5,"5.1") . 
+			has_smooth_through_hole(leg3_543,feature_543_6) . has_diameter(feature_543_6,"5.1") . 
+			has_smooth_through_hole(leg3_543,feature_543_7) . has_diameter(feature_543_7,"5.1") . 
+			has_smooth_through_hole(leg3_543,feature_543_8) . has_diameter(feature_543_8,"5.1") . 
+			has_smooth_through_hole(leg3_543,feature_543_9) . has_diameter(feature_543_9,"5.1") . 
+			has_smooth_through_hole(leg3_543,feature_543_10) . has_diameter(feature_543_10,"5.1") . 
+			has_smooth_through_hole(leg3_543,feature_543_11) . has_diameter(feature_543_11,"5.1") . 
+
+			assembly_component(leg4_544) . 
+			has_surface(leg4_544,feature_544_1) . has_width(feature_544_1,50) . has_depth(feature_544_1,50) . has_function(feature_544_1,"Contact") . 
+			has_smooth_through_hole(leg4_544,feature_544_2) . has_diameter(feature_544_2,"5.1") . 
+			has_smooth_through_hole(leg4_544,feature_544_3) . has_diameter(feature_544_3,"5.1") . 
+			has_smooth_through_hole(leg4_544,feature_544_4) . has_diameter(feature_544_4,"5.1") . 
+			has_smooth_through_hole(leg4_544,feature_544_5) . has_diameter(feature_544_5,"5.1") . 
+			has_smooth_through_hole(leg4_544,feature_544_6) . has_diameter(feature_544_6,"5.1") . 
+			has_smooth_through_hole(leg4_544,feature_544_7) . has_diameter(feature_544_7,"5.1") . 
+			has_smooth_through_hole(leg4_544,feature_544_8) . has_diameter(feature_544_8,"5.1") . 
+			has_smooth_through_hole(leg4_544,feature_544_9) . has_diameter(feature_544_9,"5.1") . 
+			has_smooth_through_hole(leg4_544,feature_544_10) . has_diameter(feature_544_10,"5.1") . 
+			has_smooth_through_hole(leg4_544,feature_544_11) . has_diameter(feature_544_11,"5.1") .
+		"""^^xsd:string .
+		
+	:Connections_Hyllis_LP
+		a asp:RuleSet ;
+		asp:asRules """
+			%%%%%%%%%%%%%%%%%% Screw connections of leg1_494 %%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+			start_connection(leg1_494_shelf1_screw_connections) .
+			component_connect_connections_together(leg1_494,1,leg1_494_shelf1_screw_connections) .
+			component_connect_connections_together(leg1_494,1,leg1_494_shelf2_screw_connections) .
+			component_connect_connections_together(leg1_494,1,leg1_494_shelf3_screw_connections) .
+			component_connect_connections_together(leg1_494,1,leg1_494_shelf4_screw_connections) .
+
+			% leg1_494_shelf1_screw_connections
+			% --------------------------------------
+			% --------------------------------------
+
+			screw_connection(leg1_494_shelf1_screw_connections) .
+
+			has_connection_point(leg1_494_shelf1_screw_connections,screw_point_1) .
+			has_connection_point(leg1_494_shelf1_screw_connections,screw_point_2) .
+
+
+			% Screw Points
+			% ----------------------------------------------------
+
+			screw_point(screw_point_1) .
+			has_matching(screw_point_1,shelf1_490,feature_490_1) .
+			has_matching(screw_point_1,leg1_494,feature_494_2) .
+			has_screw(screw_point_1,screw1_502) .
+
+			screw_point(screw_point_2) .
+			has_matching(screw_point_2,shelf1_490,feature_490_2) .
+			has_matching(screw_point_2,leg1_494,feature_494_3) .
+			has_screw(screw_point_2,screw2_504) .
+
+
+			% Connection Points
+			% ----------------------------------------------------
+
+			has_base(leg1_494_shelf1_screw_connections,leg1_494) .
+			has_connected_component(leg1_494_shelf1_screw_connections,leg1_494,0) .
+			has_connected_component(leg1_494_shelf1_screw_connections,shelf1_490,1) .
+
+			has_connection_point_connection(leg1_494,screw_point_1) .
+			has_connection_point_connection(leg1_494,screw_point_2) .
+
+			has_connection_point_connection(shelf1_490,screw_point_1) .
+			has_connection_point_connection(shelf1_490,screw_point_2) .
+
+
+			% leg1_494_shelf2_screw_connections
+			% --------------------------------------
+			% --------------------------------------
+
+			screw_connection(leg1_494_shelf2_screw_connections) .
+
+			has_connection_point(leg1_494_shelf2_screw_connections,screw_point_3) .
+			has_connection_point(leg1_494_shelf2_screw_connections,screw_point_4) .
+
+
+			% Screw Points
+			% ----------------------------------------------------
+
+			screw_point(screw_point_3) .
+			has_matching(screw_point_3,shelf2_491,feature_491_1) .
+			has_matching(screw_point_3,leg1_494,feature_494_6) .
+			has_screw(screw_point_3,screw9_511) .
+
+			screw_point(screw_point_4) .
+			has_matching(screw_point_4,shelf2_491,feature_491_2) .
+			has_matching(screw_point_4,leg1_494,feature_494_7) .
+			has_screw(screw_point_4,screw10_512) .
+
+
+			% Connection Points
+			% ----------------------------------------------------
+
+			has_base(leg1_494_shelf2_screw_connections,leg1_494) .
+			has_connected_component(leg1_494_shelf2_screw_connections,leg1_494,0) .
+			has_connected_component(leg1_494_shelf2_screw_connections,shelf2_491,1) .
+
+			has_connection_point_connection(leg1_494,screw_point_3) .
+			has_connection_point_connection(leg1_494,screw_point_4) .
+
+			has_connection_point_connection(shelf2_491,screw_point_3) .
+			has_connection_point_connection(shelf2_491,screw_point_4) .
+
+
+			% leg1_494_shelf3_screw_connections
+			% --------------------------------------
+			% --------------------------------------
+
+			screw_connection(leg1_494_shelf3_screw_connections) .
+
+			has_connection_point(leg1_494_shelf3_screw_connections,screw_point_5) .
+			has_connection_point(leg1_494_shelf3_screw_connections,screw_point_6) .
+
+
+			% Screw Points
+			% ----------------------------------------------------
+
+			screw_point(screw_point_5) .
+			has_matching(screw_point_5,shelf3_492,feature_492_1) .
+			has_matching(screw_point_5,leg1_494,feature_494_8) .
+			has_screw(screw_point_5,screw17_519) .
+
+			screw_point(screw_point_6) .
+			has_matching(screw_point_6,shelf3_492,feature_492_2) .
+			has_matching(screw_point_6,leg1_494,feature_494_9) .
+			has_screw(screw_point_6,screw18_520) .
+
+
+			% Connection Points
+			% ----------------------------------------------------
+
+			has_base(leg1_494_shelf3_screw_connections,leg1_494) .
+			has_connected_component(leg1_494_shelf3_screw_connections,leg1_494,0) .
+			has_connected_component(leg1_494_shelf3_screw_connections,shelf3_492,1) .
+
+			has_connection_point_connection(leg1_494,screw_point_5) .
+			has_connection_point_connection(leg1_494,screw_point_6) .
+
+			has_connection_point_connection(shelf3_492,screw_point_5) .
+			has_connection_point_connection(shelf3_492,screw_point_6) .
+
+
+			% leg1_494_shelf4_screw_connections
+			% --------------------------------------
+			% --------------------------------------
+
+			screw_connection(leg1_494_shelf4_screw_connections) .
+
+			has_connection_point(leg1_494_shelf4_screw_connections,screw_point_7) .
+			has_connection_point(leg1_494_shelf4_screw_connections,screw_point_8) .
+
+
+			% Screw Points
+			% ----------------------------------------------------
+
+			screw_point(screw_point_7) .
+			has_matching(screw_point_7,shelf4_493,feature_493_1) .
+			has_matching(screw_point_7,leg1_494,feature_494_10) .
+			has_screw(screw_point_7,screw25_527) .
+
+			screw_point(screw_point_8) .
+			has_matching(screw_point_8,shelf4_493,feature_493_2) .
+			has_matching(screw_point_8,leg1_494,feature_494_11) .
+			has_screw(screw_point_8,screw26_528) .
+
+
+			% Connection Points
+			% ----------------------------------------------------
+
+			has_base(leg1_494_shelf4_screw_connections,leg1_494) .
+			has_connected_component(leg1_494_shelf4_screw_connections,leg1_494,0) .
+			has_connected_component(leg1_494_shelf4_screw_connections,shelf4_493,1) .
+
+			has_connection_point_connection(leg1_494,screw_point_7) .
+			has_connection_point_connection(leg1_494,screw_point_8) .
+
+			has_connection_point_connection(shelf4_493,screw_point_7) .
+			has_connection_point_connection(shelf4_493,screw_point_8) .
+
+
+
+			%%%%%%%%%%%%%%%%%% Screw connections of leg2_542 %%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+			component_connect_connections_together(leg2_542,1,leg2_542_shelf1_screw_connections) .
+			component_connect_connections_together(leg2_542,1,leg2_542_shelf2_screw_connections) .
+			component_connect_connections_together(leg2_542,1,leg2_542_shelf3_screw_connections) .
+			component_connect_connections_together(leg2_542,1,leg2_542_shelf4_screw_connections) .
+
+			% leg2_542_shelf1_screw_connections
+			% --------------------------------------
+			% --------------------------------------
+
+			screw_connection(leg2_542_shelf1_screw_connections) .
+
+			has_connection_point(leg2_542_shelf1_screw_connections,screw_point_9) .
+			has_connection_point(leg2_542_shelf1_screw_connections,screw_point_10) .
+
+
+			% Screw Points
+			% ----------------------------------------------------
+
+			screw_point(screw_point_9) .
+			has_matching(screw_point_9,shelf1_490,feature_490_3) .
+			has_matching(screw_point_9,leg2_542,feature_542_2) .
+			has_screw(screw_point_9,screw3_505) .
+
+			screw_point(screw_point_10) .
+			has_matching(screw_point_10,shelf1_490,feature_490_4) .
+			has_matching(screw_point_10,leg2_542,feature_542_3) .
+			has_screw(screw_point_10,screw4_506) .
+
+
+			% Connection Points
+			% ----------------------------------------------------
+
+			has_base(leg2_542_shelf1_screw_connections,shelf1_490) .
+			has_connected_component(leg2_542_shelf1_screw_connections,shelf1_490,0) .
+			has_connected_component(leg2_542_shelf1_screw_connections,leg2_542,1) .
+
+			has_connection_point_connection(shelf1_490,screw_point_9) .
+			has_connection_point_connection(shelf1_490,screw_point_10) .
+
+			has_connection_point_connection(leg2_542,screw_point_9) .
+			has_connection_point_connection(leg2_542,screw_point_10) .
+
+
+			% leg2_542_shelf2_screw_connections
+			% --------------------------------------
+			% --------------------------------------
+
+			screw_connection(leg2_542_shelf2_screw_connections) .
+
+			has_connection_point(leg2_542_shelf2_screw_connections,screw_point_11) .
+			has_connection_point(leg2_542_shelf2_screw_connections,screw_point_12) .
+
+
+			% Screw Points
+			% ----------------------------------------------------
+
+			screw_point(screw_point_11) .
+			has_matching(screw_point_11,shelf2_491,feature_491_3) .
+			has_matching(screw_point_11,leg2_542,feature_542_6) .
+			has_screw(screw_point_11,screw11_513) .
+
+			screw_point(screw_point_12) .
+			has_matching(screw_point_12,shelf2_491,feature_491_4) .
+			has_matching(screw_point_12,leg2_542,feature_542_7) .
+			has_screw(screw_point_12,screw12_514) .
+
+
+			% Connection Points
+			% ----------------------------------------------------
+
+			has_base(leg2_542_shelf2_screw_connections,shelf2_491) .
+			has_connected_component(leg2_542_shelf2_screw_connections,shelf2_491,0) .
+			has_connected_component(leg2_542_shelf2_screw_connections,leg2_542,1) .
+
+			has_connection_point_connection(shelf2_491,screw_point_11) .
+			has_connection_point_connection(shelf2_491,screw_point_12) .
+
+			has_connection_point_connection(leg2_542,screw_point_11) .
+			has_connection_point_connection(leg2_542,screw_point_12) .
+
+
+			% leg2_542_shelf3_screw_connections
+			% --------------------------------------
+			% --------------------------------------
+
+			screw_connection(leg2_542_shelf3_screw_connections) .
+
+			has_connection_point(leg2_542_shelf3_screw_connections,screw_point_13) .
+			has_connection_point(leg2_542_shelf3_screw_connections,screw_point_14) .
+
+
+			% Screw Points
+			% ----------------------------------------------------
+
+			screw_point(screw_point_13) .
+			has_matching(screw_point_13,shelf3_492,feature_492_3) .
+			has_matching(screw_point_13,leg2_542,feature_542_8) .
+			has_screw(screw_point_13,screw19_521) .
+
+			screw_point(screw_point_14) .
+			has_matching(screw_point_14,shelf3_492,feature_492_4) .
+			has_matching(screw_point_14,leg2_542,feature_542_9) .
+			has_screw(screw_point_14,screw20_522) .
+
+
+			% Connection Points
+			% ----------------------------------------------------
+
+			has_base(leg2_542_shelf3_screw_connections,shelf3_492) .
+			has_connected_component(leg2_542_shelf3_screw_connections,shelf3_492,0) .
+			has_connected_component(leg2_542_shelf3_screw_connections,leg2_542,1) .
+
+			has_connection_point_connection(shelf3_492,screw_point_13) .
+			has_connection_point_connection(shelf3_492,screw_point_14) .
+
+			has_connection_point_connection(leg2_542,screw_point_13) .
+			has_connection_point_connection(leg2_542,screw_point_14) .
+
+
+			% leg2_542_shelf4_screw_connections
+			% --------------------------------------
+			% --------------------------------------
+
+			screw_connection(leg2_542_shelf4_screw_connections) .
+
+			has_connection_point(leg2_542_shelf4_screw_connections,screw_point_15) .
+			has_connection_point(leg2_542_shelf4_screw_connections,screw_point_16) .
+
+
+			% Screw Points
+			% ----------------------------------------------------
+
+			screw_point(screw_point_15) .
+			has_matching(screw_point_15,shelf4_493,feature_493_3) .
+			has_matching(screw_point_15,leg2_542,feature_542_10) .
+			has_screw(screw_point_15,screw27_529) .
+
+			screw_point(screw_point_16) .
+			has_matching(screw_point_16,shelf4_493,feature_493_4) .
+			has_matching(screw_point_16,leg2_542,feature_542_11) .
+			has_screw(screw_point_16,screw28_530) .
+
+
+			% Connection Points
+			% ----------------------------------------------------
+
+			has_base(leg2_542_shelf4_screw_connections,shelf4_493) .
+			has_connected_component(leg2_542_shelf4_screw_connections,shelf4_493,0) .
+			has_connected_component(leg2_542_shelf4_screw_connections,leg2_542,1) .
+
+			has_connection_point_connection(shelf4_493,screw_point_15) .
+			has_connection_point_connection(shelf4_493,screw_point_16) .
+
+			has_connection_point_connection(leg2_542,screw_point_15) .
+			has_connection_point_connection(leg2_542,screw_point_16) .
+
+
+
+			%%%%%%%%%%%%%%%%%% Screw connections of leg3_543 %%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+			component_connect_connections_together(leg3_543,1,leg3_543_shelf1_screw_connections) .
+			component_connect_connections_together(leg3_543,1,leg3_543_shelf2_screw_connections) .
+			component_connect_connections_together(leg3_543,1,leg3_543_shelf3_screw_connections) .
+			component_connect_connections_together(leg3_543,1,leg3_543_shelf4_screw_connections) .
+
+			% leg3_543_shelf1_screw_connections
+			% --------------------------------------
+			% --------------------------------------
+
+			screw_connection(leg3_543_shelf1_screw_connections) .
+
+			has_connection_point(leg3_543_shelf1_screw_connections,screw_point_17) .
+			has_connection_point(leg3_543_shelf1_screw_connections,screw_point_18) .
+
+
+			% Screw Points
+			% ----------------------------------------------------
+
+			screw_point(screw_point_17) .
+			has_matching(screw_point_17,shelf1_490,feature_490_5) .
+			has_matching(screw_point_17,leg3_543,feature_543_2) .
+			has_screw(screw_point_17,screw5_507) .
+
+			screw_point(screw_point_18) .
+			has_matching(screw_point_18,shelf1_490,feature_490_6) .
+			has_matching(screw_point_18,leg3_543,feature_543_3) .
+			has_screw(screw_point_18,screw6_508) .
+
+
+			% Connection Points
+			% ----------------------------------------------------
+
+			has_base(leg3_543_shelf1_screw_connections, shelf1_490) .
+			has_connected_component(leg3_543_shelf1_screw_connections,shelf1_490,0) .
+			has_connected_component(leg3_543_shelf1_screw_connections,leg3_543,1) .
+
+			has_connection_point_connection(shelf1_490,screw_point_17) .
+			has_connection_point_connection(shelf1_490,screw_point_18) .
+
+			has_connection_point_connection(leg3_543,screw_point_17) .
+			has_connection_point_connection(leg3_543,screw_point_18) .
+
+
+			% leg3_543_shelf2_screw_connections
+			% --------------------------------------
+			% --------------------------------------
+
+			screw_connection(leg3_543_shelf2_screw_connections) .
+
+			has_connection_point(leg3_543_shelf2_screw_connections,screw_point_19) .
+			has_connection_point(leg3_543_shelf2_screw_connections,screw_point_20) .
+
+
+			% Screw Points
+			% ----------------------------------------------------
+
+			screw_point(screw_point_19) .
+			has_matching(screw_point_19,shelf2_491,feature_491_5) .
+			has_matching(screw_point_19,leg3_543,feature_543_6) .
+			has_screw(screw_point_19,screw13_515) .
+
+			screw_point(screw_point_20) .
+			has_matching(screw_point_20,shelf2_491,feature_491_6) .
+			has_matching(screw_point_20,leg3_543,feature_543_7) .
+			has_screw(screw_point_20,screw14_516) .
+
+
+			% Connection Points
+			% ----------------------------------------------------
+
+			has_base(leg3_543_shelf2_screw_connections,shelf2_491) .
+			has_connected_component(leg3_543_shelf2_screw_connections,shelf2_491,0) .
+			has_connected_component(leg3_543_shelf2_screw_connections,leg3_543,1) .
+
+			has_connection_point_connection(shelf2_491,screw_point_19) .
+			has_connection_point_connection(shelf2_491,screw_point_20) .
+
+			has_connection_point_connection(leg3_543,screw_point_19) .
+			has_connection_point_connection(leg3_543,screw_point_20) .
+
+
+			% leg3_543_shelf3_screw_connections
+			% --------------------------------------
+			% --------------------------------------
+
+			screw_connection(leg3_543_shelf3_screw_connections) .
+
+			has_connection_point(leg3_543_shelf3_screw_connections,screw_point_21) .
+			has_connection_point(leg3_543_shelf3_screw_connections,screw_point_22) .
+
+
+			% Screw Points
+			% ----------------------------------------------------
+
+			screw_point(screw_point_21) .
+			has_matching(screw_point_21,shelf3_492,feature_492_5) .
+			has_matching(screw_point_21,leg3_543,feature_543_8) .
+			has_screw(screw_point_21,screw21_523) .
+
+			screw_point(screw_point_22) .
+			has_matching(screw_point_22,shelf3_492,feature_492_6) .
+			has_matching(screw_point_22,leg3_543,feature_543_9) .
+			has_screw(screw_point_22,screw22_524) .
+
+
+			% Connection Points
+			% ----------------------------------------------------
+
+			has_base(leg3_543_shelf3_screw_connections,shelf3_492) .
+			has_connected_component(leg3_543_shelf3_screw_connections,shelf3_492,0) .
+			has_connected_component(leg3_543_shelf3_screw_connections,leg3_543,1) .
+
+			has_connection_point_connection(shelf3_492,screw_point_21) .
+			has_connection_point_connection(shelf3_492,screw_point_22) .
+
+			has_connection_point_connection(leg3_543,screw_point_21) .
+			has_connection_point_connection(leg3_543,screw_point_22) .
+
+
+			% leg3_543_shelf4_screw_connections
+			% --------------------------------------
+			% --------------------------------------
+
+			screw_connection(leg3_543_shelf4_screw_connections) .
+
+			has_connection_point(leg3_543_shelf4_screw_connections,screw_point_23) .
+			has_connection_point(leg3_543_shelf4_screw_connections,screw_point_24) .
+
+
+			% Screw Points
+			% ----------------------------------------------------
+
+			screw_point(screw_point_23) .
+			has_matching(screw_point_23,shelf4_493,feature_493_5) .
+			has_matching(screw_point_23,leg3_543,feature_543_10) .
+			has_screw(screw_point_23,screw29_531) .
+
+			screw_point(screw_point_24) .
+			has_matching(screw_point_24,shelf4_493,feature_493_6) .
+			has_matching(screw_point_24,leg3_543,feature_543_11) .
+			has_screw(screw_point_24,screw30_532) .
+
+
+			% Connection Points
+			% ----------------------------------------------------
+
+			has_base(leg3_543_shelf4_screw_connections,shelf4_493) .
+			has_connected_component(leg3_543_shelf4_screw_connections,shelf4_493,0) .
+			has_connected_component(leg3_543_shelf4_screw_connections,leg3_543,1) .
+
+			has_connection_point_connection(shelf4_493,screw_point_23) .
+			has_connection_point_connection(shelf4_493,screw_point_24) .
+
+			has_connection_point_connection(leg3_543,screw_point_23) .
+			has_connection_point_connection(leg3_543,screw_point_24) .
+
+
+			%%%%%%%%%%%%%%%%%% Screw connections of leg4_544 %%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+			component_connect_connections_together(leg4_544,1,leg4_544_shelf1_screw_connections) .
+			component_connect_connections_together(leg4_544,1,leg4_544_shelf2_screw_connections) .
+			component_connect_connections_together(leg4_544,1,leg4_544_shelf3_screw_connections) .
+			component_connect_connections_together(leg4_544,1,leg4_544_shelf4_screw_connections) .
+
+			% leg4_544_shelf1_screw_connections
+			% --------------------------------------
+			% --------------------------------------
+
+			screw_connection(leg4_544_shelf1_screw_connections) .
+
+			has_connection_point(leg4_544_shelf1_screw_connections,screw_point_25) .
+			has_connection_point(leg4_544_shelf1_screw_connections,screw_point_26) .
+
+
+			% Screw Points
+			% ----------------------------------------------------
+
+			screw_point(screw_point_25) .
+			has_matching(screw_point_25,shelf1_490,feature_490_7) .
+			has_matching(screw_point_25,leg4_544,feature_544_2) .
+			has_screw(screw_point_25,screw7_509) .
+
+			screw_point(screw_point_26) .
+			has_matching(screw_point_26,shelf1_490,feature_490_8) .
+			has_matching(screw_point_26,leg4_544,feature_544_3) .
+			has_screw(screw_point_26,screw8_510) .
+
+
+			% Connection Points
+			% ----------------------------------------------------
+
+			has_base(leg4_544_shelf1_screw_connections, shelf1_490) .
+			has_connected_component(leg4_544_shelf1_screw_connections,shelf1_490,0) .
+			has_connected_component(leg4_544_shelf1_screw_connections,leg4_544,1) .
+
+			has_connection_point_connection(shelf1_490,screw_point_25) .
+			has_connection_point_connection(shelf1_490,screw_point_26) .
+
+			has_connection_point_connection(leg4_544,screw_point_25) .
+			has_connection_point_connection(leg4_544,screw_point_26) .
+
+
+			% leg4_544_shelf2_screw_connections
+			% --------------------------------------
+			% --------------------------------------
+
+			screw_connection(leg4_544_shelf2_screw_connections) .
+
+			has_connection_point(leg4_544_shelf2_screw_connections,screw_point_27) .
+			has_connection_point(leg4_544_shelf2_screw_connections,screw_point_28) .
+
+
+			% Screw Points
+			% ----------------------------------------------------
+
+			screw_point(screw_point_27) .
+			has_matching(screw_point_27,shelf2_491,feature_491_7) .
+			has_matching(screw_point_27,leg4_544,feature_544_6) .
+			has_screw(screw_point_27,screw15_517) .
+
+			screw_point(screw_point_28) .
+			has_matching(screw_point_28,shelf2_491,feature_491_8) .
+			has_matching(screw_point_28,leg4_544,feature_544_7) .
+			has_screw(screw_point_28,screw16_518) .
+
+
+			% Connection Points
+			% ----------------------------------------------------
+
+			has_base(leg4_544_shelf2_screw_connections, shelf2_491) .
+			has_connected_component(leg4_544_shelf2_screw_connections,shelf2_491,0) .
+			has_connected_component(leg4_544_shelf2_screw_connections,leg4_544,1) .
+
+			has_connection_point_connection(shelf2_491,screw_point_27) .
+			has_connection_point_connection(shelf2_491,screw_point_28) .
+
+			has_connection_point_connection(leg4_544,screw_point_27) .
+			has_connection_point_connection(leg4_544,screw_point_28) .
+
+
+			% leg4_544_shelf3_screw_connections
+			% --------------------------------------
+			% --------------------------------------
+
+			screw_connection(leg4_544_shelf3_screw_connections) .
+
+			has_connection_point(leg4_544_shelf3_screw_connections,screw_point_29) .
+			has_connection_point(leg4_544_shelf3_screw_connections,screw_point_30) .
+
+
+			% Screw Points
+			% ----------------------------------------------------
+
+			screw_point(screw_point_29) .
+			has_matching(screw_point_29,shelf3_492,feature_492_7) .
+			has_matching(screw_point_29,leg4_544,feature_544_8) .
+			has_screw(screw_point_29,screw23_525) .
+
+			screw_point(screw_point_30) .
+			has_matching(screw_point_30,shelf3_492,feature_492_8) .
+			has_matching(screw_point_30,leg4_544, feature_544_9) .
+			has_screw(screw_point_30,screw24_526) .
+
+
+			% Connection Points
+			% ----------------------------------------------------
+
+			has_base(leg4_544_shelf3_screw_connections, shelf3_492) .
+			has_connected_component(leg4_544_shelf3_screw_connections,shelf3_492,0) .
+			has_connected_component(leg4_544_shelf3_screw_connections,leg4_544,1) .
+
+			has_connection_point_connection(shelf3_492,screw_point_29) .
+			has_connection_point_connection(shelf3_492,screw_point_30) .
+
+			has_connection_point_connection(leg4_544,screw_point_29) .
+			has_connection_point_connection(leg4_544,screw_point_30) .
+
+
+			% leg4_544_shelf4_screw_connections
+			% --------------------------------------
+			% --------------------------------------
+
+			screw_connection(leg4_544_shelf4_screw_connections) .
+
+			has_connection_point(leg4_544_shelf4_screw_connections,screw_point_31) .
+			has_connection_point(leg4_544_shelf4_screw_connections,screw_point_32) .
+
+			has_base(leg4_544_shelf4_screw_connections, shelf4_493) .
+			has_connected_component(leg4_544_shelf4_screw_connections,shelf4_493,0) .
+			has_connected_component(leg4_544_shelf4_screw_connections,leg4_544,1) .
+
+			has_connection_point_connection(shelf4_493,screw_point_31) .
+			has_connection_point_connection(shelf4_493,screw_point_32) .
+
+			has_connection_point_connection(leg4_544,screw_point_31) .
+			has_connection_point_connection(leg4_544,screw_point_32) .
+
+
+			% Screw Points
+			% ----------------------------------------------------
+
+			screw_point(screw_point_31) .
+			has_matching(screw_point_31,shelf4_493,feature_493_7) .
+			has_matching(screw_point_31,leg4_544,feature_544_10) .
+			has_screw(screw_point_31,screw31_533) .
+
+			screw_point(screw_point_32) .
+			has_matching(screw_point_32,shelf4_493,feature_493_8) .
+			has_matching(screw_point_32,leg4_544,feature_544_11) .
+			has_screw(screw_point_32,screw32_534) .
+
+
+			% Connection Points
+			% ----------------------------------------------------
+
+			has_base(leg4_544_shelf4_screw_connections, shelf4_493) .
+			has_connected_component(leg4_544_shelf4_screw_connections,shelf4_493,0) .
+			has_connected_component(leg4_544_shelf4_screw_connections,leg4_544,1) .
+
+			has_connection_point_connection(shelf4_493,screw_point_31) .
+			has_connection_point_connection(shelf4_493,screw_point_32) .
+
+			has_connection_point_connection(leg4_544,screw_point_31) .
+			has_connection_point_connection(leg4_544,screw_point_32) .
+
+
+			%%%%%%%%%%%%%%%%%% plug in connections ofstand and leg_front_left %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+			plugin_connection(plugin_connection_1) .
+
+			has_connection_point(plugin_connection_1,plugin_point_1) .
+
+			plugin_point(plugin_point_1) .
+
+			has_base(plugin_connection_1,leg1_494) .
+			has_connected_component(plugin_connection_1,leg1_494,0) .
+			has_connected_component(plugin_connection_1,stand1_498,1) .
+
+			has_connection_point_connection(leg1_494,plugin_point_1) .
+			has_connection_point_connection(stand1_498,plugin_point_1) .
+
+
+			%%%%%%%%%%%%%%%%%% plug in connections ofstand and leg_front_right %%%%%%%%%%%%%%%%%%%%%%%%%%
+
+			plugin_connection(plugin_connection_2) .
+
+			has_connection_point(plugin_connection_2,plugin_point_2) .
+
+			plugin_point(plugin_point_2) .
+
+			has_base(plugin_connection_2,leg2_542) .
+			has_connected_component(plugin_connection_2,leg2_542,0) .
+			has_connected_component(plugin_connection_2,stand2_499,1) .
+
+			has_connection_point_connection(leg2_542,plugin_point_2) .
+			has_connection_point_connection(stand2_499,plugin_point_2) .
+
+
+			%%%%%%%%%%%%%%%%%% plug in connections ofstand and leg_back_right %%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+			plugin_connection(plugin_connection_3) .
+
+			has_connection_point(plugin_connection_3,plugin_point_3) .
+
+			plugin_point(plugin_point_3) .
+
+			has_base(plugin_connection_3,leg3_543) .
+			has_connected_component(plugin_connection_3,leg3_543,0) .
+			has_connected_component(plugin_connection_3,stand3_500,1) .
+
+			has_connection_point_connection(leg3_543,plugin_point_3) .
+			has_connection_point_connection(stand3_500,plugin_point_3) .
+
+
+			%%%%%%%%%%%%%%%%%% plug in connections ofstand and leg_back_left %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+			plugin_connection(plugin_connection_4) .
+
+			has_connection_point(plugin_connection_4,plugin_point_4) .
+
+			plugin_point(plugin_point_4) .
+
+			has_base(plugin_connection_4,leg4_544) .
+			has_connected_component(plugin_connection_4,leg4_544,0) .
+			has_connected_component(plugin_connection_4,stand4_501,1) .
+
+			has_connection_point_connection(leg4_544,plugin_point_4) .
+			has_connection_point_connection(stand4_501,plugin_point_4) . 
+		"""^^xsd:string .
+
+}
