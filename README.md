@@ -63,8 +63,8 @@ Start AJAN-Triplestore (see below), visit `http://localhost:8090/workbench/` and
    
 Pre-modelled agent templates, behaviors, service definitions and domain knowledge can be adapted via the turtle-files under the `ajan-service/executionservice/use-case` folder. If you want to model them graphically, we refer you to the [AJAN-editor](https://github.com/aantakli/AJAN-editor). This editor needs some additional data in additional Triplestores which can be included using the following VM variables:
 
-* `-Dtriplestore.initialData.behaviorsFolderPath=executionservice/use-case/editor/nodeDefinitions` <br>-> Folder to predefined node definitions (RDF/Turtle)
-* `-Dtriplestore.initialData.behaviorsFolderPath=executionservice/use-case/editor/editorData` <br>-> Folder to predefined editor data (RDF/Turtle)
+* `-Dtriplestore.initialData.nodeDefinitionsFolderPath=executionservice/use-case/editor/nodeDefinitions` <br>-> Folder to predefined node definitions (RDF/Turtle)
+* `-Dtriplestore.initialData.editorDataFolderPath=executionservice/use-case/editor/editorData` <br>-> Folder to predefined editor data (RDF/Turtle)
    
 ## Examples
 
