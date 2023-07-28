@@ -7,7 +7,7 @@ This is the Maven based JAVA service to create and run AJAN agents.
 You will need the following things properly installed on your computer.
 
 * [Java OpenJDK (Version 11)](https://adoptium.net/temurin/releases/?version=11)
-* [Maven (Version 3.3.9)](http://artfiles.org/apache.org/maven/maven-3/3.3.9/)
+* [Maven (Version 3.3.9)](https://archive.apache.org/dist/maven/maven-3/3.3.9/)
 * [Git](https://git-scm.com/)
 * (optional) [Netbeans (Version 11.3)](http://netbeans.apache.org/download/nb113/nb113.html)
 
