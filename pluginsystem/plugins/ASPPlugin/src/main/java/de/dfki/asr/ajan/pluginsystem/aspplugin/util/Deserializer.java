@@ -84,22 +84,24 @@ public final class Deserializer {
 	}
 
 	public static void loadRules(AgentTaskInformation taskInfo, StringBuilder set, List<RuleSetLocation> ruleSets) throws URISyntaxException, RDFBeanException, LoadingRulesException {
-		for (RuleSetLocation ruleSet : ruleSets) {
-			ASPRules rules = loadRule(taskInfo, ruleSet);
-			if (rules == null) {
-				throw new LoadingRulesException("Rules are not loadable!");
-			}
-			if (rules.getFacts() != null) {
-				set.append(getStringFacts(rules.getFacts()));
-			}
-			if (rules.getRules() != null) {
-				set.append(getStringRules(rules.getRules()));
-			}
-			/*if (rules.getConstraints() != null) {
-				set.append(rewritePrefixes(rules.getStringRules()));
-			}*/
-			if (rules.getStringRules() != null) {
-				set.append(rewritePrefixes(rules.getStringRules()));
+		if (ruleSets != null && ruleSets instanceof List && ruleSets.get(0) instanceof RuleSetLocation) {
+			for (RuleSetLocation ruleSet : ruleSets) {
+				ASPRules rules = loadRule(taskInfo, ruleSet);
+				if (rules == null) {
+					throw new LoadingRulesException("Rules are not loadable!");
+				}
+				if (rules.getFacts() != null) {
+					set.append(getStringFacts(rules.getFacts()));
+				}
+				if (rules.getRules() != null) {
+					set.append(getStringRules(rules.getRules()));
+				}
+				/*if (rules.getConstraints() != null) {
+					set.append(rewritePrefixes(rules.getStringRules()));
+				}*/
+				if (rules.getStringRules() != null) {
+					set.append(rewritePrefixes(rules.getStringRules()));
+				}
 			}
 		}
 	}
