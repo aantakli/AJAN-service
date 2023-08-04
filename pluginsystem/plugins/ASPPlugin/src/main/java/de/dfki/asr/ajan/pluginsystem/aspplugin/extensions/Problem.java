@@ -36,7 +36,6 @@ import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
