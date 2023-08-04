@@ -39,13 +39,13 @@ public class MappingEvent extends DefaultEvent {
 
 	@Override
 	public void setEventInformation(final Object information) {
-		this.information = information;
+		adjustAndSetInformation(information);
 		notifyListeners();
 	}
 
 	@Override
 	public void setEventInformation(final String id, final Object information) {
-		this.information = getEventInfo(information);
+		adjustAndSetInformation(information);
 		notifyListeners(id);
 	}
 
@@ -54,5 +54,9 @@ public class MappingEvent extends DefaultEvent {
 		info.setEvent(url);
 		info.setObject(information);
 		return info;
+	}
+
+	private void adjustAndSetInformation(final Object information) {
+		this.information = getEventInfo(information);
 	}
 }
