@@ -100,7 +100,11 @@ public final class BTUtil {
 		Resource instance = node.getInstance(btRoot.getInstance());
 		model.add(instance, RDF.TYPE, node.getType());
 		model.add(instance, RDFS.ISDEFINEDBY, node.getDefinition(btRoot.getDefinition()));
-		model.add(instance, BTVocabulary.HAS_STATE, VF.createLiteral(task.getStatus().toString()));
+		String state = task.getStatus().toString();
+		if (task instanceof AbstractTDBLeafTask && "FRESH".equals(state)) {
+			state = ((AbstractTDBLeafTask)task).getLastStatus().toString();
+		}
+		model.add(instance, BTVocabulary.HAS_STATE, VF.createLiteral(state));
 	}
 
 	public static void setDecoratorNodeModel(final Model model, final BTRoot btRoot, final ModelMode mode, final Decorator task) {

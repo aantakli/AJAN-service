@@ -37,6 +37,7 @@ public abstract class AbstractTDBLeafTask extends LeafTask<AgentTaskInformation>
 
 	protected final ValueFactory vf = SimpleValueFactory.getInstance();
 	private Resource instance;
+	private Status lastStatus = Status.FRESH;
 	private Status debugState = Status.FRESH;
 
 	@Override
@@ -130,5 +131,16 @@ public abstract class AbstractTDBLeafTask extends LeafTask<AgentTaskInformation>
 		BTUtil.setGeneralNodeModel(model, root, mode, this);
 		model.add(getInstance(root.getInstance()), RDFS.LABEL, vf.createLiteral(getLabel()));
 		return model;
+	}
+
+	@Override
+	public void reset() {
+		lastStatus = getStatus();
+                BTUtil.sendReport(this.info, final String report);
+		super.reset();
+	}
+
+	public Status getLastStatus() {
+		return lastStatus;
 	}
 }

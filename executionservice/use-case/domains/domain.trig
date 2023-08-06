@@ -628,7 +628,10 @@ mosim:Mapping {
 
 	:WorkerMapping
 		rml:logicalSource [
-			rml:referenceFormulation ql:JSONInput;
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:referenceFormulation ql:JSONPath;
 			rml:iterator "$.workers[*]"
 		] ;
 
@@ -654,8 +657,11 @@ mosim:Mapping {
 
 	:TaskMapping
 		rml:logicalSource [
-			rml:referenceFormulation ql:JSONInput;
-			rml:iterator "$.workers.[*].tasks.[*]"
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:referenceFormulation ql:JSONPath;
+			rml:iterator "$.message.workers.[*].tasks.[*]"
 		] ;
 
 		rr:subjectMap [ 
@@ -717,7 +723,10 @@ mosim:Mapping {
 
 	:PartMapping
 		rml:logicalSource [
-			rml:referenceFormulation ql:JSONInput;
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:referenceFormulation ql:JSONPath;
 			rml:iterator "$.workers.[*].tasks.[*]"
 		] ;
 
@@ -743,7 +752,10 @@ mosim:Mapping {
 
 	:ToolMapping
 		rml:logicalSource [
-			rml:referenceFormulation ql:JSONInput;
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:referenceFormulation ql:JSONPath;
 			rml:iterator "$.workers.[*].tasks.[*]"
 		] ;
 
@@ -769,7 +781,10 @@ mosim:Mapping {
 
 	:PositionMapping
 		rml:logicalSource [
-			rml:referenceFormulation ql:JSONInput;
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:referenceFormulation ql:JSONPath;
 			rml:iterator "$.workers.[*].tasks.[*]"
 		] ;
 

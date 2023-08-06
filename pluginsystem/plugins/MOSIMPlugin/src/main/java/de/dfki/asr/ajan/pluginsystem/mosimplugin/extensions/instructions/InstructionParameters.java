@@ -13,19 +13,19 @@ import org.eclipse.rdf4j.model.Value;
 
 @Data
 public class InstructionParameters {
-	private String mmu = "";
+    private String mmu = "";
     private String actionName;
-	private String finalEvent = "end";
+    private String finalEvent = "end";
     private ArrayList<Value> properties;
     private Map<String, String> instProps;
 
     private ArrayList<Value> constraints;
     private List<MConstraint> mConstraints = null;
-	private String avatarID = "";
+    private String avatarID = "";
     private String startCond = "";
     private String endCond = "";
 	
-	private String cosimHost;
+    private String cosimHost;
     private int cosimPort;
 
 	public InstructionParameters(Model inputModel) {
