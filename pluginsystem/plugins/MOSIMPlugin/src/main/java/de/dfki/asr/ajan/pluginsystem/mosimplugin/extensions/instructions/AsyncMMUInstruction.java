@@ -29,12 +29,13 @@ import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.mmu.MInstruction;
 import de.mosim.mmi.cosim.MCoSimulationAccess;
 import de.mosim.mmi.mmu.MSimulationEvent;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -55,6 +56,8 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 	private String timeStamp = "";
 
 	private InstructionParameters parameters;
+        private MCoSimulationAccess.Client client;
+        private String actionID;
 	private String instructionDef = "";
 
     private final static String CONSUME = 
@@ -129,30 +132,51 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 
 	@Override
     protected boolean performOperation(final MCoSimulationAccess.Client client, final String actionID, final InstructionParameters parameters) throws TException {
-		if (parameters.getMmu().isEmpty()) 
-			return false;
-		MInstruction instruction = MOSIMUtil.createMInstruction(instID, actionID, parameters);
-		instructionDef = MOSIMUtil.getInstructionDef(instruction);
-		Map<String, String> coSimProperties = new HashMap<>();
-		return client.AssignInstruction(instruction, coSimProperties).Successful;
+	this.client = client;
+        this.actionID = actionID;
+        if (parameters.getMmu().isEmpty()) 
+            return false;
+        LOG.info(parameters.getStartCond());
+        if (parameters.getStartCond().equals("")) {
+            return assignInstruction();
+        } else {
+            return true;
+        }
+		
+    }
+   
+    private boolean assignInstruction() throws TException {
+        MInstruction instruction = MOSIMUtil.createMInstruction(instID, actionID, parameters);
+	instructionDef = MOSIMUtil.getInstructionDef(instruction);
+	Map<String, String> coSimProperties = new HashMap<>();
+        boolean result = client.AssignInstruction(instruction, coSimProperties).Successful;
+        this.actionID = "";
+        this.client = null;
+        return result;
     }
 
 	@Override
 	public void setResponse(String id, Object response) {
-		if (response instanceof MSimulationEvent) {
-			MSimulationEvent event = (MSimulationEvent)response;
-			if (event.Type.equals(parameters.getFinalEvent()) && event.Reference.equals(instID)) {
-				ResultModel model = new ResultModel();
-				model.add(instRoot, RDF.TYPE, ACTNVocabulary.SUCCESS);
-				getEvent().setEventInformation(id, model);
-				instID = "";
-			} else if (event.Type.equals("initError") && event.Reference.equals(instID)) {
-				ResultModel model = new ResultModel();
-				model.add(instRoot, RDF.TYPE, ACTNVocabulary.FAULT);
-				getEvent().setEventInformation(id, model);
-				instID = "";
-			}
-		}
+            if (response instanceof MSimulationEvent) {
+                MSimulationEvent event = (MSimulationEvent)response;
+                if (event.Type.equals(parameters.getFinalEvent()) && event.Reference.equals(instID)) {
+                    ResultModel model = new ResultModel();
+                    model.add(instRoot, RDF.TYPE, ACTNVocabulary.SUCCESS);
+                    getEvent().setEventInformation(id, model);
+                    instID = "";
+                } else if (event.Type.equals("initError") && event.Reference.equals(instID)) {
+                    ResultModel model = new ResultModel();
+                    model.add(instRoot, RDF.TYPE, ACTNVocabulary.FAULT);
+                    getEvent().setEventInformation(id, model);
+                    instID = "";
+                } else if (event.Type.equals("cylceEnd") && parameters.getStartCond().contains(event.Reference)) {
+                    try {
+                        assignInstruction();
+                    } catch (TException ex) {
+                        Logger.getLogger(AsyncMMUInstruction.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
 	}
 
 	@Override
