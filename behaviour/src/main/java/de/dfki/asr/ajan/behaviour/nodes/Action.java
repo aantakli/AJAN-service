@@ -130,7 +130,7 @@ public class Action extends AbstractTDBLeafTask {
 		} catch (ActionBindingException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED", ex);
 		}
-		return new NodeStatus(result, this.getObject().getLogger(), this.getClass(), toString() + result);
+		return new NodeStatus(result, this.getObject().getLogger(), this.getClass(), toString() + " " + result);
 	}
 
 	@Override

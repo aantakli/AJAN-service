@@ -136,7 +136,10 @@ public abstract class AbstractTDBLeafTask extends LeafTask<AgentTaskInformation>
 	@Override
 	public void reset() {
 		lastStatus = getStatus();
-                BTUtil.sendReport(this.info, final String report);
+		if (!this.getObject().getReportURI().equals("") && lastStatus == Status.CANCELLED) {
+			NodeStatus nodeStatus = new NodeStatus(lastStatus, this.getObject().getLogger(), this.getClass(), toString() + " CANCELLED");
+			BTUtil.reportState(getUrl(), getModel(new LinkedHashModel(), this.getObject().getBt(), BTUtil.ModelMode.DETAIL), this.getObject(), nodeStatus);
+		}
 		super.reset();
 	}
 
