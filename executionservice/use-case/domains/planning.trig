@@ -28,6 +28,7 @@
 
 
 ajan:ASP {
+
 	:Assembly_LP
 		a asp:RuleSet ;
 		asp:asRules """
@@ -227,6 +228,7 @@ ajan:ASP {
 			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_step(CONN,screw_tighten_step(STEP)) .
 		"""^^xsd:string .
 
+
 	:Screw_Clamp_Preprocessing_LP
 		a asp:RuleSet ;
 		asp:asRules """
@@ -295,6 +297,7 @@ ajan:ASP {
 			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_clamp_prepro_step(CONN,screw_clamp_assemble_step(STEP)) .
 		"""^^xsd:string .
 
+
 	:Screw_Clamp_Planning_LP
 		a asp:RuleSet ;
 		asp:asRules """
@@ -347,6 +350,7 @@ ajan:ASP {
 			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y)}, screw_clamp_tighten_start(CONN,STEP) .
 		"""^^xsd:string .
 
+
 	:Plugin_Planning_LP
 		a asp:RuleSet ;
 		asp:asRules """
@@ -371,4 +375,5 @@ ajan:ASP {
 
 			sub_actions(CONN,STEP,S) :- S = #count{Y : action(_,CONN,_,_,STEP,Y), plugin_step(CONN,plugin_assemble_step(STEP))}, plugin_step(CONN,plugin_assemble_step(STEP)) .
 		"""^^xsd:string .
+
 }

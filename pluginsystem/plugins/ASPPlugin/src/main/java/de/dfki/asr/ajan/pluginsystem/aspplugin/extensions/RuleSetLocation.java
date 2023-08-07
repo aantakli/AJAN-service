@@ -22,8 +22,6 @@ package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import java.net.URI;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.pf4j.Extension;
@@ -34,10 +32,8 @@ import org.pf4j.Extension;
 public class RuleSetLocation implements NodeExtension {
 
     @RDF("bt:originBase")
-    @Getter @Setter
     private URI originBase;
 
 	@RDF("asp:ruleSet")
-    @Getter @Setter
     private URI rule;
 }
