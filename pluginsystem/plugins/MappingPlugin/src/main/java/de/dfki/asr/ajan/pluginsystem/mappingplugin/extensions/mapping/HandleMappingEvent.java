@@ -19,6 +19,7 @@
 package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.mapping;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import de.dfki.asr.ajan.behaviour.events.MappingEventInformation;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -61,6 +62,10 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
     @Setter
     private URI mapping;
 
+	@RDF("ajan:event")
+	@Getter @Setter
+	private URI event;
+
     @RDF("bt:validate")
     @Getter
     @Setter
@@ -94,6 +99,9 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
     protected boolean handleEvent() throws InputMappingException {
         boolean result = false;
         try {
+			if (!checkEventGoalMatching()) {
+				return result;
+			}
             Model model = getModel();
             if (!model.isEmpty()) {
                 if (constructQuery.getTargetBase().equals(new URI(AJANVocabulary.EXECUTION_KNOWLEDGE.toString()))) {
@@ -114,22 +122,38 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
     }
 
     protected Model getModel() throws RMLMapperException, URISyntaxException, JsonProcessingException, RuntimeException, IOException, TransformerException {
-        InputStream resourceStream = MappingUtil.getResourceStream(this.getObject().getEventInformation());
-        if (resourceStream != null) {
-            if (mapping != null) {
-				if (mapping.equals(new URI(MappingVocabulary.MIME_JSON.stringValue()))) {
-					return MappingUtil.getJSONStatementModel(resourceStream);
-				} else {
-					Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
-                return MappingUtil.getMappedModel(MappingUtil.getTriplesMaps(repo, mapping), resourceStream);
+		if (this.getObject().getEventInformation() instanceof MappingEventInformation) {
+			MappingEventInformation mappingEvent = (MappingEventInformation)this.getObject().getEventInformation();
+			InputStream resourceStream = MappingUtil.getResourceStream(mappingEvent.getObject());
+			if (resourceStream != null) {
+				if (mapping != null) {
+					if (mapping.equals(new URI(MappingVocabulary.MIME_JSON.stringValue()))) {
+						return MappingUtil.getJSONStatementModel(resourceStream);
+					} else {
+						Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
+					return MappingUtil.getMappedModel(MappingUtil.getTriplesMaps(repo, mapping), resourceStream);
+					}
 				}
-            }
-			else {
-				throw new RMLMapperException("no mapping file selected!");
+				else {
+					throw new RMLMapperException("no mapping file selected!");
+				}
 			}
-        }
-        return new LinkedHashModel();
-    }
+			return new LinkedHashModel();
+		}
+		else {
+			throw new RMLMapperException("Event not a MappingEvent!");
+		}
+	}
+
+	protected boolean checkEventGoalMatching() {
+		if (this.getObject().getEventInformation() instanceof MappingEventInformation) {
+			MappingEventInformation info = (MappingEventInformation)this.getObject().getEventInformation();
+			boolean eventMatching = event != null && event.toString().equals(((MappingEventInformation) info).getEvent());
+			boolean allEvents = event != null && event.toString().equals(AJANVocabulary.ALL.toString());
+			return event == null || eventMatching || allEvents;
+		}
+		return false;
+	}
 
     @Override
     public void end() {

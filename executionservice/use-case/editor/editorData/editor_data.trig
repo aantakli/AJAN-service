@@ -236,4 +236,26 @@
     rdfs:label "xsd:";
     rdfs:comment "";
     <http://www.ajan.de/behavior/editor-ns#uri> "http://www.w3.org/2001/XMLSchema#" .
+  
+  <http://www.ajan.de/behavior/editor-ns#itemmosim:> <http://www.ajan.de/behavior/editor-ns#id>
+      "mosim:";
+    rdfs:label "mosim:";
+    rdfs:comment "";
+    <http://www.ajan.de/behavior/editor-ns#uri> "http://www.dfki.de/mosim-ns#" .
+}
+
+<http://www.ajan.de/behavior/editor-ns#snippet> {
+  <http://www.ajan.de/behavior/editor-ns#itemcosim_query> <http://www.ajan.de/behavior/editor-ns#id>
+      "cosim_query";
+    rdfs:label "CoSim%20Subquery";
+    rdfs:comment "";
+    <http://www.ajan.de/behavior/editor-ns#shorthand> "cosim_query";
+    <http://www.ajan.de/behavior/editor-ns#replacement> "%7B%20SELECT%20?cosim%0A%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20?cosim%20rdf:type%20mosim:CoSimulator%20;%0A%09%20%20%20%20%20%20%20%20mosim:host%20?host%20;%0A%09%20%20%20%20%20%20%20%20mosim:port%20?port%20.%0A%20%20%20%20%20%20%7D%20LIMIT%201%0A%20%20%20%20%7D%0A%20%20%20%20%0A%20%20%20%20?cosim%20rdf:type%20mosim:CoSimulator%20;%0A%09%20%20%20%20%20%20%20%20mosim:host%20?host%20;%0A%09%20%20%20%20%20%20%20%20mosim:port%20?port%20." .
+  
+  <http://www.ajan.de/behavior/editor-ns#itemavatar_query> <http://www.ajan.de/behavior/editor-ns#id>
+      "avatar_query";
+    rdfs:label "AvatarID%20Subquery";
+    rdfs:comment "";
+    <http://www.ajan.de/behavior/editor-ns#shorthand> "avatar_query";
+    <http://www.ajan.de/behavior/editor-ns#replacement> "?avatar%20rdf:type%20mosim:Avatar%20;%0A%20%20%20%20%20%20%20%20mosim:id%20?avatarId%20." .
 }

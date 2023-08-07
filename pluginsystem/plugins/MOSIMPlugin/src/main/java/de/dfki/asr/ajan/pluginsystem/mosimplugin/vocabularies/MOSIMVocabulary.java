@@ -39,6 +39,7 @@ public class MOSIMVocabulary {
 	public final static IRI INSTRUCTION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#Instruction");
 	public final static IRI ABORT_INSTRUCTION = FACTORY.createIRI("http://www.dfki.de/mosim-ns#AbortInstruction");
 	public final static IRI PROPERTY = FACTORY.createIRI("http://www.dfki.de/mosim-ns#Property");
+	public final static IRI BOUNDERY_CONSTRAINTS = FACTORY.createIRI("http://www.dfki.de/mosim-ns#BounderyConstraints");
 
 	public final static IRI CONTAINS = FACTORY.createIRI("http://www.dfki.de/mosim-ns#contains");
 	public final static IRI HAS_AVATAR_ID = FACTORY.createIRI("http://www.dfki.de/mosim-ns#avatarID");

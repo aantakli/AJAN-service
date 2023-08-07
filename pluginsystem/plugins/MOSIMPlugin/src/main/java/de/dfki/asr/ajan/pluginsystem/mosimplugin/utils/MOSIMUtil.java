@@ -25,6 +25,7 @@ import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
+import de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.instructions.InstructionParameters;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.constraints.MConstraint;
 import de.mosim.mmi.constraints.MGeometryConstraint;
@@ -76,31 +77,30 @@ public final class MOSIMUtil {
 
 	private MOSIMUtil() {
 
-	}	
+	}
+
+	public static void setInstructionParameters() {
+		
+	}
 
 	public static MInstruction createMInstruction(
 										final String instID,
 										final String actionID,
-										final String mmu, 
-										final Map<String,String> properties, 
-										final List<MConstraint> constraints,
-										final String startCdt,
-										final String endCdt,
-										final String avatarId){
+										final InstructionParameters parameters){
 		MInstruction instruction = new MInstruction();
 		instruction.setID(instID);
 		instruction.setName(actionID);
-		instruction.setMotionType(mmu);
-		if (properties != null && !properties.isEmpty())
-			instruction.setProperties(properties);
-		if (constraints != null && !constraints.isEmpty())
-			instruction.setConstraints(constraints);
-		if (startCdt != null && !startCdt.equals(""))
-			instruction.setStartCondition(startCdt);
-		if (endCdt != null && !endCdt.equals(""))
-			instruction.setEndCondition(endCdt);
-		if (avatarId != null && !avatarId.equals(""))
-			instruction.setAvatarID(avatarId);
+		instruction.setMotionType(parameters.getMmu());
+		if (parameters.getProperties() != null && !parameters.getProperties().isEmpty())
+			instruction.setProperties(parameters.getInstProps());
+		if (parameters.getConstraints() != null && !parameters.getConstraints().isEmpty())
+			instruction.setConstraints(parameters.getMConstraints());
+		if (parameters.getStartCond() != null && !parameters.getStartCond().equals(""))
+			instruction.setStartCondition(parameters.getStartCond());
+		if (parameters.getEndCond() != null && !parameters.getEndCond().equals(""))
+			instruction.setEndCondition(parameters.getEndCond());
+		if (parameters.getAvatarID() != null && !parameters.getAvatarID().equals(""))
+			instruction.setAvatarID(parameters.getAvatarID());
 		return instruction;
 	}
 

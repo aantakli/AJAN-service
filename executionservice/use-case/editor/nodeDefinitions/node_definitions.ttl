@@ -397,7 +397,7 @@
         nd:mapsTo bt:query;
         nd:title "Ask Query";
 		nd:input nd:Query;
-		nd:default "ASK WHERE {?s ?p ?o}"^^xsd:string;
+		nd:default "ASK WHERE {?s ?p ?o}\n"^^xsd:string;
 		bt:originBase "true";
 		bt:targetBase "false";
 		nd:type bt:AskQuery;
@@ -1934,6 +1934,37 @@
         bt:originBase "true";
         bt:targetBase "false";
         nd:type bt:SelectQuery;
+    ] .
+
+:GetBoundaryConstraints nd:class nd:Leaf;
+	nd:category "MOSIM Nodes";
+	nd:name "GetBoundaryConstraints";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultGetBoundaryConstraints";
+    nd:type bt-mosim:GetBoundaryConstraints;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ddf2f7";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "walkPoint.png";
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt:targetBase;
+	    nd:title "Target Base";
+	    nd:input nd:Repo;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:instruction;
+	    nd:title "MMU Instruction";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
     ] .
 
 :PathAvailable nd:class nd:Leaf;

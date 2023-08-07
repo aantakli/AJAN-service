@@ -47,7 +47,7 @@ import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 
 @RDFBean("bt:Root")
-@SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.EmptyCatchBlock"})
+@SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.EmptyCatchBlock", "PMD.SystemPrintln"})
 public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNode, Listener {
 
 	private boolean block;

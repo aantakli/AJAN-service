@@ -1,0 +1,44 @@
+@prefix : <http://localhost:8090/rdf4j/repositories/agents#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fn: <http://www.w3.org/2005/xpath-functions#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sesame: <http://www.openrdf.org/schema/sesame#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix rdf4j: <http://rdf4j.org/schema/rdf4j#> .
+
+{
+  :EP_f49f426e-ecbf-4220-8a4f-4d97f675adf7 a ajan:Endpoint;
+    rdfs:label "Hyllis_BT Endpoint";
+    ajan:event :EV_1964a09a-2164-429e-b172-a115df7494bb;
+    ajan:capability "Hyllis_BT" .
+  
+  :FB_a3404485-99fa-4f6b-b9e4-0f9941ed3b48 a ajan:FinalBehavior;
+    rdfs:label "MOSIM FinalBehavior";
+    ajan:bt <http://localhost:8090/rdf4j/repositories/behaviors#FinalBehavior> .
+  
+  :BE_5dd235dd-3a77-4abe-94c6-8e4ff617b601 a ajan:Behavior;
+    ajan:trigger :EV_1964a09a-2164-429e-b172-a115df7494bb;
+    ajan:clearEKB false;
+    rdfs:label "Hyllis_BT Behavior";
+    ajan:bt <http://localhost:8090/rdf4j/repositories/behaviors#BT_d819aab2-805b-4c85-9b3e-f304d1c9957d> .
+  
+  :IB_b240f39b-5372-4941-9875-7f4ead70abe4 a ajan:InitialBehavior;
+    ajan:bt <http://localhost:8090/rdf4j/repositories/behaviors#InitialBehavior>;
+    rdfs:label "MOSIM InitialBehavior" .
+  
+  :AG_Hyllis_BT_ea5478e0-b527-4310-a9a4-762cbf9fbae4 a ajan:AgentTemplate;
+    rdfs:label "Hyllis_BT AgentTemplate";
+    ajan:agentInitKnowledge <http://localhost:8090/rdf4j/repositories/agents#AG_Hyllis_BT_ea5478e0-b527-4310-a9a4-762cbf9fbae4/InitKnowledge>;
+    ajan:event :EV_1964a09a-2164-429e-b172-a115df7494bb;
+    ajan:behavior :BE_5dd235dd-3a77-4abe-94c6-8e4ff617b601;
+    ajan:endpoint :EP_f49f426e-ecbf-4220-8a4f-4d97f675adf7;
+    ajan:initialBehavior :IB_b240f39b-5372-4941-9875-7f4ead70abe4;
+    ajan:finalBehavior :FB_a3404485-99fa-4f6b-b9e4-0f9941ed3b48 .
+  
+  :lubu :lubu :lubu_1 .
+  
+  :EV_1964a09a-2164-429e-b172-a115df7494bb a ajan:ModelEvent;
+    rdfs:label "Hyllis_BT Event" .
+}

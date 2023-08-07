@@ -100,7 +100,7 @@ public abstract class AbstractAsyncInstruction extends ThriftAction {
 		this.url = url;
 		instID = UUID.randomUUID().toString();
         LOG.info("Run " + this.getLable() + " with ID: " + id.toString());
-        readInput(inputModel, info);
+        InstructionParameters parameters = readInput(inputModel, info);
         setEvent(_event);
         currObject = this;
         thread = new Thread() {
@@ -109,7 +109,7 @@ public abstract class AbstractAsyncInstruction extends ThriftAction {
                 try {
                     handler = ThriftPluginServer.getHandler();
                     handler.register(id.toString(), currObject);
-                    executeOperation(id, info);
+                    executeOperation(id, info, parameters);
                 } catch (URISyntaxException | ConditionEvaluationException | LoadPredicateException | NullPointerException ex) {
                     LOG.error(toString() + " FAILED due to query evaluation error OR handler object is null. Cannot register Event.");
                 }
@@ -118,15 +118,15 @@ public abstract class AbstractAsyncInstruction extends ThriftAction {
         thread.start();
     }
 
-	protected abstract void readInput(final InputModel inputModel, final AgentTaskInformation info);
+	protected abstract InstructionParameters readInput(final InputModel inputModel, final AgentTaskInformation info);
 
-    protected void executeOperation(final UUID id, final AgentTaskInformation info) throws ConditionEvaluationException, URISyntaxException, LoadPredicateException {
+    protected void executeOperation(final UUID id, final AgentTaskInformation info, final InstructionParameters parameters) throws ConditionEvaluationException, URISyntaxException, LoadPredicateException {
         try {
-            try (TTransport transport = new TSocket(getCosimHost(),getCosimPort())) {
+            try (TTransport transport = new TSocket(parameters.getCosimHost(),parameters.getCosimPort())) {
 				transport.open();
 				TProtocol protocol = new TCompactProtocol(transport);
 				MCoSimulationAccess.Client client = new MCoSimulationAccess.Client(protocol);
-				performOperation(client, id.toString());
+				performOperation(client, id.toString(), parameters);
 				updateInfo(id,info);
 				transport.close();
 			}
@@ -141,9 +141,7 @@ public abstract class AbstractAsyncInstruction extends ThriftAction {
 		info.getAgentBeliefs().update(addModel, removeModel, false);
 	}
 
-	protected abstract boolean performOperation(final MCoSimulationAccess.Client client, final String actionID) throws TException;
-	protected abstract String getCosimHost();
-	protected abstract int getCosimPort();
+	protected abstract boolean performOperation(final MCoSimulationAccess.Client client, final String actionID, final InstructionParameters parameters) throws TException;
 	protected abstract Model getAddModel(final UUID id);
 	protected abstract Model getRemoveModel(final UUID id);
 	
