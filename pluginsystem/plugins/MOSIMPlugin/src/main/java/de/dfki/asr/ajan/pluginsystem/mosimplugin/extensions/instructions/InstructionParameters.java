@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import lombok.Data;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Value;
@@ -15,6 +16,7 @@ import org.eclipse.rdf4j.model.Value;
 public class InstructionParameters {
     private String mmu = "";
     private String actionName;
+	private String instID;
     private String finalEvent = "end";
     private ArrayList<Value> properties;
     private Map<String, String> instProps;
@@ -38,6 +40,9 @@ public class InstructionParameters {
 			if (finalEvent.isEmpty())
 				finalEvent = "end";
             actionName = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_ACTION_NAME);
+			instID = MOSIMUtil.getObject(inputModel, null, MOSIMVocabulary.HAS_INSTRUCTION_ID);
+			if (instID.isEmpty())
+				instID = UUID.randomUUID().toString();
             properties = MOSIMUtil.getObjects(inputModel, null, MOSIMVocabulary.HAS_MMU_PROPERTY);
             instProps = MOSIMUtil.createGeneralProperties(properties, inputModel);
             constraints = MOSIMUtil.getObjects(inputModel, null, MOSIMVocabulary.HAS_CONSTRAINT);

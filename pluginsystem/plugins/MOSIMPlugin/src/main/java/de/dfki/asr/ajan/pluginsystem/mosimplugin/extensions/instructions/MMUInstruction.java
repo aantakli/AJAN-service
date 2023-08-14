@@ -113,6 +113,7 @@ public class MMUInstruction extends AbstractInstruction {
     @Override
     protected InstructionParameters readInput(final InputModel inputModel, final AgentTaskInformation info) {
 		parameters = new InstructionParameters(inputModel);
+		instID = parameters.getInstID();
 		return parameters;
     }
 

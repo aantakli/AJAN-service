@@ -98,7 +98,6 @@ public abstract class AbstractAsyncInstruction extends ThriftAction {
     @Override
     public void run(InputModel inputModel, ModelEvent _event, UUID id, AgentTaskInformation info, String url) {
 		this.url = url;
-		instID = UUID.randomUUID().toString();
         LOG.info("Run " + this.getLable() + " with ID: " + id.toString());
         InstructionParameters parameters = readInput(inputModel, info);
         setEvent(_event);

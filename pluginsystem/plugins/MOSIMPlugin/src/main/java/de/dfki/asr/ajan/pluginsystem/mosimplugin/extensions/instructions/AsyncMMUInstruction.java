@@ -56,8 +56,7 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 	private String timeStamp = "";
 
 	private InstructionParameters parameters;
-        private MCoSimulationAccess.Client client;
-        private String actionID;
+    private String actionID;
 	private String instructionDef = "";
 
     private final static String CONSUME = 
@@ -127,31 +126,31 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 	@Override
     protected InstructionParameters readInput(final InputModel inputModel, final AgentTaskInformation info) {
 		parameters = new InstructionParameters(inputModel);
+		instID = parameters.getInstID();
 		return parameters;
     }
 
 	@Override
     protected boolean performOperation(final MCoSimulationAccess.Client client, final String actionID, final InstructionParameters parameters) throws TException {
-	this.client = client;
         this.actionID = actionID;
         if (parameters.getMmu().isEmpty()) 
             return false;
         LOG.info(parameters.getStartCond());
         if (parameters.getStartCond().equals("")) {
-            return assignInstruction();
+            return assignInstruction(client);
         } else {
+			LOG.info("just true");
             return true;
         }
 		
     }
    
-    private boolean assignInstruction() throws TException {
+    private boolean assignInstruction(final MCoSimulationAccess.Client client) throws TException {
         MInstruction instruction = MOSIMUtil.createMInstruction(instID, actionID, parameters);
-	instructionDef = MOSIMUtil.getInstructionDef(instruction);
-	Map<String, String> coSimProperties = new HashMap<>();
+		instructionDef = MOSIMUtil.getInstructionDef(instruction);
+		Map<String, String> coSimProperties = new HashMap<>();
         boolean result = client.AssignInstruction(instruction, coSimProperties).Successful;
         this.actionID = "";
-        this.client = null;
         return result;
     }
 
@@ -159,22 +158,30 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 	public void setResponse(String id, Object response) {
             if (response instanceof MSimulationEvent) {
                 MSimulationEvent event = (MSimulationEvent)response;
-                if (event.Type.equals(parameters.getFinalEvent()) && event.Reference.equals(instID)) {
-                    ResultModel model = new ResultModel();
-                    model.add(instRoot, RDF.TYPE, ACTNVocabulary.SUCCESS);
-                    getEvent().setEventInformation(id, model);
-                    instID = "";
-                } else if (event.Type.equals("initError") && event.Reference.equals(instID)) {
-                    ResultModel model = new ResultModel();
-                    model.add(instRoot, RDF.TYPE, ACTNVocabulary.FAULT);
-                    getEvent().setEventInformation(id, model);
-                    instID = "";
-                } else if (event.Type.equals("cylceEnd") && parameters.getStartCond().contains(event.Reference)) {
-                    try {
-                        assignInstruction();
+                if (event.Type.equals("cycleEnd") && parameters.getStartCond().contains(event.Reference)) {
+					LOG.info("Start Instruction bases con cycleEnd");
+                    try (TTransport transport = new TSocket(parameters.getCosimHost(), parameters.getCosimPort())) {
+						transport.open();
+						TProtocol protocol = new TCompactProtocol(transport);
+						assignInstruction(new MCoSimulationAccess.Client(protocol));
+						transport.close();
                     } catch (TException ex) {
                         Logger.getLogger(AsyncMMUInstruction.class.getName()).log(Level.SEVERE, null, ex);
+						ResultModel model = new ResultModel();
+						model.add(this.instRoot, RDF.TYPE, ACTNVocabulary.FAULT);
+						getEvent().setEventInformation(id, model);
+						this.instID = "";
                     }
+                } else if (event.Type.equals("initError") && instID.equals(event.Reference)) {
+                    ResultModel model = new ResultModel();
+                    model.add(this.instRoot, RDF.TYPE, ACTNVocabulary.FAULT);
+                    getEvent().setEventInformation(id, model);
+                    this.instID = "";
+                } else if (event.Type.equals(parameters.getFinalEvent()) && instID.equals(event.Reference)) {
+                    ResultModel model = new ResultModel();
+                    model.add(this.instRoot, RDF.TYPE, ACTNVocabulary.SUCCESS);
+                    getEvent().setEventInformation(id, model);
+                    this.instID = "";
                 }
             }
 	}
