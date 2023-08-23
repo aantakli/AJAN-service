@@ -727,7 +727,7 @@ mosim:Mapping {
 				a carml:Stream ;
 			] ;
 			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$.workers.[*].tasks.[*]"
+			rml:iterator "$.message.workers.[*].tasks.[*]"
 		] ;
 
 		rr:subjectMap [
@@ -756,7 +756,7 @@ mosim:Mapping {
 				a carml:Stream ;
 			] ;
 			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$.workers.[*].tasks.[*]"
+			rml:iterator "$.message.workers.[*].tasks.[*]"
 		] ;
 
 		rr:subjectMap [
@@ -785,7 +785,7 @@ mosim:Mapping {
 				a carml:Stream ;
 			] ;
 			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$.workers.[*].tasks.[*]"
+			rml:iterator "$.message.workers.[*].tasks.[*]"
 		] ;
 
 		rr:subjectMap [

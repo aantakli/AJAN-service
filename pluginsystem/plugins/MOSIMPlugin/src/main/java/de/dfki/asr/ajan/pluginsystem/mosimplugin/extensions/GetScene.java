@@ -190,8 +190,9 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 			entries = entries.replace("{", "");
 			entries = entries.replace("}", "");
 			String[] arrEntries = entries.split(",");
-			for (int i = 0; i < arrEntries.length; i++)
-				model.add(subject, MOSIMVocabulary.CONTAINS, getMSceneObjectIRI(arrEntries[i]));
+			for (String arrEntrie : arrEntries) {
+				model.add(subject, MOSIMVocabulary.CONTAINS, getMSceneObjectIRI(arrEntrie));
+			}
 		}
 	}
 
@@ -204,9 +205,7 @@ public class GetScene extends AbstractTDBLeafTask implements NodeExtension {
 			InputStream input = new ByteArrayInputStream(RDF.getBytes());
 			Model additionalRDF = Rio.parse(input, "", RDFFormat.TURTLE);
 			Iterable<Statement> stmts = additionalRDF.getStatements(null, null, null);
-			Iterator<Statement> itr = stmts.iterator();
-			while (itr.hasNext()) {
-				Statement stmt = itr.next();
+			for (Statement stmt : stmts) {
 				if (stmt.getSubject().equals(vf.createIRI("http://www.dfki.de/mosim-ns#This"))) {
 					model.add(subject, stmt.getPredicate(), stmt.getObject());
 				} else {
