@@ -50,44 +50,58 @@
   :AG_b644622a-8ae7-4d1a-ab01-e2064676051b a ajan:AgentTemplate;
     ajan:event :GO_8326d6c1-ba6f-49a2-be93-681be7a7e08a, :EV_3628414b-3ceb-499a-a8b1-ba954da0b502,
       :GO_d5301979-9c01-4f0b-a5cc-115b892d7412, :GO_eabff0eb-81cd-497c-af8d-2c7c4a7e0f78,
-      :GO_20f1c46f-e84f-4fa9-8464-1732705e5303;
+      :GO_20f1c46f-e84f-4fa9-8464-1732705e5303, :GO_27ab3d8d-5234-486b-8684-5569bb14a12d,
+      :GO_3389ab9e-bc3b-47a2-a08c-055f3ffd15f5;
     ajan:agentInitKnowledge <http://localhost:8090/rdf4j/repositories/agents#AG_b644622a-8ae7-4d1a-ab01-e2064676051b/InitKnowledge>;
     ajan:endpoint :EP_14d873ec-8f2b-4683-88f2-8a9b9757ca1b;
     ajan:initialBehavior :IB_b240f39b-5372-4941-9875-7f4ead70abe4;
     ajan:finalBehavior :FB_a3404485-99fa-4f6b-b9e4-0f9941ed3b48;
     ajan:behavior :BE_bc789f42-001e-4364-ac5e-f5a052aac64a, :BE_a1905f51-7780-4ad5-882c-171687513741,
       :BE_1dd4894c-e186-4dea-b70a-a9e326c63d75, :BE_586bc906-2a06-4f17-b622-ef1383889768,
-      :BE_1e106096-e904-48b5-ae7e-54de232d76d6;
+      :BE_1e106096-e904-48b5-ae7e-54de232d76d6, :BE_3ae14fc1-ad51-465a-b12a-33ea67ea73ac,
+      :BE_e9abf478-1300-4539-9300-f05280119514;
     rdfs:label "Tasklist AgentTemplate" .
   
   :GO_8326d6c1-ba6f-49a2-be93-681be7a7e08a a ajan:Goal;
     rdfs:label "Position Goal";
-    <http://www.ajan.de/actn#consumes> _:genid-e10b13df6b5345f180ecd782afcef337-b1163;
-    <http://www.ajan.de/actn#produces> _:genid-e10b13df6b5345f180ecd782afcef337-b1164;
-    <http://www.ajan.de/actn#variables> _:genid-e10b13df6b5345f180ecd782afcef337-b1160 .
+    <http://www.ajan.de/actn#consumes> _:genid-70ba77868c54426aa75b102140d7a277-b1315;
+    <http://www.ajan.de/actn#produces> _:genid-70ba77868c54426aa75b102140d7a277-b1316;
+    <http://www.ajan.de/actn#variables> _:genid-70ba77868c54426aa75b102140d7a277-b1309 .
   
-  _:genid-e10b13df6b5345f180ecd782afcef337-b1156 a <http://www.ajan.de/actn#Consumable>;
-    <http://www.ajan.de/actn#sparql> "ASK WHERE { ?s ?p ?o }" .
+  _:genid-70ba77868c54426aa75b102140d7a277-b1292 rdf:first _:genid-70ba77868c54426aa75b102140d7a277-b1293;
+    rdf:rest _:genid-70ba77868c54426aa75b102140d7a277-b1294 .
   
-  _:genid-e10b13df6b5345f180ecd782afcef337-b1157 rdf:first _:genid-e10b13df6b5345f180ecd782afcef337-b1158;
-    rdf:rest _:genid-e10b13df6b5345f180ecd782afcef337-b1159 .
-  
-  _:genid-e10b13df6b5345f180ecd782afcef337-b1160 rdf:first _:genid-e10b13df6b5345f180ecd782afcef337-b1161;
-    rdf:rest _:genid-e10b13df6b5345f180ecd782afcef337-b1162 .
-  
-  _:genid-e10b13df6b5345f180ecd782afcef337-b1161 a <http://www.ajan.de/actn#ActionVariable>;
+  _:genid-70ba77868c54426aa75b102140d7a277-b1293 a <http://www.ajan.de/actn#ActionVariable>;
     <http://spinrdf.org/sp#varName> "s" .
   
-  _:genid-e10b13df6b5345f180ecd782afcef337-b1163 a <http://www.ajan.de/actn#Consumable>;
+  _:genid-70ba77868c54426aa75b102140d7a277-b1295 a <http://www.ajan.de/actn#Producible>;
+    <http://www.ajan.de/actn#sparql> "ASK WHERE { ?s ?p ?o }" .
+  
+  _:genid-70ba77868c54426aa75b102140d7a277-b1296 rdf:first _:genid-70ba77868c54426aa75b102140d7a277-b1297;
+    rdf:rest _:genid-70ba77868c54426aa75b102140d7a277-b1298 .
+  
+  _:genid-70ba77868c54426aa75b102140d7a277-b1297 a <http://www.ajan.de/actn#ActionVariable>;
+    <http://spinrdf.org/sp#varName> "s" .
+  
+  _:genid-70ba77868c54426aa75b102140d7a277-b1299 a <http://www.ajan.de/actn#Consumable>;
+    <http://www.ajan.de/actn#sparql> "ASK WHERE { ?s ?p ?o }" .
+  
+  _:genid-70ba77868c54426aa75b102140d7a277-b1300 a <http://www.ajan.de/actn#Producible>;
     <http://www.ajan.de/actn#sparql> "ASK WHERE { ?s ?p ?o }" .
   
   :GO_eabff0eb-81cd-497c-af8d-2c7c4a7e0f78 a ajan:Goal;
     rdfs:label "Walk Goal";
-    <http://www.ajan.de/actn#consumes> _:genid-e10b13df6b5345f180ecd782afcef337-b1156;
-    <http://www.ajan.de/actn#produces> _:genid-e10b13df6b5345f180ecd782afcef337-b1165;
-    <http://www.ajan.de/actn#variables> _:genid-e10b13df6b5345f180ecd782afcef337-b1157 .
+    <http://www.ajan.de/actn#consumes> _:genid-70ba77868c54426aa75b102140d7a277-b1305;
+    <http://www.ajan.de/actn#produces> _:genid-70ba77868c54426aa75b102140d7a277-b1295;
+    <http://www.ajan.de/actn#variables> _:genid-70ba77868c54426aa75b102140d7a277-b1306 .
   
-  _:genid-e10b13df6b5345f180ecd782afcef337-b1164 a <http://www.ajan.de/actn#Producible>;
+  _:genid-70ba77868c54426aa75b102140d7a277-b1301 a <http://www.ajan.de/actn#Consumable>;
+    <http://www.ajan.de/actn#sparql> "ASK WHERE { ?s ?p ?o }" .
+  
+  _:genid-70ba77868c54426aa75b102140d7a277-b1302 rdf:first _:genid-70ba77868c54426aa75b102140d7a277-b1303;
+    rdf:rest _:genid-70ba77868c54426aa75b102140d7a277-b1304 .
+  
+  _:genid-70ba77868c54426aa75b102140d7a277-b1305 a <http://www.ajan.de/actn#Consumable>;
     <http://www.ajan.de/actn#sparql> "ASK WHERE { ?s ?p ?o }" .
   
   :BE_a1905f51-7780-4ad5-882c-171687513741 a ajan:Behavior;
@@ -107,21 +121,24 @@
   
   :GO_d5301979-9c01-4f0b-a5cc-115b892d7412 a ajan:Goal;
     rdfs:label "Insert Goal";
-    <http://www.ajan.de/actn#consumes> _:genid-e10b13df6b5345f180ecd782afcef337-b1169;
-    <http://www.ajan.de/actn#produces> _:genid-e10b13df6b5345f180ecd782afcef337-b1170;
-    <http://www.ajan.de/actn#variables> _:genid-e10b13df6b5345f180ecd782afcef337-b1166 .
+    <http://www.ajan.de/actn#consumes> _:genid-70ba77868c54426aa75b102140d7a277-b1299;
+    <http://www.ajan.de/actn#produces> _:genid-70ba77868c54426aa75b102140d7a277-b1300;
+    <http://www.ajan.de/actn#variables> _:genid-70ba77868c54426aa75b102140d7a277-b1296 .
   
-  _:genid-e10b13df6b5345f180ecd782afcef337-b1158 a <http://www.ajan.de/actn#ActionVariable>;
+  _:genid-70ba77868c54426aa75b102140d7a277-b1306 rdf:first _:genid-70ba77868c54426aa75b102140d7a277-b1307;
+    rdf:rest _:genid-70ba77868c54426aa75b102140d7a277-b1308 .
+  
+  _:genid-70ba77868c54426aa75b102140d7a277-b1307 a <http://www.ajan.de/actn#ActionVariable>;
     <http://spinrdf.org/sp#varName> "s" .
   
-  _:genid-e10b13df6b5345f180ecd782afcef337-b1165 a <http://www.ajan.de/actn#Producible>;
+  _:genid-70ba77868c54426aa75b102140d7a277-b1309 rdf:first _:genid-70ba77868c54426aa75b102140d7a277-b1310;
+    rdf:rest _:genid-70ba77868c54426aa75b102140d7a277-b1311 .
+  
+  _:genid-70ba77868c54426aa75b102140d7a277-b1312 a <http://www.ajan.de/actn#Consumable>;
     <http://www.ajan.de/actn#sparql> "ASK WHERE { ?s ?p ?o }" .
   
-  _:genid-e10b13df6b5345f180ecd782afcef337-b1166 rdf:first _:genid-e10b13df6b5345f180ecd782afcef337-b1167;
-    rdf:rest _:genid-e10b13df6b5345f180ecd782afcef337-b1168 .
-  
-  _:genid-e10b13df6b5345f180ecd782afcef337-b1167 a <http://www.ajan.de/actn#ActionVariable>;
-    <http://spinrdf.org/sp#varName> "s" .
+  _:genid-70ba77868c54426aa75b102140d7a277-b1313 a <http://www.ajan.de/actn#Producible>;
+    <http://www.ajan.de/actn#sparql> "ASK WHERE { ?s ?p ?o }" .
   
   :BE_1dd4894c-e186-4dea-b70a-a9e326c63d75 a ajan:Behavior;
     ajan:clearEKB false;
@@ -129,17 +146,26 @@
     rdfs:label "Insert Behavior";
     ajan:bt <http://localhost:8090/rdf4j/repositories/behaviors#BT_22621130-8400-4e6f-92f0-49c957777c0e> .
   
-  _:genid-e10b13df6b5345f180ecd782afcef337-b1169 a <http://www.ajan.de/actn#Consumable>;
-    <http://www.ajan.de/actn#sparql> "ASK WHERE { ?s ?p ?o }" .
+  _:genid-70ba77868c54426aa75b102140d7a277-b1303 a <http://www.ajan.de/actn#ActionVariable>;
+    <http://spinrdf.org/sp#varName> "s" .
   
   :GO_20f1c46f-e84f-4fa9-8464-1732705e5303 a ajan:Goal;
-    <http://www.ajan.de/actn#variables> _:genid-e10b13df6b5345f180ecd782afcef337-BDC2AEAF80CF6025F689BF577FBA9064;
     rdfs:label "Carry Goal";
-    <http://www.ajan.de/actn#consumes> _:genid-e10b13df6b5345f180ecd782afcef337-B3B69C7D8AC5D9CA30C9DF7C5543908F;
-    <http://www.ajan.de/actn#produces> _:genid-e10b13df6b5345f180ecd782afcef337-732855AC6C3A21BC477D960EA187FC83 .
+    <http://www.ajan.de/actn#consumes> _:genid-70ba77868c54426aa75b102140d7a277-b1301;
+    <http://www.ajan.de/actn#produces> _:genid-70ba77868c54426aa75b102140d7a277-b1314;
+    <http://www.ajan.de/actn#variables> _:genid-70ba77868c54426aa75b102140d7a277-b1302 .
   
-  _:genid-e10b13df6b5345f180ecd782afcef337-b1170 a <http://www.ajan.de/actn#Producible>;
+  :GO_27ab3d8d-5234-486b-8684-5569bb14a12d a ajan:Goal;
+    <http://www.ajan.de/actn#consumes> _:genid-70ba77868c54426aa75b102140d7a277-b1312;
+    rdfs:label "Place Goal";
+    <http://www.ajan.de/actn#produces> _:genid-70ba77868c54426aa75b102140d7a277-b1313;
+    <http://www.ajan.de/actn#variables> _:genid-70ba77868c54426aa75b102140d7a277-b1292 .
+  
+  _:genid-70ba77868c54426aa75b102140d7a277-b1314 a <http://www.ajan.de/actn#Producible>;
     <http://www.ajan.de/actn#sparql> "ASK WHERE { ?s ?p ?o }" .
+  
+  _:genid-70ba77868c54426aa75b102140d7a277-b1310 a <http://www.ajan.de/actn#ActionVariable>;
+    <http://spinrdf.org/sp#varName> "s" .
   
   :BE_586bc906-2a06-4f17-b622-ef1383889768 a ajan:Behavior;
     ajan:clearEKB false;
@@ -147,14 +173,10 @@
     rdfs:label "Walk Behavior";
     ajan:bt <http://localhost:8090/rdf4j/repositories/behaviors#BT_5d13854a-d438-4b75-b6d7-e897f91b5e26> .
   
-  _:genid-e10b13df6b5345f180ecd782afcef337-BDC2AEAF80CF6025F689BF577FBA9064 rdf:first
-      _:genid-e10b13df6b5345f180ecd782afcef337-239E9BA53EA91AEA7E34E30C9EBAC4C8;
-    rdf:rest _:genid-e10b13df6b5345f180ecd782afcef337-E3DEA15826575AD46FA667179ED9180C .
+  _:genid-70ba77868c54426aa75b102140d7a277-b1315 a <http://www.ajan.de/actn#Consumable>;
+    <http://www.ajan.de/actn#sparql> "ASK WHERE { ?s ?p ?o }" .
   
-  _:genid-e10b13df6b5345f180ecd782afcef337-239E9BA53EA91AEA7E34E30C9EBAC4C8 a <http://www.ajan.de/actn#ActionVariable>;
-    <http://spinrdf.org/sp#varName> "s" .
-  
-  _:genid-e10b13df6b5345f180ecd782afcef337-B3B69C7D8AC5D9CA30C9DF7C5543908F a <http://www.ajan.de/actn#Consumable>;
+  _:genid-70ba77868c54426aa75b102140d7a277-b1316 a <http://www.ajan.de/actn#Producible>;
     <http://www.ajan.de/actn#sparql> "ASK WHERE { ?s ?p ?o }" .
   
   :BE_1e106096-e904-48b5-ae7e-54de232d76d6 a ajan:Behavior;
@@ -163,6 +185,34 @@
     rdfs:label "Carry Behavior";
     ajan:trigger :GO_20f1c46f-e84f-4fa9-8464-1732705e5303 .
   
-  _:genid-e10b13df6b5345f180ecd782afcef337-732855AC6C3A21BC477D960EA187FC83 a <http://www.ajan.de/actn#Producible>;
+  :GO_3389ab9e-bc3b-47a2-a08c-055f3ffd15f5 a ajan:Goal;
+    <http://www.ajan.de/actn#variables> _:genid-70ba77868c54426aa75b102140d7a277-D0C9B4F63F9B92482F9AA814AF455848;
+    rdfs:label "Retrieve Goal";
+    <http://www.ajan.de/actn#consumes> _:genid-70ba77868c54426aa75b102140d7a277-CC914DB776A1FEB64823F74B39D4354B;
+    <http://www.ajan.de/actn#produces> _:genid-70ba77868c54426aa75b102140d7a277-0FB8832347E2FCB1D1425E36F7499A95 .
+  
+  :BE_3ae14fc1-ad51-465a-b12a-33ea67ea73ac a ajan:Behavior;
+    ajan:clearEKB false;
+    ajan:trigger :GO_27ab3d8d-5234-486b-8684-5569bb14a12d;
+    rdfs:label "Place Behavior";
+    ajan:bt <http://localhost:8090/rdf4j/repositories/behaviors#BT_ce4318f1-79c5-4bde-b0f6-760ed0e9b737> .
+  
+  _:genid-70ba77868c54426aa75b102140d7a277-D0C9B4F63F9B92482F9AA814AF455848 rdf:first
+      _:genid-70ba77868c54426aa75b102140d7a277-95A6882E1490A09AC25B9E17DED10BE9;
+    rdf:rest _:genid-70ba77868c54426aa75b102140d7a277-2E9C5C7AA959315B14F72AF228B93889 .
+  
+  _:genid-70ba77868c54426aa75b102140d7a277-95A6882E1490A09AC25B9E17DED10BE9 a <http://www.ajan.de/actn#ActionVariable>;
+    <http://spinrdf.org/sp#varName> "s" .
+  
+  _:genid-70ba77868c54426aa75b102140d7a277-CC914DB776A1FEB64823F74B39D4354B a <http://www.ajan.de/actn#Consumable>;
+    <http://www.ajan.de/actn#sparql> "ASK WHERE { ?s ?p ?o }" .
+  
+  :BE_e9abf478-1300-4539-9300-f05280119514 a ajan:Behavior;
+    ajan:clearEKB false;
+    ajan:trigger :GO_3389ab9e-bc3b-47a2-a08c-055f3ffd15f5;
+    rdfs:label "Retrieve Behavior";
+    ajan:bt <http://localhost:8090/rdf4j/repositories/behaviors#BT_01729c17-97ba-4779-b818-9511d3c02a6d> .
+  
+  _:genid-70ba77868c54426aa75b102140d7a277-0FB8832347E2FCB1D1425E36F7499A95 a <http://www.ajan.de/actn#Producible>;
     <http://www.ajan.de/actn#sparql> "ASK WHERE { ?s ?p ?o }" .
 }
