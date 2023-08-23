@@ -149,7 +149,7 @@ public class RDFAgentBuilder extends AgentBuilder {
     }
 
     protected AgentBeliefBase createAgentKnowledge(final Resource agentTemplateRsc, final Credentials auth) throws UnauthorizedException, URISyntaxException {
-        AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,managedTDB,Inferencing.NONE,auth));
+        AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,managedTDB,Inferencing.RDFS_SPIN,auth));
         try {
             addAgentInformationToKnowledge(beliefs);
             reportURI = modelManager.getAnyURI(initialKnowledge, AJANVocabulary.AGENT_HAS_REPORT_URI);
