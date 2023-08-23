@@ -87,6 +87,7 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 			try {
 				produceGoal();
 			} catch (EventEvaluationException | AJANBindingsException | URISyntaxException | ConditionEvaluationException ex) {
+				goalStatus = Status.FAILED;
 				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED", ex);
 			}
 		} else if (!goalStatus.equals(Status.RUNNING)) {
