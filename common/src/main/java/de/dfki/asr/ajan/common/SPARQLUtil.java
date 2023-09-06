@@ -210,11 +210,11 @@ public final class SPARQLUtil {
 		}
 		String minInsert = query;
 		String select = "SELECT DISTINCT * ";
-		if (upper.contains("DELETE")) {
+		if (upper.contains("DELETE {")) {
 			minInsert = minInsert.replaceAll(DELETE,select);
 			select = "";
 		}
-		if (upper.contains("INSERT")) {
+		if (upper.contains("INSERT {")) {
 			minInsert = minInsert.replaceAll(INSERT,select);
 		}
 		return minInsert;
