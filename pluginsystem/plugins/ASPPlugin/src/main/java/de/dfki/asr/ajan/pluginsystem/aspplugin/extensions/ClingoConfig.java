@@ -92,10 +92,11 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 	}
 
 	private boolean executeSolver(Problem problem, final int i) throws ClingoException {
+		LOG.debug("Execute Solver");
 		StringBuilder solverCommandLine = new StringBuilder();
 		solverCommandLine.append(getCommandLineForSolver());
 		solverCommandLine.append(" --verbose=0");
-		solverCommandLine.append(" --models ").append(getModels().toString());
+		//solverCommandLine.append(" --models=").append(getModels().toString());
 		solverCommandLine.append(" --const maxtime=").append(i);
 		addCommandLines(solverCommandLine);
 		boolean stat = false;
@@ -121,6 +122,7 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 
 	
 	private boolean executeInternalSolver(Problem problem, final int i) {
+		LOG.debug("Execute internal Solver");
 		ArrayList<String> facts = new ArrayList();
 		boolean stat = false;
 		int models = getModels();
