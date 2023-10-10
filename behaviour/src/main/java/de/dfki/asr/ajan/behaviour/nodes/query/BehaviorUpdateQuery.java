@@ -19,12 +19,9 @@
 
 package de.dfki.asr.ajan.behaviour.nodes.query;
 
-import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
-import de.dfki.asr.ajan.common.SPARQLUtil;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
@@ -34,12 +31,9 @@ import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RDFBean("bt:UpdateQuery")
 @Data
@@ -53,7 +47,6 @@ public class BehaviorUpdateQuery implements BehaviorQuery {
 	private List<BindingSet> bindings;
 	private Boolean reset = false;
 	private final ValueFactory vf = SimpleValueFactory.getInstance();
-	private static final Logger LOG = LoggerFactory.getLogger(BTRoot.class);
 
 	@Override
 	@SuppressWarnings("PMD.AvoidCatchingGenericException")
@@ -61,16 +54,6 @@ public class BehaviorUpdateQuery implements BehaviorQuery {
 		reset = false;
 		result = true;
 		try (RepositoryConnection conn = repo.getConnection()) {
-			try {
-				String queryString = SPARQLUtil.getSelectQueryFromUpdate(this.getSparql());
-				TupleQueryResult list = conn.prepareTupleQuery(queryString).evaluate();
-				bindings = new ArrayList();
-				while (list.hasNext()) {
-					bindings.add(list.next());
-				}
-			} catch (Exception ex) {
-				LOG.info("Empty Bindings.");
-			}
 			Update updateQuery = conn.prepareUpdate(this.getSparql());
 			updateQuery.execute();
 		} catch (Exception ex) {

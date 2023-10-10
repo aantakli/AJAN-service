@@ -25,6 +25,7 @@ import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
+import de.dfki.asr.ajan.pluginsystem.mosimplugin.endpoint.MAJANServiceHandler;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.instructions.InstructionParameters;
 import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.constraints.MConstraint;
@@ -66,6 +67,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -74,6 +76,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 public final class MOSIMUtil {
 	
 	protected final static ValueFactory vf = SimpleValueFactory.getInstance();
+	protected static final org.slf4j.Logger LOG = LoggerFactory.getLogger(MOSIMUtil.class);
 
 	private MOSIMUtil() {
 
@@ -95,10 +98,14 @@ public final class MOSIMUtil {
 			instruction.setProperties(parameters.getInstProps());
 		if (parameters.getConstraints() != null && !parameters.getConstraints().isEmpty())
 			instruction.setConstraints(parameters.getMConstraints());
-		if (parameters.getStartCond() != null && !parameters.getStartCond().equals(""))
+		if (parameters.getStartCond() != null && !parameters.getStartCond().equals("")) {
+			LOG.info(parameters.getStartCond());
 			instruction.setStartCondition(parameters.getStartCond());
-		if (parameters.getEndCond() != null && !parameters.getEndCond().equals(""))
+		}
+		if (parameters.getEndCond() != null && !parameters.getEndCond().equals("")) {
+			LOG.info(parameters.getEndCond());
 			instruction.setEndCondition(parameters.getEndCond());
+		}
 		if (parameters.getAvatarID() != null && !parameters.getAvatarID().equals(""))
 			instruction.setAvatarID(parameters.getAvatarID());
 		return instruction;

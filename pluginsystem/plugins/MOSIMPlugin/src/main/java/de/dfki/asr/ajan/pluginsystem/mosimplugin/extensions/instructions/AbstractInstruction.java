@@ -116,7 +116,6 @@ public abstract class AbstractInstruction extends ThriftAction {
                 transport.open();
                 TProtocol protocol = new TCompactProtocol(transport);
                 MCoSimulationAccess.Client client = new MCoSimulationAccess.Client(protocol);
-                instID = UUID.randomUUID().toString();
                 performOperation(client, actionID, parameters);
                 transport.close();
             }

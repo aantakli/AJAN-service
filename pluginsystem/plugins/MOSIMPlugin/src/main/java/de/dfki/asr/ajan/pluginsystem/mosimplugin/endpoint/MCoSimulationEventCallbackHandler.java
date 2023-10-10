@@ -44,15 +44,13 @@ public class MCoSimulationEventCallbackHandler implements MCoSimulationEventCall
 	@Override
 	public void OnEvent(MCoSimulationEvents event) throws TException {
 		event.getEvents().forEach((simEvent) -> {
-			String actionID = simEvent.Name;
 			LOG.info("OnEvent name: " + simEvent.Name);
 			LOG.info("OnEvent type: " + simEvent.Type);
 			LOG.info("OnEvent reference: " + simEvent.Reference);
 			LOG.info("Received Event: "+ simEvent);
-			if (simEvent.Type.equals("end")
-                                        || simEvent.Type.equals("cycleEnd")
-					|| simEvent.Type.equals("initError")
-					|| simEvent.Type.equals("PositioningFinished")) {
+			if ("end".equals(simEvent.Type)
+					|| "initError".equals(simEvent.Type)
+					|| "PositioningFinished".equals(simEvent.Type)) {
 				actions.forEach((k,v) -> {
 					v.setResponse(k, simEvent);
 				});

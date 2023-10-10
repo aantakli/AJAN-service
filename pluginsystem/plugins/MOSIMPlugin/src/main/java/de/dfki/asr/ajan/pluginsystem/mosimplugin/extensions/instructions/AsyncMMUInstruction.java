@@ -29,13 +29,16 @@ import de.dfki.asr.ajan.pluginsystem.mosimplugin.vocabularies.MOSIMVocabulary;
 import de.mosim.mmi.mmu.MInstruction;
 import de.mosim.mmi.cosim.MCoSimulationAccess;
 import de.mosim.mmi.mmu.MSimulationEvent;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -56,8 +59,7 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 	private String timeStamp = "";
 
 	private InstructionParameters parameters;
-        private MCoSimulationAccess.Client client;
-        private String actionID;
+    private String actionID;
 	private String instructionDef = "";
 
     private final static String CONSUME = 
@@ -127,58 +129,63 @@ public class AsyncMMUInstruction extends AbstractAsyncInstruction {
 	@Override
     protected InstructionParameters readInput(final InputModel inputModel, final AgentTaskInformation info) {
 		parameters = new InstructionParameters(inputModel);
+		instID = parameters.getInstID();
 		return parameters;
     }
 
 	@Override
     protected boolean performOperation(final MCoSimulationAccess.Client client, final String actionID, final InstructionParameters parameters) throws TException {
-	this.client = client;
         this.actionID = actionID;
         if (parameters.getMmu().isEmpty()) 
             return false;
-        LOG.info(parameters.getStartCond());
-        if (parameters.getStartCond().equals("")) {
-            return assignInstruction();
-        } else {
-            return true;
-        }
-		
+        return assignInstruction(client);
     }
    
-    private boolean assignInstruction() throws TException {
+    private boolean assignInstruction(final MCoSimulationAccess.Client client) throws TException {
         MInstruction instruction = MOSIMUtil.createMInstruction(instID, actionID, parameters);
-	instructionDef = MOSIMUtil.getInstructionDef(instruction);
-	Map<String, String> coSimProperties = new HashMap<>();
+		instructionDef = MOSIMUtil.getInstructionDef(instruction);
+		LOG.info(instructionDef);
+		//logInstruction(instructionDef);
+		Map<String, String> coSimProperties = new HashMap<>();
         boolean result = client.AssignInstruction(instruction, coSimProperties).Successful;
         this.actionID = "";
-        this.client = null;
         return result;
     }
 
-	@Override
-	public void setResponse(String id, Object response) {
-            if (response instanceof MSimulationEvent) {
-                MSimulationEvent event = (MSimulationEvent)response;
-                if (event.Type.equals(parameters.getFinalEvent()) && event.Reference.equals(instID)) {
-                    ResultModel model = new ResultModel();
-                    model.add(instRoot, RDF.TYPE, ACTNVocabulary.SUCCESS);
-                    getEvent().setEventInformation(id, model);
-                    instID = "";
-                } else if (event.Type.equals("initError") && event.Reference.equals(instID)) {
-                    ResultModel model = new ResultModel();
-                    model.add(instRoot, RDF.TYPE, ACTNVocabulary.FAULT);
-                    getEvent().setEventInformation(id, model);
-                    instID = "";
-                } else if (event.Type.equals("cylceEnd") && parameters.getStartCond().contains(event.Reference)) {
-                    try {
-                        assignInstruction();
-                    } catch (TException ex) {
-                        Logger.getLogger(AsyncMMUInstruction.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
+	private void logInstruction(String instructionDef) {
+		File logs = new File(getClass().getClassLoader().getResource("instructions.txt").getFile());
+		try {
+			try (FileWriter fr = new FileWriter(logs, true); 
+					BufferedWriter br = new BufferedWriter(fr); 
+					PrintWriter pr = new PrintWriter(br)) {
+				pr.println(instructionDef);
+			}
+		} catch (IOException ex) {
+			return;
+		}
 	}
 
+	@Override
+	public void setResponse(String id, Object response) {
+		if (response instanceof MSimulationEvent) {
+			MSimulationEvent event = (MSimulationEvent)response;
+			if ("PositioningFinished".equals(event.Type) && instID.equals(event.Reference)) {
+				setResult(id, ACTNVocabulary.SUCCESS);
+			} else if ("initError".equals(event.Type) && instID.equals(event.Reference)) {
+				setResult(id, ACTNVocabulary.FAULT);
+			} else if (parameters.getFinalEvent().equals(event.Type) && instID.equals(event.Reference)) {
+				setResult(id, ACTNVocabulary.SUCCESS);
+			}
+		}
+	}
+
+	private void setResult(String id, IRI object) {
+		ResultModel model = new ResultModel();
+		model.add(this.instRoot, RDF.TYPE, object);
+		getEvent().setEventInformation(id, model);
+		this.instID = "";
+	}
+	
 	@Override
 	protected Model getAddModel(final UUID id) {
 		instRoot = vf.createBNode();
