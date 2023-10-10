@@ -78,7 +78,7 @@ public class ParameterAgentBuilder extends RDFAgentBuilder {
     @Override
     public Agent build() throws URISyntaxException {
             LOG.info("Creating agent with ID: " + id);
-            inferencing = Inferencing.RDFS_SPIN;
+            inferencing = Inferencing.NONE;
             connections = new ConcurrentHashMap<>();
             url = getAgentURI();
             agentTemplateModel = modelManager.getTemplateFromTDB(agentRepo, template);
