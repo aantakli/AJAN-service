@@ -2150,6 +2150,224 @@
             nd:input xsd:string;
             nd:title "Solver Name:";
         ].
+
+# --------------- MDP Plugin - POMDP Nodes-------------------
+:CreateState nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "CreateState";
+    nd:labelType nd:Dynamic;
+    rdfs:label "CreateDefaultState";
+    nd:type bt-mdp:CreateState;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Ellipse;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "mqtt_broker.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdpId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "POMDP ID";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:stateName;
+        nd:input xsd:string;
+        nd:default ""^^xsd:string;
+        nd:title "Name";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:stateId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "State ID";
+    ];
+    nd:list
+    [
+        a nd:List;
+        nd:mapsTo bt-mdp:state-attributes;
+        nd:title "Attributes";
+        nd:parameterSet [
+            a nd:ParameterSet;
+            nd:title "AttributeSet";
+            nd:type bt-mdp:state-attributes;
+            nd:parameters([
+                    a nd:Parameter;
+                    nd:mapsTo bt-mdp:state-attribute-name;
+                    nd:input xsd:string;
+                    nd:default ""^^xsd:string;
+                    nd:title "Attr.Name"
+                ][
+                    a nd:Parameter;
+                    nd:mapsTo bt-mdp:state-attribute-value;
+                    nd:input xsd:string;
+                    nd:default ""^^xsd:string;
+                    nd:title "Attr.Value"
+                ])
+        ]
+    ];
+    nd:list
+    [
+            a nd:List;
+            nd:mapsTo bt-mdp:state-print-values;
+            nd:title "Include in State Representation";
+            nd:parameter [
+                a nd:Parameter;
+                nd:input xsd:string ;
+                nd:title "Attribute Key Name";
+                ];
+    ].
+
+:CreateAction nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "CreateAction";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultPOMDPState";
+    nd:type bt-mdp:CreateAction;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+                       nd:shape nd:Ellipse;
+                       nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+                       nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "mqtt_broker.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:action-name;
+        nd:title "Name";
+        nd:input xsd:string;
+        nd:default ""^^xsd:string;
+    ].
+
+
+:InitializePOMDP nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "InitializePOMDP";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultPOMDPInitialization";
+    nd:type bt-mdp:InitializePOMDP;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "mqtt_broker.png";
+    ];
+     nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo bt-mdp:pomdpId;
+            nd:input xsd:int;
+            nd:default "0"^^xsd:int;
+            nd:title "POMDP ID";
+            ].
+
+:InitializeBelief nd:class nd:Leaf;
+        nd:category "POMDP Nodes";
+        nd:name "InitializeBelief";
+        nd:labelType nd:Dynamic;
+        rdfs:label "DefaultBeliefInitialization";
+        nd:type bt-mdp:InitializeBelief;
+        nd:style[
+            a nd:StyleDef;
+            nd:color "#ebe8ed";
+            nd:shape nd:Polygon;
+            nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+            nd:padding "700%";
+            nd:paddingTo "width";
+            nd:icon "mqtt_broker.png";
+       ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo bt-mdp:pomdpId;
+            nd:input xsd:int;
+            nd:default "0"^^xsd:int;
+            nd:title "POMDP ID";
+        ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo bt-mdp:representation;
+            nd:input xsd:string;
+            nd:default "histogram"^^xsd:string;
+            nd:title "Representation"
+        ];
+        nd:list[
+            a nd:List;
+            nd:mapsTo bt-mdp:beliefs;
+            nd:title "Beliefs";
+            nd:parameterSet [
+                a nd:ParameterSet;
+                nd:title "Belief State";
+                nd:type bt-mdp:belief;
+                nd:parameters([
+                    a nd:Parameter;
+                    nd:mapsTo bt-mdp:state-id;
+                    nd:input xsd:int;
+                    nd:default "0"^^xsd:int;
+                    nd:title "State ID";
+                ]
+                [
+                    a nd:Parameter;
+                    nd:mapsTo bt-mdp:state-name;
+                    nd:input xsd:string;
+                    nd:default ""^^xsd:string;
+                    nd:title "State Name";
+                ]
+                [
+                    a nd:Parameter;
+                    nd:mapsTo bt-mdp:state-type;
+                    nd:input xsd:string;
+                    nd:default "env"^^xsd:string;
+                    nd:title "State Type";
+                ]
+                [
+                    a nd:Parameter;
+                    nd:mapsTo bt-mdp:state-probability;
+                    nd:input xsd:float;
+                    nd:default "0.0"^^xsd:float;
+                    nd:title "Probability";
+                ]
+#                [
+#                        a nd:List;
+#                        nd:mapsTo bt-mdp:state-attributes;
+#                        nd:title "Attributes";
+#                        nd:parameterSet [
+#                            a nd:ParameterSet;
+#                            nd:title "AttributeSet";
+#                            nd:type bt-mdp:state-attributes;
+#                            nd:parameters([
+#                            a nd:Parameter;
+#                                nd:mapsTo bt-mdp:state-attribute-name;
+#                                nd:input xsd:string;
+#                                nd:default ""^^xsd:string;
+#                                nd:title "Attr.Name"
+#                            ][
+#                            a nd:Parameter;
+#                                nd:mapsTo bt-mdp:state-attribute-value;
+#                                nd:input xsd:string;
+#                                nd:default ""^^xsd:string;
+#                                nd:title "Attr.Value"
+#                            ][
+#                                a nd:Parameter;
+#                                nd:mapsTo bt-mdp:state-attribute-include;
+#                                nd:input xsd:boolean;
+#                                nd:default "true"^^xsd:boolean;
+#                                nd:title "Include"
+#                           ])
+#                        ]
+#                ]
+                )
+            ]
+        ].
 # --------------- MQTT Plugin -------------------
 
 

@@ -95,6 +95,11 @@ MA 02110-1301  USA
             <systemPath>${pom.basedir}/lib/commons-math3-3.2.jar</systemPath>
         </dependency>
         <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20230227</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.parboiled1</groupId>
             <artifactId>grappa</artifactId>
             <version>1.0.4</version>
