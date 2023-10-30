@@ -10,7 +10,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -27,8 +26,7 @@ import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.URI;
-
+@Getter
 @Extension
 @Component
 @RDFBean("bt-mdp:CreateState")
@@ -44,7 +42,7 @@ public class State extends AbstractTDBLeafTask implements NodeExtension {
     private String label;
 
     @RDF("bt-mdp:pomdpId")
-    @Getter @Setter
+    @Setter
     private int pomdpId;
 
     @RDF("bt-mdp:stateId")

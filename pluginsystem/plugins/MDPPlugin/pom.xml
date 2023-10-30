@@ -126,11 +126,5 @@ MA 02110-1301  USA
             <version>0.1</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
-            <artifactId>MappingPlugin</artifactId>
-            <version>0.1</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 </project>

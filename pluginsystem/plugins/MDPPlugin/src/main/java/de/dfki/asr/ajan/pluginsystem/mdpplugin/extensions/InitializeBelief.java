@@ -19,7 +19,6 @@ import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.List;
 
 @Extension
@@ -36,15 +35,15 @@ public class InitializeBelief extends AbstractTDBLeafTask implements NodeExtensi
     private String label;
 
     @RDF("bt-mdp:pomdpId")
-    @Getter @Setter
+    @Setter
     private int pomdpId;
 
     @RDF("bt-mdp:representation")
-    @Getter @Setter
+    @Setter
     private String representation;
 
     @RDF("bt-mdp:beliefs")
-    @Getter @Setter
+    @Setter
     private List<Belief> beliefs;
 
 
@@ -57,7 +56,7 @@ public class InitializeBelief extends AbstractTDBLeafTask implements NodeExtensi
         List<JSONObject> beliefDict = getJsonBeliefDict();
         stateParams.put("belief_dict", beliefDict);
         HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/belief/create/init-belief", stateParams, this.getObject().getLogger(), this.getClass());
-        return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString()+"SUCCEEDED");
+        return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), this +"SUCCEEDED");
     }
 
 

@@ -1,7 +1,6 @@
 package de.dfki.asr.ajan.pluginsystem.mdpplugin.extensions;
 
 
-import de.dfki.asr.ajan.behaviour.AJANLogger;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -11,14 +10,6 @@ import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.HTTPHelper;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.http.HttpEntity;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
@@ -27,8 +18,6 @@ import org.eclipse.rdf4j.model.Resource;
 import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 @Extension
 @Component
@@ -44,7 +33,7 @@ public class InitializePOMDP extends AbstractTDBLeafTask implements NodeExtensio
     private String label;
 
     @RDF("bt-mdp:pomdpId")
-    @Getter @Setter
+    @Setter
     private int pomdpId;
 
     @Override
@@ -52,7 +41,7 @@ public class InitializePOMDP extends AbstractTDBLeafTask implements NodeExtensio
         JSONObject stateParams = new JSONObject();
         stateParams.put("pomdp_id", pomdpId);
         HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/initialize", stateParams, this.getObject().getLogger(), this.getClass());
-        return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString()+" SUCCEEDED");
+        return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), this +" SUCCEEDED");
     }
 
 
