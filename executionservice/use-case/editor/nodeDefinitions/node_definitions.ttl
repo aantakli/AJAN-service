@@ -2235,7 +2235,7 @@
                        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
                        nd:padding "700%";
         nd:paddingTo "width";
-        nd:icon "mqtt_broker.png";
+        nd:icon "flee.png";
     ];
     nd:parameter [
         a nd:Parameter;
@@ -2258,7 +2258,7 @@
         nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
         nd:padding "700%";
         nd:paddingTo "width";
-        nd:icon "mqtt_broker.png";
+        nd:icon "observation.png";
     ];
     nd:parameter [
         a nd:Parameter;
@@ -2303,6 +2303,303 @@
         ];
     ].
 
+:ObservationModel nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "ObservationModel";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultObservationModel";
+    nd:type bt-mdp:ObservationModel;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Roundrectangle;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "observation_model.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdpId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "POMDP ID";
+    ];
+    nd:list
+    [
+        a nd:List;
+        nd:mapsTo bt-mdp:observation-model-attributes;
+        nd:title "Attributes";
+        nd:parameterSet [
+        a nd:ParameterSet;
+        nd:title "AttributeSet";
+        nd:type bt-mdp:attributes;
+        nd:parameters([
+                        a nd:Parameter;
+                        nd:mapsTo bt-mdp:attribute-name;
+                        nd:input xsd:string;
+                        nd:default ""^^xsd:string;
+                        nd:title "Attr.Name"
+                     ][
+                         a nd:Parameter;
+                         nd:mapsTo bt-mdp:attribute-value;
+                         nd:input xsd:string;
+                         nd:default ""^^xsd:string;
+                         nd:title "Attr.Value"
+                     ])
+        ]
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mdp:observation-probability;
+	    nd:title "Observation Probability: ?probability";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mdp:observation-sample;
+	    nd:title "Observation Sample: ?sample";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mdp:observation-argmax;
+	    nd:title "Observation Argmax: ?argmax";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ].
+
+:PolicyModel nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "PolicyModel";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultPolicyModel";
+    nd:type bt-mdp:PolicyModel;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Roundrectangle;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "policy_model.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdpId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "POMDP ID";
+    ];
+    nd:list
+    [
+        a nd:List;
+        nd:mapsTo bt-mdp:policy-model-attributes;
+        nd:title "Attributes";
+        nd:parameterSet [
+        a nd:ParameterSet;
+        nd:title "AttributeSet";
+        nd:type bt-mdp:attributes;
+        nd:parameters([
+                        a nd:Parameter;
+                        nd:mapsTo bt-mdp:attribute-name;
+                        nd:input xsd:string;
+                        nd:default ""^^xsd:string;
+                        nd:title "Attr.Name"
+                     ][
+                         a nd:Parameter;
+                         nd:mapsTo bt-mdp:attribute-value;
+                         nd:input xsd:string;
+                         nd:default ""^^xsd:string;
+                         nd:title "Attr.Value"
+                     ])
+        ]
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mdp:policy-sample;
+	    nd:title "Policy Sample: ?sample";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mdp:policy-rollout;
+	    nd:title "Policy Probability: ?rollout";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mdp:policy-argmax;
+	    nd:title "Get All Actions: ?allActions";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ].
+
+:RewardModel nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "RewardModel";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultRewardModel";
+    nd:type bt-mdp:RewardModel;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Roundrectangle;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "reward_model.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdpId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "POMDP ID";
+    ];
+    nd:list
+    [
+        a nd:List;
+        nd:mapsTo bt-mdp:reward-model-attributes;
+        nd:title "Attributes";
+        nd:parameterSet [
+        a nd:ParameterSet;
+        nd:title "AttributeSet";
+        nd:type bt-mdp:attributes;
+        nd:parameters([
+                        a nd:Parameter;
+                        nd:mapsTo bt-mdp:attribute-name;
+                        nd:input xsd:string;
+                        nd:default ""^^xsd:string;
+                        nd:title "Attr.Name"
+                     ][
+                         a nd:Parameter;
+                         nd:mapsTo bt-mdp:attribute-value;
+                         nd:input xsd:string;
+                         nd:default ""^^xsd:string;
+                         nd:title "Attr.Value"
+                     ])
+        ]
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mdp:reward-sample;
+	    nd:title "Reward Sample: ?sample";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mdp:reward-probability;
+	    nd:title "Reward Probability: ?probability";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mdp:reward-argmax;
+	    nd:title "Reward Argmax: ?argmax";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ].
+
+:TransitionModel nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "TransitionModel";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultTransitionModel";
+    nd:type bt-mdp:TransitionModel;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Roundrectangle;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "transition_model.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdpId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "POMDP ID";
+    ];
+    nd:list
+    [
+        a nd:List;
+        nd:mapsTo bt-mdp:transition-model-attributes;
+        nd:title "Attributes";
+        nd:parameterSet [
+        a nd:ParameterSet;
+        nd:title "AttributeSet";
+        nd:type bt-mdp:attributes;
+        nd:parameters([
+                        a nd:Parameter;
+                        nd:mapsTo bt-mdp:attribute-name;
+                        nd:input xsd:string;
+                        nd:default ""^^xsd:string;
+                        nd:title "Attr.Name"
+                     ][
+                         a nd:Parameter;
+                         nd:mapsTo bt-mdp:attribute-value;
+                         nd:input xsd:string;
+                         nd:default ""^^xsd:string;
+                         nd:title "Attr.Value"
+                     ])
+        ]
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mdp:transition-sample;
+	    nd:title "Transition Sample: ?sample";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mdp:transition-probability;
+	    nd:title "Transition Probability: ?probability";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mdp:transition-argmax;
+	    nd:title "Transition Argmax: ?argmax";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ].
+
+
 :InitializePOMDP nd:class nd:Leaf;
     nd:category "POMDP Nodes";
     nd:name "InitializePOMDP";
@@ -2345,7 +2642,7 @@
             nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
             nd:padding "700%";
             nd:paddingTo "width";
-            nd:icon "mqtt_broker.png";
+            nd:icon "belief.png";
        ];
         nd:parameter [
             a nd:Parameter;
