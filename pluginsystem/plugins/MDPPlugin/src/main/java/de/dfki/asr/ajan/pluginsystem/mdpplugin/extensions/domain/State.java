@@ -1,4 +1,4 @@
-package de.dfki.asr.ajan.pluginsystem.mdpplugin.extensions;
+package de.dfki.asr.ajan.pluginsystem.mdpplugin.extensions.domain;
 
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
@@ -6,6 +6,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
+import de.dfki.asr.ajan.pluginsystem.mdpplugin.extensions.datamodels.Attribute;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.http.HttpEntity;
@@ -26,6 +27,8 @@ import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.List;
+
 @Getter
 @Extension
 @Component
@@ -53,8 +56,23 @@ public class State extends AbstractTDBLeafTask implements NodeExtension {
     @Getter @Setter
     private String stateName;
 
+    @RDF("bt-mdp:state-attributes")
+    @Getter @Setter
+    private List<Attribute> attributes;
+
+    @RDF("bt-mdp:state-print-values")
+    @Getter @Setter
+    private List<String> printValues;
+
     @Override
     public NodeStatus executeLeaf() {
+
+        for (Attribute attribute :
+                attributes) {
+            String name = attribute.getName();
+            String value = attribute.getValue();
+        }
+
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("http://127.0.0.1:8000/AJAN/pomdp/state/create/agent");
         httpPost.setHeader("Content-Type", "application/json");
@@ -66,7 +84,6 @@ public class State extends AbstractTDBLeafTask implements NodeExtension {
         stateParams.put("to_print",new Object[]{"id"});
         HttpEntity postParams = new StringEntity(stateParams.toString(), ContentType.APPLICATION_JSON);
         httpPost.setEntity(postParams);
-
         CloseableHttpResponse httpResponse;
 
         try {
