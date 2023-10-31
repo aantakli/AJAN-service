@@ -2196,18 +2196,16 @@
         nd:parameterSet [
             a nd:ParameterSet;
             nd:title "AttributeSet";
-            nd:type bt-mdp:state-attributes;
+            nd:type bt-mdp:attributes;
             nd:parameters([
                     a nd:Parameter;
-                    nd:mapsTo bt-mdp:state-attribute-name;
+                    nd:mapsTo bt-mdp:attribute-name;
                     nd:input xsd:string;
-                    nd:default ""^^xsd:string;
                     nd:title "Attr.Name"
                 ][
                     a nd:Parameter;
-                    nd:mapsTo bt-mdp:state-attribute-value;
+                    nd:mapsTo bt-mdp:attribute-value;
                     nd:input xsd:string;
-                    nd:default ""^^xsd:string;
                     nd:title "Attr.Value"
                 ])
         ]
@@ -2228,7 +2226,7 @@
     nd:category "POMDP Nodes";
     nd:name "CreateAction";
     nd:labelType nd:Dynamic;
-    rdfs:label "DefaultPOMDPState";
+    rdfs:label "DefaultPOMDPAction";
     nd:type bt-mdp:CreateAction;
     nd:style[
         a nd:StyleDef;
@@ -2247,6 +2245,63 @@
         nd:default ""^^xsd:string;
     ].
 
+:CreateObservation nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "CreateObservation";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultObservation";
+    nd:type bt-mdp:CreateObservation;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Ellipse;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "mqtt_broker.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdpId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "POMDP ID";
+    ];
+    nd:list
+    [
+        a nd:List;
+        nd:mapsTo bt-mdp:observation-attributes;
+        nd:title "Attributes";
+        nd:parameterSet [
+        a nd:ParameterSet;
+        nd:title "AttributeSet";
+        nd:type bt-mdp:attributes;
+        nd:parameters([
+                        a nd:Parameter;
+                        nd:mapsTo bt-mdp:attribute-name;
+                        nd:input xsd:string;
+                        nd:default ""^^xsd:string;
+                        nd:title "Attr.Name"
+                     ][
+                         a nd:Parameter;
+                         nd:mapsTo bt-mdp:attribute-value;
+                         nd:input xsd:string;
+                         nd:default ""^^xsd:string;
+                         nd:title "Attr.Value"
+                     ])
+        ]
+    ];
+    nd:list
+    [
+        a nd:List;
+        nd:mapsTo bt-mdp:observation-print-values;
+        nd:title "Include in Hash Representation";
+        nd:parameter [
+            a nd:Parameter;
+            nd:input xsd:string ;
+            nd:title "Attribute Key Name";
+        ];
+    ].
 
 :InitializePOMDP nd:class nd:Leaf;
     nd:category "POMDP Nodes";
@@ -2263,13 +2318,19 @@
         nd:paddingTo "width";
         nd:icon "mqtt_broker.png";
     ];
+    nd:parameter[
+            a nd:Parameter;
+            nd:mapsTo bt:targetBase;
+            nd:title "Target Base";
+            nd:input nd:Repo ;
+    ];
      nd:parameter [
             a nd:Parameter;
             nd:mapsTo bt-mdp:pomdpId;
             nd:input xsd:int;
             nd:default "0"^^xsd:int;
             nd:title "POMDP ID";
-            ].
+    ].
 
 :InitializeBelief nd:class nd:Leaf;
         nd:category "POMDP Nodes";
@@ -2368,6 +2429,14 @@
                 )
             ]
         ].
+
+#:Observation nd:class nd:Leaf;
+#    nd:category "POMDP Nodes";
+#    nd:name "Observation";
+#    nd:labelType nd:Dynamic;
+#    rdfs:label "DefaultObservation";
+#    nd:type bt-mdp:Observation;
+
 # --------------- MQTT Plugin -------------------
 
 
