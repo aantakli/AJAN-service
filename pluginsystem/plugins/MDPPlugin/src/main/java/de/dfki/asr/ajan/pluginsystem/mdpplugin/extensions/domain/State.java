@@ -7,16 +7,9 @@ import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.extensions.datamodels.Attribute;
+import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.HTTPHelper;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.http.HttpEntity;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
@@ -26,7 +19,6 @@ import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.List;
 
 @Getter
@@ -56,6 +48,10 @@ public class State extends AbstractTDBLeafTask implements NodeExtension {
     @Getter @Setter
     private String stateName;
 
+    @RDF("bt-mdp:stateType")
+    @Getter @Setter
+    private String stateType;
+
     @RDF("bt-mdp:state-attributes")
     @Getter @Setter
     private List<Attribute> attributes;
@@ -66,36 +62,36 @@ public class State extends AbstractTDBLeafTask implements NodeExtension {
 
     @Override
     public NodeStatus executeLeaf() {
-
-        for (Attribute attribute :
-                attributes) {
-            String name = attribute.getName();
-            String value = attribute.getValue();
+        JSONObject stateParams = getParams();
+        int responseCode = HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/state/create/agent", stateParams, this.getObject().getLogger(), this.getClass());
+        if(responseCode >= 300){
+            return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+"FAILED");
         }
+        return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), this +" SUCCEEDED");
+    }
 
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost("http://127.0.0.1:8000/AJAN/pomdp/state/create/agent");
-        httpPost.setHeader("Content-Type", "application/json");
+    private JSONObject getParams() {
         JSONObject stateParams = new JSONObject();
         stateParams.put("pomdp_id", pomdpId);
-        stateParams.put("id", stateId);
-        stateParams.put("name","");
-        stateParams.put("attributes",new JSONObject());
-        stateParams.put("to_print",new Object[]{"id"});
-        HttpEntity postParams = new StringEntity(stateParams.toString(), ContentType.APPLICATION_JSON);
-        httpPost.setEntity(postParams);
-        CloseableHttpResponse httpResponse;
 
-        try {
-            httpResponse = httpClient.execute(httpPost);
-            StatusLine statusLine = httpResponse.getStatusLine();
-            if(statusLine.getStatusCode() >= 300) {
-                this.getObject().getLogger().info(this.getClass(),"POST Response Status: " + httpResponse.getStatusLine().getStatusCode());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        JSONObject state = new JSONObject();
+        state.put("id", stateId);
+        state.put("name","");
+        JSONObject params = new JSONObject();
+
+        JSONObject attr = new JSONObject();
+        for (Attribute attribute:
+             attributes) {
+            attr.put(attribute.getName(), attribute.getValue());
         }
-        return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString()+" SUCCEEDED");
+        params.put("attributes",attr);
+        params.put("to_print",printValues);
+
+        state.put("params", params);
+        state.put("type", stateType);
+
+        stateParams.put("state", state);
+        return stateParams;
     }
 
     @Override

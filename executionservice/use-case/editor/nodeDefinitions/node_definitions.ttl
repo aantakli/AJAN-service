@@ -2183,6 +2183,13 @@
     ];
     nd:parameter [
         a nd:Parameter;
+        nd:mapsTo bt-mdp:stateType;
+        nd:input xsd:string;
+        nd:default "env"^^xsd:string;
+        nd:title "Type";
+    ];
+    nd:parameter [
+        a nd:Parameter;
         nd:mapsTo bt-mdp:stateId;
         nd:input xsd:int;
         nd:default "0"^^xsd:int;
@@ -2443,7 +2450,7 @@
     ];
     nd:parameter [
 	    a nd:Parameter;
-	    nd:mapsTo bt-mdp:policy-argmax;
+	    nd:mapsTo bt-mdp:policy-getAllActions;
 	    nd:title "Get All Actions: ?allActions";
 	    nd:input nd:Query;
         bt:originBase "true";
