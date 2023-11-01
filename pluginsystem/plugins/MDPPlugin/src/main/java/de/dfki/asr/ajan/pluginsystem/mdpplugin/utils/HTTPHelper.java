@@ -14,7 +14,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 public class HTTPHelper {
-    public static void sendPostRequest(String requestUrl, JSONObject jsonParams, AJANLogger logger, Class<?> thisClass) {
+    public static int sendPostRequest(String requestUrl, JSONObject jsonParams, AJANLogger logger, Class<?> thisClass) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(requestUrl);
         httpPost.setHeader("Content-Type", "application/json");
@@ -28,6 +28,7 @@ public class HTTPHelper {
             if(statusLine.getStatusCode() >= 300) {
                 logger.info(thisClass,"POST Response Status: " + httpResponse.getStatusLine().getStatusCode());
             }
+            return statusLine.getStatusCode();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
