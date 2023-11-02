@@ -2709,7 +2709,28 @@
                     nd:input xsd:float;
                     nd:default "0.0"^^xsd:float;
                     nd:title "Probability";
-                ]
+                ] 
+                )
+            ]
+        ].
+
+
+:States nd:class nd:Composite;
+    nd:category "POMDP Composite Nodes";
+    nd:name "State Creator";
+    nd:labelType nd:Fixed;
+    rdfs:label "\uD83E\uDD16";
+    nd:type bt-mdp:CreateState;
+    nd:style [
+        a nd:styleDef;
+        nd:color "#FFFFFF";
+        nd:shape nd:Hexagon;
+        nd:padding "600%";
+        nd:paddingTo "width";
+    ] .
+
+
+
 #                [
 #                        a nd:List;
 #                        nd:mapsTo bt-mdp:state-attributes;
@@ -2739,9 +2760,6 @@
 #                           ])
 #                        ]
 #                ]
-                )
-            ]
-        ].
 
 #:Observation nd:class nd:Leaf;
 #    nd:category "POMDP Nodes";
