@@ -2358,6 +2358,15 @@
     ];
     nd:parameter [
 	    a nd:Parameter;
+	    nd:mapsTo bt-mdp:observation-data;
+	    nd:title "Observation Graph Data:";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
 	    nd:mapsTo bt-mdp:observation-probability;
 	    nd:title "Observation Probability: ?probability";
 	    nd:input nd:Query;
