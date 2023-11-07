@@ -16,6 +16,7 @@ import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import javax.xml.transform.TransformerException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -92,6 +94,20 @@ public class KnowledgeBaseHelper {
         returnValues.add(roundResults);
         return returnValues;
     }
+
+    public static String getString(Model model, RDFFormat format) {
+        StringWriter writer = new StringWriter();
+        RDFWriter rdfWriter = Rio.createWriter(format,writer);
+
+        rdfWriter.startRDF();
+        for (Statement statement: model) {
+            rdfWriter.handleStatement(statement);
+        }
+        rdfWriter.endRDF();
+
+        return writer.toString();
+    }
+
     public Model updateModel(int turnNumber, ArrayList<RDDL.PVAR_INST_DEF> actions,double rewardForThisRound, Resource roundResults, Model model){
         ArrayList<Object> returnValues = new ArrayList<>();
 //        Model actionsModel = RDFContainers.toRDF(RDF.SEQ, actions,MDPVocabulary.ACTIONS, new TreeModel());
