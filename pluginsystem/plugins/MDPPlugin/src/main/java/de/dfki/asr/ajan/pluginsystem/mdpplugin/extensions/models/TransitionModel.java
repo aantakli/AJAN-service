@@ -5,9 +5,11 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.extensions.datamodels.Attribute;
+import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.POMDPUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -15,6 +17,7 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
 
@@ -39,9 +42,17 @@ public class TransitionModel extends AbstractTDBLeafTask implements NodeExtensio
     @Setter
     private int pomdpId;
 
+    @RDF("bt-mdp:model-type")
+    @Getter @Setter
+    private String modelType;
+
     @RDF("bt-mdp:transition-model-attributes")
     @Getter @Setter
     private List<Attribute> attributes;
+
+    @RDF("bt-mdp:transition-data")
+    @Getter @Setter
+    private BehaviorConstructQuery data;
 
     @RDF("bt-mdp:transition-probability")
     @Getter @Setter
@@ -58,7 +69,10 @@ public class TransitionModel extends AbstractTDBLeafTask implements NodeExtensio
 
     @Override
     public NodeStatus executeLeaf() {
-        return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), this +" SUCCEEDED");
+        return POMDPUtil.sendProbabilisticDataToEndpoint(getObject(), data.getOriginBase(), pomdpId, modelType,
+                "http://127.0.0.1:8000/AJAN/pomdp/transition_model/create/init-model",
+                RDFFormat.TURTLE, data, probability, sample, argmax,
+                this.getObject().getLogger(), this.getClass(), toString());
     }
 
     @Override
@@ -76,7 +90,6 @@ public class TransitionModel extends AbstractTDBLeafTask implements NodeExtensio
         return "TransitionModel (" + getLabel() + ")";
     }
 
-    @Override
     public Resource getType() {
         return vf.createIRI("https://ajan.de/behavior/mdp-ns#TransitionModel");
     }

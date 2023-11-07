@@ -1,4 +1,4 @@
-package de.dfki.asr.ajan.pluginsystem.mdpplugin.extensions;
+package de.dfki.asr.ajan.pluginsystem.mdpplugin.extensions.initializers;
 
 
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
@@ -6,6 +6,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
+import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.HTTPHelper;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.POMDPUtil;
@@ -54,7 +55,7 @@ public class InitializePOMDP extends AbstractTDBLeafTask implements NodeExtensio
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+"FAILED");
         }
         Model inputModel = getInputModel(pomdpId);
-        POMDPUtil.writeInput(inputModel, repository.toString(), this.getObject());
+        POMDPUtil.writeInput(inputModel, AJANVocabulary.EXECUTION_KNOWLEDGE.toString(), this.getObject());
         return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), this +" SUCCEEDED");
     }
 

@@ -67,13 +67,13 @@ public class InitializeBelief extends AbstractTDBLeafTask implements NodeExtensi
 
         JSONObject stateParams = new JSONObject();
         stateParams.put("pomdp_id", pomdpId);
-//        stateParams.put("representation", representation);
-//        List<JSONObject> beliefDict = getJsonBeliefDict();
-//        stateParams.put("belief_dict", beliefDict);
-        stateParams.put("repo_url", repoUrl);
+        stateParams.put("representation", representation);
+        List<JSONObject> beliefDict = getJsonBeliefDict();
+        stateParams.put("belief_dict", beliefDict);
+//        stateParams.put("repo_url", repoUrl);
 
 
-        int responseCode = HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/belief/create/init-belief-from-knowledge-base", stateParams, this.getObject().getLogger(), this.getClass());
+        int responseCode = HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/belief/create/init-belief", stateParams, this.getObject().getLogger(), this.getClass());
         if(responseCode >= 300){
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+"FAILED");
         }
@@ -127,8 +127,8 @@ public class InitializeBelief extends AbstractTDBLeafTask implements NodeExtensi
             JSONObject beliefParams = new JSONObject();
             JSONObject state = new JSONObject();
             state.put("id", belief.getStateId());
-//            state.put("name", belief.getStateName());
-//            state.put("type", belief.getStateType());
+            state.put("name", belief.getStateName());
+            state.put("type", belief.getStateType());
             beliefParams.put("state",state);
             beliefParams.put("probability", belief.getStateProbability());
             beliefDict.add(beliefParams);
