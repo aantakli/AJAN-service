@@ -2228,7 +2228,28 @@
                 nd:title "Attribute Key Name";
                 ];
     ].
-
+:InitializeStates nd:class nd:Leaf;
+        nd:category "POMDP Nodes";
+        nd:name "InitializeStates";
+        nd:labelType nd:Dynamic;
+        rdfs:label "DefaultInitializeStates";
+        nd:type bt-mdp:InitializeStates;
+        nd:style[
+            a nd:StyleDef;
+            nd:color "#ebe8ed";
+            nd:shape nd:Polygon;
+            nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+            nd:padding "700%";
+            nd:paddingTo "width";
+            nd:icon "mqtt_broker.png";
+        ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo bt-mdp:pomdpId;
+            nd:input xsd:int;
+            nd:default "0"^^xsd:int;
+            nd:title "POMDP ID";
+        ].
 :CreateAction nd:class nd:Leaf;
     nd:category "POMDP Nodes";
     nd:name "CreateAction";
@@ -2440,6 +2461,15 @@
         ]
     ];
     nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:policy-data;
+        nd:title "Policy Graph Data:";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
+    ];
+    nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mdp:policy-sample;
 	    nd:title "Policy Sample: ?sample";
@@ -2489,6 +2519,13 @@
         nd:default "0"^^xsd:int;
         nd:title "POMDP ID";
     ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:model-type;
+        nd:input xsd:string;
+        nd:default "agent"^^xsd:string;
+        nd:title "Type (agent or env)";
+    ];
     nd:list
     [
         a nd:List;
@@ -2512,6 +2549,15 @@
                          nd:title "Attr.Value"
                      ])
         ]
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:reward-data;
+        nd:title "Reward Graph Data:";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
     ];
     nd:parameter [
 	    a nd:Parameter;
@@ -2563,6 +2609,13 @@
         nd:default "0"^^xsd:int;
         nd:title "POMDP ID";
     ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:model-type;
+        nd:input xsd:string;
+        nd:default "agen"^^xsd:string;
+        nd:title "Type (agent or env)";
+    ];
     nd:list
     [
         a nd:List;
@@ -2587,6 +2640,15 @@
                      ])
         ]
     ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:transition-data;
+        nd:title "Transition Graph Data:";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
+        ];
     nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mdp:transition-sample;
@@ -2613,6 +2675,294 @@
         bt:originBase "true";
         bt:targetBase "false";
         nd:type bt:SelectQuery;
+    ].
+:CreateAgent nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "CreateAgent";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultCreateAgent";
+    nd:type bt-mdp:createAgent;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Rectangle;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "belief.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdpId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "POMDP ID";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:agent-data;
+        nd:title "Agent Graph Data:";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
+    ].
+:ClearAgentHistory nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "ClearAgentHistory";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultClearAgentHistory";
+    nd:type bt-mdp:clearAgentHistory;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Rectangle;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "history.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdpId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "POMDP ID";
+    ].
+
+:UpdateAgentHistory nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "UpdateAgentHistory";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultUpdateAgentHistory";
+    nd:type bt-mdp:updateAgentHistory;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Rectangle;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "update-history.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdpId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "POMDP ID";
+    ].
+
+:CreateEnvironment nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "CreateEnvironment";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultCreateEnvironment";
+    nd:type bt-mdp:createEnvironment;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Rectangle;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "planenv-color.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdpId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "POMDP ID";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:env-data;
+        nd:title "Environment Graph Data";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
+    ].
+
+:CreatePlanner nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "CreatePlanner";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultCreatePlanner";
+    nd:type bt-mdp:createPlanner;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Rectangle;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "blueprint.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdpId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "POMDP ID";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:planner-name;
+        nd:input xsd:string;
+        nd:default "POUCT"^^xsd:string;
+        nd:title "Planner Name (POUCT or POMCP)";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:planner-maxdepth;
+        nd:input xsd:int;
+        nd:default "10"^^xsd:int;
+        nd:title "Max Depth";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:planner-planningtime;
+        nd:input xsd:float;
+        nd:default "-1"^^xsd:int;
+        nd:title "Planning Time";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:planner-numsims;
+        nd:input xsd:int;
+        nd:default "-1"^^xsd:int;
+        nd:title "No. of. Simulations";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:planner-exploration-const;
+        nd:input xsd:int;
+        nd:default "1000"^^xsd:int;
+        nd:title "Exploration Constant";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:planner-discount-factor;
+        nd:input xsd:float;
+        nd:default "0.95"^^xsd:int;
+        nd:title "Discount Factor";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:planner-update-interval;
+        nd:input xsd:int;
+        nd:default "500"^^xsd:int;
+        nd:title "Pbar Update Interval";
+    ].
+
+:GetPlannedAction nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "GetPlannedAction";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultGetPlannedAction";
+    nd:type bt-mdp:get-planner-actions;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Rectangle;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "planning.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdpId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "POMDP ID";
+    ].
+
+:StateTransition nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "StateTransition";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultStateTransition";
+    nd:type bt-mdp:state-transition;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Rectangle;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "agent.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdpId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "POMDP ID";
+    ].
+
+:GetObservationFromEnvironment nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "GetObservationFromEnvironment";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultGetObservationFromEnvironment";
+    nd:type bt-mdp:getObservationFromEnvironment;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Rectangle;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "observation1.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdpId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "POMDP ID";
+    ].
+
+:CreateProblem nd:class nd:Leaf;
+    nd:category "POMDP Nodes";
+    nd:name "CreateProblem";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultCreatePOMDPProblem";
+    nd:type bt-mdp:createProblem;
+    nd:style[
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Rectangle;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "timestamp.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdpId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "POMDP ID";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdp-problem-name;
+        nd:input xsd:string;
+        nd:default "AjanPOMDPProblem"^^xsd:string;
+        nd:title "POMDP Problem Name";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdp-problem-data;
+        nd:title "Problem Graph Data";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
     ].
 
 
@@ -2658,7 +3008,7 @@
             nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
             nd:padding "700%";
             nd:paddingTo "width";
-            nd:icon "belief.png";
+            nd:icon "belief2.png";
        ];
         nd:parameter [
             a nd:Parameter;
@@ -2714,13 +3064,73 @@
             ]
         ].
 
+:UpdateBelief nd:class nd:Leaf;
+        nd:category "POMDP Nodes";
+        nd:name "UpdateBelief";
+        nd:labelType nd:Dynamic;
+        rdfs:label "DefaultBeliefUpdate";
+        nd:type bt-mdp:UpdateBelief;
+        nd:style[
+            a nd:StyleDef;
+            nd:color "#ebe8ed";
+            nd:shape nd:Polygon;
+            nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+            nd:padding "700%";
+            nd:paddingTo "width";
+            nd:icon "belief1.png";
+       ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo bt-mdp:pomdpId;
+            nd:input xsd:int;
+            nd:default "0"^^xsd:int;
+            nd:title "POMDP ID";
+        ].
 
-:States nd:class nd:Composite;
+:OOConverter nd:class nd:Leaf;
+        nd:category "POMDP Nodes";
+        nd:name "ConvertToObjectModel";
+        nd:labelType nd:Dynamic;
+        rdfs:label "DefaultConvertToObjectModel";
+        nd:type bt-mdp:object-oriented-converted;
+        nd:style[
+            a nd:StyleDef;
+            nd:color "#ebe8ed";
+            nd:shape nd:Polygon;
+            nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+            nd:padding "700%";
+            nd:paddingTo "width";
+            nd:icon "oops.png";
+       ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo bt-mdp:pomdpId;
+            nd:input xsd:int;
+            nd:default "0"^^xsd:int;
+            nd:title "POMDP ID";
+        ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo bt-mdp:oo-type;
+            nd:input xsd:string;
+            nd:default "TransitionModel"^^xsd:string;
+            nd:title "Type";
+        ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo bt-mdp:oo-sub-type;
+            nd:input xsd:string;
+            nd:default "env"^^xsd:string;
+            nd:title "Sub Type";
+        ].
+
+
+:ActionSelector nd:class nd:Composite;
     nd:category "POMDP Composite Nodes";
-    nd:name "State Creator";
+    nd:name "Action Selector";
     nd:labelType nd:Fixed;
     rdfs:label "\uD83E\uDD16";
-    nd:type bt-mdp:CreateState;
+    nd:type bt-mdp:ActionSelector;
     nd:style [
         a nd:styleDef;
         nd:color "#FFFFFF";
