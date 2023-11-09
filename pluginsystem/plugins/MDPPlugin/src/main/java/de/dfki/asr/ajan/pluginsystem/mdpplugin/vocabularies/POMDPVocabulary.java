@@ -15,12 +15,19 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 public class POMDPVocabulary {
     private static final ValueFactory FACTORY = SimpleValueFactory.getInstance();
 
+    public static IRI pomdp_ns = FACTORY.createIRI("http://www.dfki.de/pomdp-ns/POMDP/");
+
+
+
     public final static IRI POMDP = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#POMDP");
 
     public final static IRI HAS_ID = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#id");
+    public final static IRI IS_CURRENT = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#current");
     public final static IRI NAME = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#name");
+    public final static IRI ATTRIBUTES = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#attributes");
     public final static IRI TYPE= FACTORY.createIRI("http://www.dfki.de/pomdp-ns#type");
     public final static IRI HAS_INITIAL_BELIEF = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#initialBelief");
+
     public final static IRI STATE = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#State");
     public final static IRI BELIEF = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#Belief");
     public final static IRI ACTION = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#Action");
@@ -44,4 +51,11 @@ public class POMDPVocabulary {
     // :emptyNode --with-probability--> 0.5
     public final static IRI WITH_PROBABILITY = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#probability");
 
+    public static IRI createIRI(int pomdpId) {
+        return FACTORY.createIRI(pomdp_ns.toString(), String.valueOf(pomdpId));
+    }
+
+    public static IRI createIRI(IRI nameSpace, int id) {
+        return FACTORY.createIRI(nameSpace.toString().replace('#', '/'), "_" + id);
+    }
 }
