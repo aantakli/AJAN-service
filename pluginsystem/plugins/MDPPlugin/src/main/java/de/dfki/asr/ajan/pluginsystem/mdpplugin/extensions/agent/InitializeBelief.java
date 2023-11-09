@@ -62,14 +62,15 @@ public class InitializeBelief extends AbstractTDBLeafTask implements NodeExtensi
         String id = this.getObject().getAgentBeliefs().getId();
         String repoUrl = this.getObject().getAgentBeliefs().getSparqlEndpoint().toString();
 
-        Model inputModel = getInputModel(pomdpId, representation);
-        POMDPUtil.writeInput(inputModel, AJANVocabulary.AGENT_KNOWLEDGE.toString(), this.getObject()); // Store in agent knowledge
-
         JSONObject stateParams = new JSONObject();
         stateParams.put("pomdp_id", pomdpId);
         stateParams.put("representation", representation);
         List<JSONObject> beliefDict = getJsonBeliefDict();
         stateParams.put("belief_dict", beliefDict);
+
+        Model inputModel = getInputModel(pomdpId, representation);
+        POMDPUtil.writeInput(inputModel, AJANVocabulary.EXECUTION_KNOWLEDGE.toString(), this.getObject(), true); // Store in agent knowledge
+
 //        stateParams.put("repo_url", repoUrl);
 
 
@@ -139,7 +140,7 @@ public class InitializeBelief extends AbstractTDBLeafTask implements NodeExtensi
 
     @Override
     public String toString() {
-        return "InitializePOMDP (" + getLabel() + ")";
+        return "InitializeBelief (" + getLabel() + ")";
     }
 
 

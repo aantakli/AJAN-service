@@ -2271,6 +2271,13 @@
         nd:title "Name";
         nd:input xsd:string;
         nd:default ""^^xsd:string;
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:pomdpId;
+        nd:title "POMDP ID";
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
     ].
 
 :CreateObservation nd:class nd:Leaf;

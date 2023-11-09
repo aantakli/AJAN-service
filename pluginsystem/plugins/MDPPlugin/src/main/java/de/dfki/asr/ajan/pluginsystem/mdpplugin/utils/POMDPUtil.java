@@ -49,9 +49,9 @@ public final class POMDPUtil {
             params.put("type", type);
         }
         params.put("pomdp_id", pomdpId);
-        params.put("probability_query", probability.toString());
-        params.put("sample_query", sample.toString());
-        params.put("argmax_query", argmax.toString());
+        params.put("probability_query", probability.getSparql());
+        params.put("sample_query", sample.getSparql());
+        params.put("argmax_query", argmax.getSparql());
         return params;
     }
 

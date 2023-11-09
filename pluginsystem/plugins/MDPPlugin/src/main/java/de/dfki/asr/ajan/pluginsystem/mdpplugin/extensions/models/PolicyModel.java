@@ -93,9 +93,9 @@ public class PolicyModel extends AbstractTDBLeafTask implements NodeExtension {
         JSONObject params = new JSONObject();
         params.put("data", data);
         params.put("pomdp_id", pomdpId);
-        params.put("sample_query", sample.toString());
-        params.put("get_all_action_query", get_all_actions.toString());
-        params.put("rollout_query", rollout.toString());
+        params.put("sample_query", sample.getSparql());
+        params.put("get_all_action_query", get_all_actions.getSparql());
+        params.put("rollout_query", rollout.getSparql());
         return params;
     }
 
