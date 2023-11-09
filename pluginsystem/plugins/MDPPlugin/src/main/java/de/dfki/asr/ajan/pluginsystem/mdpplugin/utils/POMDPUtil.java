@@ -26,11 +26,24 @@ public final class POMDPUtil {
 
     }
 
-    public static void writeInput(final Model model, final String repository, final AgentTaskInformation info){
+    public static void writeInput(final Model model, final String repository, final AgentTaskInformation info, boolean update){
+        Model m1;
         if(repository.equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())){
-            info.getExecutionBeliefs().update(model);
+            if(update){
+                 m1 = info.getExecutionBeliefs().asModel();
+                m1.addAll(model);
+            } else {
+                m1 = model;
+            }
+            info.getExecutionBeliefs().update(m1);
         } else if (repository.equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())){
-            info.getAgentBeliefs().update(model);
+            if(update){
+                m1 = info.getAgentBeliefs().asModel();
+                m1.addAll(model);
+            } else {
+                m1 = model;
+            }
+            info.getAgentBeliefs().update(m1);
         }
     }
 
@@ -40,6 +53,15 @@ public final class POMDPUtil {
         } else if (repository.equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
             info.getAgentBeliefs().update(new LinkedHashModel(), model, false);
         }
+    }
+
+    public static Model getModel(String repository, AgentTaskInformation info) {
+        if (repository.equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
+            return info.getExecutionBeliefs().asModel();
+        } else if (repository.equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
+            return info.getAgentBeliefs().asModel();
+        }
+        return new LinkedHashModel();
     }
 
     public static JSONObject getProbabilisticModelParams(int pomdpId,String type, String data, BehaviorSelectQuery probability, BehaviorSelectQuery sample, BehaviorSelectQuery argmax) {
