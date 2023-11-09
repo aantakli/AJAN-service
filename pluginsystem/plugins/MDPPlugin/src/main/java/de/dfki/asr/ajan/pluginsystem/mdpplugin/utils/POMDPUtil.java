@@ -9,9 +9,7 @@ import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.json.JSONObject;
@@ -20,7 +18,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public final class POMDPUtil {
-    protected final static ValueFactory vf = SimpleValueFactory.getInstance();
 
     private POMDPUtil() {
 
@@ -44,14 +41,6 @@ public final class POMDPUtil {
                 m1 = model;
             }
             info.getAgentBeliefs().update(m1);
-        }
-    }
-
-    public static void removeInput(final Model model, final String repository, final AgentTaskInformation info) {
-        if (repository.equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
-            info.getExecutionBeliefs().update(new LinkedHashModel(), model, false);
-        } else if (repository.equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
-            info.getAgentBeliefs().update(new LinkedHashModel(), model, false);
         }
     }
 
@@ -99,8 +88,8 @@ public final class POMDPUtil {
     }
 
     public static String getDataString(AgentTaskInformation metadata, URI originBase, RDFFormat format, BehaviorConstructQuery data) {
-        Repository repository = null;
-        String dataString = null;
+        Repository repository;
+        String dataString;
         try {
             repository = BTUtil.getInitializedRepository(metadata, originBase);
             Model model = data.getResult(repository);

@@ -59,9 +59,6 @@ public class InitializeBelief extends AbstractTDBLeafTask implements NodeExtensi
     @Override
     public NodeStatus executeLeaf() {
 
-        String id = this.getObject().getAgentBeliefs().getId();
-        String repoUrl = this.getObject().getAgentBeliefs().getSparqlEndpoint().toString();
-
         JSONObject stateParams = new JSONObject();
         stateParams.put("pomdp_id", pomdpId);
         stateParams.put("representation", representation);

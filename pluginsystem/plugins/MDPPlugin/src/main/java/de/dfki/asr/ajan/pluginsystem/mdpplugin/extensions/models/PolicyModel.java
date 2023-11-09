@@ -11,7 +11,6 @@ import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.extensions.datamodels.Attribute;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.HTTPHelper;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.KnowledgeBaseHelper;
-import de.dfki.asr.poser.Namespace.JSON;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -19,16 +18,12 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.RDFWriter;
-import org.eclipse.rdf4j.rio.Rio;
 import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
 import org.eclipse.rdf4j.repository.Repository;
 
-import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.List;
 
