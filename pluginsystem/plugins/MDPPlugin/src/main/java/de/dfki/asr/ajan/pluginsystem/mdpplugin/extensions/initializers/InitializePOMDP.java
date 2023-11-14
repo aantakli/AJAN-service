@@ -55,13 +55,15 @@ public class InitializePOMDP extends AbstractTDBLeafTask implements NodeExtensio
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+"FAILED");
         }
         Model inputModel = getInputModel(pomdpId);
-        POMDPUtil.writeInput(inputModel, AJANVocabulary.EXECUTION_KNOWLEDGE.toString(), this.getObject());
+        POMDPUtil.writeInput(inputModel, AJANVocabulary.EXECUTION_KNOWLEDGE.toString(), this.getObject(), false);
         return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), this +" SUCCEEDED");
     }
 
     private Model getInputModel(final int pomdpId) {
-        Model model = new LinkedHashModel();
-        model.add(POMDPVocabulary.POMDP, POMDPVocabulary.HAS_ID,vf.createLiteral(pomdpId));
+        Model model = POMDPUtil.getModel(AJANVocabulary.EXECUTION_KNOWLEDGE.toString(), this.getObject());
+        model.add(POMDPVocabulary.POMDP, org.eclipse.rdf4j.model.vocabulary.RDF.VALUE,POMDPVocabulary.createIRI(pomdpId));
+        model.remove(POMDPVocabulary.POMDP, POMDPVocabulary.IS_CURRENT,null);
+        model.add(POMDPVocabulary.POMDP, POMDPVocabulary.IS_CURRENT,POMDPVocabulary.createIRI(pomdpId));
         return model;
     }
 

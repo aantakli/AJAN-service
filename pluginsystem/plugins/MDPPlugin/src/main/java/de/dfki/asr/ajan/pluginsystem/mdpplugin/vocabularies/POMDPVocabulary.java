@@ -58,4 +58,8 @@ public class POMDPVocabulary {
     public static IRI createIRI(IRI nameSpace, int id) {
         return FACTORY.createIRI(nameSpace.toString().replace('#', '/'), "_" + id);
     }
+
+    public static IRI createIRI(IRI nameSpace, String name) {
+        return FACTORY.createIRI(nameSpace.toString().replace('#', '/'), "_" + name);
+    }
 }
