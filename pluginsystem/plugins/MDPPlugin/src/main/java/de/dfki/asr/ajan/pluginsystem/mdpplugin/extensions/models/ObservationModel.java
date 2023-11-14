@@ -9,8 +9,6 @@ import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.extensions.datamodels.Attribute;
-import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.HTTPHelper;
-import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.KnowledgeBaseHelper;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.POMDPUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,12 +18,9 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.rio.RDFFormat;
-import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
-import org.eclipse.rdf4j.repository.Repository;
 
-import java.net.URISyntaxException;
 import java.util.List;
 
 @Getter
@@ -67,13 +62,17 @@ public class ObservationModel extends AbstractTDBLeafTask implements NodeExtensi
     @Getter @Setter
     private BehaviorSelectQuery argmax;
 
+    @RDF("bt-mdp:associated-object")
+    @Getter @Setter
+    private String associatedObjectName;
+
 
     @Override
     public NodeStatus executeLeaf() {
         return POMDPUtil.sendProbabilisticDataToEndpoint(getObject(), data.getOriginBase(), pomdpId, null,
                 "http://127.0.0.1:8000/AJAN/pomdp/observation_model/create/init-model",
                 RDFFormat.TURTLE, data, probability, sample, argmax,
-                this.getObject().getLogger(), this.getClass(), toString());
+                this.getObject().getLogger(), this.getClass(), toString(), associatedObjectName);
 
     }
 

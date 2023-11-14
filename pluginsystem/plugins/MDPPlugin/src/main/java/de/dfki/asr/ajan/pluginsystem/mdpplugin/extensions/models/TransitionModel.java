@@ -66,13 +66,17 @@ public class TransitionModel extends AbstractTDBLeafTask implements NodeExtensio
     @Getter @Setter
     private BehaviorSelectQuery argmax;
 
+    @RDF("bt-mdp:associated-object")
+    @Getter @Setter
+    private String associatedObjectName;
+
 
     @Override
     public NodeStatus executeLeaf() {
         return POMDPUtil.sendProbabilisticDataToEndpoint(getObject(), data.getOriginBase(), pomdpId, modelType,
                 "http://127.0.0.1:8000/AJAN/pomdp/transition_model/create/init-model",
                 RDFFormat.TURTLE, data, probability, sample, argmax,
-                this.getObject().getLogger(), this.getClass(), toString());
+                this.getObject().getLogger(), this.getClass(), toString(), associatedObjectName);
     }
 
     @Override

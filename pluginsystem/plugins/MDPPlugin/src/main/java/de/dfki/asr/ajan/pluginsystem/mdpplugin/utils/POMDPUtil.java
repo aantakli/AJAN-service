@@ -53,7 +53,7 @@ public final class POMDPUtil {
         return new LinkedHashModel();
     }
 
-    public static JSONObject getProbabilisticModelParams(int pomdpId,String type, String data, BehaviorSelectQuery probability, BehaviorSelectQuery sample, BehaviorSelectQuery argmax) {
+    public static JSONObject getProbabilisticModelParams(int pomdpId, String type, String data, BehaviorSelectQuery probability, BehaviorSelectQuery sample, BehaviorSelectQuery argmax, String associatedObjectName) {
         JSONObject params = new JSONObject();
         params.put("data", data);
         if(type !=null){
@@ -63,23 +63,24 @@ public final class POMDPUtil {
         params.put("probability_query", probability.getSparql());
         params.put("sample_query", sample.getSparql());
         params.put("argmax_query", argmax.getSparql());
+        params.put("associated_object_name", associatedObjectName);
         return params;
     }
 
     public static NodeStatus sendProbabilisticDataToEndpoint(final AgentTaskInformation metadata, final URI originBase,
-                                                      int pomdpId,
-                                                      String type,
-                                                      String endpointUrl,
-                                                      RDFFormat format,
-                                                      BehaviorConstructQuery data,
-                                                      BehaviorSelectQuery probability,
-                                                      BehaviorSelectQuery sample,
-                                                      BehaviorSelectQuery argmax,
-                                                      AJANLogger logger,
-                                                      Class<?> thisClass,
-                                                      String objectString) {
+                                                             int pomdpId,
+                                                             String type,
+                                                             String endpointUrl,
+                                                             RDFFormat format,
+                                                             BehaviorConstructQuery data,
+                                                             BehaviorSelectQuery probability,
+                                                             BehaviorSelectQuery sample,
+                                                             BehaviorSelectQuery argmax,
+                                                             AJANLogger logger,
+                                                             Class<?> thisClass,
+                                                             String objectString, String associatedObjectName) {
         String dataString = getDataString(metadata, originBase, format, data);
-        JSONObject params = POMDPUtil.getProbabilisticModelParams(pomdpId,type, dataString, probability, sample, argmax);
+        JSONObject params = POMDPUtil.getProbabilisticModelParams(pomdpId,type, dataString, probability, sample, argmax, associatedObjectName);
         int responseCode = HTTPHelper.sendPostRequest(endpointUrl, params, logger, thisClass);
         if(responseCode >= 300 || dataString == null){
             return new NodeStatus(Task.Status.FAILED, logger, thisClass, objectString+"FAILED");

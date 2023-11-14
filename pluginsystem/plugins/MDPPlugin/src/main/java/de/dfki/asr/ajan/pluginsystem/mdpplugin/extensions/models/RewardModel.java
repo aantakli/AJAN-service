@@ -9,8 +9,6 @@ import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.extensions.datamodels.Attribute;
-import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.HTTPHelper;
-import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.KnowledgeBaseHelper;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.POMDPUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,13 +17,10 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.rio.RDFFormat;
-import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
 
-import java.net.URISyntaxException;
 import java.util.List;
 
 @Getter
@@ -77,7 +72,7 @@ public class RewardModel extends AbstractTDBLeafTask implements NodeExtension {
         return POMDPUtil.sendProbabilisticDataToEndpoint(getObject(), data.getOriginBase(),pomdpId, modelType,
                 "http://127.0.0.1:8000/AJAN/pomdp/reward_model/create/init-model",
                 RDFFormat.TURTLE, data, probability, sample, argmax,
-                this.getObject().getLogger(), this.getClass(), toString());
+                this.getObject().getLogger(), this.getClass(), toString(), null);
     }
     @Override
     public void end() {
