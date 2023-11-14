@@ -2250,6 +2250,28 @@
             nd:default "0"^^xsd:int;
             nd:title "POMDP ID";
         ].
+:InitializeModels nd:class nd:Leaf;
+        nd:category "POMDP Nodes";
+        nd:name "InitializeModels";
+        nd:labelType nd:Dynamic;
+        rdfs:label "DefaultInitializeModels";
+        nd:type bt-mdp:InitializeModels;
+        nd:style[
+            a nd:StyleDef;
+            nd:color "#ebe8ed";
+            nd:shape nd:Polygon;
+            nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+            nd:padding "700%";
+            nd:paddingTo "width";
+            nd:icon "mqtt_broker.png";
+        ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo bt-mdp:pomdpId;
+            nd:input xsd:int;
+            nd:default "0"^^xsd:int;
+            nd:title "POMDP ID";
+        ].
 :CreateAction nd:class nd:Leaf;
     nd:category "POMDP Nodes";
     nd:name "CreateAction";
@@ -2359,6 +2381,12 @@
         nd:input xsd:int;
         nd:default "0"^^xsd:int;
         nd:title "POMDP ID";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:associated-object;
+        nd:input xsd:string;
+        nd:title "Associated Object (e.g. Drone, Person)";
     ];
     nd:list
     [
@@ -2622,6 +2650,12 @@
         nd:input xsd:string;
         nd:default "agen"^^xsd:string;
         nd:title "Type (agent or env)";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:associated-object;
+        nd:input xsd:string;
+        nd:title "Associated Object (e.g. Drone, Person)";
     ];
     nd:list
     [
