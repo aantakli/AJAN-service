@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class HTTPHelper {
-    public static int sendPostRequest(String requestUrl, JSONObject jsonParams, AJANLogger logger, Class<?> thisClass) {
+    public static Object sendPostRequest(String requestUrl, JSONObject jsonParams, AJANLogger logger, Class<?> thisClass, boolean returnJSON) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(requestUrl);
         httpPost.setHeader("Content-Type", "application/json");
@@ -29,10 +29,15 @@ public class HTTPHelper {
         try {
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
             httpResponse = httpClient.execute(httpPost);
-            String responseBody = EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8);
             StatusLine statusLine = httpResponse.getStatusLine();
             if(statusLine.getStatusCode() >= 300) {
                 logger.info(thisClass,"POST Response Status: " + httpResponse.getStatusLine().getStatusCode());
+            }
+            if(returnJSON) {
+                String responseBody = EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8);
+                JSONObject returnValue = new JSONObject(responseBody);
+                returnValue.put("statusCode",statusLine.getStatusCode());
+                return returnValue;
             }
             return statusLine.getStatusCode();
         } catch (IOException e) {

@@ -18,7 +18,6 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
@@ -50,7 +49,7 @@ public class InitializePOMDP extends AbstractTDBLeafTask implements NodeExtensio
     public NodeStatus executeLeaf() {
         JSONObject stateParams = new JSONObject();
         stateParams.put("pomdp_id", pomdpId);
-        int responseCode = HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/initialize", stateParams, this.getObject().getLogger(), this.getClass());
+        int responseCode = (int) HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/initialize", stateParams, this.getObject().getLogger(), this.getClass(), false);
         if(responseCode >= 300){
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+"FAILED");
         }

@@ -40,7 +40,7 @@ public class InitializeStates extends AbstractTDBLeafTask implements NodeExtensi
     public NodeStatus executeLeaf() {
         JSONObject params = new JSONObject();
         params.put("pomdp_id", pomdpId);
-        int responseCode = HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/state/initialize", params, this.getObject().getLogger(),this.getClass());
+        int responseCode = (int) HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/state/initialize", params, this.getObject().getLogger(),this.getClass(), false);
         if(responseCode >= 300) {
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+"FAILED");
         }

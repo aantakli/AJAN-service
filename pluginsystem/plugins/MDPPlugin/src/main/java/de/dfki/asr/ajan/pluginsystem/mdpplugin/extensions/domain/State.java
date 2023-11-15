@@ -69,7 +69,7 @@ public class State extends AbstractTDBLeafTask implements NodeExtension {
     @Override
     public NodeStatus executeLeaf() {
         JSONObject stateParams = getParams();
-        int responseCode = HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/state/create/agent", stateParams, this.getObject().getLogger(), this.getClass());
+        int responseCode = (int) HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/state/create/agent", stateParams, this.getObject().getLogger(), this.getClass(), false);
         if(responseCode >= 300){
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+"FAILED");
         }

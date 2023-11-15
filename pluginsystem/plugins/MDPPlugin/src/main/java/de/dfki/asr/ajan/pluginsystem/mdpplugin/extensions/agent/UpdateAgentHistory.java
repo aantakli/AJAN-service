@@ -42,7 +42,7 @@ public class UpdateAgentHistory extends AbstractTDBLeafTask implements NodeExten
     public NodeStatus executeLeaf() {
 //        JSONObject params = new JSONObject();
 //        params.put("pomdp_id", pomdpId);
-//        int responseCode = HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/observation/create"+pomdpId, params, this.getObject().getLogger(),this.getClass());
+//        int responseCode = (int) HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/observation/create"+pomdpId, params, this.getObject().getLogger(),this.getClass());
 //        if(responseCode >= 300 ) {
 //            return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+" FAILED");
 //        }

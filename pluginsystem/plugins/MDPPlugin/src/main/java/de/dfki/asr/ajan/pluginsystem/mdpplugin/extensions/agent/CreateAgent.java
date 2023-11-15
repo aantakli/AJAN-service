@@ -10,7 +10,6 @@ import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.HTTPHelper;
-import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.KnowledgeBaseHelper;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -18,13 +17,10 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
-
-import java.net.URISyntaxException;
 
 import static de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.POMDPUtil.getDataString;
 
@@ -55,7 +51,7 @@ public class CreateAgent extends AbstractTDBLeafTask implements NodeExtension {
         params.put("pomdp_id", pomdpId);
         String dataString = getDataString(getObject(), data.getOriginBase(), RDFFormat.TURTLE, data);
         params.put("data",dataString);
-        int responseCode = HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/agent/create", params, this.getObject().getLogger(),this.getClass());
+        int responseCode = (int) HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/agent/create", params, this.getObject().getLogger(),this.getClass(), false);
         if(responseCode >= 300 || dataString == null) {
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+"FAILED");
         }

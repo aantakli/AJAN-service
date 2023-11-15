@@ -74,7 +74,7 @@ public class PolicyModel extends AbstractTDBLeafTask implements NodeExtension {
             Model model = data.getResult(repository);
             String data = KnowledgeBaseHelper.getString(model, RDFFormat.TURTLE);
             JSONObject params = getParams(data);
-            int responseCode = HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/policy_model/create/init-model", params, this.getObject().getLogger(), this.getClass());
+            int responseCode = (int) HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/policy_model/create/init-model", params, this.getObject().getLogger(), this.getClass(), false);
             if(responseCode >= 300){
                 return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+"FAILED");
             }
