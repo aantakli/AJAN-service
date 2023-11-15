@@ -35,6 +35,7 @@ public class POMDPVocabulary {
 
     // state1 --hasReward--> <some Number>
     public final static IRI HAS_REWARD = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#hasReward");
+    public final static IRI PLANNED_ACTION = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#plannedAction");
 
     //pomdp --solver--> "DESPOT"
     public final static IRI SOLVER_NAME = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#solver");
