@@ -52,6 +52,8 @@ public class POMDPVocabulary {
     // :emptyNode --with-probability--> 0.5
     public final static IRI WITH_PROBABILITY = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#probability");
 
+    public final static IRI ACTION_SELECTOR = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#ActionSelector");
+
     public static IRI createIRI(int pomdpId) {
         return FACTORY.createIRI(pomdp_ns.toString(), String.valueOf(pomdpId));
     }
