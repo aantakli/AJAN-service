@@ -49,8 +49,11 @@ public class InitializePOMDP extends AbstractTDBLeafTask implements NodeExtensio
     public NodeStatus executeLeaf() {
         JSONObject stateParams = new JSONObject();
         stateParams.put("pomdp_id", pomdpId);
-        int responseCode = (int) HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/initialize", stateParams, this.getObject().getLogger(), this.getClass(), false);
-        if(responseCode >= 300){
+        if(HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/initialize",
+                stateParams,
+                this.getObject().getLogger(),
+                this.getClass(),
+                Boolean.class)){
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+"FAILED");
         }
         Model inputModel = getInputModel(pomdpId);

@@ -68,8 +68,12 @@ public class CreatePlanner extends AbstractTDBLeafTask implements NodeExtension 
     @Override
     public NodeStatus executeLeaf() {
         JSONObject params = getParams();
-        int responseCode = (int) HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/planner/create", params, this.getObject().getLogger(),this.getClass(), false);
-        if(responseCode >= 300) {
+
+        if(HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/planner/create",
+                params,
+                this.getObject().getLogger(),
+                this.getClass(),
+                Boolean.class)) {
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+"FAILED");
         }
         return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), this +" SUCCEEDED");

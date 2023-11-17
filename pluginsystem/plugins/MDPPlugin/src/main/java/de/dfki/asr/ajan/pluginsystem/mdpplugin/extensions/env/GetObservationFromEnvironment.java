@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 
 
 @Extension
@@ -41,8 +42,15 @@ public class GetObservationFromEnvironment extends AbstractTDBLeafTask implement
     @Override
     public NodeStatus executeLeaf() {
         JSONObject params = new JSONObject();
-        params.put("pomdp_id", pomdpId);
-        int responseCode = (int) HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/env/provide-observation"+pomdpId, params, this.getObject().getLogger(),this.getClass(), false);
+//        params.put("pomdp_id", pomdpId);
+        params.put("return_type", "turtle");
+        ArrayList<?> response = HTTPHelper.sendPostRequest("http://192.168.178.154:5002/Unity-service/get-pose-sensor-reading",
+                params,
+                this.getObject().getLogger(),
+                this.getClass(),
+                ArrayList.class);
+        int responseCode = Integer.parseInt((String) response.get(0));
+        String ttlString = (String) response.get(1);
         if(responseCode >= 300 ) {
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+" FAILED");
         }

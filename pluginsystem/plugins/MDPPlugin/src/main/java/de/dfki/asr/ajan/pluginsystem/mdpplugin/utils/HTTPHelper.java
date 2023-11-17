@@ -16,9 +16,10 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 public class HTTPHelper {
-    public static Object sendPostRequest(String requestUrl, JSONObject jsonParams, AJANLogger logger, Class<?> thisClass, boolean returnJSON) {
+    public static <T> T sendPostRequest(String requestUrl, JSONObject jsonParams, AJANLogger logger, Class<?> thisClass, Class<T> returnJSON) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(requestUrl);
         httpPost.setHeader("Content-Type", "application/json");
@@ -33,13 +34,21 @@ public class HTTPHelper {
             if(statusLine.getStatusCode() >= 300) {
                 logger.info(thisClass,"POST Response Status: " + httpResponse.getStatusLine().getStatusCode());
             }
-            if(returnJSON) {
+            if(returnJSON == JSONObject.class) {
                 String responseBody = EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8);
                 JSONObject returnValue = new JSONObject(responseBody);
                 returnValue.put("statusCode",statusLine.getStatusCode());
-                return returnValue;
+                return returnJSON.cast(returnValue);
+            } else if (returnJSON == ArrayList.class) {
+                String responseBody = EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8);
+                ArrayList<String> returnValue = new ArrayList<>();
+                returnValue.add(String.valueOf(statusLine.getStatusCode()));
+                returnValue.add(responseBody);
+                return returnJSON.cast(returnValue);
+            } else if (returnJSON == Boolean.class) {
+                return returnJSON.cast(statusLine.getStatusCode() >= 300);
             }
-            return statusLine.getStatusCode();
+            return returnJSON.cast(statusLine.getStatusCode());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

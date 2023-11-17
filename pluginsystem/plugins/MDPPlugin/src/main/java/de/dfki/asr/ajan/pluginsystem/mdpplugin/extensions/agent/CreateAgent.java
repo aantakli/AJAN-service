@@ -51,8 +51,12 @@ public class CreateAgent extends AbstractTDBLeafTask implements NodeExtension {
         params.put("pomdp_id", pomdpId);
         String dataString = getDataString(getObject(), data.getOriginBase(), RDFFormat.TURTLE, data);
         params.put("data",dataString);
-        int responseCode = (int) HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/agent/create", params, this.getObject().getLogger(),this.getClass(), false);
-        if(responseCode >= 300 || dataString == null) {
+
+        if(HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/agent/create",
+                params,
+                this.getObject().getLogger(),
+                this.getClass(),
+                Boolean.class) || dataString == null) {
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+"FAILED");
         }
         return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), this +" SUCCEEDED");

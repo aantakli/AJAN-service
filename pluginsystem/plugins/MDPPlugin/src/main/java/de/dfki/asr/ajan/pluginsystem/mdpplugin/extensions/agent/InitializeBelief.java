@@ -70,9 +70,11 @@ public class InitializeBelief extends AbstractTDBLeafTask implements NodeExtensi
 
 //        stateParams.put("repo_url", repoUrl);
 
-
-        int responseCode = (int) HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/belief/create/init-belief", stateParams, this.getObject().getLogger(), this.getClass(), false);
-        if(responseCode >= 300){
+        if(HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/belief/create/init-belief",
+                stateParams,
+                this.getObject().getLogger(),
+                this.getClass(),
+                Boolean.class)){
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+"FAILED");
         }
 

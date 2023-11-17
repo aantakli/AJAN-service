@@ -81,8 +81,7 @@ public final class POMDPUtil {
                                                              String objectString, String associatedObjectName) {
         String dataString = getDataString(metadata, originBase, format, data);
         JSONObject params = POMDPUtil.getProbabilisticModelParams(pomdpId,type, dataString, probability, sample, argmax, associatedObjectName);
-        int responseCode = (int) HTTPHelper.sendPostRequest(endpointUrl, params, logger, thisClass, false);
-        if(responseCode >= 300 || dataString == null){
+        if(HTTPHelper.sendPostRequest(endpointUrl, params, logger, thisClass, Boolean.class) || dataString == null){
             return new NodeStatus(Task.Status.FAILED, logger, thisClass, objectString+"FAILED");
         }
         return new NodeStatus(Task.Status.SUCCEEDED, logger, thisClass, objectString +" SUCCEEDED");

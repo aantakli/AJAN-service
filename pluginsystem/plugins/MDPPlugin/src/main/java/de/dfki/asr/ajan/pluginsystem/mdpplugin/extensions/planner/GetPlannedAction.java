@@ -47,7 +47,7 @@ public class GetPlannedAction extends AbstractTDBLeafTask implements NodeExtensi
     public NodeStatus executeLeaf() {
         JSONObject params = new JSONObject();
         params.put("pomdp_id", pomdpId);
-        JSONObject returnJson = (JSONObject) HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/planner/get-action", params, this.getObject().getLogger(),this.getClass(), true);
+        JSONObject returnJson = (JSONObject) HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/planner/get-action", params, this.getObject().getLogger(),this.getClass(), JSONObject.class);
         int responseCode = (int) returnJson.get("statusCode");
         String action = (String) returnJson.get("name");
         Model model = getOutputModel(action);
