@@ -6,8 +6,10 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
+import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.HTTPHelper;
+import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.POMDPUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -15,17 +17,26 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.Rio;
 import org.json.JSONObject;
 import org.pf4j.Extension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+
+import static de.dfki.asr.ajan.behaviour.service.impl.IConnection.BASE_URI;
 
 
 @Extension
 @Component
 @RDFBean("bt-mdp:getObservationFromEnvironment")
 public class GetObservationFromEnvironment extends AbstractTDBLeafTask implements NodeExtension {
+    private static final Logger LOG = LoggerFactory.getLogger(GetObservationFromEnvironment.class);
 
     @RDFSubject
     @Getter @Setter
@@ -51,6 +62,13 @@ public class GetObservationFromEnvironment extends AbstractTDBLeafTask implement
                 ArrayList.class);
         int responseCode = Integer.parseInt((String) response.get(0));
         String ttlString = (String) response.get(1);
+        try {
+            Model newModel = Rio.parse(new ByteArrayInputStream(ttlString.getBytes(StandardCharsets.UTF_8)), BASE_URI, RDFFormat.TURTLE);
+            POMDPUtil.writeInput(newModel, AJANVocabulary.EXECUTION_KNOWLEDGE.toString(), this.getObject(), true);
+        } catch (Exception e) {
+            LOG.error("Error while parsing turtle string: " + e.getMessage());
+            return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+" FAILED");
+        }
         if(responseCode >= 300 ) {
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+" FAILED");
         }
