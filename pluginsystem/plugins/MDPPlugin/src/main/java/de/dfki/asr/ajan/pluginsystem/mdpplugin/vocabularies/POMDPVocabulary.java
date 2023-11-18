@@ -32,6 +32,7 @@ public class POMDPVocabulary {
     public final static IRI BELIEF = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#Belief");
     public final static IRI ACTION = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#Action");
     public final static IRI OBSERVATION = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#Observation");
+    public final static IRI CURRENT_OBSERVATION = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#CurrentObservation");
 
     // state1 --hasReward--> <some Number>
     public final static IRI HAS_REWARD = FACTORY.createIRI("http://www.dfki.de/pomdp-ns#hasReward");
@@ -65,4 +66,5 @@ public class POMDPVocabulary {
     public static IRI createIRI(IRI nameSpace, String name) {
         return FACTORY.createIRI(nameSpace.toString().replace('#', '/'), "_" + name);
     }
+
 }

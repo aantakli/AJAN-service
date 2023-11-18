@@ -10,6 +10,7 @@ import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.HTTPHelper;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.POMDPUtil;
+import de.dfki.asr.ajan.pluginsystem.mdpplugin.vocabularies.POMDPVocabulary;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -26,10 +27,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import static de.dfki.asr.ajan.behaviour.service.impl.IConnection.BASE_URI;
+import static de.dfki.asr.ajan.pluginsystem.mdpplugin.queries.CommonQueries.getCurrentPOMDPId;
 
 
 @Extension
@@ -53,7 +57,7 @@ public class GetObservationFromEnvironment extends AbstractTDBLeafTask implement
     @Override
     public NodeStatus executeLeaf() {
         JSONObject params = new JSONObject();
-//        params.put("pomdp_id", pomdpId);
+        params.put("id", pomdpId);
         params.put("return_type", "turtle");
         ArrayList<?> response = HTTPHelper.sendPostRequest("http://192.168.178.154:5002/Unity-service/get-pose-sensor-reading",
                 params,
@@ -61,18 +65,42 @@ public class GetObservationFromEnvironment extends AbstractTDBLeafTask implement
                 this.getClass(),
                 ArrayList.class);
         int responseCode = Integer.parseInt((String) response.get(0));
-        String ttlString = (String) response.get(1);
         try {
-            Model newModel = Rio.parse(new ByteArrayInputStream(ttlString.getBytes(StandardCharsets.UTF_8)), BASE_URI, RDFFormat.TURTLE);
-            POMDPUtil.writeInput(newModel, AJANVocabulary.EXECUTION_KNOWLEDGE.toString(), this.getObject(), true);
+            String ttlString = (String) response.get(1);
+            updateRDFInExecutionKnowledge(ttlString);
+            sendToEndpoint(ttlString);
         } catch (Exception e) {
             LOG.error("Error while parsing turtle string: " + e.getMessage());
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+" FAILED");
         }
+
+        // Update the POMDP End point with the received observation
+
         if(responseCode >= 300 ) {
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+" FAILED");
         }
         return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), this +" SUCCEEDED");
+    }
+
+    private void sendToEndpoint(String ttlString){
+        JSONObject params = new JSONObject();
+        try {
+            params.put("pomdp_id", getCurrentPOMDPId(this.getObject()));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        params.put("data", ttlString);
+        if(HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/agent/update-history", params, this.getObject().getLogger(),this.getClass(), Boolean.class)){
+            throw new RuntimeException("Error while sending observation to endpoint");
+        }
+    }
+
+    private void updateRDFInExecutionKnowledge(String ttlString) throws IOException {
+        Model model = POMDPUtil.getModel(AJANVocabulary.EXECUTION_KNOWLEDGE.toString(), this.getObject());
+        Model newModel = Rio.parse(new ByteArrayInputStream(ttlString.getBytes(StandardCharsets.UTF_8)), BASE_URI, RDFFormat.TURTLE);
+        model.remove(null, null, null, POMDPVocabulary.CURRENT_OBSERVATION);
+        model.addAll(newModel);
+        POMDPUtil.writeInput(model, AJANVocabulary.EXECUTION_KNOWLEDGE.toString(), this.getObject(), false);
     }
 
     @Override
