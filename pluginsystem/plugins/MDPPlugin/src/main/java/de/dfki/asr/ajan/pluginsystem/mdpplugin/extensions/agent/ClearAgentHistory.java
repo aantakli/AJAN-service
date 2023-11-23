@@ -40,12 +40,12 @@ public class ClearAgentHistory extends AbstractTDBLeafTask implements NodeExtens
 
     @Override
     public NodeStatus executeLeaf() {
-//        JSONObject params = new JSONObject();
-//        params.put("pomdp_id", pomdpId);
-//        int responseCode = (int) HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/observation/create"+pomdpId, params, this.getObject().getLogger(),this.getClass());
-//        if(responseCode >= 300 ) {
-//            return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+" FAILED");
-//        }
+        JSONObject params = new JSONObject();
+        params.put("pomdp_id", pomdpId);
+        int responseCode = HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/agent/clear-history", params, this.getObject().getLogger(),this.getClass(), Integer.class);
+        if(responseCode >= 300 ) {
+            return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+" FAILED");
+        }
         return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), this +" SUCCEEDED");
     }
 

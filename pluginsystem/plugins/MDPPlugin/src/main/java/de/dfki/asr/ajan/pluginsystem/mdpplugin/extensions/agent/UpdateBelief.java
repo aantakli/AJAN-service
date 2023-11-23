@@ -7,6 +7,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
+import de.dfki.asr.ajan.pluginsystem.mdpplugin.queries.CommonQueries;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.HTTPHelper;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,10 @@ import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
 
+import java.net.URISyntaxException;
+
+import static de.dfki.asr.ajan.pluginsystem.mdpplugin.queries.CommonQueries.getConstructResult;
+import static de.dfki.asr.ajan.pluginsystem.mdpplugin.queries.CommonQueries.getCurrentPOMDPId;
 
 
 @Extension
@@ -40,13 +45,27 @@ public class UpdateBelief extends AbstractTDBLeafTask implements NodeExtension {
 
     @Override
     public NodeStatus executeLeaf() {
-//        JSONObject params = new JSONObject();
-//        params.put("pomdp_id", pomdpId);
-//        int responseCode = (int) HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/observation/create"+pomdpId, params, this.getObject().getLogger(),this.getClass());
-//        if(responseCode >= 300 ) {
-//            return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+" FAILED");
-//        }
+        try {
+            String ttlString = getConstructResult(this.getObject(), CommonQueries.CONSTRUCT_CURRENT_OBSERVATION);
+            sendToEndpoint(ttlString);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
         return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), this +" SUCCEEDED");
+    }
+
+    private void sendToEndpoint(String ttlString) {
+        JSONObject params = new JSONObject();
+        try {
+            params.put("pomdp_id", getCurrentPOMDPId(this.getObject()));
+            params.put("state_id", stateId);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        params.put("data", ttlString);
+        if (HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/agent/update-belief", params, this.getObject().getLogger(), this.getClass(), Boolean.class)) {
+            throw new RuntimeException("Error while sending observation to endpoint");
+        }
     }
 
     @Override
