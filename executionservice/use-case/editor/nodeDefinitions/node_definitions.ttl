@@ -3122,10 +3122,10 @@
        ];
         nd:parameter [
             a nd:Parameter;
-            nd:mapsTo bt-mdp:pomdpId;
+            nd:mapsTo bt-mdp:stateId;
             nd:input xsd:int;
             nd:default "0"^^xsd:int;
-            nd:title "POMDP ID";
+            nd:title "State ID";
         ].
 
 :OOConverter nd:class nd:Leaf;

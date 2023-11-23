@@ -34,9 +34,9 @@ public class UpdateBelief extends AbstractTDBLeafTask implements NodeExtension {
     @Getter @Setter
     private String label;
 
-    @RDF("bt-mdp:pomdpId")
-    @Setter
-    private int pomdpId;
+    @RDF("bt-mdp:stateId")
+    @Getter @Setter
+    private int stateId;
 
     @Override
     public NodeStatus executeLeaf() {
