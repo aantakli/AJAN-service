@@ -68,7 +68,7 @@ public class GetObservationFromEnvironment extends AbstractTDBLeafTask implement
         try {
             String ttlString = (String) response.get(1);
             updateRDFInExecutionKnowledge(ttlString);
-            sendToEndpoint(ttlString);
+//            sendToEndpoint(ttlString);
         } catch (Exception e) {
             LOG.error("Error while parsing turtle string: " + e.getMessage());
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+" FAILED");
