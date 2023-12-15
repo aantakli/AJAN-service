@@ -2433,20 +2433,20 @@
     nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mdp:observation-sample;
-	    nd:title "Observation Sample: ?sample";
+	    nd:title "Observation Sample:";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
-        nd:type bt:SelectQuery;
+        nd:type bt:ConstructQuery;
     ];
     nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mdp:observation-argmax;
-	    nd:title "Observation Argmax: ?argmax";
+	    nd:title "Observation Argmax:";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
-        nd:type bt:SelectQuery;
+        nd:type bt:ConstructQuery;
     ].
 
 :PolicyModel nd:class nd:Leaf;
@@ -2507,29 +2507,29 @@
     nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mdp:policy-sample;
-	    nd:title "Policy Sample: ?sample";
+	    nd:title "Policy Sample:";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
-        nd:type bt:SelectQuery;
+        nd:type bt:ConstructQuery;
     ];
     nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mdp:policy-rollout;
-	    nd:title "Policy Probability: ?rollout";
+	    nd:title "Policy Rollout:";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
-        nd:type bt:SelectQuery;
+        nd:type bt:ConstructQuery;
     ];
     nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mdp:policy-getAllActions;
-	    nd:title "Get All Actions: ?allActions";
+	    nd:title "Get All Actions:";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
-        nd:type bt:SelectQuery;
+        nd:type bt:ConstructQuery;
     ].
 
 :RewardModel nd:class nd:Leaf;
@@ -2648,7 +2648,7 @@
         a nd:Parameter;
         nd:mapsTo bt-mdp:model-type;
         nd:input xsd:string;
-        nd:default "agen"^^xsd:string;
+        nd:default "agent"^^xsd:string;
         nd:title "Type (agent or env)";
     ];
     nd:parameter [
@@ -2693,11 +2693,11 @@
     nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mdp:transition-sample;
-	    nd:title "Transition Sample: ?sample";
+	    nd:title "Transition Sample: ";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
-        nd:type bt:SelectQuery;
+        nd:type bt:ConstructQuery;
     ];
     nd:parameter [
 	    a nd:Parameter;
@@ -2711,11 +2711,11 @@
     nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo bt-mdp:transition-argmax;
-	    nd:title "Transition Argmax: ?argmax";
+	    nd:title "Transition Argmax:";
 	    nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
-        nd:type bt:SelectQuery;
+        nd:type bt:ConstructQuery;
     ].
 :CreateAgent nd:class nd:Leaf;
     nd:category "POMDP Nodes";
@@ -3126,6 +3126,12 @@
             nd:input xsd:int;
             nd:default "0"^^xsd:int;
             nd:title "State ID";
+        ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo bt-mdp:stateName;
+            nd:input xsd:string;
+            nd:title "Object Name";
         ].
 
 :OOConverter nd:class nd:Leaf;
