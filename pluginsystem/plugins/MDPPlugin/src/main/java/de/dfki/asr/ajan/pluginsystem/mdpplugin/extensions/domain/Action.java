@@ -5,6 +5,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.HTTPHelper;
@@ -21,6 +22,11 @@ import org.eclipse.rdf4j.model.Resource;
 import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
+
+import java.net.URISyntaxException;
+
+import static de.dfki.asr.ajan.pluginsystem.mdpplugin.queries.CommonQueries.getConstructResult;
+import static de.dfki.asr.ajan.pluginsystem.mdpplugin.queries.CommonQueries.getConstructResultModel;
 
 
 @Getter
@@ -45,11 +51,26 @@ public class Action extends AbstractTDBLeafTask implements NodeExtension {
     @Setter
     private int pomdpId;
 
+    @RDF("bt-mdp:attributesQuery")
+    @Setter
+    private BehaviorConstructQuery attributesQuery;
+
+    @RDF("bt-mdp:toPrintQuery")
+    @Setter
+    private BehaviorConstructQuery toPrintQuery;
+
+
     @Override
     public NodeStatus executeLeaf() {
         JSONObject params = new JSONObject();
         params.put("action_name", actionName);
         params.put("pomdp_id", pomdpId);
+        try {
+            params.put("attributes_data", getConstructResult(this.getObject(), attributesQuery));
+            params.put("to_print_data", getConstructResult(this.getObject(), toPrintQuery));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
         if (HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/action/create",
                 params,
                 this.getObject().getLogger(),
@@ -68,6 +89,14 @@ public class Action extends AbstractTDBLeafTask implements NodeExtension {
         IRI actionSubject = POMDPVocabulary.createIRI(POMDPVocabulary.ACTION, actionName);
         model.add(pomdp, POMDPVocabulary.ACTION, actionSubject);
         model.add(actionSubject, POMDPVocabulary.NAME, vf.createLiteral(actionName));
+        try {
+            Model toPrintResult = getConstructResultModel(this.getObject(), toPrintQuery);
+            model.addAll(toPrintResult);
+            Model attributesResult = getConstructResultModel(this.getObject(), attributesQuery);
+            model.addAll(attributesResult);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
         return model;
     }
 

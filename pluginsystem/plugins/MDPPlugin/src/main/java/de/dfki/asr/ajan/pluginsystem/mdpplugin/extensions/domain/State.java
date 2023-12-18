@@ -5,9 +5,9 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import de.dfki.asr.ajan.pluginsystem.mdpplugin.extensions.datamodels.Attribute;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.HTTPHelper;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.utils.POMDPUtil;
 import de.dfki.asr.ajan.pluginsystem.mdpplugin.vocabularies.POMDPVocabulary;
@@ -16,7 +16,6 @@ import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
-import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
@@ -25,7 +24,10 @@ import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.net.URISyntaxException;
+
+import static de.dfki.asr.ajan.pluginsystem.mdpplugin.queries.CommonQueries.getConstructResult;
+import static de.dfki.asr.ajan.pluginsystem.mdpplugin.queries.CommonQueries.getConstructResultModel;
 
 @Getter
 @Extension
@@ -58,13 +60,13 @@ public class State extends AbstractTDBLeafTask implements NodeExtension {
     @Getter @Setter
     private String stateType;
 
-    @RDF("bt-mdp:state-attributes")
+    @RDF("bt-mdp:toPrintQuery")
     @Getter @Setter
-    private List<Attribute> attributes;
+    private BehaviorConstructQuery toPrintQuery;
 
-    @RDF("bt-mdp:state-print-values")
+    @RDF("bt-mdp:attributesQuery")
     @Getter @Setter
-    private List<String> printValues;
+    private BehaviorConstructQuery attributesQuery;
 
     @Override
     public NodeStatus executeLeaf() {
@@ -90,11 +92,13 @@ public class State extends AbstractTDBLeafTask implements NodeExtension {
         model.add(stateSubject, POMDPVocabulary.ID, vf.createLiteral(stateId));
         model.add(stateSubject, POMDPVocabulary.NAME, vf.createLiteral(stateName));
         model.add(stateSubject, POMDPVocabulary.TYPE, vf.createLiteral(stateType));
-        BNode attributes_node = vf.createBNode();
-        model.add(stateSubject, POMDPVocabulary.ATTRIBUTES, attributes_node);
-        for (Attribute attribute:
-             attributes) {
-            model.add(attributes_node, vf.createIRI(POMDPVocabulary.pomdp_ns.toString(), attribute.getName()), vf.createLiteral(attribute.getValue()));
+        try {
+            Model attributesResult = getConstructResultModel(this.getObject(), attributesQuery);
+            Model toPrintResult = getConstructResultModel(this.getObject(), toPrintQuery);
+            model.addAll(attributesResult);
+            model.addAll(toPrintResult);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
         return model;
     }
@@ -105,16 +109,14 @@ public class State extends AbstractTDBLeafTask implements NodeExtension {
 
         JSONObject state = new JSONObject();
         state.put("id", stateId);
-        state.put("name","");
+        state.put("name", stateName);
         JSONObject params = new JSONObject();
-
-        JSONObject attr = new JSONObject();
-        for (Attribute attribute:
-             attributes) {
-            attr.put(attribute.getName(), attribute.getValue());
+        try {
+            params.put("attributes_data",getConstructResult(this.getObject(), attributesQuery));
+            params.put("to_print_data",getConstructResult(this.getObject(), toPrintQuery));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
-        params.put("attributes",attr);
-        params.put("to_print",printValues);
 
         state.put("params", params);
         state.put("type", stateType);

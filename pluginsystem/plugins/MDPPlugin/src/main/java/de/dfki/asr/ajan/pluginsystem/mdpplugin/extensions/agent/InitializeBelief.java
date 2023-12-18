@@ -24,9 +24,12 @@ import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.dfki.asr.ajan.pluginsystem.mdpplugin.queries.CommonQueries.getConstructResult;
+import static de.dfki.asr.ajan.pluginsystem.mdpplugin.queries.CommonQueries.getConstructResultModel;
 
 
 @Extension
@@ -112,6 +115,15 @@ public class InitializeBelief extends AbstractTDBLeafTask implements NodeExtensi
 
             model.add(emptyBeliefNode, org.eclipse.rdf4j.model.vocabulary.RDF.FIRST, emptyStateNode);
             model.add(emptyBeliefNode, POMDPVocabulary.WITH_PROBABILITY, vf.createLiteral(belief.getStateProbability()));
+
+            try {
+                Model attributesResult = getConstructResultModel(this.getObject(), belief.getAttributesQuery());
+                model.addAll(attributesResult);
+                Model toPrintResult = getConstructResultModel(this.getObject(), belief.getToPrintQuery());
+                model.addAll(toPrintResult);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
         model.add(emptyNode, org.eclipse.rdf4j.model.vocabulary.RDF.REST, org.eclipse.rdf4j.model.vocabulary.RDF.NIL);
@@ -129,6 +141,14 @@ public class InitializeBelief extends AbstractTDBLeafTask implements NodeExtensi
             state.put("id", belief.getStateId());
             state.put("name", belief.getStateName());
             state.put("type", belief.getStateType());
+            JSONObject params = new JSONObject();
+            try {
+                params.put("attributes_data",getConstructResult(this.getObject(), belief.getAttributesQuery()));
+                params.put("to_print_data",getConstructResult(this.getObject(), belief.getToPrintQuery()));
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+            state.put("params", params);
             beliefParams.put("state",state);
             beliefParams.put("probability", belief.getStateProbability());
             beliefDict.add(beliefParams);

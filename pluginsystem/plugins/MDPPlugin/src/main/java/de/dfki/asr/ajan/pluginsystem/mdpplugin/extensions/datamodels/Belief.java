@@ -1,5 +1,6 @@
 package de.dfki.asr.ajan.pluginsystem.mdpplugin.extensions.datamodels;
 
+import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import lombok.Data;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -23,5 +24,10 @@ public class Belief implements NodeExtension {
     @RDF("bt-mdp:state-probability")
     private float stateProbability;
 
+    @RDF("bt-mdp:attributesQuery")
+    private BehaviorConstructQuery attributesQuery;
+
+    @RDF("bt-mdp:toPrintQuery")
+    private BehaviorConstructQuery toPrintQuery;
 
 }

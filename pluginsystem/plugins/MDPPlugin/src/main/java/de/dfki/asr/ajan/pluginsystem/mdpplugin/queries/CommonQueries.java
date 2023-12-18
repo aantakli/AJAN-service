@@ -58,19 +58,27 @@ public class CommonQueries {
     }
 
     public static String getConstructResult(AgentTaskInformation info, String constructQuery) throws URISyntaxException {
-        URI originBase = new URI(AJANVocabulary.EXECUTION_KNOWLEDGE.toString());
-        Repository repo = BTUtil.getInitializedRepository(info, originBase);
         BehaviorConstructQuery queryAll = new BehaviorConstructQuery();
         queryAll.setSparql(constructQuery);
-        Model model = queryAll.getResult(repo);
-        OutputStream out = new ByteArrayOutputStream();
-        Rio.write(model, out, RDFFormat.TURTLE);
-        return out.toString();
+        return getConstructResult(info, queryAll);
 //        try( RepositoryConnection connection = repo.getConnection()){
 //            TupleQuery tupleQuery = connection.prepareTupleQuery(constructQuery);
 //            TupleQueryResult result = tupleQuery.evaluate();
 //            return result.toString();
 //        }
+    }
+
+    public static String getConstructResult(AgentTaskInformation info, BehaviorConstructQuery constructQuery) throws URISyntaxException {
+        Model model = getConstructResultModel(info, constructQuery);
+        OutputStream out = new ByteArrayOutputStream();
+        Rio.write(model, out, RDFFormat.TURTLE);
+        return out.toString();
+    }
+
+    public static Model getConstructResultModel(AgentTaskInformation info, BehaviorConstructQuery constructQuery) throws URISyntaxException {
+        URI originBase = new URI(AJANVocabulary.EXECUTION_KNOWLEDGE.toString());
+        Repository repo = BTUtil.getInitializedRepository(info, originBase);
+        return constructQuery.getResult(repo);
     }
 }
 

@@ -2195,39 +2195,21 @@
         nd:default "0"^^xsd:int;
         nd:title "State ID";
     ];
-    nd:list
-    [
-        a nd:List;
-        nd:mapsTo bt-mdp:state-attributes;
-        nd:title "Attributes";
-        nd:parameterSet [
-            a nd:ParameterSet;
-            nd:title "AttributeSet";
-            nd:type bt-mdp:attributes;
-            nd:parameters([
-                    a nd:Parameter;
-                    nd:mapsTo bt-mdp:attribute-name;
-                    nd:input xsd:string;
-                    nd:title "Attr.Name"
-                ][
-                    a nd:Parameter;
-                    nd:mapsTo bt-mdp:attribute-value;
-                    nd:input xsd:string;
-                    nd:title "Attr.Value"
-                ])
-        ]
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:attributesQuery;
+        nd:input nd:Query;
+        nd:type bt:ConstructQuery;
+        nd:title "Attributes Query";
     ];
-    nd:list
-    [
-            a nd:List;
-            nd:mapsTo bt-mdp:state-print-values;
-            nd:title "Include in State Representation";
-            nd:parameter [
-                a nd:Parameter;
-                nd:input xsd:string ;
-                nd:title "Attribute Key Name";
-                ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:toPrintQuery;
+        nd:input nd:Query;
+        nd:type bt:ConstructQuery;
+        nd:title "Include in State Representation";
     ].
+
 :InitializeStates nd:class nd:Leaf;
         nd:category "POMDP Nodes";
         nd:name "InitializeStates";
@@ -2300,6 +2282,20 @@
         nd:title "POMDP ID";
         nd:input xsd:int;
         nd:default "0"^^xsd:int;
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:attributesQuery;
+        nd:title "Attributes";
+        nd:input nd:Query;
+        nd:type bt:ConstructQuery;
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:toPrintQuery;
+        nd:title "Keys For Print";
+        nd:input nd:Query;
+        nd:type bt:ConstructQuery;
     ].
 
 :CreateObservation nd:class nd:Leaf;
@@ -3100,7 +3096,21 @@
                     nd:input xsd:float;
                     nd:default "0.0"^^xsd:float;
                     nd:title "Probability";
-                ] 
+                ]
+                [
+                    a nd:Parameter;
+                    nd:mapsTo bt-mdp:attributesQuery;
+                    nd:input nd:Query;
+                    nd:type bt:ConstructQuery;
+                    nd:title "Attributes Query";
+                ]
+                [
+                    a nd:Parameter;
+                    nd:mapsTo bt-mdp:toPrintQuery;
+                    nd:input nd:Query;
+                    nd:type bt:ConstructQuery;
+                    nd:title "Key Values to Print in State (Query)";
+                ]
                 )
             ]
         ].
