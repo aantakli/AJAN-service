@@ -87,7 +87,7 @@ public class State extends AbstractTDBLeafTask implements NodeExtension {
         IRI stateSubject = POMDPVocabulary.createIRI(POMDPVocabulary.STATE, stateId);
         model.add(pomdp, POMDPVocabulary.STATE, stateSubject);
         model.add(stateSubject, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, POMDPVocabulary.STATE);
-        model.add(stateSubject, POMDPVocabulary.HAS_ID, vf.createLiteral(stateId));
+        model.add(stateSubject, POMDPVocabulary.ID, vf.createLiteral(stateId));
         model.add(stateSubject, POMDPVocabulary.NAME, vf.createLiteral(stateName));
         model.add(stateSubject, POMDPVocabulary.TYPE, vf.createLiteral(stateType));
         BNode attributes_node = vf.createBNode();

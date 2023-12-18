@@ -84,7 +84,7 @@ public class InitializeBelief extends AbstractTDBLeafTask implements NodeExtensi
 
         Model model = new LinkedHashModel();
 
-        model.add(POMDPVocabulary.POMDP, POMDPVocabulary.HAS_ID,vf.createLiteral(pomdpId));
+        model.add(POMDPVocabulary.POMDP, POMDPVocabulary.ID,vf.createLiteral(pomdpId));
 
         BNode emptyNode = vf.createBNode();
         model.add(POMDPVocabulary.POMDP, POMDPVocabulary.HAS_INITIAL_BELIEF, emptyNode);
@@ -106,7 +106,7 @@ public class InitializeBelief extends AbstractTDBLeafTask implements NodeExtensi
 
             BNode emptyStateNode = vf.createBNode();
             model.add(emptyStateNode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, POMDPVocabulary.STATE);
-            model.add(emptyStateNode, POMDPVocabulary.HAS_ID, vf.createLiteral(belief.getStateId()));
+            model.add(emptyStateNode, POMDPVocabulary.ID, vf.createLiteral(belief.getStateId()));
             model.add(emptyStateNode, POMDPVocabulary.NAME, vf.createLiteral(belief.getStateName()));
             model.add(emptyStateNode, POMDPVocabulary.TYPE, vf.createLiteral(belief.getStateType()));
 
