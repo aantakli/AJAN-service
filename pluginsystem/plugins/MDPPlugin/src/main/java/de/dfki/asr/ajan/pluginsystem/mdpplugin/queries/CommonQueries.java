@@ -41,6 +41,16 @@ public class CommonQueries {
             "    ?key (pomdp-ns:|!pomdp-ns:)* ?o .\n" +
             "    ?s ?p ?o .\n" +
             "}";
+    public static final String CONSTRUCT_OBSERVATION = "PREFIX pomdp-ns:<http://www.dfki.de/pomdp-ns#>\n" +
+            "PREFIX pomdp-ns1:<http://www.dfki.de/pomdp-ns/>\n" +
+            "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+            "\n" +
+            "CONSTRUCT {?s ?p ?o}\n" +
+            "WHERE{\n" +
+            "    pomdp-ns:Observation ?rel ?key .\n" +
+            "    ?key (pomdp-ns:|!pomdp-ns:)* ?o .\n" +
+            "    ?s ?p ?o .\n" +
+            "}";
 
     public static int getCurrentPOMDPId(AgentTaskInformation info) throws URISyntaxException {
         URI originBase = new URI(AJANVocabulary.EXECUTION_KNOWLEDGE.toString());

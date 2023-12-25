@@ -46,7 +46,7 @@ public class UpdateAgentHistory extends AbstractTDBLeafTask implements NodeExten
     @Override
     public NodeStatus executeLeaf() {
         try {
-            String ttlString = getConstructResult(this.getObject(), CommonQueries.CONSTRUCT_CURRENT_OBSERVATION);
+            String ttlString = getConstructResult(this.getObject(), CommonQueries.CONSTRUCT_OBSERVATION);
             sendToEndpoint(ttlString);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);

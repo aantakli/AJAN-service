@@ -43,10 +43,14 @@ public class UpdateBelief extends AbstractTDBLeafTask implements NodeExtension {
     @Getter @Setter
     private int stateId;
 
+    @RDF("bt-mdp:stateName")
+    @Getter @Setter
+    private String stateName;
+
     @Override
     public NodeStatus executeLeaf() {
         try {
-            String ttlString = getConstructResult(this.getObject(), CommonQueries.CONSTRUCT_CURRENT_OBSERVATION);
+            String ttlString = getConstructResult(this.getObject(), CommonQueries.CONSTRUCT_OBSERVATION);
             sendToEndpoint(ttlString);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -59,6 +63,7 @@ public class UpdateBelief extends AbstractTDBLeafTask implements NodeExtension {
         try {
             params.put("pomdp_id", getCurrentPOMDPId(this.getObject()));
             params.put("state_id", stateId);
+            params.put("state_name", stateName);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
