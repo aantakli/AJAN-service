@@ -19,11 +19,17 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.Rio;
 import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+import static de.dfki.asr.ajan.behaviour.service.impl.IConnection.BASE_URI;
 
 
 @Extension
@@ -50,12 +56,31 @@ public class GetPlannedAction extends AbstractTDBLeafTask implements NodeExtensi
         JSONObject returnJson = (JSONObject) HTTPHelper.sendPostRequest("http://127.0.0.1:8000/AJAN/pomdp/planner/get-action", params, this.getObject().getLogger(),this.getClass(), JSONObject.class);
         int responseCode = (int) returnJson.get("statusCode");
         String action = (String) returnJson.get("name");
-        Model model = getOutputModel(action);
-        POMDPUtil.writeInput(model, AJANVocabulary.EXECUTION_KNOWLEDGE.toString(), this.getObject(), true);
+//        Model model = getOutputModel(action);
+        updateInExecutionKnowledge((String) returnJson.get("data"));
+//        POMDPUtil.writeInput(model, AJANVocabulary.EXECUTION_KNOWLEDGE.toString(), this.getObject(), true);
         if(responseCode >= 300 ) {
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), this+" FAILED");
         }
         return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), this +" SUCCEEDED");
+    }
+
+    private void updateInExecutionKnowledge(String data) {
+        Model model = POMDPUtil.getModel(AJANVocabulary.EXECUTION_KNOWLEDGE.toString(), this.getObject());
+        try {
+            IRI pomdp = POMDPVocabulary.createIRI(pomdpId);
+            model.remove(pomdp, POMDPVocabulary.PLANNED_ACTION, null); // Remove previous planned actions
+            model.filter(null, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, POMDPVocabulary.PLANNED_ACTION).forEach(triple -> model.remove(triple.getSubject(), null, null)); // Remove previous planned actions
+            model.remove(null, null, POMDPVocabulary.PLANNED_ACTION); // Remove previous planned actions
+            model.addAll(parseTurtleString(data)); // Add new planned actions
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        POMDPUtil.writeInput(model, AJANVocabulary.EXECUTION_KNOWLEDGE.toString(), this.getObject(), false);
+    }
+
+    private Model parseTurtleString(String ttlString) throws IOException {
+        return Rio.parse(new ByteArrayInputStream(ttlString.getBytes(StandardCharsets.UTF_8)), BASE_URI, RDFFormat.TURTLE);
     }
 
     private Model getOutputModel(String actionName) {
