@@ -71,7 +71,7 @@ public class RewardModel extends AbstractTDBLeafTask implements NodeExtension {
     public NodeStatus executeLeaf() {
         return POMDPUtil.sendProbabilisticDataToEndpoint(getObject(), data.getOriginBase(),pomdpId, modelType,
                 "http://127.0.0.1:8000/AJAN/pomdp/reward_model/create/init-model",
-                RDFFormat.TURTLE, data, probability, sample, argmax,
+                RDFFormat.TURTLE, data, probability.getSparql(), sample.getSparql(), argmax.getSparql(),
                 this.getObject().getLogger(), this.getClass(), toString(), null);
     }
     @Override

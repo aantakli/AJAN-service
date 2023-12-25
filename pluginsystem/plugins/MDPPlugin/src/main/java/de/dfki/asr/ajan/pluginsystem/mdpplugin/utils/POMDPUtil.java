@@ -53,16 +53,19 @@ public final class POMDPUtil {
         return new LinkedHashModel();
     }
 
-    public static JSONObject getProbabilisticModelParams(int pomdpId, String type, String data, BehaviorSelectQuery probability, BehaviorSelectQuery sample, BehaviorSelectQuery argmax, String associatedObjectName) {
+    public static JSONObject getProbabilisticModelParams(int pomdpId, String type, String data,
+                                                         String probability,
+                                                         String sample,
+                                                         String argmax, String associatedObjectName) {
         JSONObject params = new JSONObject();
         params.put("data", data);
         if(type !=null){
             params.put("type", type);
         }
         params.put("pomdp_id", pomdpId);
-        params.put("probability_query", probability.getSparql());
-        params.put("sample_query", sample.getSparql());
-        params.put("argmax_query", argmax.getSparql());
+        params.put("probability_query", probability);
+        params.put("sample_query", sample);
+        params.put("argmax_query", argmax);
         params.put("associated_object_name", associatedObjectName);
         return params;
     }
@@ -73,9 +76,9 @@ public final class POMDPUtil {
                                                              String endpointUrl,
                                                              RDFFormat format,
                                                              BehaviorConstructQuery data,
-                                                             BehaviorSelectQuery probability,
-                                                             BehaviorSelectQuery sample,
-                                                             BehaviorSelectQuery argmax,
+                                                             String probability,
+                                                             String sample,
+                                                             String argmax,
                                                              AJANLogger logger,
                                                              Class<?> thisClass,
                                                              String objectString, String associatedObjectName) {

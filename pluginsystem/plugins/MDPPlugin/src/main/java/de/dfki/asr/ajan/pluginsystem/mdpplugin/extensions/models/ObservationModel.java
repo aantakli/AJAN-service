@@ -56,11 +56,11 @@ public class ObservationModel extends AbstractTDBLeafTask implements NodeExtensi
 
     @RDF("bt-mdp:observation-sample")
     @Getter @Setter
-    private BehaviorSelectQuery sample;
+    private BehaviorConstructQuery sample;
 
     @RDF("bt-mdp:observation-argmax")
     @Getter @Setter
-    private BehaviorSelectQuery argmax;
+    private BehaviorConstructQuery argmax;
 
     @RDF("bt-mdp:associated-object")
     @Getter @Setter
@@ -71,7 +71,7 @@ public class ObservationModel extends AbstractTDBLeafTask implements NodeExtensi
     public NodeStatus executeLeaf() {
         return POMDPUtil.sendProbabilisticDataToEndpoint(getObject(), data.getOriginBase(), pomdpId, null,
                 "http://127.0.0.1:8000/AJAN/pomdp/observation_model/create/init-model",
-                RDFFormat.TURTLE, data, probability, sample, argmax,
+                RDFFormat.TURTLE, data, probability.getSparql(), sample.getSparql(), argmax.getSparql(),
                 this.getObject().getLogger(), this.getClass(), toString(), associatedObjectName);
 
     }

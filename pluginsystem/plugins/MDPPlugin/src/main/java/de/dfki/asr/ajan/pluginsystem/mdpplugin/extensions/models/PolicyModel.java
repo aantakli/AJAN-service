@@ -56,15 +56,15 @@ public class PolicyModel extends AbstractTDBLeafTask implements NodeExtension {
 
     @RDF("bt-mdp:policy-sample")
     @Getter @Setter
-    private BehaviorSelectQuery sample;
+    private BehaviorConstructQuery sample;
 
     @RDF("bt-mdp:policy-rollout")
     @Getter @Setter
-    private BehaviorSelectQuery rollout;
+    private BehaviorConstructQuery rollout;
 
     @RDF("bt-mdp:policy-getAllActions")
     @Getter @Setter
-    private BehaviorSelectQuery get_all_actions;
+    private BehaviorConstructQuery get_all_actions;
 
 
     @Override
