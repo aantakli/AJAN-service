@@ -32,7 +32,7 @@ public final class POMDPUtil {
             } else {
                 m1 = model;
             }
-            info.getExecutionBeliefs().update(m1);
+            info.getExecutionBeliefs().update(m1, info.getExecutionBeliefs().asModel(), false);
         } else if (repository.equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())){
             if(update){
                 m1 = info.getAgentBeliefs().asModel();
