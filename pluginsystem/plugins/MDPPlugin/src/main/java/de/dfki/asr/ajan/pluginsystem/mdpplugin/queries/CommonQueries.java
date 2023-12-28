@@ -71,11 +71,6 @@ public class CommonQueries {
         BehaviorConstructQuery queryAll = new BehaviorConstructQuery();
         queryAll.setSparql(constructQuery);
         return getConstructResult(info, queryAll);
-//        try( RepositoryConnection connection = repo.getConnection()){
-//            TupleQuery tupleQuery = connection.prepareTupleQuery(constructQuery);
-//            TupleQueryResult result = tupleQuery.evaluate();
-//            return result.toString();
-//        }
     }
 
     public static String getConstructResult(AgentTaskInformation info, BehaviorConstructQuery constructQuery) throws URISyntaxException {

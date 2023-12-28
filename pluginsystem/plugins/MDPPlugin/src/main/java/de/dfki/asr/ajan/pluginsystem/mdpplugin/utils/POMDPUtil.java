@@ -6,16 +6,21 @@ import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
-import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.Rio;
 import org.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+
+import static de.dfki.asr.ajan.behaviour.service.impl.IConnection.BASE_URI;
 
 public final class POMDPUtil {
 
@@ -51,6 +56,11 @@ public final class POMDPUtil {
             return info.getAgentBeliefs().asModel();
         }
         return new LinkedHashModel();
+    }
+
+
+    public static Model parseTurtleString(String ttlString) throws IOException {
+        return Rio.parse(new ByteArrayInputStream(ttlString.getBytes(StandardCharsets.UTF_8)), BASE_URI, RDFFormat.TURTLE);
     }
 
     public static JSONObject getProbabilisticModelParams(int pomdpId, String type, String data,

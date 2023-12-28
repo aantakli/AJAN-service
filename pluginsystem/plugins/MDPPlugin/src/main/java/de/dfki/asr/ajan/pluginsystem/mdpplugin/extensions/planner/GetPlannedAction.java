@@ -72,15 +72,11 @@ public class GetPlannedAction extends AbstractTDBLeafTask implements NodeExtensi
             model.remove(pomdp, POMDPVocabulary.PLANNED_ACTION, null); // Remove previous planned actions
             model.filter(null, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, POMDPVocabulary.PLANNED_ACTION).forEach(triple -> model.remove(triple.getSubject(), null, null)); // Remove previous planned actions
             model.remove(null, null, POMDPVocabulary.PLANNED_ACTION); // Remove previous planned actions
-            model.addAll(parseTurtleString(data)); // Add new planned actions
+            model.addAll(POMDPUtil.parseTurtleString(data)); // Add new planned actions
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         POMDPUtil.writeInput(model, AJANVocabulary.EXECUTION_KNOWLEDGE.toString(), this.getObject(), false);
-    }
-
-    private Model parseTurtleString(String ttlString) throws IOException {
-        return Rio.parse(new ByteArrayInputStream(ttlString.getBytes(StandardCharsets.UTF_8)), BASE_URI, RDFFormat.TURTLE);
     }
 
     private Model getOutputModel(String actionName) {

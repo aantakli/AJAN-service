@@ -31,7 +31,7 @@ public class POMDPVocabulary {
     public final static IRI TYPE= FACTORY.createIRI(POMDP_NS + "type");
     public final static IRI HAS_INITIAL_BELIEF = FACTORY.createIRI(POMDP_NS + "initialBelief");
 
-
+    public final static IRI ENVIRONMENT = FACTORY.createIRI(POMDP_NS + "Environment");
     // OOState is not needed.
     public final static IRI STATE = FACTORY.createIRI(POMDP_NS + "State");
     public final static IRI ACTION = FACTORY.createIRI(POMDP_NS + "Action");
