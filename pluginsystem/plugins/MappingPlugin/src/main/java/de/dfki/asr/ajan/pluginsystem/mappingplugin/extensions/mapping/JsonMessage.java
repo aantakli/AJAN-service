@@ -134,7 +134,6 @@ public class JsonMessage extends Message implements NodeExtension {
 		if (!inputModel.isEmpty()) {
 			payload = mapper.buildJsonString(inputModel, dataModel);
 		}
-		this.getObject().getLogger().info(this.getClass(), "Sending payload: " + payload);
 		return payload;
 	}
 
