@@ -626,187 +626,143 @@ ajan:ASP {
 
 mosim:Mapping {
 
-	:WorkerMapping
+	:InstancesMapping
 		rml:logicalSource [
 			rml:source [
 				a carml:Stream ;
 			] ;
 			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$.workers[*]"
+			rml:iterator "$.message.Instances[*]"
 		] ;
 
 		rr:subjectMap [
-			rr:template "http://www.ajan.de/ajan-mapping-ns#Worker/{workerid}" ;
-			rr:class mosim:Worker ;
+			rr:template "http://www.ajan.de/ajan-mapping-ns#Instances/{Id}" ;
+			rr:class mosim:Instance ;
 		] ;
 		
 		rr:predicateObjectMap [
-			rr:predicate mosim:workerId ;
+			rr:predicate mosim:instanceId ;
 			rr:objectMap [
-				rml:reference "workerid" ;
-				rr:datatype xsd:int
+				rml:reference "Id" ;
+				rr:datatype xsd:string
+			]
+		] ;
+		
+		rr:predicateObjectMap [
+			rr:predicate mosim:type ;
+			rr:objectMap [
+				rml:reference "Name" ;
+				rr:datatype xsd:string
 			]
 		] ;
 		rr:predicateObjectMap [
-			rr:predicate mosim:task ;
+			rr:predicate mosim:partClass ;
 			rr:objectMap [
-				rr:template "http://www.ajan.de/ajan-mapping-ns#Task/{tasks.[*].taskid}";
-				rr:termType rr:IRI;
+				rml:reference "PartClass" ;
+				rr:datatype xsd:string
 			]
 		] .
 
-	:TaskMapping
+	:WorkplacesMapping
 		rml:logicalSource [
 			rml:source [
 				a carml:Stream ;
 			] ;
 			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$.message.workers.[*].tasks.[*]"
+			rml:iterator "$.message.Workplaces.Tasks[*]"
 		] ;
 
-		rr:subjectMap [ 
-			rr:template "http://www.ajan.de/ajan-mapping-ns#Task/{taskid}" ;
+		rr:subjectMap [
+			rr:template "http://www.ajan.de/ajan-mapping-ns#Task/{Id}" ;
 			rr:class mosim:Task ;
-		];
-
+		] ;
+		
 		rr:predicateObjectMap [
 			rr:predicate mosim:taskId ;
 			rr:objectMap [
-				rml:reference "taskid" ;
-				rr:datatype xsd:int
+				rml:reference "Id" ;
+				rr:datatype xsd:string
 			]
 		] ;
+		
 		rr:predicateObjectMap [
 			rr:predicate mosim:step ;
 			rr:objectMap [
-				rml:reference "step" ;
+				rml:reference "No" ;
 				rr:datatype xsd:int
 			]
 		] ;
 		rr:predicateObjectMap [
 			rr:predicate mosim:operation ;
 			rr:objectMap [
-				rml:reference "operation" ;
+				rr:template "http://www.ajan.de/ajan-mapping-ns#Operation/{Operations.[*].Type}_{Operations.[*].No}_{Operations.[*].Part}_{Operations.[*].Location.BasePart}";
+				rr:termType rr:IRI;
+			]
+		] .
+
+	:OperationMapping
+		rml:logicalSource [
+			rml:source [
+				a carml:Stream ;
+			] ;
+			rml:referenceFormulation ql:JSONPath;
+			rml:iterator "$.message.Workplaces.Tasks[*].Operations.[*]"
+		] ;
+
+		rr:subjectMap [ 
+			rr:template "http://www.ajan.de/ajan-mapping-ns#Operation/{Type}_{No}_{Part}_{Location.BasePart}" ;
+			rr:class mosim:Operation ;
+		];
+
+		rr:predicateObjectMap [
+			rr:predicate mosim:step ;
+			rr:objectMap [
+				rml:reference "No" ;
+				rr:datatype xsd:int
+			]
+		] ;
+		rr:predicateObjectMap [
+			rr:predicate mosim:type ;
+			rr:objectMap [
+				rml:reference "Type" ;
 				rr:datatype xsd:string
 			]
 		] ;
 		rr:predicateObjectMap [
 			rr:predicate mosim:part ;
 			rr:objectMap [
-				rr:parentTriplesMap :PartMapping ;
-				rr:joinCondition [
-					rr:child "part" ;
-					rr:parent "part" ;
-				]
+				rml:reference "Part" ;
+				rr:datatype xsd:string
 			]
 		] ;
 		rr:predicateObjectMap [
 			rr:predicate mosim:tool ;
 			rr:objectMap [
-				rr:parentTriplesMap :ToolMapping ;
-				rr:joinCondition [
-					rr:child "tool" ;
-					rr:parent "tool" ;
-				]
-			]
-		] ;
-		rr:predicateObjectMap [
-			rr:predicate mosim:position ;
-			rr:objectMap [
-				rr:parentTriplesMap :PositionMapping ;
-				rr:joinCondition [
-					rr:child "position" ;
-					rr:parent "position" ;
-				]
-			]
-		]	.
-
-	:PartMapping
-		rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$.message.workers.[*].tasks.[*]"
-		] ;
-
-		rr:subjectMap [
-			rr:template "http://www.ajan.de/ajan-mapping-ns#Part/{part.type}/{part.id}" ;
-			rr:class mosim:Part ;
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate mosim:type ;
-			rr:objectMap [
-				rml:reference "part.type" ;
+				rml:reference "Tool" ;
 				rr:datatype xsd:string
 			]
 		] ;
 		rr:predicateObjectMap [
-			rr:predicate mosim:id ;
+			rr:predicate mosim:basePart ;
 			rr:objectMap [
-				rml:reference "part.id" ;
-				rr:datatype xsd:string
-			]
-		] .
-
-	:ToolMapping
-		rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$.message.workers.[*].tasks.[*]"
-		] ;
-
-		rr:subjectMap [
-			rr:template "http://www.ajan.de/ajan-mapping-ns#Tool/{tool.type}/{tool.id}" ;
-			rr:class mosim:Tool ;
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate mosim:type ;
-			rr:objectMap [
-				rml:reference "tool.type" ;
+				rml:reference "Location.BasePart" ;
 				rr:datatype xsd:string
 			]
 		] ;
 		rr:predicateObjectMap [
-			rr:predicate mosim:id ;
+			rr:predicate mosim:baseMarker ;
 			rr:objectMap [
-				rml:reference "tool.id" ;
-				rr:datatype xsd:string
-			]
-		] .
-
-	:PositionMapping
-		rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$.message.workers.[*].tasks.[*]"
-		] ;
-
-		rr:subjectMap [
-			rr:template "http://www.ajan.de/ajan-mapping-ns#Position/{position.type}/{position.id}" ;
-			rr:class mosim:Position ;
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate mosim:type ;
-			rr:objectMap [
-				rml:reference "position.type" ;
+				rml:reference "Location.BaseMarker" ;
 				rr:datatype xsd:string
 			]
 		] ;
 		rr:predicateObjectMap [
-			rr:predicate mosim:id ;
+			rr:predicate mosim:marker ;
 			rr:objectMap [
-				rml:reference "position.id" ;
+				rml:reference "Location.Marker" ;
 				rr:datatype xsd:string
 			]
-		] .
+		] .		.
 }
 
 # --------------------------------
