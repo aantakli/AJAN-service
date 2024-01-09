@@ -2737,6 +2737,13 @@
     ];
     nd:parameter [
         a nd:Parameter;
+        nd:mapsTo bt-mdp:agentId;
+        nd:input xsd:int;
+        nd:default "0"^^xsd:int;
+        nd:title "Agent ID";
+    ];
+    nd:parameter [
+        a nd:Parameter;
         nd:mapsTo bt-mdp:agent-data;
         nd:title "Agent Graph Data:";
         nd:input nd:Query;
@@ -3132,6 +3139,13 @@
             nd:input xsd:int;
             nd:default "0"^^xsd:int;
             nd:title "POMDP ID";
+        ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo bt-mdp:agentId;
+            nd:input xsd:int;
+            nd:default "0"^^xsd:int;
+            nd:title "Agent ID";
         ];
         nd:parameter [
             a nd:Parameter;

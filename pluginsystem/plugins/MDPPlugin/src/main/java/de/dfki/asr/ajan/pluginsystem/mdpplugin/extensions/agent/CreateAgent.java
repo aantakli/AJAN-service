@@ -41,6 +41,10 @@ public class CreateAgent extends AbstractTDBLeafTask implements NodeExtension {
     @Setter
     private int pomdpId;
 
+    @RDF("bt-mdp:agentId")
+    @Setter
+    private int agentId;
+
     @RDF("bt-mdp:agent-data")
     @Getter @Setter
     private BehaviorConstructQuery data;
@@ -49,6 +53,7 @@ public class CreateAgent extends AbstractTDBLeafTask implements NodeExtension {
     public NodeStatus executeLeaf() {
         JSONObject params = new JSONObject();
         params.put("pomdp_id", pomdpId);
+        params.put("id", agentId);
         String dataString = getDataString(getObject(), data.getOriginBase(), RDFFormat.TURTLE, data);
         params.put("data",dataString);
 

@@ -49,6 +49,10 @@ public class InitializeBelief extends AbstractTDBLeafTask implements NodeExtensi
     @Setter
     private int pomdpId;
 
+    @RDF("bt-mdp:agentId")
+    @Setter
+    private int agentId;
+
     @RDF("bt-mdp:representation")
     @Setter
     private String representation;
@@ -64,6 +68,7 @@ public class InitializeBelief extends AbstractTDBLeafTask implements NodeExtensi
 
         JSONObject stateParams = new JSONObject();
         stateParams.put("pomdp_id", pomdpId);
+        stateParams.put("agent_id", agentId);
         stateParams.put("representation", representation);
         List<JSONObject> beliefDict = getJsonBeliefDict();
         stateParams.put("belief_dict", beliefDict);
