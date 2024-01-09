@@ -649,16 +649,16 @@ mosim:Mapping {
 		] ;
 		
 		rr:predicateObjectMap [
-			rr:predicate mosim:step ;
+			rr:predicate mosim:type ;
 			rr:objectMap [
 				rml:reference "Name" ;
 				rr:datatype xsd:string
 			]
 		] ;
 		rr:predicateObjectMap [
-			rr:predicate mosim:step ;
+			rr:predicate mosim:partClass ;
 			rr:objectMap [
-				rml:reference "Name" ;
+				rml:reference "PartClass" ;
 				rr:datatype xsd:string
 			]
 		] .
