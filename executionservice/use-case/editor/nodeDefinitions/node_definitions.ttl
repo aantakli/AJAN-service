@@ -48,7 +48,7 @@
     nd:type bt:BehaviorTree;
     nd:style [
         a nd:StyleDef;
-        nd:color "#ff425b";
+        nd:color "#EA5B97";
         nd:shape nd:Rectangle;
         nd:padding "600%";
         nd:paddingTo "width";
@@ -337,7 +337,7 @@
     nd:type bt:Action;
     nd:style [
         a nd:StyleDef;
-        nd:color "#FFFEE3";
+        nd:color "#FFF176";
         nd:shape nd:Polygon;
         nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
         nd:padding "700%";
@@ -386,7 +386,7 @@
     nd:type bt:Condition;
     nd:style [
         a nd:StyleDef;
-        nd:color "#E3F8FF";
+        nd:color "#81B7E4";
         nd:shape nd:Ellipse;
         nd:padding "900%";
         nd:paddingTo "width";
@@ -411,7 +411,7 @@
     nd:type bt:LoadBehavior;
     nd:style [
         a nd:StyleDef;
-        nd:color "#f46255";
+        nd:color "#F5A399";
         nd:shape nd:Rectangle;
         nd:padding "900%";
         nd:paddingTo "width";
@@ -546,7 +546,7 @@
     nd:type bt:GoalProducer;
     nd:style [
         a nd:StyleDef;
-        nd:color "#85ade5";
+        nd:color "#F39B10";
         nd:shape nd:Roundrectangle;
         nd:padding "900%";
         nd:paddingTo "width";
@@ -578,7 +578,7 @@
     nd:type bt:EventProducer;
     nd:style [
         a nd:StyleDef;
-        nd:color "#85ade5";
+        nd:color "#F8C370";
         nd:shape nd:Roundrectangle;
         nd:padding "900%";
         nd:paddingTo "width";
@@ -641,7 +641,7 @@
     nd:type bt:Update;
     nd:style [
         a nd:StyleDef;
-        nd:color "#E3FFE3";
+        nd:color "#8EC8B2";
         nd:shape nd:Roundrectangle;
         nd:padding "600%";
         nd:paddingTo "width";
@@ -673,11 +673,13 @@
     nd:type bt:HandleEvent;
     nd:style [
         a nd:StyleDef;
-        nd:color "#d3ff6d";
+		nd:labelColor "#FFFFFF";
+        nd:color "#1B3284";
         nd:shape nd:Roundrectangle;
         nd:padding "900%";
         nd:paddingTo "width";
         nd:icon "handle-event.png";
+		nd:node-icon "handle-event-w.png";
     ];
 	nd:parameter [
         a nd:Parameter;
@@ -704,11 +706,13 @@
     nd:type bt:HandleQueueEvent;
     nd:style [
         a nd:StyleDef;
-        nd:color "#a2ff6d";
+		nd:labelColor "#FFFFFF";
+        nd:color "#1E1B55";
         nd:shape nd:Roundrectangle;
         nd:padding "900%";
         nd:paddingTo "width";
         nd:icon "handle-queue-event.png";
+		nd:node-icon "handle-queue-event-w.png";
     ];
 	nd:parameter [
         a nd:Parameter;
@@ -734,7 +738,7 @@
     nd:type bt:Write;
     nd:style [
         a nd:StyleDef;
-        nd:color "#ffb16d";
+        nd:color "#5CB697";
         nd:shape nd:Roundrectangle;
         nd:padding "600%";
         nd:paddingTo "width";
@@ -758,7 +762,7 @@
     nd:type bt:Evaluate;
     nd:style [
         a nd:StyleDef;
-        nd:color "#cea6ff";
+        nd:color "#000000";
         nd:shape nd:Roundrectangle;
         nd:padding "600%";
         nd:paddingTo "width";
@@ -803,7 +807,7 @@
     nd:type bt:Wait;
     nd:style [
         a nd:StyleDef;
-        nd:color "#eea5ff";
+        nd:color "#7F7F7F";
         nd:shape nd:Roundrectangle;
         nd:padding "600%";
         nd:paddingTo "width";
@@ -829,11 +833,13 @@
     nd:type bt:HandleMappingEvent;
     nd:style [
         a nd:StyleDef;
-        nd:color "#7db300";
+		nd:labelColor "#FFFFFF";
+        nd:color "#504AC5";
         nd:shape nd:Roundrectangle;
         nd:padding "900%";
         nd:paddingTo "width";
         nd:icon "handle-json-event.png";
+		nd:node-icon "handle-json-event-w.png";
     ];
     nd:parameter [
 		a nd:Parameter;
@@ -1138,12 +1144,12 @@
     nd:type bt:ConvertToUnixTime;
     nd:style [
         a nd:StyleDef;
-        nd:color "#00ff84";
+        nd:color "#FFFFFF";
         nd:shape nd:Polygon;
         nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
         nd:padding "700%";
         nd:paddingTo "width";
-        nd:icon "icons8-new-post.png";
+        nd:icon "convert.png";
     ];
 	nd:parameter [
 		a nd:Parameter;
