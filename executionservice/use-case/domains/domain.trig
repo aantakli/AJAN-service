@@ -673,7 +673,7 @@ mosim:Mapping {
 		] ;
 
 		rr:subjectMap [
-			rr:template "http://www.ajan.de/ajan-mapping-ns#Task/{Id}" ;
+			rr:template "http://www.ajan.de/ajan-mapping-ns#Task/{Id}_{No}" ;
 			rr:class mosim:Task ;
 		] ;
 		
