@@ -3047,6 +3047,13 @@
         nd:input xsd:int;
         nd:default "0"^^xsd:int;
         nd:title "POMDP ID";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt-mdp:observation-url;
+        nd:input xsd:string;
+        nd:default "http://192.168.178.154:5002/Unity-service/get-pose-sensor-reading"^^xsd:string;
+        nd:title "Observation URL";
     ].
 
 :CreateProblem nd:class nd:Leaf;

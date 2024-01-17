@@ -54,12 +54,16 @@ public class GetObservationFromEnvironment extends AbstractTDBLeafTask implement
     @Setter
     private int pomdpId;
 
+    @RDF("bt-mdp:observation-url")
+    @Setter
+    private String observationUrl;
+
     @Override
     public NodeStatus executeLeaf() {
         JSONObject params = new JSONObject();
         params.put("id", pomdpId);
         params.put("return_type", "turtle");
-        ArrayList<?> response = HTTPHelper.sendPostRequest("http://192.168.178.154:5002/Unity-service/get-pose-sensor-reading",
+        ArrayList<?> response = HTTPHelper.sendPostRequest(observationUrl,
                 params,
                 this.getObject().getLogger(),
                 this.getClass(),
