@@ -29,6 +29,9 @@ import de.dfki.asr.ajan.common.CSVInput;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -128,13 +131,19 @@ public class HttpConnection implements IConnection {
 		}
 	}
 
-	private CloseableHttpClient getCloseableClient() {
-		if (System.getProperty("http.proxyHost") == null && System.getProperty("http.proxyPort") == null) {
+	private CloseableHttpClient getCloseableClient() throws UnknownHostException, MalformedURLException {
+		if (System.getProperty("http.proxyHost") == null && System.getProperty("http.proxyPort") == null && System.getProperty("http.proxyEV") == null) {
 			return HttpClientBuilder.create()
 				.setDefaultRequestConfig(requestConfig)
 				.setRetryHandler(new DefaultHttpRequestRetryHandler(2, false)).build();
 		} else {
-			HttpHost proxyHost = new HttpHost(System.getProperty("http.proxyHost"), Integer.parseInt(System.getProperty("http.proxyPort")));
+			HttpHost proxyHost;
+			if (System.getProperty("http.proxyHost") == null && System.getProperty("http.proxyPort") == null) {
+				URL proxyEV = new URL(System.getenv(System.getProperty("http.proxyEV")));
+				proxyHost = new HttpHost(proxyEV.getHost(), proxyEV.getPort());
+			} else {
+				proxyHost = new HttpHost(System.getProperty("http.proxyHost"), Integer.parseInt(System.getProperty("http.proxyPort")));
+			}
 			LOG.info("Using Proxy: " + proxyHost.toURI());
 			return HttpClientBuilder.create()
 				.setDefaultRequestConfig(requestConfig)
