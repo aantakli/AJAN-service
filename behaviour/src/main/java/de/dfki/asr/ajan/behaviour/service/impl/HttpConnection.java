@@ -29,6 +29,9 @@ import de.dfki.asr.ajan.common.CSVInput;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +42,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import lombok.Getter;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.config.RequestConfig;
@@ -46,6 +50,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.rio.Rio;
@@ -111,9 +116,7 @@ public class HttpConnection implements IConnection {
 	}
 
 	private Object sendRequest() throws HttpResponseException, IOException, SAXException, AJANRequestException {
-		try (CloseableHttpClient httpClient = HttpClientBuilder.create()
-				.setDefaultRequestConfig(requestConfig)
-				.setRetryHandler(new DefaultHttpRequestRetryHandler(2, false)).build();
+		try (CloseableHttpClient httpClient = getCloseableClient();
 			CloseableHttpResponse response = httpClient.execute(request)) {
 			StatusLine statusLine = response.getStatusLine();
 			LOG.info("Status Code:" + statusLine.getStatusCode());
@@ -125,6 +128,27 @@ public class HttpConnection implements IConnection {
 				return readContent(response);
 			}
 			return new LinkedHashModel();
+		}
+	}
+
+	private CloseableHttpClient getCloseableClient() throws UnknownHostException, MalformedURLException {
+		if (System.getProperty("http.proxyHost") == null && System.getProperty("http.proxyPort") == null && System.getProperty("http.proxyEV") == null) {
+			return HttpClientBuilder.create()
+				.setDefaultRequestConfig(requestConfig)
+				.setRetryHandler(new DefaultHttpRequestRetryHandler(2, false)).build();
+		} else {
+			HttpHost proxyHost;
+			if (System.getProperty("http.proxyHost") == null && System.getProperty("http.proxyPort") == null) {
+				URL proxyEV = new URL(System.getenv(System.getProperty("http.proxyEV")));
+				proxyHost = new HttpHost(proxyEV.getHost(), proxyEV.getPort());
+			} else {
+				proxyHost = new HttpHost(System.getProperty("http.proxyHost"), Integer.parseInt(System.getProperty("http.proxyPort")));
+			}
+			LOG.info("Using Proxy: " + proxyHost.toURI());
+			return HttpClientBuilder.create()
+				.setDefaultRequestConfig(requestConfig)
+				.setRoutePlanner(new DefaultProxyRoutePlanner(proxyHost))
+				.setRetryHandler(new DefaultHttpRequestRetryHandler(2, false)).build();
 		}
 	}
 
