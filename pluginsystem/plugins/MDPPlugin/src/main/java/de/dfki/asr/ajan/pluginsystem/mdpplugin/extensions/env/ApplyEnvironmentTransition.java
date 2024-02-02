@@ -49,6 +49,10 @@ public class ApplyEnvironmentTransition extends AbstractTDBLeafTask implements N
     @Getter @Setter
     private int stateId;
 
+    @RDF("bt-mdp:apply-transition")
+    @Getter @Setter
+    private boolean applyTransition;
+
     @RDF("bt-mdp:env-data")
     @Getter @Setter
     private BehaviorConstructQuery data;
@@ -58,6 +62,7 @@ public class ApplyEnvironmentTransition extends AbstractTDBLeafTask implements N
         JSONObject params = new JSONObject();
         params.put("pomdp_id", pomdpId);
         params.put("state_id", stateId);
+        params.put("apply", applyTransition);
         String dataString = null;
         try {
             dataString = getConstructResult(getObject(), data.getSparql());

@@ -2860,6 +2860,13 @@
         nd:title "State ID";
     ];
     nd:parameter [
+    a nd:Parameter;
+    nd:mapsTo bt-mdp:apply-transition;
+    nd:input xsd:boolean;
+    nd:default "true"^^xsd:boolean;
+    nd:title "Apply Transition";
+    ];
+    nd:parameter [
         a nd:Parameter;
         nd:mapsTo bt-mdp:env-data;
         nd:title "Transition State (Next State)";
