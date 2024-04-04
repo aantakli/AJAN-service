@@ -55,7 +55,7 @@ MA 02110-1301  USA
         <dependency>
             <groupId>org.potassco</groupId>
             <artifactId>clingo</artifactId>
-            <version>1.0-des-rc1</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
