@@ -95,6 +95,7 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 					} else if (constructQuery.getTargetBase().equals(new URI(AJANVocabulary.AGENT_KNOWLEDGE.toString()))) {
 						this.getObject().getAgentBeliefs().update(model);
 					}
+					this.getObject().setEventInformation(new LinkedHashModel());
 					return true;
 				}
 			} catch (QueryEvaluationException | URISyntaxException ex) {
