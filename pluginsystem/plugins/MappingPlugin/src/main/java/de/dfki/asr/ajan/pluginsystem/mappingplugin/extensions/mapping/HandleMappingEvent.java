@@ -118,6 +118,7 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
 			this.getObject().getLogger().info(this.getClass(), "Malformed mapping file!");
             throw new InputMappingException(ex);
         }
+		this.getObject().setEventInformation(new Object());
         return result;
     }
 
