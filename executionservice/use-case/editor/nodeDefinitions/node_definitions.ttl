@@ -23,6 +23,7 @@
 @prefix bt-mqtt: <http://www.ajan.de/behavior/mqtt-ns#> .
 @prefix tcp: <http://www.ajan.de/behavior/tcp-ns#> .
 @prefix python: <http://www.ajan.de/behavior/python-ns#> .
+@prefix vision-nlp: <http://www.ajan.de/behavior/vision-nlp-ns#> .
 @prefix ws: <http://bla/ws#> .
 
 
@@ -2395,6 +2396,87 @@
 	    nd:title "Target Base";
 	    nd:input nd:Repo;
     ].
+
+
+# --------------- Vision-NLP-Plugin -------------------
+:PerceiveImage nd:class nd:Leaf;
+        nd:category "Vision-NLP Nodes";
+        nd:name "PerceiveImage";
+        nd:labelType nd:Dynamic;
+        rdfs:label "DefaultPerceiveImage";
+        nd:type vision-nlp:PerceiveImage;
+        nd:style [
+            a nd:StyleDef;
+            nd:color "#f7f7f7";
+            nd:shape nd:Polygon;
+            nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+            nd:padding "700%";
+            nd:paddingTo "width";
+            nd:icon "python_icon.png";
+        ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo vision-nlp:imageData;
+            nd:title "Image Data (?imageData)";
+            nd:input nd:Query;
+            nd:type bt:SelectQuery;
+            bt:originBase "true";
+            nd:default """
+                PREFIX ajan-ns:<http://www.dfki.de/ajan-ns>
+                SELECT ?imageData FROM NAMED ajan-ns:imageData WHERE {
+                GRAPH ajan-ns:imageData {?s ?p ?o}
+                }"""^^xsd:string;
+        ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo vision-nlp:languagePrompt;
+            nd:title "Optional Language Prompt";
+            nd:input xsd:string;
+        ] .
+
+:InitializeLanguageModel nd:class nd:Leaf;
+        nd:category "Vision-NLP Nodes";
+        nd:name "InitializeLanguageModel";
+        nd:labelType nd:Dynamic;
+        rdfs:label "DefaultInitializeLanguageModel";
+        nd:type vision-nlp:InitializeLanguageModel;
+        nd:style [
+            a nd:StyleDef;
+            nd:color "#f7f7f7";
+            nd:shape nd:Polygon;
+            nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+            nd:padding "700%";
+            nd:paddingTo "width";
+            nd:icon "python_icon.png";
+        ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo vision-nlp:modelName;
+            nd:title "Model Name";
+            nd:input xsd:string;
+        ] .
+
+:InitializeVisionLanguageModel nd:class nd:Leaf;
+        nd:category "Vision-NLP Nodes";
+        nd:name "InitializeVisionLanguageModel";
+        nd:labelType nd:Dynamic;
+        rdfs:label "DefaultInitializeVisionLanguageModel";
+        nd:type vision-nlp:InitializeVisionLanguageModel;
+        nd:style [
+            a nd:StyleDef;
+            nd:color "#f7f7f7";
+            nd:shape nd:Polygon;
+            nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+            nd:padding "700%";
+            nd:paddingTo "width";
+            nd:icon "python_icon.png";
+        ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo vision-nlp:modelName;
+            nd:title "Model Name";
+            nd:input xsd:string;
+        ] .
 
 # --------------- Plugin X -------------------
 
