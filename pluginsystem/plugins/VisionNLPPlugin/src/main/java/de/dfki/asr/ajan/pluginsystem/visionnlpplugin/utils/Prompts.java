@@ -1,10 +1,16 @@
 package de.dfki.asr.ajan.pluginsystem.visionnlpplugin.utils;
 
 public class Prompts {
-    public static String IMAGE_PROMPT = "What is present in the image?" +
-            "When describing the image, focus on extracting the names and counts of items whenever relevant. Present this information in a bullet point format as '- ItemName: Number'. " +
-            "If you cannot determine the exact number, use a generic term followed by a colon and a question mark, such as '- Items: ?'. " +
-            "Additionally, provide a brief, general description if the specific counts are not applicable.";
+    public static String QUESTION = "What is present in the image?";
+
+    public static String IMAGE_PROMPT = QUESTION +
+            " Provide the response in a structured format with bullet points. " +
+            "When possible, include the name of the items and their counts. Use the format '- ItemName: Number' or '- ItemName: ?' if the count is unknown. " +
+            "For other types of questions, provide concise and relevant information. Examples:\n" +
+            "- If asked about the number of items: '- Boxes: 10'\n" +
+            "- If the number is unknown: '- Items: ?'\n" +
+            "- For descriptions: '- Description: [Brief description]'\n" +
+            "- For context or inference: '- Context: [Relevant context or inference]'.";
 
     public static String RDF_PROMPT = "# 1. Overview\n" +
             "You are a top-tier algorithm designed to convert a given structured text into an RDF TTL string." +
@@ -44,6 +50,15 @@ public class Prompts {
             "ajan-ns:ItemCollection2 rdf:type ajan-ns:ItemCollection ;\n" +
             "  rdfs:label \"Unspecified Items Collection\" ;\n" +
             "  vision-nlp-ns:description \"A collection of items that resemble boxes, arranged in a way that suggests an automated sorting or processing system.\" .\n" +
+            "Given Structured Text: \"- Context: The scene appears to be in a warehouse with automated sorting.\"\n" +
+            "@prefix ajan-ns: <http://www.ajan.de/ajan-ns#> .\n" +
+            "@prefix vision-nlp-ns: <http://www.ajan.de/behavior/vision-nlp-ns#> .\n" +
+            "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
+            "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n" +
+            "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n" +
+            "ajan-ns:Scene rdf:type ajan-ns:Context ;\n" +
+            "  rdfs:label \"Warehouse Scene\" ;\n" +
+            "  vision-nlp-ns:description \"The scene appears to be in a warehouse with automated sorting.\" .\n" +
             "# 6. Validation\n" +
             "Ensure the output is a valid TTL string and can be parsed by standard RDF parsers without errors.\n" +
             "# 7. Structured Text\n" +
