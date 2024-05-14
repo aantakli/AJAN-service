@@ -20,7 +20,7 @@ public class Prompts {
             "# 3. Consistency and Syntax\n" +
             "Your response should be able to be added to an rdf4j repository directly and should only contain the RDF in TTL format with proper prefixes. " +
             "No additional texts are allowed here. The response string should be a complete TTL string representing the RDF graph. " +
-            "Ensure that your response is syntactically correct and follows proper RDF TTL structure. Use blank nodes correctly and ensure all prefixes are used without typos.\n" +
+            "Ensure that your response is syntactically correct and follows proper RDF TTL structure. Use blank nodes correctly and ensure all prefixes are used without typos. Avoid redundant definitions and maintain consistency in entity names.\n" +
             "# 4. Namespaces\n" +
             "Available RDF TTL namespace prefixes to use are:\n" +
             "- `ajan-ns:<http://www.ajan.de/ajan-ns#>`\n" +
@@ -57,9 +57,16 @@ public class Prompts {
             "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n" +
             "ajan-ns:Scene rdf:type ajan-ns:Context ;\n" +
             "  rdfs:label \"Warehouse Scene\" ;\n" +
-            "  vision-ns:description \"The scene appears to be in a warehouse with automated sorting.\" .\n" +
+            "  vision-ns:description \"The scene appears to be in a warehouse with automated sorting.\" ;\n" +
+            "  vision-ns:contains [ rdf:type ajan-ns:Person ; rdfs:label \"Person in the warehouse\" ; vision-ns:wears [ rdf:type ajan-ns:SafetyEquipment ; rdfs:label \"hard hat\" ] ] ,\n" +
+            "                      [ rdf:type ajan-ns:Shelves ; rdfs:label \"Multiple shelves containing boxes and other items\" ; vision-ns:contains [ rdf:type ajan-ns:Box ; rdfs:label \"Boxes\" ] ] ,\n" +
+            "                      [ rdf:type ajan-ns:AutomatedSortingEquipment ; rdfs:label \"Automated sorting equipment (like conveyor belts)\" ] ,\n" +
+            "                      [ rdf:type ajan-ns:SafetyEquipment ; rdfs:label \"Safety equipment present (such as a hard hat)\" ] ,\n" +
+            "                      [ rdf:type ajan-ns:ConveyorBelt ; rdfs:label \"Automated sorting equipment (like conveyor belts)\" ] ,\n" +
+            "                      [ rdf:type ajan-ns:Item ; rdfs:label \"Items on shelves\" ; vision-ns:areOn [ rdf:type ajan-ns:Shelf ; rdfs:label \"Shelves\" ] ] .\n" +
             "# 6. Validation\n" +
             "Ensure the output is a valid TTL string and can be parsed by standard RDF parsers without errors.\n" +
             "# 7. Structured Text\n" +
             "Given Structured Text: \"%s\"";
+
 }
