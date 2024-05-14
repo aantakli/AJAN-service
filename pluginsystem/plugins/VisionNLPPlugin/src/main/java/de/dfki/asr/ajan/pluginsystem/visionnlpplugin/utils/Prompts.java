@@ -29,9 +29,18 @@ public class Prompts {
             "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
             "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n" +
             "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n" +
-            "ajan-ns:Box10 rdf:type ajan-ns:Box ;\n" +
-            "  rdfs:label \"Box 10\" ;\n" +
+            "ajan-ns:Boxes rdf:type ajan-ns:Box ;\n" +
+            "  rdfs:label \"10 Boxes\" ;\n" +
             "  vision-nlp-ns:hasValue \"10\"^^xsd:integer .\n" +
+            "Given Structured Text: \"- Items: ? A collection of items that resemble boxes, arranged in a way that suggests an automated sorting or processing system.\"\n" +
+            "@prefix ajan-ns: <http://www.ajan.de/ajan-ns#> .\n" +
+            "@prefix vision-nlp-ns: <http://www.ajan.de/behavior/vision-nlp-ns#> .\n" +
+            "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
+            "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n" +
+            "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n" +
+            "ajan-ns:Items rdf:type ajan-ns:Item ;\n" +
+            "  rdfs:label \"Items\" ;\n" +
+            "  vision-nlp-ns:description \"A collection of items that resemble boxes, arranged in a way that suggests an automated sorting or processing system.\" .\n" +
             "# 6. Validation\n" +
             "Ensure the output is a valid TTL string and can be parsed by standard RDF parsers without errors.\n" +
             "# 7. Structured Text\n" +
