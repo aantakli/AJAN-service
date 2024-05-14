@@ -23,42 +23,42 @@ public class Prompts {
             "# 4. Namespaces\n" +
             "Available RDF TTL namespace prefixes to use are:\n" +
             "- `ajan-ns:<http://www.ajan.de/ajan-ns#>`\n" +
-            "- `vision-nlp-ns:<http://www.ajan.de/behavior/vision-nlp-ns#>`\n" +
+            "- `vision-ns:<http://www.ajan.de/behavior/vision-nlp-ns#>`\n" +
             "- `rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>`\n" +
             "- `rdfs:<http://www.w3.org/2000/01/rdf-schema#>`\n" +
             "- `xsd:<http://www.w3.org/2001/XMLSchema#>`\n" +
-            "where, for example, `ajan-ns` is the prefix and `<http://www.ajan.de/ajan-ns#>` is the URL for it.\n" +
+            "Ensure that all RDF triples use these exact namespace prefixes without typos.\n" +
             "# 5. Examples\n" +
             "Given Structured Text: \"- Boxes: 10\"\n" +
             "@prefix ajan-ns: <http://www.ajan.de/ajan-ns#> .\n" +
-            "@prefix vision-nlp-ns: <http://www.ajan.de/behavior/vision-nlp-ns#> .\n" +
+            "@prefix vision-ns: <http://www.ajan.de/behavior/vision-nlp-ns#> .\n" +
             "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
             "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n" +
             "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n" +
             "ajan-ns:ItemCollection1 rdf:type ajan-ns:ItemCollection ;\n" +
             "  rdfs:label \"Box Collection\" ;\n" +
-            "  vision-nlp-ns:contains ajan-ns:Box ;\n" +
-            "  vision-nlp-ns:itemCount \"10\"^^xsd:integer .\n" +
+            "  vision-ns:contains ajan-ns:Box ;\n" +
+            "  vision-ns:itemCount \"10\"^^xsd:integer .\n" +
             "ajan-ns:Box rdf:type ajan-ns:Box ;\n" +
             "  rdfs:label \"Box\" .\n" +
             "Given Structured Text: \"- Items: ? A collection of items that resemble boxes, arranged in a way that suggests an automated sorting or processing system.\"\n" +
             "@prefix ajan-ns: <http://www.ajan.de/ajan-ns#> .\n" +
-            "@prefix vision-nlp-ns: <http://www.ajan.de/behavior/vision-nlp-ns#> .\n" +
+            "@prefix vision-ns: <http://www.ajan.de/behavior/vision-nlp-ns#> .\n" +
             "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
             "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n" +
             "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n" +
             "ajan-ns:ItemCollection2 rdf:type ajan-ns:ItemCollection ;\n" +
             "  rdfs:label \"Unspecified Items Collection\" ;\n" +
-            "  vision-nlp-ns:description \"A collection of items that resemble boxes, arranged in a way that suggests an automated sorting or processing system.\" .\n" +
+            "  vision-ns:description \"A collection of items that resemble boxes, arranged in a way that suggests an automated sorting or processing system.\" .\n" +
             "Given Structured Text: \"- Context: The scene appears to be in a warehouse with automated sorting.\"\n" +
             "@prefix ajan-ns: <http://www.ajan.de/ajan-ns#> .\n" +
-            "@prefix vision-nlp-ns: <http://www.ajan.de/behavior/vision-nlp-ns#> .\n" +
+            "@prefix vision-ns: <http://www.ajan.de/behavior/vision-nlp-ns#> .\n" +
             "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
             "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n" +
             "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n" +
             "ajan-ns:Scene rdf:type ajan-ns:Context ;\n" +
             "  rdfs:label \"Warehouse Scene\" ;\n" +
-            "  vision-nlp-ns:description \"The scene appears to be in a warehouse with automated sorting.\" .\n" +
+            "  vision-ns:description \"The scene appears to be in a warehouse with automated sorting.\" .\n" +
             "# 6. Validation\n" +
             "Ensure the output is a valid TTL string and can be parsed by standard RDF parsers without errors.\n" +
             "# 7. Structured Text\n" +
