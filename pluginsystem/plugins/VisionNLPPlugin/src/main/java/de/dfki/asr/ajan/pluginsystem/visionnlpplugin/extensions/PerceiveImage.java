@@ -5,8 +5,8 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
-import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
+import de.dfki.asr.ajan.knowledge.AbstractBeliefBase;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.visionnlpplugin.utils.LanguageModel;
 import de.dfki.asr.ajan.pluginsystem.visionnlpplugin.utils.VisionLanguageModel;
@@ -23,15 +23,27 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.Rio;
 import org.pf4j.Extension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import de.dfki.asr.ajan.pluginsystem.visionnlpplugin.utils.Prompts;
 
+import javax.xml.transform.TransformerException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+
+import static de.dfki.asr.ajan.behaviour.service.impl.IConnection.BASE_URI;
 
 @Extension
 @Component
@@ -54,6 +66,7 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
     @Getter @Setter
     private String imagePrompt;
 
+    private static final Logger LOG = LoggerFactory.getLogger(PerceiveImage.class);
 
     @Override
     public Resource getType() {
@@ -83,20 +96,31 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
         );
         // get available namespaces from the model
         this.getObject().getAgentBeliefs().asModel().getNamespaces();
+        long start = System.currentTimeMillis();
         // Generate the response
         Response<AiMessage> imageResponse = visionModel.generate(imageMessage);
+        LOG.info("Image Inference Time:{} ms", System.currentTimeMillis()-start);
+        LOG.info("Image Response:`{}`", imageResponse.content().text());
 
         // Generate the response with the language model prompt
-        String imageResponse_with_prompt = Prompts.RDF_PROMPT
-                                + imageResponse.content().text();
+        String imageResponse_with_prompt = String.format(Prompts.RDF_PROMPT, imageResponse.content().text());
+
+        start = System.currentTimeMillis();
 
         // Generate the language model response
         String languageRDFResponse = languageModel.generate(imageResponse_with_prompt);
-
+        LOG.info("Language Inference Time:{} ms", System.currentTimeMillis()-start);
         // validate the response as RDF
 
         // Print the response
-        System.out.println("PerceiveImage: "+languageRDFResponse);
+        LOG.info("RDF from Image:`{}`", languageRDFResponse);
+
+        // Update the agent beliefs
+        try {
+            storeInKnowledgeBase(languageRDFResponse, this.getObject().getAgentBeliefs());
+        } catch (IOException | URISyntaxException | TransformerException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String getImage64String() {
@@ -110,6 +134,25 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
             throw new RuntimeException(e);
         }
         return null;
+    }
+
+    private void storeInKnowledgeBase(String s, AbstractBeliefBase beliefs) throws IOException, URISyntaxException, TransformerException {
+        Model model = parseMessageAndGetModel(s);
+        beliefs.update(model);
+    }
+
+    private Model parseMessageAndGetModel(String s) throws IOException {
+        // check if the message is CSV, JSON or XML
+        InputStream parsedMessage = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8));
+        Model model = getModel(parsedMessage);
+        return model;
+    }
+
+    private Model getModel(InputStream parsedMessage) throws IOException{
+        if (parsedMessage != null) {
+                return Rio.parse(parsedMessage, BASE_URI, RDFFormat.TURTLE);
+            }
+        return new LinkedHashModel();
     }
 
     @Override
