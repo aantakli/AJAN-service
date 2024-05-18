@@ -26,7 +26,7 @@
 @prefix ql: <http://semweb.mmlab.be/ns/ql#> .
 @prefix ex: <http://www.example.com/> .
 @prefix carml: <http://carml.taxonic.com/carml/> .
-
+@prefix vision-ns: <http://www.ajan.de/behavior/vision-nlp-ns#> .
 
 # --------------------------------------------
 # --------------- RML Mappings ---------------
@@ -108,7 +108,7 @@
 
         rr:predicateObjectMap
             [
-                rr:predicate schema:name ;
+                rr:predicate vision-ns:name ;
                 rr:objectMap
                     [
                         rml:reference "itemName" ;
@@ -118,7 +118,7 @@
 
         rr:predicateObjectMap
             [
-                rr:predicate schema:description ;
+                rr:predicate vision-ns:description ;
                 rr:objectMap
                     [
                         rml:reference "description" ;
@@ -127,7 +127,7 @@
 
         rr:predicateObjectMap
             [
-                rr:predicate ex:quantity ;
+                rr:predicate vision-ns:quantity ;
                 rr:objectMap
                     [
                         rml:reference "quantity" ;
@@ -137,7 +137,7 @@
 
         rr:predicateObjectMap
             [
-                rr:predicate ex:location ;
+                rr:predicate vision-ns:location ;
                 rr:objectMap
                     [
                         rr:parentTriplesMap :LocationMapping ;
