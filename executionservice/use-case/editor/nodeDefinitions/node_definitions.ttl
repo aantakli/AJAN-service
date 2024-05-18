@@ -2429,9 +2429,16 @@
         ];
         nd:parameter [
             a nd:Parameter;
-            nd:mapsTo vision-nlp:languagePrompt;
-            nd:title "Optional Language Prompt";
+            nd:mapsTo vision-nlp:imagePrompt;
+            nd:title "Optional Image Prompt";
             nd:input xsd:string;
+        ] ;
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo bt:mapping;
+            nd:title "Mapping";
+            nd:input xsd:anyURI ;
+            nd:default "http://"^^xsd:anyURI;
         ] .
 
 :InitializeLanguageModel nd:class nd:Leaf;
