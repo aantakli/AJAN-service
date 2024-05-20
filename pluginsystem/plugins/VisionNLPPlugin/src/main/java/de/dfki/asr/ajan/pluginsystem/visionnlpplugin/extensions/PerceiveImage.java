@@ -1,7 +1,5 @@
 package de.dfki.asr.ajan.pluginsystem.visionnlpplugin.extensions;
 
-import com.taxonic.carml.model.TriplesMap;
-import com.taxonic.carml.util.RmlMappingLoader;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -11,6 +9,7 @@ import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.knowledge.AbstractBeliefBase;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.visionnlpplugin.utils.LanguageModel;
+import de.dfki.asr.ajan.pluginsystem.visionnlpplugin.utils.MappingHelper;
 import de.dfki.asr.ajan.pluginsystem.visionnlpplugin.utils.VisionLanguageModel;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ImageContent;
@@ -30,26 +29,21 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
-import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
-import org.eclipse.rdf4j.rio.turtle.TurtleWriter;
-import org.eclipse.rdf4j.rio.turtle.TurtleWriterFactory;
 import org.pf4j.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import de.dfki.asr.ajan.pluginsystem.mappingplugin.utils.MappingUtil;
 import de.dfki.asr.ajan.pluginsystem.visionnlpplugin.utils.Prompts;
 
 import javax.xml.transform.TransformerException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 
 import static de.dfki.asr.ajan.behaviour.service.impl.IConnection.BASE_URI;
 
@@ -103,14 +97,14 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
     private void perceiveImage(ChatLanguageModel languageModel, ChatLanguageModel visionModel){
 
         // Get Mapping
-        String mappingString = getMappingString();
+        String mappingString = MappingHelper.getMappingString(this.getObject(), this.mapping);
         LOG.info("Fetched Mapping:`{}`", mappingString);
 
 
         // Get the image message
         UserMessage imageMessage = UserMessage.from(
                 TextContent.from(this.imagePrompt!=null && !this.imagePrompt.isEmpty() ?this.imagePrompt:Prompts.IMAGE_PROMPT),
-                ImageContent.from(getImage64String(), "image/png")
+                ImageContent.from(Objects.requireNonNull(getImage64String()), "image/png")
         );
         // get available namespaces from the model
         this.getObject().getAgentBeliefs().asModel().getNamespaces();
@@ -121,8 +115,7 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
         LOG.info("Image Response:`{}`", imageResponse.content().text());
 
         // Generate the response with the language model prompt
-        String imageResponse_with_prompt = String.format(Prompts.RDF_PROMPT, imageResponse.content().text());
-
+        String imageResponse_with_prompt = String.format(Prompts.RDF_PROMPT, mappingString, imageResponse.content().text());
         start = System.currentTimeMillis();
 
         // Generate the language model response
@@ -141,28 +134,16 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
         }
     }
 
-    private String getMappingString() {
-        Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
-        String mappingString = null;
-        Model mapping = null;
-        Set<TriplesMap> mappingInput;
-        StringWriter writer = new StringWriter();
-        try {
-            mapping = MappingUtil.getTriplesMaps(repo, this.mapping);
-            mappingInput = RmlMappingLoader.build().load(mapping);
 
-            TurtleWriterFactory turtleWriterFactory = new TurtleWriterFactory();
-            TurtleWriter turtleWriter = (TurtleWriter) turtleWriterFactory.getWriter(writer);
-            turtleWriter.getWriterConfig().set(BasicWriterSettings.PRETTY_PRINT, true);
-            turtleWriter.getWriterConfig().set(BasicWriterSettings.INLINE_BLANK_NODES, true);
 
-            Rio.write(mapping, turtleWriter);
-            mappingString = writer.toString();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-        return mappingString;
-    }
+//    private static void fetchNamespacesAndAddToWriter(Repository repo, TurtleWriter turtleWriter) {
+//        try(RepositoryConnection conn = repo.getConnection()){
+//            Iterable<Namespace> namespaces = conn.getNamespaces();
+//            for (Namespace namespace : namespaces) {
+//                turtleWriter.handleNamespace(namespace.getPrefix(), namespace.getName());
+//            }
+//        }
+//    }
 
     private String getImage64String() {
         try {
