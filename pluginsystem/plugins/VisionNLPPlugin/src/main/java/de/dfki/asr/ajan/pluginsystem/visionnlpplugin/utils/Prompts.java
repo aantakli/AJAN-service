@@ -12,22 +12,79 @@ public class Prompts {
             "- For descriptions: '- Description: A collection of items arranged neatly in rows.'\n" +
             "- For context or inference: '- Context: The scene appears to be in a warehouse with automated sorting.' or '- Inference: The setup suggests a manufacturing process.'";
 
-public static String RDF_PROMPT = "# 1. Overview\n" +
-        "You are a top-tier algorithm designed to convert a given structured text into an RDF TTL string. " +
-        "The structured text contains information about an image given by a image-to-text model.\n" +
-        "# 2. Output format\n" +
-    "Give only the RDF in TTL format and no additional texts or quotes are allowed. Do not trim the output for brevity; include all necessary details.\n" +
-    "Output only the RDF TTL string. No additional explanations, steps, descriptions, or formatting such as quotes or backticks are allowed. Only the RDF TTL string is required.\n" +
-        "# 3. Consistency and Syntax\n" +
-        "Your response should be able to be added to an RDF4J repository directly and should only contain the RDF in TTL format with proper prefixes as specified by the provided mapping. " +
-        "Ensure that your response is syntactically correct and follows proper RDF TTL structure. Use blank nodes correctly and ensure all prefixes are used without typos. Avoid redundant definitions and maintain consistency in entity names. " +
-        "Nested properties should be handled correctly, ensuring that all entities are properly defined and linked. " +
-    "Avoid using nested blank nodes for properties like `ex:hasColor` or `ex:contains`. Instead, define these properties separately and link them appropriately.\n" +
-    "# 4. Mapping\n" +
-    "Here is the RML mapping string that specifies how to extract and structure the data. Use only the namespaces and URIs provided in this mapping:\n" +
-    "%s\n" +  // Placeholder for the mapping variable
-    "# 5. Structured Text\n" +
-        "Given Structured Text: \"%s\"";
+public static String SPARQL_INSERT_PROMPT =
+        "Task: Generate a SPARQL INSERT query to insert data from a natural language text into a graph database according to a given RML mapping.\n" +
+        "For instance, to add '- Description: An empty street with 3 people walking.' with the mapping:\n" +
+        "\n" +
+        "```\n" +
+        "@prefix ex: <http://example.org/> .\n" +
+        "@prefix schema: <http://schema.org/> .\n" +
+        "@prefix rml: <http://semweb.mmlab.be/ns/rml#> .\n" +
+        "@prefix rr: <http://www.w3.org/ns/r2rml#> .\n" +
+        "@prefix ql: <http://semweb.mmlab.be/ns/ql#> .\n" +
+        "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> .\n" +
+        "\n" +
+        "ex:Street\n" +
+        "    rr:subjectMap [\n" +
+        "        rr:template \"http://example.org/street\" ;\n" +
+        "        rr:class ex:Street ;\n" +
+        "    ] ;\n" +
+        "    rr:predicateObjectMap [\n" +
+        "        rr:predicate schema:description ;\n" +
+        "        rr:objectMap [\n" +
+        "        rml:reference \"description\" ;\n" +
+        "        ] ;\n" +
+        "    ] ;\n" +
+        "    rr:predicateObjectMap [\n" +
+        "        rr:predicate schema:location ;\n" +
+        "        rr:objectMap [\n" +
+        "        rml:reference \"location\" ;\n" +
+        "        ] ;\n" +
+        "    ] ;\n" +
+        "    rr:predicateObjectMap [\n" +
+        "        rr:predicate schema:people ;\n" +
+        "        rr:objectMap [\n" +
+        "        rml:reference \"people\" ;\n" +
+        "        ] ;\n" +
+        "    ];\n" +
+        "    rr:predicateObjectMap [\n" +
+        "       rr:predicate schema:count ;\n" +
+        "         rr:objectMap [\n" +
+        "            rml:reference \"count\" ;\n" +
+        "            ] ;\n" +
+        "    ] .    \n" +
+        "```\n" +
+        "\n" +
+        "The SPARQL INSERT query would be:\n" +
+        "```\n" +
+        "PREFIX ex: <http://example.org/>\n" +
+        "PREFIX schema: <http://schema.org/>\n" +
+        "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n" +
+        "\n" +
+        "INSERT DATA {\n" +
+        "    ex:Street ex:description \"An empty street with 3 people walking.\" .\n" +
+        "    ex:Street schema:location \"Street\" .\n" +
+        "    schema:people [ schema:count \"3\"xsd:integer ] .\n" +
+        "}\n" +
+        "```\n" +
+        "\n" +
+        "Instructions:\n" +
+        "Use only the provided properties and namespaces present in the mapping.\n" +
+        "Do not use any other namespaces or properties that are not provided.\n" +
+        "Make the query as short as possible and avoid adding unnecessary triples.\n" +
+        "Use only the node types and properties provided in the schema.\n" +
+        "Do not use any node types and properties that are not explicitly provided.\n" +
+        "Include all necessary prefixes. \n" +
+        "The mapping is as follows:\n" +
+        "%s\n" +
+        "\n" +
+        "The Text is as follows:\n" +
+        "%s\n" +
+        "\n" +
+        "Note: Be as concise as possible.\n" +
+        "Do not include any explanations or apologies in your responses.\n" +
+        "Do not respond to any questions that ask for anything else than for you to construct a SPARQL query.\n" +
+        "Return only the generated SPARQL query, nothing else.";
 
 public static String IMAGE_PROMPT =
         "Task: Generate a structured text as response to a given question.Focus on extracting key details and be precise while answering. \n" +
@@ -44,7 +101,7 @@ public static String IMAGE_PROMPT =
                 "- For context or inference: '- Context: The scene appears to be in a warehouse with automated sorting.' or '- Inference: The setup suggests a manufacturing process.' \n" +
                 "Note: Be as concise as possible.Do not include any explanations or apologies in your responses. \n" +
                 "Return only the generated structured text, nothing else.\n" +
-                "Given the image, answer the following question: '" + QUESTION + "'";
+                "Given the image, answer the following question: '%s'";
 
 private static final String SPARQL_CORRECTION_TASK =
         "Task: Check the correctness of the given SPARQL query and give the corrected SPARQL.\n" +

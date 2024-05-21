@@ -1,5 +1,6 @@
 package de.dfki.asr.ajan.pluginsystem.visionnlpplugin.extensions;
 
+import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -26,7 +27,9 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.pf4j.Extension;
@@ -66,7 +69,7 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
 
     @RDF("vision-nlp:imagePrompt")
     @Getter @Setter
-    private String imagePrompt;
+    private String userQuestion;
 
     @RDF("bt:mapping")
     @Getter @Setter
@@ -85,7 +88,14 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
         try {
             ChatLanguageModel ollamaChatModel = LanguageModel.getChatLLMModel(this.getObject().getAgentBeliefs().getId());
             ChatLanguageModel visionModel = VisionLanguageModel.getChatLLMModel(this.getObject().getAgentBeliefs().getId());
-            perceiveImage(ollamaChatModel, visionModel);
+
+            // Get Mapping
+            String mappingString = MappingHelper.getMappingString(this.getObject(), this.mapping);
+            LOG.info("Fetched Mapping:`{}`", mappingString);
+
+            String imageResponse = perceiveImage(visionModel, Objects.requireNonNull(getImage64String()));
+            String sparqlResponse = convertToSPARQLQuery(ollamaChatModel, imageResponse, mappingString);
+            updateKnowledgeBaseWithReprompting(sparqlResponse, ollamaChatModel);
         } catch (Exception ex){
             report += "FAILED";
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
@@ -94,29 +104,28 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
         return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
     }
 
-    private void perceiveImage(ChatLanguageModel languageModel, ChatLanguageModel visionModel){
-
-        // Get Mapping
-        String mappingString = MappingHelper.getMappingString(this.getObject(), this.mapping);
-        LOG.info("Fetched Mapping:`{}`", mappingString);
-
-
+    private String perceiveImage(ChatLanguageModel visionModel, String image64String){
         // Get the image message
         UserMessage imageMessage = UserMessage.from(
-                TextContent.from(this.imagePrompt!=null && !this.imagePrompt.isEmpty() ?this.imagePrompt:Prompts.IMAGE_PROMPT),
-                ImageContent.from(Objects.requireNonNull(getImage64String()), "image/png")
+                TextContent.from(this.userQuestion !=null && !this.userQuestion.isEmpty()
+                        ? String.format(Prompts.IMAGE_PROMPT, this.userQuestion)
+                        : String.format(Prompts.IMAGE_PROMPT, Prompts.QUESTION)),
+                ImageContent.from(image64String, "image/png")
         );
-        // get available namespaces from the model
-        this.getObject().getAgentBeliefs().asModel().getNamespaces();
+
         long start = System.currentTimeMillis();
+
         // Generate the response
         Response<AiMessage> imageResponse = visionModel.generate(imageMessage);
         LOG.info("Image Inference Time:{} ms", System.currentTimeMillis()-start);
         LOG.info("Image Response:`{}`", imageResponse.content().text());
+        return imageResponse.content().text();
+    }
 
+    private String convertToSPARQLQuery(ChatLanguageModel languageModel, String imageResponse, String mappingString) {
         // Generate the response with the language model prompt
-        String imageResponse_with_prompt = String.format(Prompts.RDF_PROMPT, mappingString, imageResponse.content().text());
-        start = System.currentTimeMillis();
+        String imageResponse_with_prompt = String.format(Prompts.SPARQL_INSERT_PROMPT, mappingString, imageResponse);
+        long start = System.currentTimeMillis();
 
         // Generate the language model response
         String languageRDFResponse = languageModel.generate(imageResponse_with_prompt);
@@ -125,12 +134,36 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
 
         // Print the response
         LOG.info("RDF from Image:`{}`", languageRDFResponse);
+        return languageRDFResponse;
 
-        // Update the agent beliefs
-        try {
-            storeInKnowledgeBase(languageRDFResponse, this.getObject().getAgentBeliefs());
-        } catch (IOException | URISyntaxException | TransformerException e) {
-            throw new RuntimeException(e);
+    }
+
+    private void updateKnowledgeBaseWithReprompting(String sparqlInsertQuery, ChatLanguageModel languageModel) {
+        boolean hasError;
+        int count = 0;
+        String sparqlLatestInsertQuery = sparqlInsertQuery;
+        String namespacesString = MappingHelper.getNamespaceString(this.getObject().getDomainTDB().getInitializedRepository());
+        do {
+            try {
+                storeInKnowledgeBase(sparqlLatestInsertQuery, this.getObject());
+                hasError = false;
+            } catch (Exception ex){
+                hasError = true;
+                if(ex.getMessage().toLowerCase().contains("namespace")) {
+                    String prompt = String.format(Prompts.SPARQL_CORRECTION_PROMPT_WITH_ERROR_AND_NAMESPACE,
+                            sparqlLatestInsertQuery, ex.getMessage(),
+                            namespacesString);
+                    sparqlLatestInsertQuery = languageModel.generate(prompt);
+                } else {
+                    String prompt = String.format(Prompts.SPARQL_CORRECTION_PROMPT_WITH_ERROR, sparqlLatestInsertQuery, ex.getMessage());
+                    sparqlLatestInsertQuery = languageModel.generate(prompt);
+                }
+            }
+            count++;
+        } while(hasError && count < 3);
+
+        if (hasError){
+            throw new RuntimeException("Failed to update the knowledge base");
         }
     }
 
@@ -158,9 +191,10 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
         return null;
     }
 
-    private void storeInKnowledgeBase(String s, AbstractBeliefBase beliefs) throws IOException, URISyntaxException, TransformerException {
-        Model model = parseMessageAndGetModel(s);
-        beliefs.update(model);
+    private void storeInKnowledgeBase(String insertQuery, AgentTaskInformation beliefs) throws IOException, URISyntaxException, TransformerException {
+        RepositoryConnection connection = beliefs.getAgentBeliefs().getInitializedRepository().getConnection();
+        Update updateQuery = connection.prepareUpdate(insertQuery);
+        updateQuery.execute();
     }
 
     private Model parseMessageAndGetModel(String s) throws IOException {
