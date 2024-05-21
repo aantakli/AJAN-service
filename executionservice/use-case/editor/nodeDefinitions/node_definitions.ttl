@@ -2430,8 +2430,9 @@
         nd:parameter [
             a nd:Parameter;
             nd:mapsTo vision-nlp:imagePrompt;
-            nd:title "Optional Image Prompt";
+            nd:title "Optional Image Question";
             nd:input xsd:string;
+            nd:default: "What is present in the image?"^^xsd:string;
         ] ;
         nd:parameter [
             a nd:Parameter;

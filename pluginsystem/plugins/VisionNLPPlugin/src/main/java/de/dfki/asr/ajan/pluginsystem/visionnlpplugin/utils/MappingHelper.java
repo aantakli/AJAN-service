@@ -64,7 +64,7 @@ public class MappingHelper {
         Iterable<Namespace> namespaces = getNamespacesFromRepo(repo);
         StringBuilder namespaceString = new StringBuilder();
         for (Namespace namespace : namespaces) {
-            namespaceString.append("PREFIX").append(namespace.getPrefix()).append(": <").append(namespace.getName()).append("> .\n");
+            namespaceString.append("PREFIX ").append(namespace.getPrefix()).append(":<").append(namespace.getName()).append("> .\n");
         }
         return namespaceString.toString();
     }
