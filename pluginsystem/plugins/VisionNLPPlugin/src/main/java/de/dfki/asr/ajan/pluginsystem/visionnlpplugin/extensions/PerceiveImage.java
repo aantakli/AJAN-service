@@ -149,6 +149,7 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
                 hasError = false;
             } catch (Exception ex){
                 hasError = true;
+                LOG.warn("Retrying, Error in updating the knowledge base:" + ex.getMessage());
                 if(ex.getMessage().toLowerCase().contains("namespace")) {
                     String prompt = String.format(Prompts.SPARQL_CORRECTION_PROMPT_WITH_ERROR_AND_NAMESPACE,
                             sparqlLatestInsertQuery, ex.getMessage(),
