@@ -95,6 +95,7 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
 
             String imageResponse = perceiveImage(visionModel, Objects.requireNonNull(getImage64String()));
             String sparqlResponse = convertToSPARQLQuery(ollamaChatModel, imageResponse, mappingString);
+            // Measure the RML Mapper Inference Time
             updateKnowledgeBaseWithReprompting(sparqlResponse, ollamaChatModel);
         } catch (Exception ex){
             report += "FAILED";
@@ -159,6 +160,7 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
                     String prompt = String.format(Prompts.SPARQL_CORRECTION_PROMPT_WITH_ERROR, sparqlLatestInsertQuery, ex.getMessage());
                     sparqlLatestInsertQuery = languageModel.generate(prompt);
                 }
+                LOG.info("Refined Query:{}", sparqlLatestInsertQuery);
             }
             count++;
         } while(hasError && count < 3);
