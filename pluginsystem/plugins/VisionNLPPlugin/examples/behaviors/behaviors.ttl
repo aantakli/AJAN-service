@@ -1,0 +1,97 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf4j: <http://rdf4j.org/schema/rdf4j#> .
+@prefix sesame: <http://www.openrdf.org/schema/sesame#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fn: <http://www.w3.org/2005/xpath-functions#> .
+
+_:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b312 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#ExecutionKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX ajan-ns:<http://www.dfki.de/ajan-ns#>
+SELECT ?imageData WHERE {ajan-ns:base64String ?p ?imageData}""" .
+
+_:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b313 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#ExecutionKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX ajan-ns:<http://www.dfki.de/ajan-ns#>
+SELECT ?imageData WHERE {ajan-ns:base64String ?p ?imageData}""" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#PerceiveImage-ddd5bb82-97b5-4288-b0b6-afaa8757ab7a>
+  a <http://www.ajan.de/behavior/vision-nlp-ns#PerceiveImage>;
+  <http://www.ajan.de/behavior/vision-nlp-ns#imagePrompt> "Which does the image describe?";
+  <http://www.ajan.de/behavior/bt-ns#mapping> <http://localhost:8090/rdf4j/repositories/domain#DescriptionMapping>;
+  rdfs:label "PerceiveImage:Description";
+  rdfs:comment "";
+  <http://www.ajan.de/behavior/vision-nlp-ns#imageData> _:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b312 .
+
+_:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b316 a <http://www.ajan.de/behavior/bt-ns#ConstructQuery>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> "CONSTRUCT WHERE {?s ?p ?o}";
+  <http://www.ajan.de/behavior/bt-ns#targetBase> <http://www.ajan.de/ajan-ns#ExecutionKnowledge> .
+
+_:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b317 a <http://www.ajan.de/behavior/bt-ns#SelectQuery>;
+  <http://www.ajan.de/behavior/bt-ns#originBase> <http://www.ajan.de/ajan-ns#ExecutionKnowledge>;
+  <http://www.ajan.de/behavior/bt-ns#sparql> """PREFIX ajan-ns:<http://www.dfki.de/ajan-ns#>
+SELECT ?imageData WHERE {ajan-ns:base64String ?p ?imageData}""" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#InitializeLanguageModel-76206fde-194c-4951-820e-6177df5aa1a1>
+  a <http://www.ajan.de/behavior/vision-nlp-ns#InitializeLanguageModel>;
+  <http://www.ajan.de/behavior/vision-nlp-ns#modelName> "llama3";
+  rdfs:label "InitializeLanguageModel";
+  rdfs:comment "" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#HandleEvent-8e029e01-d65d-4abd-aaad-9974819b08c9>
+  a <http://www.ajan.de/behavior/bt-ns#HandleEvent>;
+  <http://www.ajan.de/ajan-ns#event> <http://localhost:8090/rdf4j/repositories/agents#EV_f3caba10-6bbe-477e-b58e-4aa556efcb28>;
+  rdfs:label "getImageData";
+  rdfs:comment "";
+  <http://www.ajan.de/behavior/bt-ns#validate> _:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b316 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#InitializeVisionLanguageModel-11b75a9d-ca24-4112-8bf9-13d3f64099d7>
+  a <http://www.ajan.de/behavior/vision-nlp-ns#InitializeVisionLanguageModel>;
+  <http://www.ajan.de/behavior/vision-nlp-ns#modelName> "llava";
+  rdfs:label "InitializeVisionLanguageModel";
+  rdfs:comment "" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#PerceiveImage-b7e48c0c-51d4-4c01-ac77-228f089cf0f3>
+  a <http://www.ajan.de/behavior/vision-nlp-ns#PerceiveImage>;
+  rdfs:label "PerceiveImage:Count";
+  rdfs:comment "";
+  <http://www.ajan.de/behavior/bt-ns#mapping> <http://localhost:8090/rdf4j/repositories/domain#CountMapping>;
+  <http://www.ajan.de/behavior/vision-nlp-ns#imagePrompt> "How many boxes are present in the image? If you are unsure, use the default value which is 0. ";
+  <http://www.ajan.de/behavior/vision-nlp-ns#imageData> _:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b313 .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#PerceiveImage-515d2af6-8f2f-4740-b6f9-5f0d0f3ce551>
+  a <http://www.ajan.de/behavior/vision-nlp-ns#PerceiveImage>;
+  <http://www.ajan.de/behavior/vision-nlp-ns#imageData> _:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b317;
+  <http://www.ajan.de/behavior/vision-nlp-ns#imagePrompt> "What is the color of the boxes? Brown, Blue or Black? If something different, give the color name.";
+  <http://www.ajan.de/behavior/bt-ns#mapping> <http://localhost:8090/rdf4j/repositories/domain#PropertyMapping>;
+  rdfs:label "PerceiveImage:Color";
+  rdfs:comment "" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Sequence-f602ac39-8b5a-4f11-8359-6616803010a1>
+  a <http://www.ajan.de/behavior/bt-ns#Sequence>;
+  <http://www.ajan.de/behavior/bt-ns#hasChildren> _:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b322;
+  rdfs:label "defaultSequence" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#BT_59cdc023-218d-47f5-ad16-58aa7b1b9109>
+  a <http://www.ajan.de/behavior/bt-ns#BehaviorTree>, <http://www.ajan.de/behavior/bt-ns#Root>;
+  rdfs:label "visionNLPTest";
+  <http://www.ajan.de/behavior/bt-ns#hasChild> <http://localhost:8090/rdf4j/repositories/behaviors#Sequence-f602ac39-8b5a-4f11-8359-6616803010a1> .
+
+_:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b322 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#HandleEvent-8e029e01-d65d-4abd-aaad-9974819b08c9>;
+  rdf:rest _:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b323 .
+
+_:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b323 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#InitializeLanguageModel-76206fde-194c-4951-820e-6177df5aa1a1>;
+  rdf:rest _:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b324 .
+
+_:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b324 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#InitializeVisionLanguageModel-11b75a9d-ca24-4112-8bf9-13d3f64099d7>;
+  rdf:rest _:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b325 .
+
+_:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b325 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#PerceiveImage-b7e48c0c-51d4-4c01-ac77-228f089cf0f3>;
+  rdf:rest _:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b326 .
+
+_:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b326 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#PerceiveImage-515d2af6-8f2f-4740-b6f9-5f0d0f3ce551>;
+  rdf:rest _:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b327 .
+
+_:genid-58e9db9aa6f74cd7a42ee811f5b6b3cf-b327 rdf:first <http://localhost:8090/rdf4j/repositories/behaviors#PerceiveImage-ddd5bb82-97b5-4288-b0b6-afaa8757ab7a>;
+  rdf:rest rdf:nil .

@@ -1,0 +1,32 @@
+@prefix : <http://localhost:8090/rdf4j/repositories/agents#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fn: <http://www.w3.org/2005/xpath-functions#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sesame: <http://www.openrdf.org/schema/sesame#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix rdf4j: <http://rdf4j.org/schema/rdf4j#> .
+
+{
+  :BE_cf2db88c-ecea-4e50-a581-57ea784f2635 a ajan:Behavior;
+    ajan:trigger :EV_f3caba10-6bbe-477e-b58e-4aa556efcb28;
+    ajan:clearEKB false;
+    rdfs:label "visionNLPTest Behavior";
+    ajan:bt <http://localhost:8090/rdf4j/repositories/behaviors#BT_59cdc023-218d-47f5-ad16-58aa7b1b9109> .
+  
+  :EP_44b60220-44fb-4913-9bac-8decd5b90252 a ajan:Endpoint;
+    rdfs:label "visionNLPTest Endpoint";
+    ajan:event :EV_f3caba10-6bbe-477e-b58e-4aa556efcb28;
+    ajan:capability "visionNLPTest" .
+  
+  :EV_f3caba10-6bbe-477e-b58e-4aa556efcb28 a ajan:ModelEvent;
+    rdfs:label "visionNLPTest Event" .
+  
+  :AG_visionNLPTest_580f7e74-2957-4f3a-8709-fe48725982db a ajan:AgentTemplate;
+    ajan:agentInitKnowledge <http://localhost:8090/rdf4j/repositories/agents#AG_visionNLPTest_580f7e74-2957-4f3a-8709-fe48725982db/InitKnowledge>;
+    ajan:event :EV_f3caba10-6bbe-477e-b58e-4aa556efcb28;
+    ajan:behavior :BE_cf2db88c-ecea-4e50-a581-57ea784f2635;
+    ajan:endpoint :EP_44b60220-44fb-4913-9bac-8decd5b90252;
+    rdfs:label "visionNLPTest AgentTemplate" .
+}
