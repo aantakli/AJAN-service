@@ -99,28 +99,35 @@ domain:WarehouseTestMapping {
 # --------------------------------
 domain:CountMapping {
     domain:CountMapping a rr:TriplesMap ;
+        rml:logicalSource [
+          rml:source [
+                         a carml:Stream ;
+                     ] ;
+          rml:referenceFormulation ql:JSONPath ;
+          rml:iterator "$"
+        ] ;
         rr:subjectMap
             [
-                rr:template "http://www.ajan.de/item/{Name}" ;
+                rr:template "http://www.ajan.de/item" ;
                 rr:class ajan:Item ;
             ] ;
-        rr:PredicateObjectMap
+        rr:predicateObjectMap
             [
                 rr:predicate ajan:name ;
                 rr:objectMap
                     [
-                        rml:reference "Name" ;
+                        rml:reference "name" ;
                         rr:datatype xsd:string ;
-                    ] ;
+                    ]
             ] ;
-        rr:PredicateObjectMap
+        rr:predicateObjectMap
             [
                 rr:predicate ajan:count ;
                 rr:objectMap
                     [
                         rml:reference "count" ;
                         rr:datatype xsd:integer ;
-                    ] ;
+                    ]
             ] .
 }
 
@@ -129,19 +136,26 @@ domain:CountMapping {
 # --------------------------------
 domain:DescriptionMapping {
     domain:DescriptionMapping a rr:TriplesMap ;
+        rml:logicalSource [
+            rml:source [
+                         a carml:Stream ;
+                     ] ;
+            rml:referenceFormulation ql:JSONPath ;
+            rml:iterator "$"
+        ] ;
         rr:subjectMap
             [
                 rr:template "http://www.ajan.de/scene" ;
                 rr:class ajan:Scene ;
             ] ;
-        rr:PredicateObjectMap
+        rr:predicateObjectMap
             [
                 rr:predicate ajan:description ;
                 rr:objectMap
                     [
                         rml:reference "description" ;
                         rr:datatype xsd:string ;
-                    ] ;
+                    ]
             ] .
 }
 
@@ -155,23 +169,23 @@ domain:SignalMapping {
                 rr:template "http://www.ajan.de/signal" ;
                 rr:class ajan:Signal
             ] ;
-        rr:PredicateObjectMap
+        rr:predicateObjectMap
             [
                 rr:predicate ajan:signalType ;
                 rr:objectMap
                     [
                         rml:reference "signalType" ;
                         rr:datatype xsd:string ;
-                    ] ;
+                    ]
             ] ;
-        rr:PredicateObjectMap
+        rr:predicateObjectMap
             [
                 rr:predicate ajan:signalValue ;
                 rr:objectMap
                     [
                         rml:reference "signalValue" ;
                         rr:datatype xsd:string ;
-                    ] ;
+                    ]
             ] .
 }
 
@@ -180,27 +194,34 @@ domain:SignalMapping {
 # --------------------------------
 domain:PropertyMapping {
     domain:PropertyMapping a rr:TriplesMap ;
+        rml:logicalSource [
+            rml:source [
+                a carml:Stream ;
+            ] ;
+            rml:referenceFormulation ql:JSONPath ;
+            rml:iterator "$"
+        ] ;
         rr:subjectMap
             [
-                rr:template "http://www.ajan.de/{itemName}/{propertyName}" ;
+                rr:template "http://www.ajan.de/item/property" ;
                 rr:class ajan:Property ;
             ] ;
-        rr:PredicateObjectMap
+        rr:predicateObjectMap
             [
                 rr:predicate ajan:name ;
                 rr:objectMap
                     [
                         rml:reference "name" ;
                         rr:datatype xsd:string ;
-                    ] ;
+                    ]
             ] ;
-        rr:PredicateObjectMap
+        rr:predicateObjectMap
             [
                 rr:predicate ajan:value ;
                 rr:objectMap
                     [
                         rml:reference "value" ;
                         rr:datatype xsd:string ;
-                    ] ;
+                    ]
             ] .
 }

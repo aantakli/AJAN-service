@@ -9,6 +9,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.knowledge.AbstractBeliefBase;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
+import de.dfki.asr.ajan.pluginsystem.mappingplugin.utils.MappingUtil;
 import de.dfki.asr.ajan.pluginsystem.visionnlpplugin.utils.LanguageModel;
 import de.dfki.asr.ajan.pluginsystem.visionnlpplugin.utils.MappingHelper;
 import de.dfki.asr.ajan.pluginsystem.visionnlpplugin.utils.VisionLanguageModel;
@@ -25,7 +26,6 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
@@ -94,9 +94,8 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
             LOG.info("Fetched Mapping:`{}`", mappingString);
 
             String imageResponse = perceiveImage(visionModel, Objects.requireNonNull(getImage64String()));
-            String sparqlResponse = convertToSPARQLQuery(ollamaChatModel, imageResponse, mappingString);
-            // Measure the RML Mapper Inference Time
-            updateKnowledgeBaseWithReprompting(sparqlResponse, ollamaChatModel);
+            String jsonResponse = convertToJSONLD(ollamaChatModel, imageResponse, mappingString);
+            storeInKnowledgeBase(jsonResponse, this.mapping, this.getObject().getDomainTDB().getInitializedRepository(), this.getObject().getAgentBeliefs());
         } catch (Exception ex){
             report += "FAILED";
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
@@ -137,6 +136,36 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
         LOG.info("RDF from Image:`{}`", languageRDFResponse);
         return languageRDFResponse;
 
+    }
+
+    private String convertToJSONLD(ChatLanguageModel languageModel, String imageResponse, String mappingString) {
+        // Generate the response with the language model prompt
+        String imageResponse_with_prompt = String.format(Prompts.JSON_PROMPT, mappingString, imageResponse);
+        long start = System.currentTimeMillis();
+
+        // Generate the language model response
+        String languageRDFResponse = languageModel.generate(imageResponse_with_prompt);
+        LOG.info("Language Inference Time:{} ms", System.currentTimeMillis()-start);
+        // validate the response as JSON-LD
+
+        // Print the response
+        LOG.info("JSON-LD from Image:`{}`", languageRDFResponse);
+        return languageRDFResponse;
+    }
+
+    private Model mapToModel(String jsonLdResponse, Repository repo, URI mapping) throws URISyntaxException {
+        InputStream parsedMessage = new ByteArrayInputStream(jsonLdResponse.getBytes(StandardCharsets.UTF_8));
+//        return Rio.parse(parsedMessage, BASE_URI, RDFFormat.JSONLD);
+        return MappingUtil.getMappedModel(MappingUtil.getTriplesMaps(repo, mapping), parsedMessage);
+    }
+
+    private void storeInKnowledgeBase(String s, URI mapping, Repository repo, AbstractBeliefBase beliefs) throws IOException, URISyntaxException, TransformerException {
+        // Measure the RML Mapper Inference Time
+        long start = System.currentTimeMillis();
+        // RML Mapping
+        Model model = mapToModel(s, repo, mapping);
+        LOG.info("RML Mapping Time:{} ms", System.currentTimeMillis()-start);
+        beliefs.update(model);
     }
 
     private void updateKnowledgeBaseWithReprompting(String sparqlInsertQuery, ChatLanguageModel languageModel) {
@@ -198,20 +227,6 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
         RepositoryConnection connection = beliefs.getAgentBeliefs().getInitializedRepository().getConnection();
         Update updateQuery = connection.prepareUpdate(insertQuery);
         updateQuery.execute();
-    }
-
-    private Model parseMessageAndGetModel(String s) throws IOException {
-        // check if the message is CSV, JSON or XML
-        InputStream parsedMessage = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8));
-        Model model = getModel(parsedMessage);
-        return model;
-    }
-
-    private Model getModel(InputStream parsedMessage) throws IOException{
-        if (parsedMessage != null) {
-                return Rio.parse(parsedMessage, BASE_URI, RDFFormat.TURTLE);
-            }
-        return new LinkedHashModel();
     }
 
     @Override
