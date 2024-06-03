@@ -1,6 +1,5 @@
 package de.dfki.asr.ajan.pluginsystem.visionnlpplugin.extensions;
 
-import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -27,28 +26,20 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.Rio;
 import org.pf4j.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import de.dfki.asr.ajan.pluginsystem.visionnlpplugin.utils.Prompts;
 
-import javax.xml.transform.TransformerException;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
-
-import static de.dfki.asr.ajan.behaviour.service.impl.IConnection.BASE_URI;
 
 @Extension
 @Component
@@ -122,22 +113,6 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
         return imageResponse.content().text();
     }
 
-    private String convertToSPARQLQuery(ChatLanguageModel languageModel, String imageResponse, String mappingString) {
-        // Generate the response with the language model prompt
-        String imageResponse_with_prompt = String.format(Prompts.SPARQL_INSERT_PROMPT, mappingString, imageResponse);
-        long start = System.currentTimeMillis();
-
-        // Generate the language model response
-        String languageRDFResponse = languageModel.generate(imageResponse_with_prompt);
-        LOG.info("Language Inference Time:{} ms", System.currentTimeMillis()-start);
-        // validate the response as RDF
-
-        // Print the response
-        LOG.info("RDF from Image:`{}`", languageRDFResponse);
-        return languageRDFResponse;
-
-    }
-
     private String convertToJSONLD(ChatLanguageModel languageModel, String imageResponse, String mappingString) {
         // Generate the response with the language model prompt
         String imageResponse_with_prompt = String.format(Prompts.JSON_PROMPT, mappingString, imageResponse);
@@ -159,7 +134,7 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
         return MappingUtil.getMappedModel(MappingUtil.getTriplesMaps(repo, mapping), parsedMessage);
     }
 
-    private void storeInKnowledgeBase(String s, URI mapping, Repository repo, AbstractBeliefBase beliefs) throws IOException, URISyntaxException, TransformerException {
+    private void storeInKnowledgeBase(String s, URI mapping, Repository repo, AbstractBeliefBase beliefs) throws URISyntaxException {
         // Measure the RML Mapper Inference Time
         long start = System.currentTimeMillis();
         // RML Mapping
@@ -167,38 +142,6 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
         LOG.info("RML Mapping Time:{} ms", System.currentTimeMillis()-start);
         beliefs.update(model);
     }
-
-    private void updateKnowledgeBaseWithReprompting(String sparqlInsertQuery, ChatLanguageModel languageModel) {
-        boolean hasError;
-        int count = 0;
-        String sparqlLatestInsertQuery = sparqlInsertQuery;
-        String namespacesString = MappingHelper.getNamespaceString(this.getObject().getDomainTDB().getInitializedRepository());
-        do {
-            try {
-                storeInKnowledgeBase(sparqlLatestInsertQuery, this.getObject());
-                hasError = false;
-            } catch (Exception ex){
-                hasError = true;
-                LOG.warn("Retrying, Error in updating the knowledge base:" + ex.getMessage());
-                if(ex.getMessage().toLowerCase().contains("namespace")) {
-                    String prompt = String.format(Prompts.SPARQL_CORRECTION_PROMPT_WITH_ERROR_AND_NAMESPACE,
-                            sparqlLatestInsertQuery, ex.getMessage(),
-                            namespacesString);
-                    sparqlLatestInsertQuery = languageModel.generate(prompt);
-                } else {
-                    String prompt = String.format(Prompts.SPARQL_CORRECTION_PROMPT_WITH_ERROR, sparqlLatestInsertQuery, ex.getMessage());
-                    sparqlLatestInsertQuery = languageModel.generate(prompt);
-                }
-                LOG.info("Refined Query:{}", sparqlLatestInsertQuery);
-            }
-            count++;
-        } while(hasError && count < 3);
-
-        if (hasError){
-            throw new RuntimeException("Failed to update the knowledge base");
-        }
-    }
-
 
 
 //    private static void fetchNamespacesAndAddToWriter(Repository repo, TurtleWriter turtleWriter) {
@@ -221,12 +164,6 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
             throw new RuntimeException(e);
         }
         return null;
-    }
-
-    private void storeInKnowledgeBase(String insertQuery, AgentTaskInformation beliefs) throws IOException, URISyntaxException, TransformerException {
-        RepositoryConnection connection = beliefs.getAgentBeliefs().getInitializedRepository().getConnection();
-        Update updateQuery = connection.prepareUpdate(insertQuery);
-        updateQuery.execute();
     }
 
     @Override
