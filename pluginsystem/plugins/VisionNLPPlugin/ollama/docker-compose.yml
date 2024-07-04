@@ -1,0 +1,12 @@
+version: "3"
+services:
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_MODELS = "/models"
+    volumes:
+      - ./models:/root/.ollama/models
+
+        # TODO: move to the plugin folder, generate a README.md, wiki entry, example etc.
