@@ -85,7 +85,7 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
             LOG.info("Fetched Mapping:`{}`", mappingString);
 
             String imageResponse = perceiveImage(visionModel, Objects.requireNonNull(getImage64String()));
-            String jsonResponse = convertToJSONLD(ollamaChatModel, imageResponse, mappingString);
+            String jsonResponse = convertToJSONLD(ollamaChatModel, this.userQuestion, imageResponse, mappingString);
             storeInKnowledgeBase(jsonResponse, this.mapping, this.getObject().getDomainTDB().getInitializedRepository(), this.getObject().getAgentBeliefs());
         } catch (Exception ex){
             report += "FAILED";
@@ -113,9 +113,9 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
         return imageResponse.content().text();
     }
 
-    private String convertToJSONLD(ChatLanguageModel languageModel, String imageResponse, String mappingString) {
+    private String convertToJSONLD(ChatLanguageModel languageModel, String question, String imageResponse, String mappingString) {
         // Generate the response with the language model prompt
-        String imageResponse_with_prompt = String.format(Prompts.JSON_PROMPT, mappingString, imageResponse);
+        String imageResponse_with_prompt = String.format(Prompts.JSON_PROMPT, question, mappingString, imageResponse);
         long start = System.currentTimeMillis();
 
         // Generate the language model response
@@ -130,7 +130,6 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
 
     private Model mapToModel(String jsonLdResponse, Repository repo, URI mapping) throws URISyntaxException {
         InputStream parsedMessage = new ByteArrayInputStream(jsonLdResponse.getBytes(StandardCharsets.UTF_8));
-//        return Rio.parse(parsedMessage, BASE_URI, RDFFormat.JSONLD);
         return MappingUtil.getMappedModel(MappingUtil.getTriplesMaps(repo, mapping), parsedMessage);
     }
 
@@ -142,16 +141,6 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
         LOG.info("RML Mapping Time:{} ms", System.currentTimeMillis()-start);
         beliefs.update(model);
     }
-
-
-//    private static void fetchNamespacesAndAddToWriter(Repository repo, TurtleWriter turtleWriter) {
-//        try(RepositoryConnection conn = repo.getConnection()){
-//            Iterable<Namespace> namespaces = conn.getNamespaces();
-//            for (Namespace namespace : namespaces) {
-//                turtleWriter.handleNamespace(namespace.getPrefix(), namespace.getName());
-//            }
-//        }
-//    }
 
     private String getImage64String() {
         try {
