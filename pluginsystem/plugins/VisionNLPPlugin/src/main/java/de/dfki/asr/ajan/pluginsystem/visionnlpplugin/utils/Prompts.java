@@ -22,16 +22,17 @@ public class Prompts {
 
 
     public static String JSON_PROMPT =
-        "Task: Generate a JSON-LD representation of the given text according to the mapping.\n" +
+        "Task: Generate a JSON-LD representation of the given question and answer according to the mapping.\n" +
                 "\n" +
                 "Instructions:\n" +
                 "Use the provided prefixes and namespaces.\n" +
+                "Use the question provided to extract properties or additional information required for a rich mapping.\n" +
                 "Include all necessary prefixes.\n" +
                 "Make the json as short as possible and avoid adding unnecessary entries.\n" +
                 "Do not include any explanations or apologies in your responses.\n" +
                 "Return only the generated JSON-LD representation, nothing else.\n" +
                 "\n" +
-                "For instance, given the text: 'An empty street with 3 people walking.' and the mapping:\n" +
+                "For instance, given the question: 'What is present in the image?', the answer: 'An empty street with 3 people walking.' and the mapping:\n" +
                 "    \n" +
                 "```\n" +
                 "@prefix ex: <http://example.org/> .\n" +
@@ -85,12 +86,64 @@ public class Prompts {
                 "        \"count\": 3\n" +
                 "    }\n" +
                 "}\n" +
-                "```" +
-                "\n"+
+                "``` \n" +
+                "\n" +
+                "For instance, given the question: 'What is the shape of the toy car?', the answer: '- Car: Rectangle' and the mapping:\n" +
+                "\n" +
+                "```\n" +
+                "domain:PropertyMapping {\n" +
+                "    domain:PropertyMapping a rr:TriplesMap ;\n" +
+                "        rml:logicalSource [\n" +
+                "            rml:source [\n" +
+                "                a carml:Stream ;\n" +
+                "            ] ;\n" +
+                "            rml:referenceFormulation ql:JSONPath ;\n" +
+                "            rml:iterator \"$\"\n" +
+                "        ] ;\n" +
+                "        rr:subjectMap\n" +
+                "            [\n" +
+                "                rr:template \"http://www.ajan.de/item/property\" ;\n" +
+                "                rr:class ajan:Property ;\n" +
+                "            ] ;\n" +
+                "        rr:predicateObjectMap\n" +
+                "            [\n" +
+                "                rr:predicate ajan:name ;\n" +
+                "                rr:objectMap\n" +
+                "                    [\n" +
+                "                        rml:reference \"name\" ;\n" +
+                "                        rr:datatype xsd:string ;\n" +
+                "                    ]\n" +
+                "            ] ;\n" +
+                "        rr:predicateObjectMap\n" +
+                "            [\n" +
+                "                rr:predicate ajan:value ;\n" +
+                "                rr:objectMap\n" +
+                "                    [\n" +
+                "                        rml:reference \"value\" ;\n" +
+                "                        rr:datatype xsd:string ;\n" +
+                "                    ]\n" +
+                "            ] .\n" +
+                "}\n" +
+                "```\n" +
+                "\n" +
+                "The JSON representation would be:\n" +
+                "```\n" +
+                "{\n" +
+                "    \"name\":\"name\",\n" +
+                "    \"value\":\"Car\"\n" +
+                "},\n" +
+                "{\n" +
+                "    \"name\" : \"shape\",\n" +
+                "    \"value\" : \"Rectangle\"\n" +
+                "}\n" +
+                "```\n" +
+                "\n" +
                 "The RML mapping is provided as follows:\n" +
                 "%s\n" +
                 "\n" +
-                "The Text is as follows:\n" +
+                "The Question is as follows:\n" +
+                "%s\n" +
+                "The Answer is as follows:\n" +
                 "%s\n" +
                 "\n" +
                 "Note: Be as concise as possible.\n" +
