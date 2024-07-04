@@ -2442,12 +2442,12 @@
             nd:default "http://"^^xsd:anyURI;
         ] .
 
-:InitializeLanguageModel nd:class nd:Leaf;
+:InitializeVisionLanguageModels nd:class nd:Leaf;
         nd:category "Vision-NLP Nodes";
-        nd:name "InitializeLanguageModel";
+        nd:name "InitializeVisionLanguageModels";
         nd:labelType nd:Dynamic;
-        rdfs:label "DefaultInitializeLanguageModel";
-        nd:type vision-nlp:InitializeLanguageModel;
+        rdfs:label "DefaultInitializeVisionLanguageModels";
+        nd:type vision-nlp:InitializeVisionLanguageModels;
         nd:style [
             a nd:StyleDef;
             nd:color "#f7f7f7";
@@ -2459,9 +2459,24 @@
         ];
         nd:parameter [
             a nd:Parameter;
-            nd:mapsTo vision-nlp:modelName;
-            nd:title "Model Name";
+            nd:mapsTo vision-nlp:languageModelName;
+            nd:title "Language Model Name";
             nd:input xsd:string;
+            nd:default "llama3"^^xsd:string;
+        ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo vision-nlp:visionModelName;
+            nd:title "Vision Model Name";
+            nd:input xsd:string;
+            nd:default "llava"^^xsd:string;
+        ];
+        nd:parameter [
+            a nd:Parameter;
+            nd:mapsTo vision-nlp:modelBaseUrl;
+            nd:title "Model Base URL";
+            nd:input xsd:string;
+            nd:default "http://localhost:11434"^^xsd:string;
         ] .
 
 :InitializeVisionLanguageModel nd:class nd:Leaf;

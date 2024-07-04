@@ -7,6 +7,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.visionnlpplugin.utils.LanguageModel;
+import de.dfki.asr.ajan.pluginsystem.visionnlpplugin.utils.VisionLanguageModel;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -19,8 +20,8 @@ import org.springframework.stereotype.Component;
 
 @Extension
 @Component
-@RDFBean("vision-nlp:InitializeLanguageModel")
-public class InitializeLanguageModel extends AbstractTDBLeafTask implements NodeExtension {
+@RDFBean("vision-nlp:InitializeVisionLanguageModels")
+public class InitializeVisionLanguageModels extends AbstractTDBLeafTask implements NodeExtension {
 
     @RDFSubject
     @Getter @Setter
@@ -30,9 +31,17 @@ public class InitializeLanguageModel extends AbstractTDBLeafTask implements Node
     @Getter @Setter
     private String label;
 
-    @RDF("vision-nlp:modelName")
+    @RDF("vision-nlp:languageModelName")
     @Getter @Setter
-    private String modelName;
+    private String languageModelName;
+
+    @RDF("vision-nlp:visionModelName")
+    @Getter @Setter
+    private String visionModelName;
+
+    @RDF("vision-nlp:modelBaseUrl")
+    @Getter @Setter
+    private String modelBaseUrl;
 
 
 
@@ -41,8 +50,12 @@ public class InitializeLanguageModel extends AbstractTDBLeafTask implements Node
         try {
             LanguageModel.initChatModel(
                     this.getObject().getAgentBeliefs().getId(),
-                    this.modelName,
-                    "http://localhost:11434");
+                    this.languageModelName,
+                    modelBaseUrl);
+            VisionLanguageModel.initChatModel(
+                    this.getObject().getAgentBeliefs().getId(),
+                    this.visionModelName,
+                    modelBaseUrl);
         } catch (Exception ex){
             return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), "FAILED", ex);
         }
@@ -56,7 +69,7 @@ public class InitializeLanguageModel extends AbstractTDBLeafTask implements Node
 
     @Override
     public Resource getType() {
-        return vf.createIRI("http://www.ajan.de/behavior/vision-nlp-ns#InitializeLanguageModel");
+        return vf.createIRI("http://www.ajan.de/behavior/vision-nlp-ns#InitializeVisionLanguageModels");
     }
 
     @Override
