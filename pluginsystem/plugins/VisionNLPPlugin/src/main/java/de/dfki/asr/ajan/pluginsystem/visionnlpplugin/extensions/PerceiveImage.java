@@ -58,7 +58,7 @@ public class PerceiveImage extends AbstractTDBLeafTask implements NodeExtension{
     @Getter @Setter
     private BehaviorSelectQuery imageData;
 
-    @RDF("vision-nlp:imagePrompt")
+    @RDF("vision-nlp:userQuestion")
     @Getter @Setter
     private String userQuestion;
 
