@@ -2479,27 +2479,5 @@
             nd:default "http://localhost:11434"^^xsd:string;
         ] .
 
-:InitializeVisionLanguageModel nd:class nd:Leaf;
-        nd:category "Vision-NLP Nodes";
-        nd:name "InitializeVisionLanguageModel";
-        nd:labelType nd:Dynamic;
-        rdfs:label "DefaultInitializeVisionLanguageModel";
-        nd:type vision-nlp:InitializeVisionLanguageModel;
-        nd:style [
-            a nd:StyleDef;
-            nd:color "#f7f7f7";
-            nd:shape nd:Polygon;
-            nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
-            nd:padding "700%";
-            nd:paddingTo "width";
-            nd:icon "python_icon.png";
-        ];
-        nd:parameter [
-            a nd:Parameter;
-            nd:mapsTo vision-nlp:modelName;
-            nd:title "Model Name";
-            nd:input xsd:string;
-        ] .
-
 # --------------- Plugin X -------------------
 
