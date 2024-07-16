@@ -47,6 +47,7 @@ public class InitializeVisionLanguageModels extends AbstractTDBLeafTask implemen
 
     @Override
     public NodeStatus executeLeaf() {
+        String report = toString();
         try {
             LanguageModel.initChatModel(
                     this.getObject().getAgentBeliefs().getId(),
@@ -57,9 +58,11 @@ public class InitializeVisionLanguageModels extends AbstractTDBLeafTask implemen
                     this.visionModelName,
                     modelBaseUrl);
         } catch (Exception ex){
-            return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), "FAILED", ex);
+            report += "FAILED";
+            return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
         }
-        return  new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), "SUCCEEDED");
+        report += "SUCCEEDED";
+        return  new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
     }
 
     @Override
@@ -70,6 +73,11 @@ public class InitializeVisionLanguageModels extends AbstractTDBLeafTask implemen
     @Override
     public Resource getType() {
         return vf.createIRI("http://www.ajan.de/behavior/vision-nlp-ns#InitializeVisionLanguageModels");
+    }
+
+    @Override
+    public String toString() {
+        return "InitializeVisionLanguageModels (" + getLabel() + ")";
     }
 
     @Override
