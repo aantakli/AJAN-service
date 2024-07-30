@@ -10,50 +10,389 @@
 
 <http://localhost:8090/rdf4j/repositories/services#SA_98cd319a-9c30-42b3-8dc5-a99cf098d63d>
   a actn:ServiceAction;
-  actn:communication actn:Synchronous;
-  rdfs:label "ServiceAction";
+  actn:abortBinding <http://localhost:8090/rdf4j/repositories/services#Binding_6fa429c7-91ef-4fe7-a57d-096e563b52f1>;
+  actn:communication actn:Asynchronous;
+  actn:consumes _:genid-c8c887f213e641859b69f3d64d9b1acb-862F6970AB3CC33D38B773FDC2796CFA;
+  actn:produces _:genid-c8c887f213e641859b69f3d64d9b1acb-88B071701D1A04571BE7B9509A0D6C81;
   actn:runBinding <http://localhost:8090/rdf4j/repositories/services#Binding_8f19dd35-f25b-458b-ac1b-6aee25fea58a>;
-  actn:variables _:genid-4f98b3e4fe574e80afb0d83091af1d74-F7398E96328CFEFB4619774BB98767F1;
-  actn:consumes _:genid-4f98b3e4fe574e80afb0d83091af1d74-b310;
-  actn:produces _:genid-4f98b3e4fe574e80afb0d83091af1d74-b311 .
+  actn:variables _:genid-c8c887f213e641859b69f3d64d9b1acb-D97D0A2C4AE0B3D0FAC765DF0F724F6C;
+  rdfs:label "PickUp" .
 
-_:genid-4f98b3e4fe574e80afb0d83091af1d74-F7398E96328CFEFB4619774BB98767F1 rdf:first
-    _:genid-4f98b3e4fe574e80afb0d83091af1d74-28486EF0A0285944230403379FD75DCD;
-  rdf:rest _:genid-4f98b3e4fe574e80afb0d83091af1d74-795F6260EB18501DFF3CC8FCD835830D .
+_:genid-c8c887f213e641859b69f3d64d9b1acb-862F6970AB3CC33D38B773FDC2796CFA a actn:Consumable;
+  actn:sparql """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ajan: <http://www.ajan.de/ajan-ns#>
+PREFIX strips: <http://www.ajan.de/behavior/strips-ns#>
 
-_:genid-4f98b3e4fe574e80afb0d83091af1d74-b310 a actn:Consumable;
-  actn:sparql "ASK WHERE {?s ?p ?o}" .
+ASK
+WHERE { 
+    ?arm rdf:type ajan:Arm ;
+        strips:is ajan:Empty .
 
-_:genid-4f98b3e4fe574e80afb0d83091af1d74-b311 a actn:Producible;
-  actn:sparql "ASK WHERE {?s ?p ?o}" .
+    ?blockX strips:is ajan:Clear ;
+	strips:is ajan:Table .
+}""" .
 
-_:genid-4f98b3e4fe574e80afb0d83091af1d74-28486EF0A0285944230403379FD75DCD a actn:ActionVariable;
-  <http://spinrdf.org/sp#varName> "s" .
+_:genid-c8c887f213e641859b69f3d64d9b1acb-88B071701D1A04571BE7B9509A0D6C81 a actn:Producible;
+  actn:sparql """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ajan: <http://www.ajan.de/ajan-ns#>
+PREFIX actn: <http://www.ajan.de/actn#>
+PREFIX strips: <http://www.ajan.de/behavior/strips-ns#>
+
+ASK
+WHERE {
+	?blockX strips:is ajan:Holding.
+	FILTER ( NOT EXISTS {
+		?arm strips:is ajan:Empty .
+		?blockX strips:is ajan:Table .
+		?blockX strips:is ajan:Clear .
+	} )
+}""" .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-D97D0A2C4AE0B3D0FAC765DF0F724F6C rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-31B2ABB9AD28BF3C0D1FDABB04A24A3A;
+  rdf:rest _:genid-c8c887f213e641859b69f3d64d9b1acb-6FE64D1B0590B7CD78A78ED8B42EDE26 .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-31B2ABB9AD28BF3C0D1FDABB04A24A3A a actn:ActionVariable;
+  <http://spinrdf.org/sp#varName> "blockX" .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-6FE64D1B0590B7CD78A78ED8B42EDE26 rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-6F25165CD2CD53193505DB487985BD64;
+  rdf:rest rdf:nil .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-6F25165CD2CD53193505DB487985BD64 a actn:ActionVariable;
+  <http://spinrdf.org/sp#varName> "arm" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Action-9fb6c06d-12e9-4f22-8a98-a1c94a444925>
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#SA_98cd319a-9c30-42b3-8dc5-a99cf098d63d> .
 
 <http://localhost:8090/rdf4j/repositories/services#Binding_8f19dd35-f25b-458b-ac1b-6aee25fea58a>
   a actn:Binding, <http://www.w3.org/2006/http#Request>;
+  actn:headers "";
+  <http://www.w3.org/2006/http#body> _:genid-c8c887f213e641859b69f3d64d9b1acb-161532F827495E6821C8BE6E02F1AAB4;
+  <http://www.w3.org/2006/http#headers> _:genid-c8c887f213e641859b69f3d64d9b1acb-6E15CA0791C01632D3BE3F500E411EC2;
   <http://www.w3.org/2006/http#httpVersion> "1.1";
   <http://www.w3.org/2006/http#mthd> <http://www.w3.org/2008/http-methods#POST>;
-  <http://www.w3.org/2006/http#requestURI> <http://localhost:4201/post>;
-  <http://www.w3.org/2006/http#headers> _:genid-4f98b3e4fe574e80afb0d83091af1d74-06757930DD6CE5567F6357FC8427BCC5;
-  actn:headers "";
-  <http://www.w3.org/2006/http#body> _:genid-4f98b3e4fe574e80afb0d83091af1d74-b312 .
+  <http://www.w3.org/2006/http#requestURI> <http://localhost:4203/pickUp> .
 
-_:genid-4f98b3e4fe574e80afb0d83091af1d74-06757930DD6CE5567F6357FC8427BCC5 rdf:first
-    _:genid-4f98b3e4fe574e80afb0d83091af1d74-3CD5CC5CE7A4BC13A1876C2EA0839152;
-  rdf:rest _:genid-4f98b3e4fe574e80afb0d83091af1d74-DADAC8D37F4BB753FF01A89B370A5FE5 .
+_:genid-c8c887f213e641859b69f3d64d9b1acb-161532F827495E6821C8BE6E02F1AAB4 a actn:Payload;
+  actn:sparql """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ajan: <http://www.ajan.de/ajan-ns#>
+PREFIX actn: <http://www.ajan.de/actn#>
+PREFIX strips: <http://www.ajan.de/behavior/strips-ns#>
 
-_:genid-4f98b3e4fe574e80afb0d83091af1d74-b312 a actn:Payload;
-  actn:sparql "CONSTRUCT {?s ?p ?o} WHERE {?s ?p ?o}" .
+CONSTRUCT { 
+    ?blockX strips:is ajan:Table . 
+    ?c actn:asyncRequestURI ?requestURI .
+} 
+WHERE { 
+    ?arm rdf:type ajan:Arm ;
+        strips:is ajan:Empty .
 
-_:genid-4f98b3e4fe574e80afb0d83091af1d74-3CD5CC5CE7A4BC13A1876C2EA0839152 a <http://www.w3.org/2006/http#Header>;
-  <http://www.w3.org/2006/http#hdrName> <http://www.w3.org/2008/http-headers#accept>;
-  <http://www.w3.org/2006/http#fieldValue> "text/turtle" .
+    ?blockX strips:is ajan:Clear ;
+	strips:is ajan:Table .
 
-_:genid-4f98b3e4fe574e80afb0d83091af1d74-DADAC8D37F4BB753FF01A89B370A5FE5 rdf:first
-    _:genid-4f98b3e4fe574e80afb0d83091af1d74-972E485097D0D31CBF0A6032D6C6E3F5;
+    ?c actn:asyncRequestURI ?requestURI .
+}""" .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-6E15CA0791C01632D3BE3F500E411EC2 rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-0099DF666456B9E726991D362177AADE;
+  rdf:rest _:genid-c8c887f213e641859b69f3d64d9b1acb-8911318712899179D323F46C6779DE02 .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-0099DF666456B9E726991D362177AADE a <http://www.w3.org/2006/http#Header>;
+  <http://www.w3.org/2006/http#fieldValue> "text/turtle";
+  <http://www.w3.org/2006/http#hdrName> <http://www.w3.org/2008/http-headers#accept> .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-8911318712899179D323F46C6779DE02 rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-D046C8D05F27B20384C1E34E93112031;
   rdf:rest rdf:nil .
 
-_:genid-4f98b3e4fe574e80afb0d83091af1d74-972E485097D0D31CBF0A6032D6C6E3F5 a <http://www.w3.org/2006/http#Header>;
-  <http://www.w3.org/2006/http#hdrName> <http://www.w3.org/2008/http-headers#content-type>;
-  <http://www.w3.org/2006/http#fieldValue> "text/turtle" .
+_:genid-c8c887f213e641859b69f3d64d9b1acb-D046C8D05F27B20384C1E34E93112031 a <http://www.w3.org/2006/http#Header>;
+  <http://www.w3.org/2006/http#fieldValue> "application/ld+json";
+  <http://www.w3.org/2006/http#hdrName> <http://www.w3.org/2008/http-headers#content-type> .
+
+<http://localhost:8090/rdf4j/repositories/services#Binding_6fa429c7-91ef-4fe7-a57d-096e563b52f1>
+  a actn:Binding, <http://www.w3.org/2006/http#Request>;
+  actn:headers "";
+  <http://www.w3.org/2006/http#body> _:genid-c8c887f213e641859b69f3d64d9b1acb-593F0573609401AC5DFBC39F4799F8F5;
+  <http://www.w3.org/2006/http#headers> _:genid-c8c887f213e641859b69f3d64d9b1acb-C8992B497072F36FD9AB57690E628D3B;
+  <http://www.w3.org/2006/http#httpVersion> "1.1";
+  <http://www.w3.org/2006/http#mthd> <http://www.w3.org/2008/http-methods#POST>;
+  <http://www.w3.org/2006/http#requestURI> <http://something> .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-593F0573609401AC5DFBC39F4799F8F5 a actn:Payload;
+  actn:sparql "CONSTRUCT {?s ?p ?o} WHERE {?s ?p ?o}" .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-C8992B497072F36FD9AB57690E628D3B rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-AA409ABE870FF198BA57E208D6B2983E;
+  rdf:rest _:genid-c8c887f213e641859b69f3d64d9b1acb-3AD413AF650B3DB74147CED3E6D13DC2 .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-AA409ABE870FF198BA57E208D6B2983E a <http://www.w3.org/2006/http#Header>;
+  <http://www.w3.org/2006/http#fieldValue> "text/turtle";
+  <http://www.w3.org/2006/http#hdrName> <http://www.w3.org/2008/http-headers#accept> .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-3AD413AF650B3DB74147CED3E6D13DC2 rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-580299FDF369BB194BBC45927AC0B138;
+  rdf:rest rdf:nil .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-580299FDF369BB194BBC45927AC0B138 a <http://www.w3.org/2006/http#Header>;
+  <http://www.w3.org/2006/http#fieldValue> "text/turtle";
+  <http://www.w3.org/2006/http#hdrName> <http://www.w3.org/2008/http-headers#content-type> .
+
+<http://localhost:8090/rdf4j/repositories/services#SA_316cb658-2f9b-498f-ab3b-58bf1959b795>
+  a actn:ServiceAction;
+  actn:consumes _:genid-c8c887f213e641859b69f3d64d9b1acb-2484C6041EEFC895FC8105347CBE4FCC;
+  actn:produces _:genid-c8c887f213e641859b69f3d64d9b1acb-10C94269813B2217F0E57E999C55421C;
+  actn:runBinding <http://localhost:8090/rdf4j/repositories/services#Binding_68f7b8b9-9b5b-4c93-a669-0bfdec2e2e33>;
+  actn:variables _:genid-c8c887f213e641859b69f3d64d9b1acb-0046ABF3822A592C932CAEE78D84D569;
+  rdfs:label "PutDown";
+  actn:abortBinding <http://localhost:8090/rdf4j/repositories/services#Binding_6f3c83c0-93e7-4060-9a03-043c7be5c3ee>;
+  actn:communication actn:Asynchronous .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-2484C6041EEFC895FC8105347CBE4FCC a actn:Consumable;
+  actn:sparql """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ajan: <http://www.ajan.de/ajan-ns#>
+PREFIX actn: <http://www.ajan.de/actn#>
+PREFIX strips: <http://www.ajan.de/behavior/strips-ns#>
+
+ASK
+WHERE {
+         ?arm rdf:type ajan:Arm .
+	 ?blockX strips:is ajan:Holding .
+}""" .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-10C94269813B2217F0E57E999C55421C a actn:Producible;
+  actn:sparql """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ajan: <http://www.ajan.de/ajan-ns#>
+PREFIX actn: <http://www.ajan.de/actn#>
+PREFIX strips: <http://www.ajan.de/behavior/strips-ns#>
+
+ASK
+WHERE {
+	?arm strips:is ajan:Empty .
+	?blockX strips:is ajan:Table .
+	?blockX strips:is ajan:Clear .
+
+	FILTER ( NOT EXISTS {
+		?blockX strips:is ajan:Holding .
+	} )
+}""" .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-0046ABF3822A592C932CAEE78D84D569 rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-6EFD28231DA4B28A56BFA1323C5FC87A;
+  rdf:rest _:genid-c8c887f213e641859b69f3d64d9b1acb-69DA96EE6910A9E954AA7C4335AEC229 .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-6EFD28231DA4B28A56BFA1323C5FC87A a actn:ActionVariable;
+  <http://spinrdf.org/sp#varName> "arm" .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-69DA96EE6910A9E954AA7C4335AEC229 rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-6D88FE89448DB99CA51F0FD91977E2DC;
+  rdf:rest _:genid-c8c887f213e641859b69f3d64d9b1acb-DA1A27CECEBE748972EE35DBFD29BBBF .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-6D88FE89448DB99CA51F0FD91977E2DC a actn:ActionVariable;
+  <http://spinrdf.org/sp#varName> "blockX" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Action-efeb2112-6369-4e56-bd04-93e8322a5b32>
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#SA_316cb658-2f9b-498f-ab3b-58bf1959b795> .
+
+<http://localhost:8090/rdf4j/repositories/services#Binding_68f7b8b9-9b5b-4c93-a669-0bfdec2e2e33>
+  a actn:Binding, <http://www.w3.org/2006/http#Request>;
+  <http://www.w3.org/2006/http#httpVersion> "1.1";
+  <http://www.w3.org/2006/http#mthd> <http://www.w3.org/2008/http-methods#POST>;
+  <http://www.w3.org/2006/http#body> _:genid-c8c887f213e641859b69f3d64d9b1acb-4FAB94759A5F8835A7DD01A7E6288E7D;
+  <http://www.w3.org/2006/http#headers> _:genid-c8c887f213e641859b69f3d64d9b1acb-D56BAA536D71E0172213CA2E5262AD6D;
+  actn:headers "";
+  <http://www.w3.org/2006/http#requestURI> <http://localhost:4203/putDown> .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-4FAB94759A5F8835A7DD01A7E6288E7D a actn:Payload;
+  actn:sparql """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ajan: <http://www.ajan.de/ajan-ns#>
+PREFIX actn: <http://www.ajan.de/actn#>
+PREFIX strips: <http://www.ajan.de/behavior/strips-ns#>
+
+CONSTRUCT { 
+    ?blockX strips:is ajan:Holding . 
+    ?c actn:asyncRequestURI ?requestURI .
+} 
+WHERE { 
+    ?blockX strips:is ajan:Holding .
+    ?c actn:asyncRequestURI ?requestURI .
+}""" .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-D56BAA536D71E0172213CA2E5262AD6D rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-E5D3C44AD5124E63AC5E4C6586AAAF54;
+  rdf:rest _:genid-c8c887f213e641859b69f3d64d9b1acb-A1C7EA4A43C51378A0AEABC634520CEE .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-E5D3C44AD5124E63AC5E4C6586AAAF54 a <http://www.w3.org/2006/http#Header>;
+  <http://www.w3.org/2006/http#fieldValue> "text/turtle";
+  <http://www.w3.org/2006/http#hdrName> <http://www.w3.org/2008/http-headers#accept> .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-A1C7EA4A43C51378A0AEABC634520CEE rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-EF747C3436CD5CCE996B7EE98A317A10;
+  rdf:rest rdf:nil .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-EF747C3436CD5CCE996B7EE98A317A10 a <http://www.w3.org/2006/http#Header>;
+  <http://www.w3.org/2006/http#fieldValue> "application/ld+json";
+  <http://www.w3.org/2006/http#hdrName> <http://www.w3.org/2008/http-headers#content-type> .
+
+<http://localhost:8090/rdf4j/repositories/services#Binding_6f3c83c0-93e7-4060-9a03-043c7be5c3ee>
+  a actn:Binding, <http://www.w3.org/2006/http#Request>;
+  <http://www.w3.org/2006/http#httpVersion> "1.1";
+  <http://www.w3.org/2006/http#mthd> <http://www.w3.org/2008/http-methods#POST>;
+  <http://www.w3.org/2006/http#requestURI> <http://something>;
+  <http://www.w3.org/2006/http#body> _:genid-c8c887f213e641859b69f3d64d9b1acb-0AFC95A19906021C61FD7330E07556AF;
+  actn:headers "";
+  <http://www.w3.org/2006/http#headers> _:genid-c8c887f213e641859b69f3d64d9b1acb-0E846ACA28BE47510E5E0A8472242B9F .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-0AFC95A19906021C61FD7330E07556AF a actn:Payload;
+  actn:sparql "CONSTRUCT {?s ?p ?o} WHERE {?s ?p ?o}" .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-0E846ACA28BE47510E5E0A8472242B9F rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-0BF9F7612C3EBE3F819C6699E2168DE0;
+  rdf:rest _:genid-c8c887f213e641859b69f3d64d9b1acb-6551C87212040251A0BBF6D3AE360DE4 .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-0BF9F7612C3EBE3F819C6699E2168DE0 a <http://www.w3.org/2006/http#Header>;
+  <http://www.w3.org/2006/http#fieldValue> "text/turtle";
+  <http://www.w3.org/2006/http#hdrName> <http://www.w3.org/2008/http-headers#accept> .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-6551C87212040251A0BBF6D3AE360DE4 rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-F20D1D72D3AB2F94C581BF7E3551C7B0;
+  rdf:rest rdf:nil .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-F20D1D72D3AB2F94C581BF7E3551C7B0 a <http://www.w3.org/2006/http#Header>;
+  <http://www.w3.org/2006/http#fieldValue> "text/turtle";
+  <http://www.w3.org/2006/http#hdrName> <http://www.w3.org/2008/http-headers#content-type> .
+
+<http://localhost:8090/rdf4j/repositories/services#SA_c372f8ac-dcd8-401c-a5c2-3a3ea1770aad>
+  a actn:ServiceAction;
+  actn:consumes _:genid-c8c887f213e641859b69f3d64d9b1acb-B43E1DFA2D242628C1DAD60C045C1666;
+  actn:produces _:genid-c8c887f213e641859b69f3d64d9b1acb-5F7F985BB135D3FF96B77FC1B698379E;
+  actn:runBinding <http://localhost:8090/rdf4j/repositories/services#Binding_62fb44f3-a2ea-4043-a072-31181681ea6a>;
+  actn:variables _:genid-c8c887f213e641859b69f3d64d9b1acb-23CB1C2BC7D12838ABBF3FEE8FA772B6;
+  actn:abortBinding <http://localhost:8090/rdf4j/repositories/services#Binding_0c0b4f92-8160-485d-a13f-856a23f793cb>;
+  rdfs:label "Stack";
+  actn:communication actn:Asynchronous .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-B43E1DFA2D242628C1DAD60C045C1666 a actn:Consumable;
+  actn:sparql """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ajan: <http://www.ajan.de/ajan-ns#>
+PREFIX actn: <http://www.ajan.de/actn#>
+PREFIX strips: <http://www.ajan.de/behavior/strips-ns#>
+
+ASK
+WHERE {
+        ?arm rdf:type ajan:Arm .
+	?blockX strips:is ajan:Holding .
+	?blockY strips:is ajan:Clear .
+}""" .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-5F7F985BB135D3FF96B77FC1B698379E a actn:Producible;
+  actn:sparql """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ajan: <http://www.ajan.de/ajan-ns#>
+PREFIX actn: <http://www.ajan.de/actn#>
+PREFIX strips: <http://www.ajan.de/behavior/strips-ns#>
+
+ASK
+WHERE {
+	?arm strips:is ajan:Empty .
+	?blockX strips:is ajan:Clear .
+	?blockX ajan:on ?blockY .
+	FILTER ( NOT EXISTS {
+		?blockX strips:is ajan:Holding .
+		?blockY strips:is ajan:Clear .
+		FILTER (?blockX != ?blockY)
+	} )
+}""" .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-23CB1C2BC7D12838ABBF3FEE8FA772B6 rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-5C6BF64739ECDE1B9D621FA9E8BF7C03;
+  rdf:rest _:genid-c8c887f213e641859b69f3d64d9b1acb-73999100FE5738CCEE042A1E36604BFD .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-5C6BF64739ECDE1B9D621FA9E8BF7C03 a actn:ActionVariable;
+  <http://spinrdf.org/sp#varName> "arm" .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-73999100FE5738CCEE042A1E36604BFD rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-A39B5CD4C5ABC3E9AC9F2B7530A8347C;
+  rdf:rest _:genid-c8c887f213e641859b69f3d64d9b1acb-68E653CEADFD3CE60CAFEB2B2A2A065B .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-A39B5CD4C5ABC3E9AC9F2B7530A8347C a actn:ActionVariable;
+  <http://spinrdf.org/sp#varName> "blockX" .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-68E653CEADFD3CE60CAFEB2B2A2A065B rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-3BC9F26957E0F5604C30D62D1B930E77;
+  rdf:rest _:genid-c8c887f213e641859b69f3d64d9b1acb-FCF6FB7F534874B03193DF3D74083582 .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-3BC9F26957E0F5604C30D62D1B930E77 a actn:ActionVariable;
+  <http://spinrdf.org/sp#varName> "blockY" .
+
+<http://localhost:8090/rdf4j/repositories/behaviors#Action-ad85dfdd-891b-4c21-8fa5-cee43010b2ec>
+  <http://www.ajan.de/behavior/bt-ns#definition> <http://localhost:8090/rdf4j/repositories/services#SA_c372f8ac-dcd8-401c-a5c2-3a3ea1770aad> .
+
+<http://localhost:8090/rdf4j/repositories/services#Binding_62fb44f3-a2ea-4043-a072-31181681ea6a>
+  a actn:Binding, <http://www.w3.org/2006/http#Request>;
+  <http://www.w3.org/2006/http#httpVersion> "1.1";
+  <http://www.w3.org/2006/http#mthd> <http://www.w3.org/2008/http-methods#POST>;
+  <http://www.w3.org/2006/http#body> _:genid-c8c887f213e641859b69f3d64d9b1acb-34D893522B6551FE9F185F160E789E83;
+  <http://www.w3.org/2006/http#headers> _:genid-c8c887f213e641859b69f3d64d9b1acb-27BCC9716F2102D574918D8796F952FE;
+  actn:headers "";
+  <http://www.w3.org/2006/http#requestURI> <http://localhost:4203/stack> .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-34D893522B6551FE9F185F160E789E83 a actn:Payload;
+  actn:sparql """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ajan: <http://www.ajan.de/ajan-ns#>
+PREFIX actn: <http://www.ajan.de/actn#>
+PREFIX strips: <http://www.ajan.de/behavior/strips-ns#>
+
+CONSTRUCT { 
+    ?blockX strips:is ajan:Holding . 
+    ?blockY strips:is ajan:Clear .
+    ?c actn:asyncRequestURI ?requestURI .
+} 
+WHERE { 
+    ?blockX strips:is ajan:Holding .
+    ?blockY strips:is ajan:Clear .
+    ?c actn:asyncRequestURI ?requestURI .
+}""" .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-27BCC9716F2102D574918D8796F952FE rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-69A46748336942188F6AA42E9E46327A;
+  rdf:rest _:genid-c8c887f213e641859b69f3d64d9b1acb-40A4D0C0060064611D574E7BA531C1D0 .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-69A46748336942188F6AA42E9E46327A a <http://www.w3.org/2006/http#Header>;
+  <http://www.w3.org/2006/http#fieldValue> "text/turtle";
+  <http://www.w3.org/2006/http#hdrName> <http://www.w3.org/2008/http-headers#accept> .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-40A4D0C0060064611D574E7BA531C1D0 rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-B61EF4D5FDD9B8E8375721C45ADDD937;
+  rdf:rest rdf:nil .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-B61EF4D5FDD9B8E8375721C45ADDD937 a <http://www.w3.org/2006/http#Header>;
+  <http://www.w3.org/2006/http#fieldValue> "application/ld+json";
+  <http://www.w3.org/2006/http#hdrName> <http://www.w3.org/2008/http-headers#content-type> .
+
+<http://localhost:8090/rdf4j/repositories/services#Binding_0c0b4f92-8160-485d-a13f-856a23f793cb>
+  a actn:Binding, <http://www.w3.org/2006/http#Request>;
+  <http://www.w3.org/2006/http#httpVersion> "1.1";
+  <http://www.w3.org/2006/http#mthd> <http://www.w3.org/2008/http-methods#POST>;
+  <http://www.w3.org/2006/http#requestURI> <http://something>;
+  <http://www.w3.org/2006/http#body> _:genid-c8c887f213e641859b69f3d64d9b1acb-E348924CA3B6008ED18A70AE1EB5E234;
+  actn:headers "";
+  <http://www.w3.org/2006/http#headers> _:genid-c8c887f213e641859b69f3d64d9b1acb-77FBAC3DF7F09D11E2A25BD7D1D901AA .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-E348924CA3B6008ED18A70AE1EB5E234 a actn:Payload;
+  actn:sparql "CONSTRUCT {?s ?p ?o} WHERE {?s ?p ?o}" .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-77FBAC3DF7F09D11E2A25BD7D1D901AA rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-7FCE63F57C83BCB034CB9F772912F24F;
+  rdf:rest _:genid-c8c887f213e641859b69f3d64d9b1acb-CADB04FBA36BCDB1A93C400BBCB08D6B .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-7FCE63F57C83BCB034CB9F772912F24F a <http://www.w3.org/2006/http#Header>;
+  <http://www.w3.org/2006/http#fieldValue> "text/turtle";
+  <http://www.w3.org/2006/http#hdrName> <http://www.w3.org/2008/http-headers#accept> .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-CADB04FBA36BCDB1A93C400BBCB08D6B rdf:first
+    _:genid-c8c887f213e641859b69f3d64d9b1acb-9BC15B12293B7F23B9E0EAC1EDA58DB8;
+  rdf:rest rdf:nil .
+
+_:genid-c8c887f213e641859b69f3d64d9b1acb-9BC15B12293B7F23B9E0EAC1EDA58DB8 a <http://www.w3.org/2006/http#Header>;
+  <http://www.w3.org/2006/http#fieldValue> "text/turtle";
+  <http://www.w3.org/2006/http#hdrName> <http://www.w3.org/2008/http-headers#content-type> .
