@@ -53,6 +53,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -213,7 +214,7 @@ public class HttpConnection implements IConnection {
 		try {
 			Model model = Rio.parse(response, BASE_URI, formatForMimeType(mime));
 			return AgentUtil.setMessageInformation(model, mm);
-		} catch (IOException | IllegalArgumentException ex) {
+		} catch (IOException | IllegalArgumentException | RDFParseException ex) {
 			throw new AJANRequestException("Error while parsing " + mime + " based response into RDF graph.", ex);
 		}
 	}
