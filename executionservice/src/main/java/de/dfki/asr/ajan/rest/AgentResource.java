@@ -210,7 +210,7 @@ public class AgentResource {
 
 	@Path(COMPLETION_PATH)
 	@POST
-	@Consumes(TURTLE)
+	@Consumes({TURTLE,JSONLD})
 	@ApiOperation(value = "Complete an asynchronous action.")
 	public void completeAction(@PathParam(CONNECTION_PARAMETER) final String conId, @PathParam(ACTION_PARAMETER) final String actId, final Model model) {
             LOG.info("Action with ID: " + actId + " finnished");

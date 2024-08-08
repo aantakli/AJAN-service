@@ -45,7 +45,11 @@ public abstract class AbstractBeliefBase {
 			Repository repo = initialize();
 			try (RepositoryConnection connection = repo.getConnection()) {
 				connection.begin(IsolationLevels.SERIALIZABLE);
-				removeStatementsSupersededBy(remove, connection, mode);
+				if (add.equals(remove)) {
+					removeStatementsSupersededBy(remove, connection, mode);
+				} else {
+					removeExactStatementsSupersededBy(remove, connection, mode);
+				}
 				addStatementsWith(add,connection);
 				connection.commit();
 			}
@@ -58,6 +62,14 @@ public abstract class AbstractBeliefBase {
 			connection.remove(stmt.getSubject(), stmt.getPredicate(), null, (Resource) stmt.getContext());
 		});
 	}
+
+	@SuppressWarnings({"PMD.UselessParentheses","CPD-START"})
+	private void removeExactStatementsSupersededBy(final Model model, final RepositoryConnection connection, final boolean mode) {
+		model.stream().filter((stmt) -> (!(stmt.getSubject() instanceof BNode) || (stmt.getSubject() instanceof BNode) && mode)).forEachOrdered((stmt) -> {
+			connection.remove(stmt.getSubject(), stmt.getPredicate(), stmt.getObject(), (Resource) stmt.getContext());
+		});
+	}
+	@SuppressWarnings("CPD-END")
 
 	private void addStatementsWith(final Model model, final RepositoryConnection connection) {
 		model.forEach((stmt) -> {

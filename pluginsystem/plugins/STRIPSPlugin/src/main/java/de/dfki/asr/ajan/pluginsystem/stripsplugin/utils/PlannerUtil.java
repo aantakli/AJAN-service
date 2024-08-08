@@ -150,8 +150,11 @@ public final class PlannerUtil {
 	private static String getConstructQueryFromAsk(final String query) throws AdaptSPARQLQueryException {
 		String upper = query.toUpperCase();
 		if (upper.contains("ASK")) {
+			int first = query.indexOf("{");
+			int last = query.lastIndexOf("}");
 			StringBuilder construct = new StringBuilder();
 			construct.append("CONSTRUCT");
+			construct.append(query.substring(first-1,last+1));
 			String minInsert = query;
 			return minInsert.replaceAll("ASK", construct.toString());
 		} else {
