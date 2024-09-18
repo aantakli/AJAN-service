@@ -15,6 +15,7 @@
 @prefix clingo: <http://www.ajan.de/behavior/clingo-ns#> .
 @prefix ajan: <http://www.ajan.de/ajan-ns#> .
 @prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
+@prefix ilp: <http://www.ajan.de/behavior/ilp-ns#> .
 @prefix actn: <http://www.ajan.de/actn#> .
 @prefix steer: <http://www.ajan.de/behavior/steer-ns#> .
 @prefix ml: <http://www.ajan.de/behavior/ml-ns#> .
@@ -24,6 +25,7 @@
 @prefix tcp: <http://www.ajan.de/behavior/tcp-ns#> .
 @prefix python: <http://www.ajan.de/behavior/python-ns#> .
 @prefix ws: <http://bla/ws#> .
+@prefix mdp: <http://www.ajan.de/behavior/mdp-ns#> .
 
 
 # --------------------------------------------
@@ -1418,7 +1420,7 @@
     nd:name "ILASP Rules";
     nd:labelType nd:Dynamic;
     rdfs:label "DefaultILASPInput";
-    nd:type asp:ILASPInput;
+    nd:type ilp:ILASPInput;
     nd:style [
         a nd:StyleDef;
         nd:color "#FFE478";
@@ -1430,7 +1432,7 @@
     ];
 	nd:parameter [
         a nd:Parameter;
-        nd:mapsTo asp:posExamples;
+        nd:mapsTo ilp:posExamples;
         nd:title "Positive Examples: ?pos";
         nd:input nd:Query;
         bt:originBase "true";
@@ -1439,8 +1441,17 @@
     ];
 	nd:parameter [
         a nd:Parameter;
-        nd:mapsTo asp:negExamples;
+        nd:mapsTo ilp:negExamples;
         nd:title "Negative Examples: ?neg";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+	nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo ilp:hypothesisSpace;
+        nd:title "Hypothesis Space: ?hypothesisSpace";
         nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
@@ -1448,149 +1459,36 @@
     ];
     nd:parameter [
         a nd:Parameter;
-        nd:mapsTo asp:domain;
-        nd:title "Domain";
+        nd:mapsTo ilp:domain;
+        nd:title "Domain: ?domain";
         nd:input nd:Query;
         bt:originBase "true";
         bt:targetBase "false";
-        nd:type bt:ConstructQuery;
-    ];
-	nd:list [
-		a nd:List;
-		nd:mapsTo asp:ruleSets;
-		nd:title "Rule Sets";
-		nd:parameterSet [
-			a nd:ParameterSet;
-			nd:title "Rule Set Location";
-			nd:type asp:RuleSetLocation;
-			nd:parameters ([
-				a nd:Parameter;
-				nd:mapsTo bt:originBase;
-				nd:title "Origin Base";
-				nd:input nd:Repo ;
-			][
-				a nd:Parameter;
-				nd:mapsTo asp:ruleSet;
-				nd:input xsd:anyURI ;
-				nd:title "Rule Set";
-			]);
-		];
-	];
-    nd:parameterSet [
-        a nd:ParameterSet;
-        nd:mapsTo asp:config;
-        nd:title "ASP Config";
-        nd:type clingo:Config;
-        nd:parameters ([
-            a nd:Parameter;
-            nd:mapsTo clingo:execution-limit;
-            nd:input xsd:int;
-            nd:default "5"^^xsd:int;
-            nd:title "Execution Limit";
-        ][
-            a nd:Parameter;
-            nd:mapsTo clingo:models;
-            nd:input xsd:int;
-            nd:default "5"^^xsd:int;
-            nd:title "Models";
-        ][
-            a nd:Parameter;
-            nd:mapsTo clingo:parallel-mode;
-            nd:input xsd:int;
-            nd:default "2"^^xsd:int;
-            nd:title "Parallel Mode";
-        ][
-            a nd:Parameter;
-            nd:mapsTo clingo:time-limit;
-            nd:input xsd:int;
-            nd:default "5"^^xsd:int;
-            nd:title "Time Limit";
-        ]);
-        nd:list [
-            a nd:List;
-            nd:mapsTo clingo:const;
-            nd:title "Constants";
-            nd:parameterSet [
-                a nd:ParameterSet;
-                nd:title "Constant Set";
-                nd:type clingo:Constant;
-                nd:parameters ([
-                    a nd:Parameter;
-                    nd:mapsTo clingo:name;
-                    nd:input xsd:string;
-                    nd:default "";
-                    nd:title "Name";
-                ][
-                    a nd:Parameter;
-                    nd:mapsTo clingo:value;
-                    nd:input xsd:string;
-                    nd:default "5";
-                    nd:title "Value";
-                ]);
-            ];
-        ];
-    ];
-	nd:parameter [
-        a nd:Parameter;
-        nd:mapsTo bt:queryUri;
-        nd:type bt:QueryUri;
         nd:type bt:SelectQuery;
-        nd:title "Select Query: ?requestURI";
-        nd:input nd:Query;
-        bt:originBase "true";
-        bt:targetBase "false";
     ];
 	nd:parameterSet [
         a nd:ParameterSet;
-        nd:mapsTo bt:binding;
-        nd:type http-core:Request;
-        nd:title "Binding Configuration";
+        nd:mapsTo asp:write;
+        nd:title "ASP Write";
+        nd:type asp:Write;
         nd:parameters ([
-	        a nd:Parameter;
-	        nd:mapsTo http-core:httpVersion;
-	        nd:title "HTTP Version";
-	        nd:default "1.1"^^xsd:string;
-	        nd:input xsd:string;
-	    ][
-	        a nd:Parameter;
-	        nd:mapsTo http-core:mthd;
-	        nd:title "HTTP Method";
-	        nd:input xsd:anyURI ;
-	        nd:default "http://www.w3.org/2008/http-methods#POST"^^xsd:anyURI;
-	    ]);
-		nd:list [
-			a nd:List;
-			nd:title "HTTP Headers";
-	        nd:mapsTo http-core:headers;
-			nd:parameterSet [
-				a nd:ParameterSet;
-				nd:title "HTTP Header";
-				nd:type http-core:Header;
-				nd:parameters ( [
-						a nd:Parameter;
-						nd:mapsTo http-core:hdrName;
-						nd:title "Header Name";
-						nd:input xsd:anyURI ;
-						nd:default "http://www.w3.org/2008/http-headers#content-type"^^xsd:anyURI;
-					] [
-						a nd:Parameter;
-						nd:mapsTo http-core:fieldValue;
-						nd:title "Field Value";
-						nd:input xsd:string ;
-						nd:default "text/turtle"^^xsd:string;
-					] 
-				)
-			]
-		];
-		nd:parameter [
-			a nd:Parameter;
-			nd:mapsTo bt:headers;
-			nd:type bt:SelectQuery;
-			nd:title "(Opt) Dynamic Headers: ?hdrName ?fieldValue";
-			nd:input nd:Query;
-			bt:originBase "true";
-			bt:targetBase "false";
-		] ;
+            a nd:Parameter;
+            nd:mapsTo asp:saveString;
+            nd:input xsd:boolean;
+            nd:default "false"^^xsd:boolean;
+            nd:title "Save String";
+        ][
+            a nd:Parameter;
+            nd:mapsTo asp:contextBase;
+            nd:input xsd:anyURI;
+            nd:default "http://"^^xsd:anyURI;
+            nd:title "Context Base";
+        ][
+            a nd:Parameter;
+			nd:mapsTo bt:targetBase;
+			nd:title "Target Base";
+			nd:input nd:Repo;
+        ]);
     ];
 .
 
@@ -2394,6 +2292,25 @@
 	    nd:mapsTo bt:targetBase;
 	    nd:title "Target Base";
 	    nd:input nd:Repo;
+    ].
+	
+
+# --------------- MDP Plugin -------------------
+
+:MCTSProblemNode nd:class nd:Leaf;
+	nd:category "MCTSProblem Nodes";
+    nd:name "MCTSProblemLeafNode";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultMCTSProblemLeafNode";
+    nd:type mdp:Test;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#c9c308";
+		nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "python_icon.png";
     ].
 
 # --------------- Plugin X -------------------

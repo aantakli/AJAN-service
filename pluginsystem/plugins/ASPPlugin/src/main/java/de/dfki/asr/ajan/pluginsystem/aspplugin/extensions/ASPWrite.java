@@ -43,7 +43,7 @@ public class ASPWrite implements NodeExtension {
 
 	@RDF("asp:random")
 	@Getter @Setter
-	private Boolean random = true;
+	private Boolean random = false;
 
 	@RDF("bt:targetBase")
 	@Getter @Setter

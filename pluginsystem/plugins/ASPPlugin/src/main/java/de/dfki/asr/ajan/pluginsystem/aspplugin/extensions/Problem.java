@@ -177,11 +177,7 @@ public class Problem extends AbstractTDBLeafTask implements NodeExtension {
 		}
 		else {
 			List<Resource> list = new ArrayList();
-			Serializer.getGraphFromSolution(builder, list, stableModel);
-			BNode head = vf.createBNode();
-			builder.add(bnode, ASPVocabulary.HAS_FACTS, head);
-			Model partsModel = RDFCollections.asRDF(list, head, new LinkedHashModel());
-			partsModel.forEach(stmt -> {builder.add(stmt.getSubject(),stmt.getPredicate(),stmt.getObject());});
+			Serializer.getGraphFromSolution(bnode, builder, list, stableModel);
 		}
     }
 

@@ -17,13 +17,14 @@
  * MA 02110-1301  USA
  */
 
-@RDFNamespaces({"ajan = http://www.ajan.de/ajan-ns#",
-				"bt = http://www.ajan.de/behavior/bt-ns#",
-				"asp = http://www.ajan.de/behavior/asp-ns#",
-				"ilp = http://www.ajan.de/behavior/ilp-ns#",
-				"clingo = http://www.ajan.de/behavior/clingo-ns#",
-				"rdfs = http://www.w3.org/2000/01/rdf-schema#"})
+package de.dfki.asr.ajan.pluginsystem.aspplugin.vocabularies;
 
-package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
-import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
+public class ILPVocabulary {
+
+	private static final ValueFactory FACTORY = SimpleValueFactory.getInstance();
+	public final static IRI HYPOTHESIS = FACTORY.createIRI("http://www.ajan.de/behavior/ilp-ns#Hypothesis");
+}

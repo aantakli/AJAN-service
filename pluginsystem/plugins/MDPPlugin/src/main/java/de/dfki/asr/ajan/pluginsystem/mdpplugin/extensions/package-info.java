@@ -19,11 +19,8 @@
 
 @RDFNamespaces({"ajan = http://www.ajan.de/ajan-ns#",
 				"bt = http://www.ajan.de/behavior/bt-ns#",
-				"asp = http://www.ajan.de/behavior/asp-ns#",
-				"ilp = http://www.ajan.de/behavior/ilp-ns#",
-				"clingo = http://www.ajan.de/behavior/clingo-ns#",
+				"strips = http://www.ajan.de/behavior/strips-ns#",
 				"rdfs = http://www.w3.org/2000/01/rdf-schema#"})
-
-package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions;
+package de.dfki.asr.ajan.pluginsystem.stripsplugin.extensions;
 
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;

@@ -39,32 +39,132 @@ import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.springframework.util.ResourceUtils;
 
 public final class Serializer {
+	
 	private Serializer() {
 
 	}
 
-	public static void getGraphFromSolution(ModelBuilder builder, List<Resource> terms, String stableModel) {
-		List<String> statements = PatternUtil.getFacts(stableModel);
-		statements.stream().forEach((statement) -> {
-			extractStatement(builder, terms, statement);
-		});
+	public static void getGraphFromSolution(Resource bnode, ModelBuilder builder, List<Resource> terms, String stableModel) {
+		ValueFactory vf = SimpleValueFactory.getInstance();
+		if (stableModel.contains(":-")) {
+			getGraphFromRules(bnode, builder, stableModel);
+		} else {
+			getGraphFromFacts(builder, terms, stableModel);
+			BNode head = vf.createBNode();
+			builder.add(bnode, ASPVocabulary.HAS_FACTS, head);
+			Model partsModel = RDFCollections.asRDF(terms, head, new LinkedHashModel());
+			partsModel.forEach(stmt -> {builder.add(stmt.getSubject(),stmt.getPredicate(),stmt.getObject());});
+		}
 	}
 
-	private static void extractStatement(ModelBuilder builder, List<Resource> terms, String fact) {
+	public static void getGraphFromRules(Resource bnode, ModelBuilder builder, String stableModel) {
 		ValueFactory vf = SimpleValueFactory.getInstance();
-		if (fact.startsWith("_t")) {
-			extractRDFStatements(PatternUtil.getTriple(fact),vf,builder);
-		}
-		else {
-			String aspPredicate;
-			if (fact.contains("(")) {
-				aspPredicate = fact.substring(0,fact.indexOf("("));
+		List<List<String>> columns = PatternUtil.getRulesAndConstraints(stableModel);
+		List<Resource> constraints = new ArrayList();
+		List<Resource> rules = new ArrayList();
+		columns.stream().forEach((column) -> {
+			if (column.get(0).endsWith(":-")) {
+				List<Resource> constraint = new ArrayList();
+				getGraphFromConstraint(vf, column, builder, constraint, stableModel);
+				BNode head = vf.createBNode();
+				BNode subject = vf.createBNode();
+				constraints.add(subject);
+				builder.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.CONSTRAINT);
+				builder.add(subject, ASPVocabulary.HAS_ATOMS, head);
+				Model partsModel = RDFCollections.asRDF(constraint, head, new LinkedHashModel());
+				partsModel.forEach(stmt -> {builder.add(stmt.getSubject(),stmt.getPredicate(),stmt.getObject());});
 			} else {
-				aspPredicate = fact.substring(0,fact.indexOf("."));
+				BNode rule = vf.createBNode();
+				builder.add(rule, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.RULE);
+				getGraphFromRule(rule, vf, column, builder, stableModel);
+				rules.add(rule);
 			}
+		});
+		if (!constraints.isEmpty()) {
+			BNode head = vf.createBNode();
+			builder.add(bnode, ASPVocabulary.HAS_CONSTRAINTS, head);
+			Model partsModel = RDFCollections.asRDF(constraints, head, new LinkedHashModel());
+			partsModel.forEach(stmt -> {builder.add(stmt.getSubject(),stmt.getPredicate(),stmt.getObject());});
+		}
+		if (!rules.isEmpty()) {
+			BNode head = vf.createBNode();
+			builder.add(bnode, ASPVocabulary.HAS_RULES, head);
+			Model partsModel = RDFCollections.asRDF(rules, head, new LinkedHashModel());
+			partsModel.forEach(stmt -> {builder.add(stmt.getSubject(),stmt.getPredicate(),stmt.getObject());});
+		}
+	}
+	
+	public static void getGraphFromConstraint(ValueFactory vf, List<String> column, ModelBuilder builder, List<Resource> terms, String stableModel) {
+		column.stream().forEach((statement) -> {
+			if (!statement.equals(":-")) {
+				BNode subject = vf.createBNode();
+				terms.add(subject);
+				builder.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.ATOM);
+				extractStatement(builder, statement, subject, vf);
+			}
+		});
+	}
+	
+	public static void getGraphFromRule(Resource rule, ValueFactory vf, List<String> column, ModelBuilder builder, String stableModel) {
+		boolean bodyStart = false;
+		boolean not = false;
+		List<Resource> atoms = new ArrayList();
+		BNode list = vf.createBNode();
+		for (String statement: column) {
+			if (statement.equals(":-")) {
+				bodyStart = true;
+			} else if (statement.equals("not")) {
+				not = true;
+			} else if (!bodyStart) {
+				BNode subject = vf.createBNode();
+				builder.add(rule, ASPVocabulary.HAS_HEAD, subject);
+				builder.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.FACT);
+				extractStatement(builder, statement, subject, vf);
+			} else if (bodyStart) {
+				BNode subject = vf.createBNode();
+				atoms.add(subject);
+				builder.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.ATOM);
+				if (bodyStart && not) {
+					not = false;
+					builder.add(subject, ASPVocabulary.HAS_NAF, true);
+				} else {
+					builder.add(subject, ASPVocabulary.HAS_NAF, false);
+				}
+				extractStatement(builder, statement, subject, vf);
+			} 
+		}
+		BNode body = vf.createBNode();
+		builder.add(rule, ASPVocabulary.HAS_BODY, body);
+		builder.add(body, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.BODY);
+		builder.add(body, ASPVocabulary.HAS_ATOMS, list);
+		Model partsModel = RDFCollections.asRDF(atoms, list, new LinkedHashModel());
+		partsModel.forEach(stmt -> {builder.add(stmt.getSubject(),stmt.getPredicate(),stmt.getObject());});
+	}
+
+	public static void getGraphFromFacts(ModelBuilder builder, List<Resource> terms, String stableModel) {
+		ValueFactory vf = SimpleValueFactory.getInstance();
+		List<String> statements = PatternUtil.getFacts(stableModel);
+		statements.stream().forEach((statement) -> {
 			BNode subject = vf.createBNode();
 			terms.add(subject);
 			builder.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.FACT);
+			extractStatement(builder, statement, subject, vf);
+		});
+	}
+
+	private static void extractStatement(ModelBuilder builder, String atom, BNode subject, ValueFactory vf) {
+		if (atom.startsWith("_t")) {
+			extractRDFStatements(PatternUtil.getTriple(atom),vf,builder);
+		}
+		else {
+			String aspPredicate;
+			if (atom.contains("(")) {
+				aspPredicate = atom.substring(0,atom.indexOf("("));
+			} else if (atom.endsWith(".")){
+				aspPredicate = atom.substring(0,atom.indexOf("."));
+			} else {
+				aspPredicate = atom;
+			}
 			if (aspPredicate.startsWith("-")) {
 				builder.add(subject, ASPVocabulary.HAS_OPPOSITE, true);
 				builder.add(subject, ASPVocabulary.HAS_PREDICATE, aspPredicate.substring(1));
@@ -73,9 +173,11 @@ public final class Serializer {
 				builder.add(subject, ASPVocabulary.HAS_OPPOSITE, false);
 				builder.add(subject, ASPVocabulary.HAS_PREDICATE, aspPredicate);
 			}
-			if (fact.contains("(")) {
-				String first = fact.substring(fact.indexOf("(")+1);
-				String last = first.substring(0,first.lastIndexOf(")."));
+			if (atom.contains("(")) {
+				String first = atom.substring(atom.indexOf("(")+1);
+				String last;
+				if (first.endsWith(".")) last = first.substring(0,first.lastIndexOf(")."));
+				else last = first.substring(0,first.lastIndexOf(")"));
 				List<Literal> list = new ArrayList();
 				getParts(list,vf,last);
 				BNode head = vf.createBNode();

@@ -19,84 +19,83 @@
 
 package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import de.dfki.asr.ajan.behaviour.exception.AJANRequestException;
-import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
+import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
+import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
-import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
-import de.dfki.asr.ajan.behaviour.service.impl.HttpBinding;
-import de.dfki.asr.ajan.behaviour.service.impl.HttpConnection;
-import de.dfki.asr.ajan.pluginsystem.aspplugin.exception.LoadingRulesException;
-import de.dfki.asr.ajan.pluginsystem.aspplugin.util.ASPConfig;
-import de.dfki.asr.ajan.pluginsystem.aspplugin.util.PatternUtil;
+import de.dfki.asr.ajan.common.AJANVocabulary;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.exception.ClingoException;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.util.Serializer;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.vocabularies.ASPVocabulary;
+import de.dfki.asr.ajan.pluginsystem.aspplugin.vocabularies.ILPVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URI;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
-import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.model.util.ModelBuilder;
+import org.eclipse.rdf4j.model.util.RDFCollections;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.repository.Repository;
-import org.xml.sax.SAXException;
 import org.pf4j.Extension;
 
 @Extension
-@RDFBean("asp:ILASPInput")
-public class ILASPInput extends Problem implements NodeExtension {
+@RDFBean("ilp:ILASPInput")
+public class ILASPInput extends AbstractTDBLeafTask implements NodeExtension {
 
     @RDFSubject
     @Getter @Setter
     private String url;
+	
+	@RDF("rdfs:label")
+	@Getter @Setter
+	private String label;
 
-	@RDF("bt:queryUri")
-	@Setter @Getter
-	private BehaviorSelectQuery queryURI;
-
-	@RDF("bt:binding")
-	@Setter @Getter
-	private HttpBinding binding;
-
-    @RDF("asp:config")
-    @Getter @Setter
-    private ASPConfig config;
-
-	@RDF("asp:posExamples")
+	@RDF("ilp:posExamples")
 	@Setter @Getter
 	private BehaviorSelectQuery pos;
 
-	@RDF("asp:negExamples")
+	@RDF("ilp:negExamples")
 	@Setter @Getter
 	private BehaviorSelectQuery neg;
 
-    @RDF("asp:domain")
+	@RDF("ilp:hypothesisSpace")
     @Getter @Setter
-    private BehaviorConstructQuery query;
+    private BehaviorSelectQuery hypSpace;
+	
+    @RDF("ilp:domain")
+    @Getter @Setter
+    private BehaviorSelectQuery domain;
 
     @RDF("asp:ruleSets")
     @Getter @Setter
     private List<RuleSetLocation> rules;
 
-    @RDF("asp:write")
+	@RDF("asp:write")
     @Getter @Setter
     private ASPWrite write;
-
-	@RDF("rdfs:label")
+	
 	@Getter @Setter
-	private String label;
-
-	private String requestURI;
+    private String hypothesis;
+	private final String cmd = "wsl ILASP --version=4 --quiet ";
 
 	@Override
 	public Resource getType() {
@@ -105,79 +104,129 @@ public class ILASPInput extends Problem implements NodeExtension {
     @Override
     public NodeStatus executeLeaf() {
 		try {
-			setRequestUri();
-			generateRuleSet();
-			if(!getConfig().runSolver(this)) {
-				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " UNSATISFIABLE");
+			try {
+				ClassLoader classLoader = getClass().getClassLoader();
+				URL path = classLoader.getResource("ilasp/training.las");
+				String filePath = path.getFile();
+				File training = new File(filePath);
+				try (FileWriter myWriter = new FileWriter(training,false)) {
+					getILASPTrainingData(myWriter);
+				}
+				executeSolver(filePath.replaceFirst("/C:", "/mnt/c"));
+				Model result = readStableModels();
+				writeSolution(result);
+				System.out.println(hypothesis);
+				return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
+			  } catch (ClingoException ex) {
+				Logger.getLogger(ILASPInput.class.getName()).log(Level.SEVERE, null, ex);
 			}
-			if(getFacts() != null) {
-				ObjectNode payload = getIlaspPayload();
-				sendToIlasp(payload);
-			}
-			return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
-		} catch (URISyntaxException | RDFBeanException | LoadingRulesException ex) {
+		} catch (URISyntaxException | IOException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to query evaluation error", ex);
-		} catch (IOException | SAXException ex) {
-			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due transmission problems", ex);
-		} catch (MessageEvaluationException ex) {
-			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to malformed request URI", ex);
-		} catch (AJANRequestException ex) {
-			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to wrong content-type in response. Expecting RDF-based content!");
 		}
+		return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED");
     }
 
-	private ObjectNode getIlaspPayload() throws URISyntaxException {
-		ObjectMapper mapper = new ObjectMapper();
-		ObjectNode node = mapper.createObjectNode();
-		node.putArray("pos").addAll(getExamplesArray("pos", pos));
-		node.putArray("neg").addAll(getExamplesArray("neg", neg));
-		node.putArray("facts").addAll(getFactsArray());
-		return node;
+	private void getILASPTrainingData(final FileWriter myWriter) throws URISyntaxException, IOException {
+		getDomainData(myWriter);
+		getHypothesisData(myWriter);
+		getPositiveData(myWriter);
+		getNegativeData(myWriter);
+	}
+	
+	private void getDomainData(final FileWriter myWriter) throws URISyntaxException, IOException {
+		getTrainingData("domain", domain, myWriter);
 	}
 
-	private ArrayNode getExamplesArray(final String label, final BehaviorSelectQuery query) throws URISyntaxException {
+	private void getHypothesisData(final FileWriter myWriter) throws URISyntaxException, IOException {
+		getTrainingData("hypothesisSpace", hypSpace, myWriter);
+	}
+	
+	private void getPositiveData(final FileWriter myWriter) throws URISyntaxException, IOException {
+		getTrainingData("pos", pos, myWriter);
+	}
+
+	private void getNegativeData(final FileWriter myWriter) throws URISyntaxException, IOException {
+		getTrainingData("neg", neg, myWriter);
+	}
+
+	private void getTrainingData(final String label, final BehaviorSelectQuery query, final FileWriter myWriter) throws URISyntaxException, IOException {
 		Repository repo = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
 		List<BindingSet> bindings = query.getResult(repo);
-		List<String> results = new ArrayList<>();
 		for(BindingSet set: bindings) {
 			if(set.hasBinding(label)) {
-				results.add(set.getBinding(label).getValue().stringValue());
+				myWriter.write(set.getBinding(label).getValue().stringValue());
 			}
 		}
-		ObjectMapper mapper = new ObjectMapper();
-		return mapper.valueToTree(results.toArray());
 	}
-
-	private ArrayNode getFactsArray() {
-		ObjectMapper mapper = new ObjectMapper();
-		List<String> statements = PatternUtil.getFacts(getFacts().get(0));
-		return mapper.valueToTree(statements.toArray());
-	}
-
-	private void sendToIlasp(final ObjectNode payload) throws URISyntaxException, MessageEvaluationException, IOException, SAXException, AJANRequestException {
-		if (binding.getBtHeaders() != null) {
-			binding.setAddHeaders(BTUtil.getInitializedRepository(getObject(), binding.getBtHeaders().getOriginBase()));
-		}
-		binding.setRequestURI(new URI(requestURI));
-		HttpConnection request = new HttpConnection(binding);
-		request.setPayload(payload.toString());
-		request.execute();
-	}
-
-	protected void setRequestUri() throws URISyntaxException, MessageEvaluationException {
-		Repository repo = BTUtil.getInitializedRepository(getObject(), queryURI.getOriginBase());
-		List<BindingSet> result = queryURI.getResult(repo);
-		if (result.isEmpty()) {
-			throw new MessageEvaluationException("No ?requestURI defined in Message description");
-		}
-		BindingSet bindings = result.get(0);
-		Value strValue = bindings.getValue("requestURI");
-		if (strValue == null) {
-			throw new MessageEvaluationException("No ?requestURI defined in Message description");
-		} else {
-			requestURI = strValue.stringValue();
+	
+	public void executeSolver(final String filePath) throws ClingoException {
+		StringBuilder result = new StringBuilder();
+		try {
+			Process p = Runtime.getRuntime().exec(cmd + filePath);
+			try (BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+				String line;
+				while ( (line = in.readLine()) != null) {
+					System.out.println(line);
+					result.append(line);
+				}
+//			} finally {
+				p.waitFor();
+				p.descendants().forEach(ph -> {
+					ph.destroy();
+				});
+				p.destroy();
+				hypothesis = result.toString();
+			}
+		} catch (IOException | InterruptedException  ex) {
+			throw new ClingoException("Problems with the Runtime environment!", ex);
 		}
 	}
+	
+	protected Model readStableModels() {
+		ModelBuilder builder = getBuilder();
+		getNamedModel(builder, hypothesis);
+		return builder.build();
+    }
+	
+	private ModelBuilder getBuilder() {
+		ModelBuilder builder = new ModelBuilder();
+		if (getWrite().getContext() != null) {
+			Resource graph = vf.createIRI(getWrite().getContext().toString());
+			builder.add(graph, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, vf.createIRI(getWrite().getContext().toString()));
+			builder.namedGraph(graph);
+		}
+		return builder;
+	}
+
+	 private void getNamedModel(final ModelBuilder builder, final String hypothesis) {
+		BNode bnode = vf.createBNode();
+		builder.add(bnode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ILPVocabulary.HYPOTHESIS);
+		builder.add(bnode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.RULE_SET);
+		if (getWrite().isSaveString()) {
+			StringBuilder adaptedModel = new StringBuilder();
+			for (String value : Arrays.asList(hypothesis.split("\\) "))) {
+				if(value.endsWith(")")) {
+					adaptedModel.append(value).append(". ");
+				}
+				else {
+					adaptedModel.append(value).append("). ");
+				}
+			}
+			builder.add(bnode, ASPVocabulary.AS_RULES, adaptedModel.toString());
+		}
+		else {
+			List<Resource> list = new ArrayList();
+			Serializer.getGraphFromSolution(bnode, builder, list, hypothesis);
+		}
+    }
+	
+	private void writeSolution(Model model) {
+		if (getWrite().getTargetBase().toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
+			this.getObject().getExecutionBeliefs().update(model);
+		} else if (getWrite().getTargetBase().toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
+			this.getObject().getAgentBeliefs().update(model);
+		}
+    }
 
     @Override
     public void end() {
@@ -187,5 +236,10 @@ public class ILASPInput extends Problem implements NodeExtension {
 	@Override
 	public String toString() {
 		return "ILASPInput (" + getLabel() + ")";
+	}
+
+	@Override
+	public EvaluationResult.Result simulateNodeLogic(EvaluationResult result, Resource root) {
+		throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
 	}
 }
