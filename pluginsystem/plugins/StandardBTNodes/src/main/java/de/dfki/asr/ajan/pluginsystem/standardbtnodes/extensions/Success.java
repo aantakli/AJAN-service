@@ -22,7 +22,7 @@ package de.dfki.asr.ajan.pluginsystem.standardbtnodes.extensions;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.common.TreeNode;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
@@ -74,8 +74,8 @@ public class Success extends AbstractTDBLeafTask implements NodeExtension, TreeN
 	}
 
 	@Override
-	public EvaluationResult.Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
-		return EvaluationResult.Result.SUCCESS;
+	public SimulationResult.Result simulateNodeLogic(final SimulationResult result, final Resource root) {
+		return SimulationResult.Result.SUCCESS;
 	}
 
 	@Override

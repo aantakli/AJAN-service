@@ -23,8 +23,8 @@ import com.badlogic.gdx.ai.btree.SingleRunningChildBranch;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.ModelMode;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Direction;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Direction;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Result;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.ValueFactory;
@@ -54,7 +54,7 @@ public abstract class AbstractTDBBranchTask extends SingleRunningChildBranch<Age
 	}
 
 	@Override
-	public void evaluate(final EvaluationResult result) {
+	public void simulate(final SimulationResult result) {
 		Direction direction = result.getDirection();
 		if (direction.equals(Direction.Up)) {
 			currentEvaluatingChild = currentChildIndex;
@@ -62,15 +62,15 @@ public abstract class AbstractTDBBranchTask extends SingleRunningChildBranch<Age
 		} else {
 			currentEvaluatingChild = 0;
 		}
-		evaluateChilds(result);
+		simulateChilds(result);
 		if (direction.equals(Direction.Up)) {
-			((TreeNode)control).evaluate(result.setDirection(Direction.Up));
+			((TreeNode)control).simulate(result.setDirection(Direction.Up));
 		}
 	}
 
-	protected void evaluateChilds(final EvaluationResult result) {
+	protected void simulateChilds(final SimulationResult result) {
 		while (currentEvaluatingChild < children.size) {
-			((TreeNode)children.get(currentEvaluatingChild)).evaluate(result.setDirection(Direction.Down));
+			((TreeNode)children.get(currentEvaluatingChild)).simulate(result.setDirection(Direction.Down));
 			if (nodeLogic(result)) {
 				break;
 			}
@@ -78,7 +78,7 @@ public abstract class AbstractTDBBranchTask extends SingleRunningChildBranch<Age
 		}
 	}
 
-	protected boolean nodeLogic(final EvaluationResult result) {
+	protected boolean nodeLogic(final SimulationResult result) {
 		return !result.getChildResult().equals(Result.SUCCESS);
 	}
 

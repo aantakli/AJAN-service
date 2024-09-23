@@ -19,11 +19,11 @@
 
 package de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions;
 
-import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.ConditionSimulationException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
@@ -132,7 +132,7 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 				addStatements(ids);
 				return response.Successful;
 			}
-		} catch (TException | ConditionEvaluationException ex) {
+		} catch (TException | ConditionSimulationException ex) {
 			this.getObject().getLogger().info(this.getClass(), "Could not load List<MSceneObject>", ex);
 			return false;
 		}
@@ -153,7 +153,7 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 		return instructions;
 	}
 
-	private void addStatements(final List<String> ids) throws ConditionEvaluationException {
+	private void addStatements(final List<String> ids) throws ConditionSimulationException {
 		Model model = new LinkedHashModel();
 		Resource instRoot = vf.createBNode();
 		String timeStamp = MOSIMUtil.getTimeStamp();
@@ -164,7 +164,7 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 		performWrite(model);
 	}
 	
-	private void performWrite(final Model model) throws ConditionEvaluationException {
+	private void performWrite(final Model model) throws ConditionSimulationException {
 		try {
 			if (repository.toString().equals(AJANVocabulary.DOMAIN_KNOWLEDGE.toString())
 							|| repository.toString().equals(AJANVocabulary.SERVICE_KNOWLEDGE.toString())
@@ -179,7 +179,7 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 				updateExternalRepo(new SPARQLRepository(repository.toString()), model);
 			}
 		} catch (QueryEvaluationException ex) {
-			throw new ConditionEvaluationException(ex);
+			throw new ConditionSimulationException(ex);
 		}
 	}
 
@@ -208,8 +208,8 @@ public class AbortInstruction extends AbstractTDBLeafTask implements NodeExtensi
 	}
 	
 	@Override
-	public EvaluationResult.Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
-		return EvaluationResult.Result.UNCLEAR;
+	public SimulationResult.Result simulateNodeLogic(final SimulationResult result, final Resource root) {
+		return SimulationResult.Result.UNCLEAR;
 	}
 
 	@Override

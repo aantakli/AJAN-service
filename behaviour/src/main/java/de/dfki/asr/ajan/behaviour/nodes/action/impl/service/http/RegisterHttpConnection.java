@@ -21,7 +21,7 @@ package de.dfki.asr.ajan.behaviour.nodes.action.impl.service.http;
 
 import com.badlogic.gdx.ai.btree.Task;
 import de.dfki.asr.ajan.behaviour.events.ModelEvent;
-import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.MessageSimulationException;
 import de.dfki.asr.ajan.behaviour.nodes.Action;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.action.AbstractChainStep;
@@ -53,14 +53,14 @@ public class RegisterHttpConnection extends AbstractChainStep {
 			InputModel inputModel = context.get(InputModel.class);
 			connection = getConnection(context, inputModel);
 			context.put(connection);
-		} catch (URISyntaxException | MessageEvaluationException ex) {
+		} catch (URISyntaxException | MessageSimulationException ex) {
 			LOG.error("Failed to establish Connection", ex);
 			return Task.Status.FAILED;
 		}
 		return executeNext(context);
 	}
 
-	public IConnection getConnection(final TaskContext context, final InputModel inputModel) throws URISyntaxException, MessageEvaluationException {
+	public IConnection getConnection(final TaskContext context, final InputModel inputModel) throws URISyntaxException, MessageSimulationException {
 		Action action = context.get(Action.class);
 		URI uri = new URI(service.getRun().getUrl());
 		if (action.getObject().getConnections().containsKey(uri)) {
@@ -73,7 +73,7 @@ public class RegisterHttpConnection extends AbstractChainStep {
 		return createConnection(action, uri, inputModel);
 	};
 
-	private IConnection createConnection(final Action action, final URI uri, final InputModel inputModel) throws URISyntaxException, MessageEvaluationException {
+	private IConnection createConnection(final Action action, final URI uri, final InputModel inputModel) throws URISyntaxException, MessageSimulationException {
 		HttpBinding binding = ((ServiceActionDefinition)service).getRun();
 		binding.setAddHeaders(SPARQLUtil.createRepository(inputModel));
 		HttpConnection connection = new HttpConnection(binding);

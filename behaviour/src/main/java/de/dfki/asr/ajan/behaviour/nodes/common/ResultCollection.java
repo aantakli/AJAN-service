@@ -49,7 +49,7 @@ public class ResultCollection {
 		Model collection = new LinkedHashModel();
 		Resource root = vf.createBNode();
 		Resource head = vf.createBNode();
-		collection.add(root, RDF.TYPE, BTVocabulary.BT_EVALUATION_RESULT);
+		collection.add(root, RDF.TYPE, BTVocabulary.BT_SIMULATION_RESULT);
 		collection.add(root, BTVocabulary.HAS_STEPS, head);
 		RDFCollections.asRDF(steps, head, collection);
 		Iterator<Statement> itr = model.iterator();

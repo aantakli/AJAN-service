@@ -23,15 +23,15 @@ import de.dfki.asr.ajan.behaviour.events.Event;
 import de.dfki.asr.ajan.behaviour.events.ModelEvent;
 import de.dfki.asr.ajan.behaviour.events.ModelQueueEvent;
 import de.dfki.asr.ajan.behaviour.events.Producer;
-import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
-import de.dfki.asr.ajan.behaviour.exception.EventEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.ConditionSimulationException;
+import de.dfki.asr.ajan.behaviour.exception.EventSimulationException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Result;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -74,33 +74,33 @@ public class EventProducer extends AbstractTDBLeafTask implements Producer {
 		try {
 			setModelEvent();
 			return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
-		} catch (ConditionEvaluationException ex) {
+		} catch (ConditionSimulationException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to condition evaluation error", ex);
-		} catch (EventEvaluationException ex) {
+		} catch (EventSimulationException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED", ex);
 		}
 	}
 
-	private void setModelEvent() throws ConditionEvaluationException, EventEvaluationException {
+	private void setModelEvent() throws ConditionSimulationException, EventSimulationException {
 		Map<URI,Event> events = this.getObject().getEvents();
 		if (events.containsKey(eventURI)) {
 			if (events.get(eventURI) instanceof ModelEvent || events.get(eventURI) instanceof ModelQueueEvent) {
 				Event event = events.get(eventURI);
 				event.setEventInformation(getModel());
 			} else {
-				throw new EventEvaluationException("Event is no ModelEvent");
+				throw new EventSimulationException("Event is no ModelEvent");
 			}
 		} else {
-			throw new EventEvaluationException("No such Event defined");
+			throw new EventSimulationException("No such Event defined");
 		}
 	}
 
-	private Model getModel() throws ConditionEvaluationException {
+	private Model getModel() throws ConditionSimulationException {
 		try {
 			Repository repo = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
 			return query.getResult(repo);
 		} catch (URISyntaxException | QueryEvaluationException ex) {
-			throw new ConditionEvaluationException(ex);
+			throw new ConditionSimulationException(ex);
 		}
 	}
 
@@ -123,7 +123,7 @@ public class EventProducer extends AbstractTDBLeafTask implements Producer {
 	}
 
 	@Override
-	public Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
+	public Result simulateNodeLogic(final SimulationResult result, final Resource root) {
 		return Result.SUCCESS;
 	}
 

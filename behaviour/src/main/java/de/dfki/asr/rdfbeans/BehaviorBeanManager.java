@@ -91,7 +91,7 @@ public class BehaviorBeanManager extends RDFBeanManager {
 	private static void initTypeMap() throws RDFBeanValidationException {
 		registerType(BTRoot.class);
 		registerType(Condition.class);
-		registerType(Evaluate.class);
+		registerType(Simulate.class);
 		registerType(BehaviorQuery.class);
 		registerType(BehaviorAskQuery.class);
 		registerType(BehaviorConstructQuery.class);

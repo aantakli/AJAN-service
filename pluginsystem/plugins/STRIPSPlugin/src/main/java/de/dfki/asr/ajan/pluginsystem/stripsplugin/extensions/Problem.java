@@ -21,7 +21,7 @@ package de.dfki.asr.ajan.pluginsystem.stripsplugin.extensions;
 
 import com.badlogic.gdx.ai.btree.Task;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
-import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.ConditionSimulationException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorQuery;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBBranchTask;
@@ -114,7 +114,7 @@ public class Problem extends AbstractTDBBranchTask implements NodeExtension, Tre
 					return;
 				}
 			} catch (OperatorFactoryException | TermEvaluationException | NoActionAvailableException
-					| ConditionEvaluationException | URISyntaxException | RDFBeanException | VariableEvaluationException ex) {
+					| ConditionSimulationException | URISyntaxException | RDFBeanException | VariableEvaluationException ex) {
 				this.getObject().getLogger().info(this.getClass(), "Status (FAILED)");
 				reportState(new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to evaluation error", ex));
 				fail();
@@ -130,7 +130,7 @@ public class Problem extends AbstractTDBBranchTask implements NodeExtension, Tre
 	}
 
 	private boolean generatePlan()
-			throws ConditionEvaluationException, URISyntaxException, PlanningGraphException, OperatorFactoryException,
+			throws ConditionSimulationException, URISyntaxException, PlanningGraphException, OperatorFactoryException,
 			TimeoutException, RDFBeanException, VariableEvaluationException, TermEvaluationException, NoActionAvailableException {
 		Task<AgentTaskInformation> task;
 		reportState(new NodeStatus(Status.RUNNING, this.getObject().getLogger(), this.getClass(), toString() + " RUNNING"));

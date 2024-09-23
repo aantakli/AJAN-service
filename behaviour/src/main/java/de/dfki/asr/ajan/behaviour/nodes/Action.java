@@ -30,7 +30,7 @@ import de.dfki.asr.ajan.behaviour.nodes.action.TaskStep;
 import de.dfki.asr.ajan.behaviour.nodes.action.common.*;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.*;
 import de.dfki.asr.ajan.behaviour.nodes.common.*;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Result;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.rdfbeans.BehaviorBeanManager;
@@ -182,22 +182,22 @@ public class Action extends AbstractTDBLeafTask {
 	}
 
 	@Override
-	public Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
+	public Result simulateNodeLogic(final SimulationResult result, final Resource root) {
 		if (!loadDescription(result.getObject().getServiceTDB().getInitializedRepository())) {
 			return Result.FAIL;
 		}
-		EvaluationBase repo = result.getRepo();
-		InputModel inputModel = getEvaluatedInputModel(repo);
+		SimulationBase repo = result.getRepo();
+		InputModel inputModel = getSimulatedInputModel(repo);
 		if (inputModel == null) {
 			return Result.FAIL;
 		} else {
 			Model stmts = result.getResultModel();
 			setActionInputs(inputModel,root,stmts);
-			return updateEvaluationBase(repo,inputModel,root,stmts);
+			return updateSimulationBase(repo,inputModel,root,stmts);
 		}
 	}
 
-	private InputModel getEvaluatedInputModel(final EvaluationBase repo) {
+	private InputModel getSimulatedInputModel(final SimulationBase repo) {
 		InputModel inputModel = ACTNUtil.getInputModel(this.getInputs(), repo.initialize());
 		inputModel.add(ACTNVocabulary.DUMMY, AJANVocabulary.ASYNC_REQUEST_URI, ACTNVocabulary.DUMMY);
 		if (!SPARQLUtil.askModel(inputModel, actionDefinition.getConsumable().getSparql())) {
@@ -225,7 +225,7 @@ public class Action extends AbstractTDBLeafTask {
 	}
 
 	@SuppressWarnings("PMD.ExcessiveParameterList")
-	private Result updateEvaluationBase(final EvaluationBase repo, final InputModel inputModel,
+	private Result updateSimulationBase(final SimulationBase repo, final InputModel inputModel,
 					final Resource root, final Model stmts) {
 		Model addModel = ACTNUtil.getAddModel(actionDefinition, inputModel);
 		Model removeModel = ACTNUtil.getRemoveModel(actionDefinition, inputModel);

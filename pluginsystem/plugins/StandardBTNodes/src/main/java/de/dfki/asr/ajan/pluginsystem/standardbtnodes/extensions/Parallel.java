@@ -25,7 +25,7 @@ import com.badlogic.gdx.utils.Array;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.TreeNode;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.standardbtnodes.vocabularies.StandardBTVocabulary;
@@ -201,9 +201,9 @@ public class Parallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTaskInfo
 	}
 
 	@Override
-	public void evaluate(final EvaluationResult result) {
-		EvaluationResult.Direction direction = result.getDirection();
-		if (direction.equals(EvaluationResult.Direction.Up)) {
+	public void simulate(final SimulationResult result) {
+		SimulationResult.Direction direction = result.getDirection();
+		if (direction.equals(SimulationResult.Direction.Up)) {
 			currentEvaluatingChild = currentChildIndex;
 			currentEvaluatingChild++;
 		} else if (currentChildIndex < children.size) {
@@ -211,15 +211,15 @@ public class Parallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTaskInfo
 		} else {
 			currentEvaluatingChild = 0;
 		}
-		evaluateChilds(result);
-		if (direction.equals(EvaluationResult.Direction.Up)) {
-			((TreeNode)control).evaluate(result.setDirection(EvaluationResult.Direction.Up));
+		simulateChilds(result);
+		if (direction.equals(SimulationResult.Direction.Up)) {
+			((TreeNode)control).simulate(result.setDirection(SimulationResult.Direction.Up));
 		}
 	}
 
-	protected void evaluateChilds(final EvaluationResult result) {
+	protected void simulateChilds(final SimulationResult result) {
 		while (currentEvaluatingChild < children.size) {
-			((TreeNode)children.get(currentEvaluatingChild)).evaluate(result.setDirection(EvaluationResult.Direction.Down));
+			((TreeNode)children.get(currentEvaluatingChild)).simulate(result.setDirection(SimulationResult.Direction.Down));
 			if (nodeLogic(result)) {
 				break;
 			}
@@ -227,11 +227,11 @@ public class Parallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTaskInfo
 		}
 	}
 
-	protected boolean nodeLogic(final EvaluationResult result) {
+	protected boolean nodeLogic(final SimulationResult result) {
 		if (policy == Policy.Sequence) {
-			return !result.getChildResult().equals(EvaluationResult.Result.SUCCESS);
+			return !result.getChildResult().equals(SimulationResult.Result.SUCCESS);
 		} else {
-			return result.getChildResult().equals(EvaluationResult.Result.SUCCESS);
+			return result.getChildResult().equals(SimulationResult.Result.SUCCESS);
 		}
 	}
 	

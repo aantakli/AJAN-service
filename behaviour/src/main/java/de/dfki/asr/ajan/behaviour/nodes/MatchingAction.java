@@ -264,7 +264,7 @@ public class MatchingAction extends AbstractTDBBranchTask {
 	}
 
 	@Override
-	public void evaluate(final EvaluationResult result) {
+	public void simulate(final SimulationResult result) {
 		LOG.info("evaluate not implemented yet");
 	}
 

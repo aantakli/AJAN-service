@@ -29,8 +29,8 @@ import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.ModelMode;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.Debug;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Direction;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Direction;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import lombok.Getter;
 import lombok.Setter;
@@ -137,10 +137,10 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 	}
 
 	@Override
-	public void evaluate(final EvaluationResult result) {
+	public void simulate(final SimulationResult result) {
 		Direction direction = result.getDirection();
 		if (direction == Direction.Down) {
-			((TreeNode)getChild(0)).evaluate(result.setDirection(Direction.Down));
+			((TreeNode)getChild(0)).simulate(result.setDirection(Direction.Down));
 		}
 	}
 

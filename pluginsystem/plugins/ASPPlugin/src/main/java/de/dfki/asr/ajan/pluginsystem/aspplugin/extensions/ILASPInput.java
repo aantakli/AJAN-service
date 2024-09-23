@@ -21,7 +21,7 @@ package de.dfki.asr.ajan.pluginsystem.aspplugin.extensions;
 
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
@@ -50,9 +50,7 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
-import org.eclipse.rdf4j.model.util.RDFCollections;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.repository.Repository;
 import org.pf4j.Extension;
@@ -239,7 +237,7 @@ public class ILASPInput extends AbstractTDBLeafTask implements NodeExtension {
 	}
 
 	@Override
-	public EvaluationResult.Result simulateNodeLogic(EvaluationResult result, Resource root) {
+	public SimulationResult.Result simulateNodeLogic(SimulationResult result, Resource root) {
 		throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
 	}
 }

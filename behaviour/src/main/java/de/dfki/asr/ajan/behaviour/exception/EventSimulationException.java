@@ -17,25 +17,18 @@
  * MA 02110-1301  USA
  */
 
-package de.dfki.asr.ajan.behaviour.nodes.common;
+package de.dfki.asr.ajan.behaviour.exception;
 
-import de.dfki.asr.ajan.common.SPARQLUtil;
-import de.dfki.asr.ajan.knowledge.AbstractBeliefBase;
-import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.repository.Repository;
-
-/**
- *
- * @author Andre Antakli
- */
-public class EvaluationBase extends AbstractBeliefBase {
-	private final Repository repo;
-	public EvaluationBase(final Model model) {
-		repo = SPARQLUtil.createRepository(model);
+public class EventSimulationException extends Exception {
+	public EventSimulationException(final String message) {
+		super(message);
 	}
 
-	@Override
-	public Repository initialize() {
-		return repo;
+	public EventSimulationException(final String message, final Throwable cause) {
+		super(message, cause);
+	}
+
+	public EventSimulationException(final Throwable cause) {
+		super(cause);
 	}
 }

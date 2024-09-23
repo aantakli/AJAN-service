@@ -23,9 +23,8 @@ import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.branch.Sequence;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.events.AJANGoal;
-import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.ConditionSimulationException;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.AbstractActionDefinition;
-import de.dfki.asr.ajan.behaviour.nodes.action.definition.Consumable;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorQuery;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.NoActionAvailableException;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.exception.TermEvaluationException;
@@ -78,7 +77,7 @@ public class PlanBuilder {
 	}
 	
 	public Task<AgentTaskInformation> build ()
-			throws ConditionEvaluationException, URISyntaxException, PlanningGraphException, OperatorFactoryException,
+			throws ConditionSimulationException, URISyntaxException, PlanningGraphException, OperatorFactoryException,
 			TimeoutException, RDFBeanException, VariableEvaluationException, TermEvaluationException, NoActionAvailableException {
 		DomainDescription domain = getDomainDescription();
 		GraphPlanConfig config = configs.get(0);
@@ -88,7 +87,7 @@ public class PlanBuilder {
 	}
 
 	private DomainDescription getDomainDescription()
-			throws ConditionEvaluationException, URISyntaxException, RDFBeanException,
+			throws ConditionSimulationException, URISyntaxException, RDFBeanException,
 			VariableEvaluationException, TermEvaluationException, NoActionAvailableException {
 		List<Proposition> init = StateLoader.getState(initials, taskInfo, uriManager);
 		List<Proposition> goal = StateLoader.getState(goals, taskInfo, uriManager);

@@ -32,7 +32,7 @@ public class BTVocabulary {
 	public final static IRI ROOT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Root");
 	public final static IRI ACTION = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Action");
 	public final static IRI MATCHING_ACTION = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#MatchingAction");
-	public final static IRI EVALUATE = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Evaluate");
+	public final static IRI SIMULATE = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Simulate");
 	public final static IRI LOAD_BEHAVIOR = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#LoadBehavior");
 	public final static IRI CONDITION = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Condition");
 	public final static IRI UPDATE = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#Update");
@@ -54,8 +54,8 @@ public class BTVocabulary {
 	public final static IRI ASK_QUERY = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#AskQuery");
 	public final static IRI CONSTRUCT_QUERY = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#ConstructQuery");
 	public final static IRI UPDATE_QUERY = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#UpdateQuery");
-	public final static IRI EVALUATION_RESULT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#EvaluationResult");
-	public final static IRI BT_EVALUATION_RESULT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#BTEvaluationResult");
+	public final static IRI SIMULATION_RESULT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#SimulationResult");
+	public final static IRI BT_SIMULATION_RESULT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#BTSimulationResult");
 	public final static IRI RESPONSE_RESULT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#ResponseResult");
 	public final static IRI QUERY_RESULT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#QueryResult");
 	public final static IRI UPDATE_RESULT = FACTORY.createIRI("http://www.ajan.de/behavior/bt-ns#UpdateResult");

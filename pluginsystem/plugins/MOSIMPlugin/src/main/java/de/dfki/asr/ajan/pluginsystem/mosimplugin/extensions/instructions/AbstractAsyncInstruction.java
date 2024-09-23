@@ -21,7 +21,7 @@ package de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.instructions;
 
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.events.ModelEvent;
-import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.ConditionSimulationException;
 import de.dfki.asr.ajan.behaviour.exception.LoadPredicateException;
 import de.dfki.asr.ajan.behaviour.nodes.Action;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ActionVariable;
@@ -109,7 +109,7 @@ public abstract class AbstractAsyncInstruction extends ThriftAction {
                     handler = ThriftPluginServer.getHandler();
                     handler.register(id.toString(), currObject);
                     executeOperation(id, info, parameters);
-                } catch (URISyntaxException | ConditionEvaluationException | LoadPredicateException | NullPointerException ex) {
+                } catch (URISyntaxException | ConditionSimulationException | LoadPredicateException | NullPointerException ex) {
                     LOG.error(toString() + " FAILED due to query evaluation error OR handler object is null. Cannot register Event.");
                 }
             }
@@ -119,7 +119,7 @@ public abstract class AbstractAsyncInstruction extends ThriftAction {
 
 	protected abstract InstructionParameters readInput(final InputModel inputModel, final AgentTaskInformation info);
 
-    protected void executeOperation(final UUID id, final AgentTaskInformation info, final InstructionParameters parameters) throws ConditionEvaluationException, URISyntaxException, LoadPredicateException {
+    protected void executeOperation(final UUID id, final AgentTaskInformation info, final InstructionParameters parameters) throws ConditionSimulationException, URISyntaxException, LoadPredicateException {
         try {
             try (TTransport transport = new TSocket(parameters.getCosimHost(),parameters.getCosimPort())) {
 				transport.open();

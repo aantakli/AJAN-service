@@ -23,8 +23,7 @@ import com.badlogic.gdx.ai.btree.Task;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBBranchTask;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.pluginsystem.standardbtnodes.vocabularies.StandardBTVocabulary;
 import java.util.Arrays;
 import java.util.List;
@@ -53,8 +52,8 @@ public class Priority extends AbstractTDBBranchTask implements NodeExtension {
 	}
 
 	@Override
-	protected boolean nodeLogic(final EvaluationResult result) {
-		return result.getChildResult().equals(Result.SUCCESS);
+	protected boolean nodeLogic(final SimulationResult result) {
+		return result.getChildResult().equals(SimulationResult.Result.SUCCESS);
 	}
 
 	public void setChildren(final List<Task<AgentTaskInformation>> children) {

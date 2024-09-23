@@ -22,7 +22,7 @@ package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.datatyps;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
@@ -49,8 +49,6 @@ import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.query.QueryInterruptedException;
 import org.eclipse.rdf4j.repository.Repository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pf4j.Extension;
 
 @Extension
@@ -149,8 +147,8 @@ public class ConvertToUnixTime extends AbstractTDBLeafTask implements NodeExtens
     }
 
 	@Override
-	public EvaluationResult.Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
-		return EvaluationResult.Result.SUCCESS;
+	public SimulationResult.Result simulateNodeLogic(final SimulationResult result, final Resource root) {
+		return SimulationResult.Result.SUCCESS;
 	}
 
 	@Override

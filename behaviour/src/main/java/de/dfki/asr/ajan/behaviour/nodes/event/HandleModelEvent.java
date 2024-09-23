@@ -20,12 +20,12 @@
 package de.dfki.asr.ajan.behaviour.nodes.event;
 
 import de.dfki.asr.ajan.behaviour.events.ModelEventInformation;
-import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.ConditionSimulationException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.*;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Result;
 import java.net.URI;
 import java.net.URISyntaxException;
 import lombok.Getter;
@@ -80,12 +80,12 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 			} else {
 				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED");
 			}
-		} catch (ConditionEvaluationException ex) {
+		} catch (ConditionSimulationException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to condition evaluation error", ex);
 		}
 	}
 
-	protected boolean handleEvent() throws ConditionEvaluationException {
+	protected boolean handleEvent() throws ConditionSimulationException {
 		if (checkEventGoalMatching()) {
 			try {
 				Model model = getEventModel();
@@ -99,7 +99,7 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 					return true;
 				}
 			} catch (QueryEvaluationException | URISyntaxException ex) {
-				throw new ConditionEvaluationException(ex);
+				throw new ConditionSimulationException(ex);
 			}
 		}
 		return false;
@@ -149,7 +149,7 @@ public class HandleModelEvent extends AbstractTDBLeafTask {
 	}
 
 	@Override
-	public Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
+	public Result simulateNodeLogic(final SimulationResult result, final Resource root) {
 		return Result.UNCLEAR;
 	}
 }

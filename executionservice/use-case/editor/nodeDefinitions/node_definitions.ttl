@@ -757,18 +757,19 @@
 	]
 .
 
-:Evaluate nd:class nd:Leaf;
-    nd:name "Evaluate";
+:Simulate nd:class nd:Leaf;
+    nd:name "Simulate";
     nd:labelType nd:Dynamic;
-    rdfs:label "DefaultEvaluate";
-    nd:type bt:Evaluate;
+    rdfs:label "DefaultSimulate";
+    nd:type bt:Simulate;
     nd:style [
         a nd:StyleDef;
-        nd:color "#000000";
+		nd:labelColor "#FFFFFF";
+        nd:color "#1B3284";
         nd:shape nd:Roundrectangle;
         nd:padding "600%";
         nd:paddingTo "width";
-        nd:icon "evaluate.png";
+        nd:icon "simulate.png";
     ];
 	nd:parameter [
 		a nd:Parameter;

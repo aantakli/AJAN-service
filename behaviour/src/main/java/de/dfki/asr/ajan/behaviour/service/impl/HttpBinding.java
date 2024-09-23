@@ -19,7 +19,7 @@
 
 package de.dfki.asr.ajan.behaviour.service.impl;
 
-import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.MessageSimulationException;
 import de.dfki.asr.ajan.behaviour.nodes.action.common.ACTNVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import java.net.URI;
@@ -75,7 +75,7 @@ public class HttpBinding {
 	private List<HttpHeader> originals;
 
 	@SuppressWarnings("PMD.ConfusingTernary")
-	public void setAddHeaders(final Repository repo) throws URISyntaxException, MessageEvaluationException {
+	public void setAddHeaders(final Repository repo) throws URISyntaxException, MessageSimulationException {
 		setOriginalHeaders();
 		if (getActnQuery() == null && getBtHeaders() == null) {
 			return;
@@ -104,7 +104,7 @@ public class HttpBinding {
 		}
 	}
 
-	private List<HttpHeader> getAdditionalHeaders(final Repository repo, final BehaviorSelectQuery query) throws URISyntaxException, MessageEvaluationException {
+	private List<HttpHeader> getAdditionalHeaders(final Repository repo, final BehaviorSelectQuery query) throws URISyntaxException, MessageSimulationException {
 		List<HttpHeader> addHeaders = new ArrayList();
 		try {
 			List<BindingSet> result = query.getResult(repo);

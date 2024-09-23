@@ -26,7 +26,7 @@ import de.dfki.asr.ajan.behaviour.exception.LoadBehaviorException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.TreeNode;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.rdfbeans.BehaviorBeanManager;
@@ -151,23 +151,23 @@ public class LoadBehavior extends AbstractTDBBranchTask {
 	}
 
 	@Override
-	public void evaluate(final EvaluationResult result) {
-		EvaluationResult.Direction direction = result.getDirection();
-		if (direction.equals(EvaluationResult.Direction.Down)) {
+	public void simulate(final SimulationResult result) {
+		SimulationResult.Direction direction = result.getDirection();
+		if (direction.equals(SimulationResult.Direction.Down)) {
 			BTRoot behavior;
 			try {
 				behavior = generateBehavior();
 				if (behavior.getChildCount() > 0) {
-					behavior.evaluate(result.setDirection(EvaluationResult.Direction.Down));
+					behavior.simulate(result.setDirection(SimulationResult.Direction.Down));
 				} else {
-					result.setChildResult(EvaluationResult.Result.FAIL);
+					result.setChildResult(SimulationResult.Result.FAIL);
 				}
 			} catch (LoadBehaviorException | URISyntaxException ex) {
 				LOG.error(toString() + " FAILED due to evaluation error", ex);
-				result.setChildResult(EvaluationResult.Result.FAIL);
+				result.setChildResult(SimulationResult.Result.FAIL);
 			}
 		} else {
-			((TreeNode)control).evaluate(result.setDirection(EvaluationResult.Direction.Up));
+			((TreeNode)control).simulate(result.setDirection(SimulationResult.Direction.Up));
 		}
 	}
 
