@@ -236,6 +236,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          args:
+            AVERSION="${{ steps.commit.outputs.short }}"
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           secrets: |
