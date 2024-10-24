@@ -23,11 +23,23 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.util.Optional;
+
 @SpringBootApplication
 @SuppressWarnings("PMD.UseUtilityClass")
 public class Application {
     protected static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Application.class);
     public static void main(final String... args) {
+        printVersion();
         SpringApplication.run(Application.class, args);
+    }
+
+    private static void printVersion(){
+        String version = Optional.ofNullable(System.getenv().get("VERSION")).orElse("local");
+        String startMessage = "| Starting AJAN Execution Service version " + version + " |";
+        String border = "=".repeat(startMessage.length());
+        LOG.info(border);
+        LOG.info(startMessage);
+        LOG.info(border);
     }
 }
