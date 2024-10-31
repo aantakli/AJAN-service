@@ -12,6 +12,7 @@ COPY executionservice-0.1.jar .
 COPY docker .
 COPY executionservice/use-case ./executionservice/use-case
 COPY pluginsystem/plugins ./pluginsystem/plugins
+COPY .env .
 
 RUN chmod +x /app/startup.sh
 RUN chmod +x /app/create.sh
@@ -42,7 +43,5 @@ ENV url="http://localhost:8090/rdf4j"
 ENV repoURL="http://localhost:8090/rdf4j/repositories/"
 ENV DloadTTLFiles="true"
 ENV DpublicHostName="localhost"
-ARG AVERSION
-ENV VERSION=${AVERSION}
 
 ENTRYPOINT ["/bin/sh", "/app/startup.sh"]
