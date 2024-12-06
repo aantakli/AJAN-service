@@ -89,15 +89,15 @@ public class RDFAgentBuilder extends AgentBuilder {
     public Agent build() throws UnauthorizedException, URISyntaxException {
         connections = new ConcurrentHashMap<>();
         id = getIdFromModel();
-        LOG.info("Creating agent with ID: " + id);
+        LOG.info("Creating agent with ID: {}", id);
         url = getAgentURI();
         template = setTemplateFromResource();
-	LOG.info("--> Agent Template: " + template.stringValue() + getAgentResolved());
-	inferencing = Inferencing.NONE;
+        LOG.info("--> Agent Template: {}{}", template.stringValue(), getAgentResolved());
+	    inferencing = Inferencing.NONE;
         readEndpointsAndEvents();
         extensions = pluginLoader.getNodeExtensions();
         setBehaviorTreesFromResource(template);
-	LOG.info("--> Agent Behaviors " + getAgentResolved());
+        LOG.info("--> Agent Behaviors {}", getAgentResolved());
         initialKnowledge = modelManager.getAgentInitKnowledge(vf.createIRI(url), agentResource, initAgentModel, false);
         overwrite = isManagedAgentTDB();
         Credentials auth = readCredentials();
@@ -105,9 +105,9 @@ public class RDFAgentBuilder extends AgentBuilder {
         if (beliefs == null) {
             return null;
         }
-        LOG.info("--> Agent beliefs: " + beliefs.getSparqlEndpoint() + " " + getAgentSet());
+        LOG.info("--> Agent beliefs: {} {}", beliefs.getSparqlEndpoint(), getAgentSet());
         Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, overwrite, beliefs, events, endpoints, connections, reportURI);
-        LOG.info("Created agent with ID " + id + ": " + url);
+        LOG.info("Created agent with ID {}: {}", id, url);
         return agent;
     }
 
@@ -120,14 +120,14 @@ public class RDFAgentBuilder extends AgentBuilder {
     }
 
     protected void readEndpointsAndEvents() throws URISyntaxException {
-	AgentEndpoints agentEndpoints = new AgentEndpoints(modelManager, resourceManager, agentRepo);
-	LOG.info("--> Agent endpoints " + getAgentResolved());
+	    AgentEndpoints agentEndpoints = new AgentEndpoints(modelManager, resourceManager, agentRepo);
+        LOG.info("--> Agent endpoints {}", getAgentResolved());
         Map<URI, Event> agentEvents;
         agentEvents = getAgentEvents(template);
-	LOG.info("--> Agent events " + getAgentResolved());
+        LOG.info("--> Agent events {}", getAgentResolved());
         events = agentEvents;
         endpoints = agentEndpoints.getAgentEndpoints(template, agentTemplateModel, events);
-	LOG.info("--> Agent endpoints " + getAgentSet());
+        LOG.info("--> Agent endpoints {}", getAgentSet());
     }
 
     private boolean isManagedAgentTDB() {
@@ -163,7 +163,7 @@ public class RDFAgentBuilder extends AgentBuilder {
             configureBehaviorTrees(beliefs);
             return beliefs;
         } catch (UnauthorizedException ex) {
-            LOG.error(ex.toString());
+            LOG.error("Authentication with knowledge base not successful!", ex);
             removeAgentBeliefs(beliefs);
             return null;
         }
@@ -173,7 +173,7 @@ public class RDFAgentBuilder extends AgentBuilder {
         LOG.info("Authentication with knowledge base not successful!");
         LOG.info("Please check the credentials!");
         tdbManager.deleteAgentTDB(beliefs);
-        LOG.error("Undone agent creation of agent with ID: " + id);
+        LOG.error("Undone agent creation of agent with ID: {}", id);
     }
 
     @SuppressWarnings("PMD.NullAssignment")
@@ -184,15 +184,14 @@ public class RDFAgentBuilder extends AgentBuilder {
         finalBehavior = null;
         if (initialBhv != null) {
             initialBehavior = getSingleRunBehavior(initialBhv, modelManager.getTemplateFromTDB(agentRepo, initialBhv));
-            LOG.info("--> Initial Behavior " + getAgentSet());
+            LOG.info("--> Initial Behavior {}", getAgentSet());
         }
         if (finalBhv != null) {
             finalBehavior = getSingleRunBehavior(finalBhv, modelManager.getTemplateFromTDB(agentRepo, finalBhv));
-            LOG.info("--> Final Behavior " + getAgentSet());
+            LOG.info("--> Final Behavior {}", getAgentSet());
         }
         Iterator<Resource> behaviorResources = resourceManager.getBehaviorResources(agentTemplateRsc, agentTemplateModel);
-        Map<Resource, Behavior> behaviorTrees = getBehaviorTrees(behaviorResources);
-        behaviors = behaviorTrees;
+        behaviors = getBehaviorTrees(behaviorResources);
     }
 
     private Resource setTemplateFromResource() {
@@ -211,7 +210,7 @@ public class RDFAgentBuilder extends AgentBuilder {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     protected Map<URI, Event> getAgentEvents(final Resource agentTemplate) throws URISyntaxException {
-        Map<URI, Event> agentEvents = new ConcurrentHashMap();
+        Map<URI, Event> agentEvents = new ConcurrentHashMap<>();
         Iterator<Resource> resources = resourceManager.getResources(agentTemplate, agentTemplateModel, AJANVocabulary.AGENT_HAS_EVENT);
         while (resources.hasNext()) {
             Resource resource = resources.next();
@@ -255,10 +254,13 @@ public class RDFAgentBuilder extends AgentBuilder {
         try (RepositoryConnection conn = agentRepo.getConnection()) {
             RDFBeanManager manager = new BehaviorBeanManager(conn, pluginLoader.getNodeExtensions());
             goal = manager.get(resource, AJANGoal.class);
-        }
-        catch (RDF4JException | RDFBeanException ex) {
-            LOG.error("--> Could not load AJANGoal " + resource.stringValue() + " for " + id + " agent.");
-            LOG.error(ex.getMessage());
+        } catch (RDF4JException ex) {
+            LOG.error("--> Could not load AJANGoal {} for {} agent, due to an RDF4JException", resource.stringValue(), id);
+            LOG.error(ex.getMessage(), ex);
+            throw new InitializationRDFValidationException("Could not load AJANGoal " + resource.stringValue(), ex);
+        } catch (RDFBeanException ex) {
+            LOG.error("--> Could not load AJANGoal {} for {} agent, due to an RDFBeanException", resource.stringValue(), id);
+            LOG.error(ex.getMessage(), ex);
             throw new InitializationRDFValidationException("Could not load AJANGoal " + resource.stringValue(), ex);
         }
         return goal;
@@ -266,9 +268,9 @@ public class RDFAgentBuilder extends AgentBuilder {
 
     @SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.PrematureDeclaration"})
     private Map<Resource, Behavior> getBehaviorTrees(final Iterator<Resource> behaviorRes) {
-        Map<Resource, Behavior> bhvs = new ConcurrentHashMap();
+        Map<Resource, Behavior> bhvs = new ConcurrentHashMap<>();
         while (behaviorRes.hasNext()) {
-            List<Resource> eventResc = new ArrayList();
+            List<Resource> eventResc = new ArrayList<>();
             Resource resource = behaviorRes.next();
             if (!(resource instanceof IRI)) {
                 throw new InitializationRDFValidationException("No BNodes allowed as Behavior Subject " + resource.stringValue());
@@ -304,12 +306,16 @@ public class RDFAgentBuilder extends AgentBuilder {
         try (RepositoryConnection conn = tdbManager.getBehaviorTDB().getInitializedRepository().getConnection()) {
             RDFBeanManager manager = new BehaviorBeanManager(conn, pluginLoader.getNodeExtensions());
             tree = manager.get(behaviorResource, BTRoot.class);
-            LOG.info("--> Created Behavior Tree: " + behaviorResource.stringValue() + " for " + id + " agent");
-        }
-        catch (RDF4JException | RDFBeanException ex) {
-            LOG.error("--> Could not load BehaviorTree " + behaviorResource.stringValue() + " for " + id + " agent. A possible reason is a reference to a non-existent resource!");
-            LOG.error(ex.getMessage());
-            LOG.error("Undone agent creation of agent with ID: " + id);
+            LOG.info("--> Created Behavior Tree: {} for {} agent", behaviorResource.stringValue(), id);
+        } catch (RDF4JException ex){
+            LOG.error("--> Could not load BehaviorTree {} for {} agent. A possible reason is a reference to a non-existent resource! The issue stems from an issue with RDF4J", behaviorResource.stringValue(), id);
+            LOG.error(ex.getMessage(), ex);
+            //LOG.error("Undone agent creation of agent with ID: " + id);
+            throw new InitializationRDFValidationException("Could not load BehaviorTree: ", ex);
+        } catch (RDFBeanException ex) {
+            LOG.error("--> Could not load BehaviorTree {} for {} agent. A possible reason is a reference to a non-existent resource! The issue stems from an issue with RDFBean", behaviorResource.stringValue(), id);
+            LOG.error(ex.getMessage(), ex);
+            //LOG.error("Undone agent creation of agent with ID: " + id);
             throw new InitializationRDFValidationException("Could not load BehaviorTree: ", ex);
         }
         return tree;
