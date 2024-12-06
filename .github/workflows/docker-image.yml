@@ -112,11 +112,19 @@ jobs:
           && \
           cp \
             ./.github/*.bat .\
+      -
+        name: Overwrite file
+        uses: "DamianReeves/write-file-action@master"
+        with:
+          path: .env
+          write-mode: overwrite
+          contents: |
+            VERSION="${{ steps.commit.outputs.short }}"
       - 
         uses: vimtor/action-zip@v1
         with:
           recursive: true
-          files: ./executionservice/use-case/editor/nodeDefinitions/editor_data.trig ./executionservice/use-case/editor/editorData/editor_data.trig ./pluginsystem/ ./executionservice/target/executionservice-0.1.jar ./triplestore/target/triplestore-0.1-war-exec.jar ./executionservice/ startAll.bat startAll.sh startAJAN.sh startAJAN.bat startTriplestore.bat startTriplestore.sh
+          files: ./executionservice/use-case/editor/nodeDefinitions/editor_data.trig ./executionservice/use-case/editor/editorData/editor_data.trig ./pluginsystem/ ./executionservice/target/executionservice-0.1.jar ./triplestore/target/triplestore-0.1-war-exec.jar ./executionservice/ .env startAll.bat startAll.sh startAJAN.sh startAJAN.bat startTriplestore.bat startTriplestore.sh
           dest: ajanservice-${{ steps.commit.outputs.short }}.zip
       -
         name: Temporally save release.zip
@@ -157,6 +165,10 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Get commit Hash
+        id: commit
+        uses: pr-mpt/actions-commit-hash@v1
       -
         name: Load triplestore jar
         uses: actions/download-artifact@v3
@@ -212,10 +224,20 @@ jobs:
           name: PythonPlugin
           path: ./pluginsystem/plugins/PythonPlugin/target/
       -
+        name: Overwrite file
+        uses: "DamianReeves/write-file-action@master"
+        with:
+          path: .env
+          write-mode: overwrite
+          contents: |
+            VERSION="${{ steps.commit.outputs.short }}"
+      -
         name: Build and push
         uses: docker/build-push-action@v2
         with:
           context: .
+          args:
+            AVERSION="${{ steps.commit.outputs.short }}"
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           secrets: |
@@ -225,7 +247,7 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - 
+      -
         name: Get commit Hash
         id: commit
         uses: pr-mpt/actions-commit-hash@v1
