@@ -9,48 +9,21 @@
 @prefix rdf4j: <http://rdf4j.org/schema/rdf4j#> .
 
 {
-  :AG_ca5c06d0-a4a3-4fa1-ad1f-2fcfea2392b8 a ajan:AgentTemplate;
-    rdfs:label "Blockworld AgentTemplate";
-    ajan:agentInitKnowledge <http://localhost:8090/rdf4j/repositories/agents#AG_ca5c06d0-a4a3-4fa1-ad1f-2fcfea2392b8/InitKnowledge>;
-    ajan:event :EV_375a6454-9450-4736-86a1-73cba872e22b, :GO_19828b78-c997-4dfe-ab9d-d125c6ba0456,
-      :EV_a789ddb4-42d1-48e3-b95d-cdaad301fe55;
-    ajan:endpoint :EP_14c9f148-57f1-4942-a262-a2b867eb2aca, :EP_0788c2b2-5734-4845-b22b-3e512e5c9f17;
-    ajan:behavior :BE_e5382e77-b5e0-4515-9828-488546812648, :BE_042266c5-771c-4a43-a793-25b9d7059bde .
-  
-  :BE_d02acd97-a227-468b-ac9d-536a642b2a51 a ajan:Behavior;
-    ajan:trigger :EV_3970fb89-4d07-4875-936f-01c722c652b9;
-    ajan:clearEKB false;
-    rdfs:label "ActionPlanning_BT Behavior";
-    ajan:bt <http://localhost:8090/rdf4j/repositories/behaviors#BT_e61c645f-6919-44eb-908a-f149b56703b2> .
-  
-  :EP_1602ace6-d19f-49cd-8bb5-35876409a258 a ajan:Endpoint;
-    rdfs:label "ActionPlanning_BT Endpoint";
-    ajan:event :EV_3970fb89-4d07-4875-936f-01c722c652b9;
-    ajan:capability "ActionPlanning_BT" .
-  
-  :BE_042266c5-771c-4a43-a793-25b9d7059bde a ajan:Behavior;
-    ajan:clearEKB true;
-    ajan:trigger :GO_19828b78-c997-4dfe-ab9d-d125c6ba0456, :EV_375a6454-9450-4736-86a1-73cba872e22b;
-    rdfs:label "UnStack Behavior";
-    ajan:bt <http://localhost:8090/rdf4j/repositories/behaviors#BT_9c3170a6-78e5-4b96-8abe-d1f8b0940cd6> .
-  
-  :EP_14c9f148-57f1-4942-a262-a2b867eb2aca a ajan:Endpoint;
-    ajan:capability "unStack";
-    rdfs:label "UnStack Endpoint";
-    ajan:event :EV_375a6454-9450-4736-86a1-73cba872e22b .
-  
-  :EV_375a6454-9450-4736-86a1-73cba872e22b a ajan:ModelEvent;
-    rdfs:label "UnStack Event" .
-  
   :AG_HelloWorld_BT_30275863-0113-4c7c-9ed9-b0502c643fa6 a ajan:AgentTemplate;
     ajan:agentInitKnowledge <http://localhost:8090/rdf4j/repositories/agents#AG_HelloWorld_BT_30275863-0113-4c7c-9ed9-b0502c643fa6/InitKnowledge>;
-    ajan:behavior :BE_af5944db-7060-45ae-a099-bbed3c232188;
-    ajan:endpoint :EP_0b5533df-8e1e-43bb-a848-9e86f43951fc;
-    ajan:event :EV_a9841c84-8b52-44a6-b876-7339635bdc48;
-    rdfs:label "HelloWorld AgentTemplate" .
+    ajan:behavior :BE_af5944db-7060-45ae-a099-bbed3c232188, :BE_5c1921e6-482b-4a4e-b663-02a4df4c1937,
+      :BE_78c60ed3-8b98-4f2c-9a81-169e8795169f, :BE_c88c31c0-f4e6-4bcf-85e0-cf46106795ff;
+    ajan:endpoint :EP_0b5533df-8e1e-43bb-a848-9e86f43951fc, :EP_74726f91-8261-4fff-87d1-846f630b60db,
+      :EP_0c027f08-6760-40f5-9553-4bf68a103cc9, :EP_87861b99-5432-4f9d-95db-02aa0a817f59;
+    ajan:event :EV_a9841c84-8b52-44a6-b876-7339635bdc48, :EV_bc636efd-d0af-40a1-bc24-dd30f73dc73d,
+      :EV_59b451c3-9350-4fb2-8691-872630b8c6a9, :EV_5493cee1-4753-4627-ac75-22096c364fd7;
+    rdfs:label "Carla Template" .
   
-  _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b442 a <http://www.ajan.de/actn#ActionVariable>;
-    <http://spinrdf.org/sp#varName> "arm" .
+  :BE_c88c31c0-f4e6-4bcf-85e0-cf46106795ff a ajan:Behavior;
+    ajan:bt <http://localhost:8090/rdf4j/repositories/behaviors#BT_5add32dd-77b2-4e9c-9c64-3e0c5abe6cb6>;
+    rdfs:label "SaveKnowledge";
+    ajan:clearEKB false;
+    ajan:trigger :EV_5493cee1-4753-4627-ac75-22096c364fd7 .
   
   :BE_af5944db-7060-45ae-a099-bbed3c232188 a ajan:Behavior;
     ajan:bt <http://localhost:8090/rdf4j/repositories/behaviors#BT_a719c6d6-57a5-4abd-86d3-03366ff4c8db>;
@@ -66,95 +39,47 @@
   :EV_a9841c84-8b52-44a6-b876-7339635bdc48 a ajan:ModelEvent;
     rdfs:label "HelloWorld_BT Event" .
   
-  _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b443 rdf:first _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b442;
-    rdf:rest _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b444 .
-  
-  :GO_19828b78-c997-4dfe-ab9d-d125c6ba0456 a ajan:Goal;
-    rdfs:label "Unstack Goal";
-    <http://www.ajan.de/actn#consumes> _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b450;
-    <http://www.ajan.de/actn#produces> _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b449;
-    <http://www.ajan.de/actn#variables> _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b447 .
-  
-  _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b445 a <http://www.ajan.de/actn#ActionVariable>;
-    <http://spinrdf.org/sp#varName> "blockY" .
-  
-  _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b446 a <http://www.ajan.de/actn#ActionVariable>;
-    <http://spinrdf.org/sp#varName> "blockX" .
-  
-  _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b447 rdf:first _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b446;
-    rdf:rest _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b448 .
-  
-  _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b448 rdf:first _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b445;
-    rdf:rest _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b443 .
-  
-  _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b449 a <http://www.ajan.de/actn#Producible>;
-    <http://www.ajan.de/actn#sparql> """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX ajan: <http://www.ajan.de/ajan-ns#>
-PREFIX actn: <http://www.ajan.de/actn#>
-PREFIX strips: <http://www.ajan.de/behavior/strips-ns#>
-
-ASK
-WHERE {
-	?blockX strips:is ajan:Holding .
-	?blockY strips:is ajan:Clear .
-
-	FILTER ( NOT EXISTS {
-		?arm strips:is ajan:Empty .
-		?blockX ajan:on ?blockY .
-		?blockX strips:is ajan:Clear .
-		FILTER (?blockX != ?blockY)
-	} )
-}""" .
-  
-  :BE_e5382e77-b5e0-4515-9828-488546812648 a ajan:Behavior;
+  :BE_78c60ed3-8b98-4f2c-9a81-169e8795169f a ajan:Behavior;
+    ajan:trigger :EV_59b451c3-9350-4fb2-8691-872630b8c6a9;
+    rdfs:label "Carla";
     ajan:clearEKB false;
-    rdfs:label "Blocksworld Behavior";
-    ajan:trigger :EV_a789ddb4-42d1-48e3-b95d-cdaad301fe55;
-    ajan:bt <http://localhost:8090/rdf4j/repositories/behaviors#BT_2847eb1b-bd56-4363-85bc-dc751206709d> .
+    ajan:bt <http://localhost:8090/rdf4j/repositories/behaviors#BT_444aef9c-f669-429c-ba0b-ef8c907dfd94> .
   
-  :EP_0788c2b2-5734-4845-b22b-3e512e5c9f17 a ajan:Endpoint;
-    ajan:capability "blocksworld";
-    rdfs:label "Blocksworld Endpoint";
-    ajan:event :EV_a789ddb4-42d1-48e3-b95d-cdaad301fe55 .
+  :EV_bc636efd-d0af-40a1-bc24-dd30f73dc73d a ajan:ModelEvent;
+    rdfs:label "Ninja" .
   
-  :EV_a789ddb4-42d1-48e3-b95d-cdaad301fe55 a ajan:ModelEvent;
-    rdfs:label "Blocksworld Event" .
+  :EV_59b451c3-9350-4fb2-8691-872630b8c6a9 a ajan:ModelEvent;
+    rdfs:label "Carla" .
   
-  :AG_ActionPlanning_BT_bd6925d7-e5cb-4d5e-8150-cc32db596e84 a ajan:AgentTemplate;
-    rdfs:label "ActionPlanning_BT AgentTemplate";
-    ajan:agentInitKnowledge <http://localhost:8090/rdf4j/repositories/agents#AG_ActionPlanning_BT_bd6925d7-e5cb-4d5e-8150-cc32db596e84/InitKnowledge>;
-    ajan:event :EV_8869fe79-1811-4a75-b0c6-ce4546d59296;
-    ajan:behavior :BE_b3befb6d-1d3b-4062-ac32-7898cf9f0b1c;
-    ajan:endpoint :EP_ca92c80f-317f-41ec-8b0c-4261a4baebde .
+  :EP_74726f91-8261-4fff-87d1-846f630b60db a ajan:Endpoint;
+    rdfs:label "Ninja";
+    ajan:capability "Ninja";
+    ajan:event :EV_bc636efd-d0af-40a1-bc24-dd30f73dc73d .
   
-  :EV_8869fe79-1811-4a75-b0c6-ce4546d59296 a ajan:ModelEvent;
-    rdfs:label "ActionPlanning_BT Event" .
+  :BE_5c1921e6-482b-4a4e-b663-02a4df4c1937 a ajan:Behavior;
+    rdfs:label "Ninja";
+    ajan:clearEKB false;
+    ajan:trigger :EV_bc636efd-d0af-40a1-bc24-dd30f73dc73d;
+    ajan:bt <http://localhost:8090/rdf4j/repositories/behaviors#BT_cf6db371-f603-4c8a-9c5e-3d1bc977abb3> .
   
-  :BE_b3befb6d-1d3b-4062-ac32-7898cf9f0b1c a ajan:Behavior;
-    rdfs:label "ActionPlanning_BT Behavior";
-    ajan:bt <http://localhost:8090/rdf4j/repositories/behaviors#BT_e61c645f-6919-44eb-908a-f149b56703b2>;
-    ajan:trigger :EV_8869fe79-1811-4a75-b0c6-ce4546d59296;
-    ajan:clearEKB false .
+  :EP_0c027f08-6760-40f5-9553-4bf68a103cc9 a ajan:Endpoint;
+    rdfs:label " Carla ";
+    ajan:capability "Carla";
+    ajan:event :EV_59b451c3-9350-4fb2-8691-872630b8c6a9 .
   
-  :EP_ca92c80f-317f-41ec-8b0c-4261a4baebde a ajan:Endpoint;
-    rdfs:label "ActionPlanning_BT Endpoint";
-    ajan:event :EV_8869fe79-1811-4a75-b0c6-ce4546d59296;
-    ajan:capability "ActionPlanning_BT" .
+  :EV_5493cee1-4753-4627-ac75-22096c364fd7 a ajan:ModelEvent;
+    rdfs:label "SaveKnowledge" .
   
-  _:genid-d24ea7cf901048acb97aaa9b01cb94e6-b450 a <http://www.ajan.de/actn#Consumable>;
-    <http://www.ajan.de/actn#sparql> """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX ajan: <http://www.ajan.de/ajan-ns#>
-PREFIX actn: <http://www.ajan.de/actn#>
-PREFIX strips: <http://www.ajan.de/behavior/strips-ns#>
-
-ASK
-WHERE {
-	?arm rdf:type ajan:Arm .
-	?arm strips:is ajan:Empty .
-	?blockX strips:is ajan:Clear .
-	?blockX ajan:on ?blockY .
-}""" .
+  :EP_87861b99-5432-4f9d-95db-02aa0a817f59 a ajan:Endpoint;
+    rdfs:label "SaveKnowledge";
+    ajan:capability "SaveKnowledge";
+    ajan:event :EV_5493cee1-4753-4627-ac75-22096c364fd7 .
   
-  :EV_3970fb89-4d07-4875-936f-01c722c652b9 a ajan:ModelEvent;
-    rdfs:label "ActionPlanning_BT Event" .
+  :EP_fb69696d-65af-4f66-b252-ebac7a0c8a3b a ajan:Endpoint;
+    rdfs:label "crashtest";
+    ajan:capability "crashtest";
+    ajan:event :EV_59f49327-51b3-453d-a7ba-a11db1368eda .
+  
+  :EV_59f49327-51b3-453d-a7ba-a11db1368eda a ajan:ModelEvent;
+    rdfs:label "crashtest" .
 }
