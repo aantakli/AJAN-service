@@ -1,0 +1,79 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fn: <http://www.w3.org/2005/xpath-functions#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sesame: <http://www.openrdf.org/schema/sesame#> .
+@prefix rdf4j: <http://rdf4j.org/schema/rdf4j#> .
+
+<http://www.ajan.de/behavior/editor-ns#vocabulary> {
+  <http://www.ajan.de/behavior/editor-ns#itemowl:> <http://www.ajan.de/behavior/editor-ns#id>
+      "owl:";
+    rdfs:label "owl:";
+    rdfs:comment "";
+    <http://www.ajan.de/behavior/editor-ns#uri> "http://www.w3.org/2002/07/owl#" .
+  
+  <http://www.ajan.de/behavior/editor-ns#itemxsd:> <http://www.ajan.de/behavior/editor-ns#id>
+      "xsd:";
+    rdfs:label "xsd:";
+    rdfs:comment "";
+    <http://www.ajan.de/behavior/editor-ns#uri> "http://www.w3.org/2001/XMLSchema#" .
+  
+  <http://www.ajan.de/behavior/editor-ns#itemrdfs:> <http://www.ajan.de/behavior/editor-ns#id>
+      "rdfs:";
+    rdfs:label "rdfs:";
+    rdfs:comment "";
+    <http://www.ajan.de/behavior/editor-ns#uri> "http://www.w3.org/2000/01/rdf-schema#" .
+  
+  <http://www.ajan.de/behavior/editor-ns#itemrdf:> <http://www.ajan.de/behavior/editor-ns#id>
+      "rdf:";
+    rdfs:label "rdf:";
+    rdfs:comment "";
+    <http://www.ajan.de/behavior/editor-ns#uri> "http://www.w3.org/1999/02/22-rdf-syntax-ns#" .
+  
+  <http://www.ajan.de/behavior/editor-ns#itembehaviors:> <http://www.ajan.de/behavior/editor-ns#id>
+      "behaviors:";
+    rdfs:label "behaviors:";
+    rdfs:comment "";
+    <http://www.ajan.de/behavior/editor-ns#uri> "http://localhost:8090/rdf4j/repositories/behaviors#" .
+  
+  <http://www.ajan.de/behavior/editor-ns#itembt:> <http://www.ajan.de/behavior/editor-ns#id>
+      "bt:";
+    rdfs:label "bt:";
+    rdfs:comment "";
+    <http://www.ajan.de/behavior/editor-ns#uri> "http://www.ajan.de/behavior/bt-ns#" .
+  
+  <http://www.ajan.de/behavior/editor-ns#itemagents:> <http://www.ajan.de/behavior/editor-ns#id>
+      "agents:";
+    rdfs:label "agents:";
+    rdfs:comment "";
+    <http://www.ajan.de/behavior/editor-ns#uri> "http://localhost:8090/rdf4j/repositories/agents#" .
+  
+  <http://www.ajan.de/behavior/editor-ns#itemajan:> <http://www.ajan.de/behavior/editor-ns#id>
+      "ajan:";
+    rdfs:label "ajan:";
+    rdfs:comment "";
+    <http://www.ajan.de/behavior/editor-ns#uri> "http://www.ajan.de/ajan-ns#" .
+}
+
+<http://www.ajan.de/behavior/editor-ns#template> {
+  <http://www.ajan.de/behavior/editor-ns#itemStandard%20CARLA%20Action> <http://www.ajan.de/behavior/editor-ns#id>
+      "Standard%20CARLA%20Action";
+    rdfs:label "Standard%20CARLA%20Action";
+    rdfs:comment "";
+    <http://www.ajan.de/behavior/editor-ns#nodes> "Action";
+    <http://www.ajan.de/behavior/editor-ns#targetBase> "http://www.ajan.de/ajan-ns#AgentKnowledge";
+    <http://www.ajan.de/behavior/editor-ns#query> "CONSTRUCT%20WHERE%20%7B%0A?s%20?agentId%20?o%0A%7D";
+    <http://www.ajan.de/behavior/editor-ns#queryVariables> "s,agentId,o";
+    <http://www.ajan.de/behavior/editor-ns#parameters> "%5B%5D" .
+  
+  <http://www.ajan.de/behavior/editor-ns#itemAdjust%20Speed> <http://www.ajan.de/behavior/editor-ns#id>
+      "Adjust%20Speed";
+    rdfs:label "Adjust%20Speed";
+    rdfs:comment "";
+    <http://www.ajan.de/behavior/editor-ns#nodes> "Action";
+    <http://www.ajan.de/behavior/editor-ns#targetBase> "http://www.ajan.de/ajan-ns#AgentKnowledge";
+    <http://www.ajan.de/behavior/editor-ns#query> "PREFIX%20xsd:%20%3Chttp://www.w3.org/2001/XMLSchema#%3E%0APREFIX%20actn:%20%3Chttp://www.ajan.de/actn#%3E%0A%0ACONSTRUCT%20%7B%0A%20%20%20%20?s%20?p%20?o%20.%0A%20%20%20%20?s%20actn:speed%20?speed%20.%0A%7D%0AWHERE%20%7B%0A%20%20%20%20?s%20?p%20?o%20.%0A%20%20%20%20OPTIONAL%20%7B%0A%20%20%20%20%20%20%20%20?s%20actn:speed%20?speed%20.%0A%20%20%20%20%7D%0A%7D%0A";
+    <http://www.ajan.de/behavior/editor-ns#queryVariables> "s,p,o,speed";
+    <http://www.ajan.de/behavior/editor-ns#parameters> "%5B%7B%22label%22:%22Speed%22,%22variable%22:%22speed%22,%22title%22:%22Speed%22,%22mode%22:%22Input%22,%22note%22:%22in%20m/s%22,%22sparql%22:%7B%22repo%22:%22http://localhost:8090/rdf4j/repositories/test_knowledge%22,%22query%22:%22SELECT%2520?label%2520?dataValue%2520?dataType%2520WHERE%2520%257B%2520...%2520%257D%22%7D,%22possibleValues%22:%5B%5D%7D%5D" .
+}
