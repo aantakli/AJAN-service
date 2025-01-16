@@ -26,6 +26,7 @@ import de.dfki.asr.ajan.common.TripleDataBase;
 import de.dfki.asr.ajan.logic.agent.AgentManager;
 import de.dfki.asr.ajan.pluginsystem.AJANPluginLoader;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.EndpointExtension;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +44,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+
+import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeDefinitionsExtension;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanValidationException;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.rdf4j.rio.RDFFormat;
@@ -118,18 +122,32 @@ public class InitialDataProvider {
     @PostConstruct
     public void init() throws RDFBeanValidationException, URISyntaxException, UnknownHostException {
         LOG.info(" init()");
+        pluginLoader.init();
         if (loadFiles) {
             loadTTLFromFolders();
         }
-        pluginLoader.init();
         pushPluginsToStore(pluginLoader, services);
         loadEndpoints(pluginLoader);
         agentManager.setBaseURI(publicHostName, usePort);
     }
 
     private void loadTTLFromFolders() {
-        // loads ttl file(s) for each folder to its corresponding repository
         Map<String, TripleDataBase> tripleStoreMap = new ConcurrentHashMap<>();
+        List<NodeDefinitionsExtension> files = pluginLoader.getPLUGIN_MANAGER().getExtensions(NodeDefinitionsExtension.class);
+        LOG.info("Number of NodeDefinitionsExtension files found: {}", files.size());
+        files.forEach((pathExtension) -> {
+            Path origin = pathExtension.getDefinitionPath();
+            Path target = Paths.get(nodeDefinitionsFolderPath).resolve(origin.getFileName());
+            LOG.info("Copying file from {} to {}", origin, target);
+            try {
+                Files.copy(origin, target);
+            } catch (IOException e) {
+                LOG.error(Arrays.toString(e.getStackTrace()));
+            }
+        });
+
+
+        // loads ttl file(s) for each folder to its corresponding repository
         tripleStoreMap.put(agentFolderPath, agents);
         tripleStoreMap.put(behaviorsFolderPath, behaviors);
         tripleStoreMap.put(domainFolderPath, domain);

@@ -1,0 +1,346 @@
+@prefix : <http://localhost:8090/rdf4j/repositories/node_definitions#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix http-core: <http://www.w3.org/2006/http#> .
+@prefix http-headers: <http://www.w3.org/2008/http-headers#> .
+@prefix http-methods: <http://www.w3.org/2008/http-methods#> .
+@prefix strips: <http://www.ajan.de/behavior/strips-ns#> .
+@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+@prefix poser: <http://www.ajan.de/poser-ns#> .
+
+@prefix metagol: <http://www.ajan.de/behavior/metagol-ns#> .
+
+@prefix nd: <http://www.ajan.de/behavior/nd-ns#> .
+@prefix clingo: <http://www.ajan.de/behavior/clingo-ns#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
+@prefix actn: <http://www.ajan.de/actn#> .
+@prefix steer: <http://www.ajan.de/behavior/steer-ns#> .
+@prefix ml: <http://www.ajan.de/behavior/ml-ns#> .
+@prefix hybrit: <http://www.dfki.de/hybrit-ns#> .
+@prefix bt-mosim: <http://www.ajan.de/behavior/mosim-ns#> .
+@prefix bt-mqtt: <http://www.ajan.de/behavior/mqtt-ns#> .
+@prefix tcp: <http://www.ajan.de/behavior/tcp-ns#> .
+@prefix python: <http://www.ajan.de/behavior/python-ns#> .
+@prefix ws: <http://bla/ws#> .
+# ----------------- ASP ---------------------
+
+:Problem nd:class nd:Leaf;
+	nd:category "Reasoning Nodes";
+    nd:name "ASP Rules";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultProblem";
+    nd:type asp:Problem;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#FFCC00";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAB3RJTUUH4gsMDyoWOr2gxAAABbZJREFUeNrtnXuIVFUcxz/j7DPLNbeX2YbZZkhBhVSY28sskLU0ehE9MdHsQf1Rwv4R9Yc9sRdJUVQEaaSURP/0ICMpQnpCD6EW3aTYVVpbyXVd28f0xznDDrPn3J07986dbn4/cHBwzt4z9/edOfd3zv2ec0EIIYQQQgghhBBC/AeoBW4H9gM54H1gDpBRaKrDbVaIwvIhMF2hSZ4zgUMOQXLAfIVnjEkJtNEEvALUed7PSoZkedLxqxi1//4EtCpEyXEV0OPpqgaBu4F6hSkZTgE+AUY8grwLnKgwlU8GeBboB/YAHcARnrp1wMO2rkuMHcAlCmk0XnME9iGg0VH3IqDTI0Y/8EgZXVUmxSXUSZZKzvN/NwGbbNcEcALwPHC9p/5WYLn9lZTKNCtyLmVf4pwdEH9he5XYD+4qvcACW6cGWAUc8NTdA1xdRtsLA9pPQ7m2EmrvKkpZC1//ApxnB4A7HPXyZW2ZbbelXJD2SghyJbA3QJQfgI0BH+orYKoEiY8ssBL4J6Bh33tDwDkR2j5sBAkzdTICrJ+g26n1JAJ3At9HTLnTPmQoiZqQBz5gM6hW4LoSP8h7wNsRT2gIM20/mDJxckCz7TkqyhnA1yX8VPvshV4kQDvQNYEg96LZ3ES5qyDzKi6bgRkKUbLUAI86BoK/AlcoPOWlslEYtdeSQSvOfuAbOwn5gX1fVCGdbABOsnNOu4FuYFjhFUIIIdKTZYWlHmjB3EvPAQclQfWoBx4APgW2AW8C55OMN0w4eNCOVwoHkB/bX4xImDb8DpQLFJ5kqQF+xD8BebFClCwv47+TuB04XSFKjqUYK+moR5BVhL9JJgqYhDHGTS4hZZ6OsZL6uqpNGA+XKOrfw6Sti4B59vU2zIKbfZ7jrsC/9qMTeBUzESnKZKUNfv4bPoCxkjY46i7EbyUdwFhJa0O0nbEi16as5D9zJsyJlkof431VB4HVwLqiruo53FZSgC3ArZgp+lJpwdhPh0ifyeFIjC+6M+4uy2Vya8TcMezBLC+oA67B70jpBZ4KKUZekA6braVNkMkYP3Nn3Af/g2B/71zgZPvaVWcYeDrCwFLOxSLmT9Don8BHAe9H+YbIuejgS4wD0ccxBBsbliovivcaksPM0M4B7gvZTgfwc0x9ctrIVEoQbMq6FpgJLCnxb7YAT0Q8qb+Bb0mnlXSaZ6wWXb0CzgVewNzPmCgRWAJ8F/HEGoFZdgombYLUAL9hLFIVZbFtyHchG8RYSWsRibHcdmMuQd5BVtKqsMYhxi7gUoWmeqwuEKOrUgMhEZ6jFQIhhBBCCCHEBCTtfs9gbvPm57e0BrGKgmQxd/7uB+7AmCF+J4FZUOFmEeOXT78FHKvQJM9MYCfufbTkfq/CdWMz/k3NLleIkhMCzKop3zbjvcDZClVytGHsPz73+xr8W82KmGnC7JM15BFjK3CawhStC5oBLMOs65hNsK9rBcYP7BJjN2Z7WS34jMA8xh7Gku//b8RtJZqLcZr49l98nXA3szJ2HJPWUpEt/tZjnNx5mjFPPtiLWU2bZyrm4S1neY6zHWMh6gvRdrPNxoZJnw2oEbNwqTtuQWY5GmsBngFuwWxymQUuA272dEf9wEuE3xBzNvCGzdbSJshRdlDcHffB9xG8J28rcJwNtq/eRsp7PMWFpNtsvbgSai8LGNzls6YXAz5UD2ZPrXLTZy1HKKKeMQ+WS5QRxu/UUFiibPmn5QgODmGWqm3w9OOTArqjdUUXfhHDRR2b6j6GeXpOqZOCXRgjXRSGMcvZ0uh+n0KI7Q7LPbl2zA7Xp5bwgRYAn8XQXR5vj5c2QbJ2IDxYyYaywD341xPmy+O4n8AjKkCjHRj6ZnI/R/uYJM4UO2BzTavfgJ5zWxXyz5zK74e1E/N8Qk2rl0Fc3+AmO1JvAP7CrA8ZUHj/PwILIYQQQgghhBCHJ/8Cz/G8kH91EP0AAAAASUVORK5CYII=";
+    ];
+	nd:list [
+		a nd:List;
+		nd:mapsTo asp:ruleSets;
+		nd:title "Rule Sets";
+		nd:parameterSet [
+			a nd:ParameterSet;
+			nd:title "Rule Set Location";
+			nd:type asp:RuleSetLocation;
+			nd:parameters ([
+				a nd:Parameter;
+				nd:mapsTo bt:originBase;
+				nd:title "Origin Base";
+				nd:input nd:Repo ;
+			][
+				a nd:Parameter;
+				nd:mapsTo asp:ruleSet;
+				nd:input xsd:anyURI ;
+				nd:title "Rule Set";
+			]);
+		];
+	];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo asp:domain;
+        nd:title "Domain";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
+    ];
+    nd:parameterSet [
+        a nd:ParameterSet;
+        nd:mapsTo asp:config;
+        nd:title "ASP Config";
+        nd:type clingo:Config;
+        nd:parameters ([
+            a nd:Parameter;
+            nd:mapsTo clingo:execution-limit;
+            nd:input xsd:int;
+            nd:default "1"^^xsd:int;
+            nd:title "Execution Limit";
+        ][
+            a nd:Parameter;
+            nd:mapsTo clingo:solver;
+            nd:input xsd:string;
+            nd:default "clingo"^^xsd:string;
+            nd:title "Solver Name (e.g. clingo)";
+        ][
+            a nd:Parameter;
+            nd:mapsTo clingo:models;
+            nd:input xsd:int;
+            nd:default "1"^^xsd:int;
+            nd:title "Models";
+        ][
+            a nd:Parameter;
+            nd:mapsTo clingo:parallel-mode;
+            nd:input xsd:int;
+            nd:default "2"^^xsd:int;
+            nd:title "Parallel Mode";
+        ][
+            a nd:Parameter;
+            nd:mapsTo clingo:time-limit;
+            nd:input xsd:int;
+            nd:default "5"^^xsd:int;
+            nd:title "Time Limit";
+        ]);
+        nd:list [
+            a nd:List;
+            nd:mapsTo clingo:const;
+            nd:title "Constants";
+            nd:parameterSet [
+                a nd:ParameterSet;
+                nd:title "Constant Set";
+                nd:type clingo:Constant;
+                nd:parameters ([
+                    a nd:Parameter;
+                    nd:mapsTo clingo:name;
+                    nd:input xsd:string;
+                    nd:default "";
+                    nd:title "Name";
+                ][
+                    a nd:Parameter;
+                    nd:mapsTo clingo:value;
+                    nd:input xsd:string;
+                    nd:default "5";
+                    nd:title "Value";
+                ]);
+            ];
+        ];
+    ];
+    nd:parameterSet [
+        a nd:ParameterSet;
+        nd:mapsTo asp:write;
+        nd:title "ASP Write";
+        nd:type asp:Write;
+        nd:parameters ([
+            a nd:Parameter;
+            nd:mapsTo asp:saveString;
+            nd:input xsd:boolean;
+            nd:default "false"^^xsd:boolean;
+            nd:title "Save String";
+        ][
+            a nd:Parameter;
+            nd:mapsTo asp:random;
+            nd:input xsd:boolean;
+            nd:default "false"^^xsd:boolean;
+            nd:title "Random";
+        ][
+            a nd:Parameter;
+            nd:mapsTo asp:contextBase;
+            nd:input xsd:anyURI;
+            nd:default "http://"^^xsd:anyURI;
+            nd:title "Context Base";
+        ][
+            a nd:Parameter;
+            nd:mapsTo bt:targetBase;
+            nd:input xsd:anyURI;
+            nd:default ajan:ExecutionKnowledge;
+            nd:title "Target Base";
+        ]);
+    ];
+.
+
+:ILASPInput nd:class nd:Leaf;
+	nd:category "Reasoning Nodes";
+    nd:name "ILASP Rules";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultILASPInput";
+    nd:type asp:ILASPInput;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#FFE478";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "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";
+    ];
+	nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo asp:posExamples;
+        nd:title "Positive Examples: ?pos";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+	nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo asp:negExamples;
+        nd:title "Negative Examples: ?neg";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo asp:domain;
+        nd:title "Domain";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
+    ];
+	nd:list [
+		a nd:List;
+		nd:mapsTo asp:ruleSets;
+		nd:title "Rule Sets";
+		nd:parameterSet [
+			a nd:ParameterSet;
+			nd:title "Rule Set Location";
+			nd:type asp:RuleSetLocation;
+			nd:parameters ([
+				a nd:Parameter;
+				nd:mapsTo bt:originBase;
+				nd:title "Origin Base";
+				nd:input nd:Repo ;
+			][
+				a nd:Parameter;
+				nd:mapsTo asp:ruleSet;
+				nd:input xsd:anyURI ;
+				nd:title "Rule Set";
+			]);
+		];
+	];
+    nd:parameterSet [
+        a nd:ParameterSet;
+        nd:mapsTo asp:config;
+        nd:title "ASP Config";
+        nd:type clingo:Config;
+        nd:parameters ([
+            a nd:Parameter;
+            nd:mapsTo clingo:execution-limit;
+            nd:input xsd:int;
+            nd:default "5"^^xsd:int;
+            nd:title "Execution Limit";
+        ][
+            a nd:Parameter;
+            nd:mapsTo clingo:models;
+            nd:input xsd:int;
+            nd:default "5"^^xsd:int;
+            nd:title "Models";
+        ][
+            a nd:Parameter;
+            nd:mapsTo clingo:parallel-mode;
+            nd:input xsd:int;
+            nd:default "2"^^xsd:int;
+            nd:title "Parallel Mode";
+        ][
+            a nd:Parameter;
+            nd:mapsTo clingo:time-limit;
+            nd:input xsd:int;
+            nd:default "5"^^xsd:int;
+            nd:title "Time Limit";
+        ]);
+        nd:list [
+            a nd:List;
+            nd:mapsTo clingo:const;
+            nd:title "Constants";
+            nd:parameterSet [
+                a nd:ParameterSet;
+                nd:title "Constant Set";
+                nd:type clingo:Constant;
+                nd:parameters ([
+                    a nd:Parameter;
+                    nd:mapsTo clingo:name;
+                    nd:input xsd:string;
+                    nd:default "";
+                    nd:title "Name";
+                ][
+                    a nd:Parameter;
+                    nd:mapsTo clingo:value;
+                    nd:input xsd:string;
+                    nd:default "5";
+                    nd:title "Value";
+                ]);
+            ];
+        ];
+    ];
+	nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt:queryUri;
+        nd:type bt:QueryUri;
+        nd:type bt:SelectQuery;
+        nd:title "Select Query: ?requestURI";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+    ];
+	nd:parameterSet [
+        a nd:ParameterSet;
+        nd:mapsTo bt:binding;
+        nd:type http-core:Request;
+        nd:title "Binding Configuration";
+        nd:parameters ([
+	        a nd:Parameter;
+	        nd:mapsTo http-core:httpVersion;
+	        nd:title "HTTP Version";
+	        nd:default "1.1"^^xsd:string;
+	        nd:input xsd:string;
+	    ][
+	        a nd:Parameter;
+	        nd:mapsTo http-core:mthd;
+	        nd:title "HTTP Method";
+	        nd:input xsd:anyURI ;
+	        nd:default "http://www.w3.org/2008/http-methods#POST"^^xsd:anyURI;
+	    ]);
+		nd:list [
+			a nd:List;
+			nd:title "HTTP Headers";
+	        nd:mapsTo http-core:headers;
+			nd:parameterSet [
+				a nd:ParameterSet;
+				nd:title "HTTP Header";
+				nd:type http-core:Header;
+				nd:parameters ( [
+						a nd:Parameter;
+						nd:mapsTo http-core:hdrName;
+						nd:title "Header Name";
+						nd:input xsd:anyURI ;
+						nd:default "http://www.w3.org/2008/http-headers#content-type"^^xsd:anyURI;
+					] [
+						a nd:Parameter;
+						nd:mapsTo http-core:fieldValue;
+						nd:title "Field Value";
+						nd:input xsd:string ;
+						nd:default "text/turtle"^^xsd:string;
+					]
+				)
+			]
+		];
+		nd:parameter [
+			a nd:Parameter;
+			nd:mapsTo bt:headers;
+			nd:type bt:SelectQuery;
+			nd:title "(Opt) Dynamic Headers: ?hdrName ?fieldValue";
+			nd:input nd:Query;
+			bt:originBase "true";
+			bt:targetBase "false";
+		] ;
+    ];
+.

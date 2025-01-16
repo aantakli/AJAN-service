@@ -1,0 +1,130 @@
+@prefix : <http://localhost:8090/rdf4j/repositories/node_definitions#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix http-core: <http://www.w3.org/2006/http#> .
+@prefix http-headers: <http://www.w3.org/2008/http-headers#> .
+@prefix http-methods: <http://www.w3.org/2008/http-methods#> .
+@prefix strips: <http://www.ajan.de/behavior/strips-ns#> .
+@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+@prefix poser: <http://www.ajan.de/poser-ns#> .
+
+@prefix metagol: <http://www.ajan.de/behavior/metagol-ns#> .
+
+@prefix nd: <http://www.ajan.de/behavior/nd-ns#> .
+@prefix clingo: <http://www.ajan.de/behavior/clingo-ns#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
+@prefix actn: <http://www.ajan.de/actn#> .
+@prefix steer: <http://www.ajan.de/behavior/steer-ns#> .
+@prefix ml: <http://www.ajan.de/behavior/ml-ns#> .
+@prefix hybrit: <http://www.dfki.de/hybrit-ns#> .
+@prefix bt-mosim: <http://www.ajan.de/behavior/mosim-ns#> .
+@prefix bt-mqtt: <http://www.ajan.de/behavior/mqtt-ns#> .
+@prefix tcp: <http://www.ajan.de/behavior/tcp-ns#> .
+@prefix python: <http://www.ajan.de/behavior/python-ns#> .
+@prefix ws: <http://bla/ws#> .
+
+
+:Plan nd:class nd:Leaf;
+	nd:category "Reasoning Nodes";
+    nd:name "Action Planning";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultActionPlan";
+    nd:type strips:Problem;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#FFCCFF";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "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";
+    ];
+    nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:resetBehavior;
+		nd:input xsd:boolean;
+		nd:default "true"^^xsd:boolean;
+		nd:title "Reset Behavior";
+    ];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo strips:randomExecute;
+		nd:input xsd:boolean;
+		nd:default "true"^^xsd:boolean;
+		nd:title "Random Execute";
+    ];
+    nd:list [
+        a nd:List;
+        nd:mapsTo strips:actions;
+        nd:title "Actions";
+        nd:parameter [
+            a nd:Parameter;
+            nd:input xsd:anyURI ;
+            nd:title "Action";
+        ];
+    ];
+    nd:list [
+        a nd:List;
+        nd:mapsTo strips:goalStates;
+        nd:title "Goal States";
+        nd:parameter [
+            a nd:Parameter;
+			#nd:mapsTo rdf:first;
+            nd:input nd:Query;
+            bt:originBase "true";
+            bt:targetBase "false";
+            nd:title "Query";
+            nd:type bt:ConstructQuery;
+            nd:type strips:State;
+        ];
+    ];
+    nd:list [
+        a nd:List;
+        nd:mapsTo strips:initStates;
+        nd:title "Initial States";
+        nd:parameter [
+            a nd:Parameter;
+			#nd:mapsTo rdf:first;
+            nd:input nd:Query;
+            bt:originBase "true";
+            bt:targetBase "false";
+            nd:title "Query";
+            nd:type bt:ConstructQuery;
+            nd:type strips:State;
+        ];
+    ];
+    nd:parameterSet [
+        a nd:ParameterSet;
+        nd:mapsTo strips:config;
+        nd:title "StripsConfig";
+        nd:type strips:GraphPlanConfig;
+        nd:parameters ([
+            a nd:Parameter;
+            nd:mapsTo strips:allSolutions;
+            nd:input xsd:boolean;
+            nd:default "true"^^xsd:boolean;
+            nd:title "All Solutions";
+        ][
+            a nd:Parameter;
+            nd:mapsTo strips:maxLength;
+            nd:input xsd:int;
+            nd:default "0"^^xsd:int;
+            nd:title "Maximum Length";
+        ][
+            a nd:Parameter;
+            nd:mapsTo strips:maxLevels;
+            nd:input xsd:int;
+            nd:default "1"^^xsd:int;
+            nd:title "Maximum Levels";
+        ][
+            a nd:Parameter;
+            nd:mapsTo strips:timeout;
+            nd:input xsd:long;
+            nd:default "5000"^^xsd:long;
+            nd:title "Timeout";
+        ]);
+    ];
+.
+

@@ -101,6 +101,11 @@ MA 02110-1301  USA
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+            <version>0.15.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.badlogicgames.gdx</groupId>
             <artifactId>gdx-ai</artifactId>
             <version>1.8.2</version>
