@@ -115,20 +115,20 @@ public class AgentManager {
             String port = environment.getProperty("server.port");
             String host = InetAddress.getLoopbackAddress().getHostName();
 
-            LOG.info("HostCanonicalName: " + InetAddress.getLocalHost().getCanonicalHostName());
+            LOG.info("HostCanonicalName: {}", InetAddress.getLocalHost().getCanonicalHostName());
 
-            LOG.info("HostLocalAddress: " + InetAddress.getLocalHost().getHostAddress());
-            LOG.info("HostLocalName: " + InetAddress.getLocalHost().getHostName());
+            LOG.info("HostLocalAddress: {}", InetAddress.getLocalHost().getHostAddress());
+            LOG.info("HostLocalName: {}", InetAddress.getLocalHost().getHostName());
 
-            LOG.info("HostLoopbackAddress: " + InetAddress.getLoopbackAddress().getHostAddress());
-            LOG.info("HostLoopbackName: " + host);
+            LOG.info("HostLoopbackAddress: {}", InetAddress.getLoopbackAddress().getHostAddress());
+            LOG.info("HostLoopbackName: {}", host);
             URIBuilder builder = new URIBuilder();
             if (usePort) {
                 baseURI = builder.setScheme("http").setHost(publicHostName).setPort(Integer.parseInt(port)).setPath(PATH).build();
             } else {
                 baseURI = builder.setScheme("http").setHost(publicHostName).setPath(PATH).build();
             }
-            LOG.info("AJAN Base URI: " + baseURI);
+            LOG.info("AJAN Base URI: {}", baseURI);
         }
 
 	public Agent createAgent(final Model initAgentRDF) throws URISyntaxException {
@@ -143,11 +143,11 @@ public class AgentManager {
 		agentRDFBuilder.setBaseURI(baseURI);
 		agentRDFBuilder.setInitModel(initAgentsRDF);
 		agentRDFBuilder.setAgentResource(initAgentRsc);
-                Agent agent = agentRDFBuilder.build();
-                if (agent == null) {
-                    return null;
-                }
-                initiateAgent(agent);
+		Agent agent = agentRDFBuilder.build();
+		if (agent == null) {
+			return null;
+		}
+		initiateAgent(agent);
 		return agent;
 	}
 
@@ -167,8 +167,8 @@ public class AgentManager {
                 registerAgent(agent);
                 if (agent.getInitialBehavior() != null) {
                     BTRoot initialBT = agent.getInitialBehavior().getBehaviorTree();
-                    LOG.info("Start Initial Behavior: " + agent.getInitialBehavior().getName());
-                    new Thread(() -> initialBT.run()).start();
+                    LOG.info("Start Initial Behavior: {}", agent.getInitialBehavior().getName());
+                    new Thread(initialBT::run).start();
                 }
             }
         }
@@ -182,12 +182,10 @@ public class AgentManager {
             UriBuilder builder = UriBuilder.fromUri(baseURI)
 						.path(AgentsService.AGENT_PATH)
 						.resolveTemplate(AgentsService.NAME, agent.getId());
-            agent.getBehaviors().entrySet().stream().forEach((behavior) -> {
-                                behavior.getValue()
-					.getBehaviorTree()
-					.getObject()
-					.setUriGenerator(new AgentsService.UriGeneratorImpl(builder));
-            });
+            agent.getBehaviors().forEach((key, value) -> value
+                    .getBehaviorTree()
+                    .getObject()
+                    .setUriGenerator(new AgentsService.UriGeneratorImpl(builder)));
         }
 
 	public void addAgent(final Agent agent) {
