@@ -19,4 +19,6 @@ de.dfki.asr.ajan.functions.math.vector3d.Get_Vec3dDelta
 de.dfki.asr.ajan.functions.math.vector3d.Get_Vec3dScalarMultiply
 de.dfki.asr.ajan.functions.math.vector3d.Get_Vec3dDotProduct
 de.dfki.asr.ajan.functions.math.vector3d.Get_Vec3dCrossProduct
-de.dfki.asr.ajan.functions.math.test.Get_TestSeekVector
+de.dfki.asr.ajan.functions.math.steeringBehavior.Get_TestSeekVector
+
+de.dfki.asr.ajan.functions.encoding.Get_Base64

@@ -54,7 +54,7 @@ public class Get_Base64 implements Function {
 					"invalid argument (literal expected): " + arg);
 		}
 
-		String value = ((Literal) arg).getLabel();
+		String value = ((Literal) arg).stringValue();
 
 		return valueFactory.createLiteral(Base64.getEncoder().encodeToString(value.getBytes()));
 	}
