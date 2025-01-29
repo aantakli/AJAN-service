@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package de.dfki.asr.ajan.functions.math.test;
+package de.dfki.asr.ajan.functions.math.steeringBehavior;
 
 import de.dfki.asr.ajan.functions.math.utils.Vector3dUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
