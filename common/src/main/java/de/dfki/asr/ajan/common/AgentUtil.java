@@ -63,7 +63,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-@SuppressWarnings("PMD.ExcessiveImports")
+@SuppressWarnings({"PMD.ExcessiveImports", "PMD.CyclomaticComplexity", "PMD.ExcessiveParameterList"})
 public final class AgentUtil {
 
 	private static final ValueFactory VF = SimpleValueFactory.getInstance();
@@ -143,6 +143,11 @@ public final class AgentUtil {
 		builder.defaultGraph()
 			.subject(stmt.getSubject())
 			.add(stmt.getPredicate(), stmt.getObject());
+	}
+
+	public static boolean rdfMimeType(final String mimeType) throws IllegalArgumentException {
+		Optional<RDFFormat> fileFormatForMIMEType = RDFWriterRegistry.getInstance().getFileFormatForMIMEType(mimeType);
+		return !fileFormatForMIMEType.isPresent();
 	}
 
 	public static RDFFormat formatForMimeType(final String mimeType) throws IllegalArgumentException {

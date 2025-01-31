@@ -61,11 +61,15 @@ public class SyncMessage extends Message {
 	@Getter @Setter
 	private URI context;
 
+	@Getter @Setter
+	private boolean forceRDF;
+
 	@Override
 	public Status execute() {
 		super.setUrl(url);
 		super.setBinding(binding);
 		super.setQueryURI(queryURI);
+		super.setForceRDF(forceRDF);
 		return super.execute();
 	}
 

@@ -19,20 +19,14 @@
 
 package de.dfki.asr.ajan.behaviour.service.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.dfki.asr.ajan.behaviour.events.Event;
 import de.dfki.asr.ajan.behaviour.exception.AJANRequestException;
-import de.dfki.asr.ajan.common.AgentUtil;
-import static de.dfki.asr.ajan.common.AgentUtil.formatForMimeType;
-import de.dfki.asr.ajan.common.CSVInput;
-import java.io.ByteArrayInputStream;
+import de.dfki.asr.ajan.common.MimeUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +34,7 @@ import java.util.UUID;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -53,11 +48,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.rio.RDFParseException;
-import org.eclipse.rdf4j.rio.Rio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 @SuppressWarnings("PMD.ExcessiveImports")
@@ -73,6 +65,8 @@ public class HttpConnection implements IConnection {
 	private final UUID id;
 	@Getter
 	protected HttpBinding binding;
+	@Getter @Setter
+	protected boolean forceRDF;
 	protected int timeout = 5;
 	private final RequestConfig requestConfig = RequestConfig.custom()
 					.setConnectTimeout(timeout * 500)
@@ -166,18 +160,7 @@ public class HttpConnection implements IConnection {
 		String mimeType = getFormatFromResponse(response.getEntity());
 		InputStream content = response.getEntity().getContent();
 		MultivaluedMap mm = getReadHeaders(response.getAllHeaders());
-		if (mimeType == null) {
-			return createModelFromResponse(mm, content, "text/turtle");
-		} else if (mimeType.contains("application/json")) {
-			return createJsonFromResponse(mm, content);
-		} else if (mimeType.contains("application/xml") || mimeType.contains("text/xml")) {
-			return createXMLFromResponse(mm, content);
-		} else if (mimeType.contains("text/html")) {
-			return createHTMLFromResponse(mm, content);
-		} else if (mimeType.contains("text/csv")) {
-			return createCSVFromResponse(mm, content);
-		}
-		return createModelFromResponse(mm, content, mimeType);
+		return MimeUtil.encodeContent(BASE_URI, forceRDF, mm, content, mimeType);
 	}
 
 	private void checkExpectedMimeType(final String value) {
@@ -204,42 +187,6 @@ public class HttpConnection implements IConnection {
 			map.put(header.getName(), list);
 		}
 		return map;
-	}
-
-	private Model createModelFromResponse(final MultivaluedMap mm, final InputStream response, final String entityFormat) throws AJANRequestException {
-		String mime = entityFormat;
-		if (entityFormat.contains("charset")) {
-			mime = entityFormat.split(";")[0];
-		}
-		try {
-			Model model = Rio.parse(response, BASE_URI, formatForMimeType(mime));
-			return AgentUtil.setMessageInformation(model, mm);
-		} catch (IOException | IllegalArgumentException | RDFParseException ex) {
-			throw new AJANRequestException("Error while parsing " + mime + " based response into RDF graph.", ex);
-		}
-	}
-
-	private JsonNode createJsonFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		String text = new String(response.readAllBytes(), StandardCharsets.UTF_8);
-		LOG.info(text);
-		JsonNode input =  mapper.readTree(new ByteArrayInputStream(text.getBytes()));
-		return AgentUtil.setMessageInformation(input, mm);
-	}
-
-	private Document createXMLFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException, SAXException {
-		Document input = AgentUtil.getXMLFromStream(response);
-		return AgentUtil.setMessageInformation(input, mm);
-	}
-
-	private Document createHTMLFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException, SAXException {
-		Document input = AgentUtil.getHTMLFromStream(response);
-		return AgentUtil.setMessageInformation(input, mm);
-	}
-
-	private CSVInput createCSVFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException {
-		CSVInput input = AgentUtil.getCSVFromStream(response);
-		return AgentUtil.setMessageInformation(input, mm);
 	}
 
 	@Override

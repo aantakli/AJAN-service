@@ -59,10 +59,13 @@ public class QueryDomain extends SyncMessage {
 	@RDF("bt:queryUri")
 	@Getter @Setter
 	private BehaviorSelectQuery queryURI;
+	@Getter @Setter
+	private boolean forceRDF;
 	private Model domainResponse;
 
 	@Override
 	public Status execute() {
+		forceRDF = true;
 		HttpBinding bng = new HttpBinding();
 		try {
 			bng.setMethod(new URI(AJANVocabulary.HTTP_METHOD_GET.toString()));
@@ -70,6 +73,7 @@ public class QueryDomain extends SyncMessage {
 			super.setUrl(url);
 			super.setQueryURI(queryURI);
 			super.setBinding(bng);
+			super.setForceRDF(forceRDF);
 		} catch (URISyntaxException ex) {
 			Logger.getLogger(QueryDomain.class.getName()).log(Level.SEVERE, null, ex);
 		}
