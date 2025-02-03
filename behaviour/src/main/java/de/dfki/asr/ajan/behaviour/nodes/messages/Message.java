@@ -114,12 +114,12 @@ public class Message extends AbstractTDBLeafTask {
 
 	protected void prepareRequest() throws URISyntaxException, IOException, MessageEvaluationException {
 		String payload = null;
+		getRequest().setForceRDF(forceRDF);
 		if (getBinding().getPayload() != null) {
 			payload = getInput(getBinding());
 		}
 		if (payload != null) {
 			getRequest().setPayload(payload);
-			getRequest().setForceRDF(forceRDF);
 		}
 	}
 

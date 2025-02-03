@@ -80,7 +80,7 @@ public class RDFConsumer implements MessageBodyReader<Model> {
                 throw new WebApplicationException(response);
         }
         Model input = Rio.parse(in, TURTLE_BASE_URI, format.get());
-        return AgentUtil.setMessageInformation(input, mm);
+        return AgentUtil.setRequestMessageInformation(input, mm);
     }
 
 }

@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static de.dfki.asr.ajan.common.AgentUtil.formatForMimeType;
 import static de.dfki.asr.ajan.common.AgentUtil.rdfMimeType;
-import static de.dfki.asr.ajan.common.AgentUtil.setMessageInformation;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -36,6 +35,8 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.xml.sax.SAXException;
 import de.dfki.asr.ajan.common.exceptions.HttpResponseException;
 import java.io.ByteArrayInputStream;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -51,9 +52,7 @@ public final class MimeUtil {
 	}
 
 	public static Object encodeContent(final String BASE_URI, final boolean forceRDF, final MultivaluedMap mm, final InputStream content, final String mimeType) throws HttpResponseException, IOException, SAXException {
-		if (mimeType == null) {
-			return createModelFromResponse(BASE_URI, forceRDF, mm, content, "text/turtle");
-		} else if (forceRDF) {
+		if (forceRDF || mimeType == null) {
 			return createModelFromResponse(BASE_URI, forceRDF, mm, content, mimeType);
 		} else if (mimeType.contains("application/json")) {
 			return createJsonFromResponse(mm, content);
@@ -72,22 +71,22 @@ public final class MimeUtil {
 		String text = new String(response.readAllBytes(), StandardCharsets.UTF_8);
 		LOG.info(text);
 		JsonNode input =  mapper.readTree(new ByteArrayInputStream(text.getBytes()));
-		return setMessageInformation(input, mm);
+		return AgentUtil.setMessageInformation(input, mm);
 	}
 
 	public static Document createXMLFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException, SAXException {
 		Document input = AgentUtil.getXMLFromStream(response);
-		return setMessageInformation(input, mm);
+		return AgentUtil.setMessageInformation(input, mm);
 	}
 
 	public static Document createHTMLFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException, SAXException {
 		Document input = AgentUtil.getHTMLFromStream(response);
-		return setMessageInformation(input, mm);
+		return AgentUtil.setMessageInformation(input, mm);
 	}
 
 	public static CSVInput createCSVFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException {
 		CSVInput input = AgentUtil.getCSVFromStream(response);
-		return setMessageInformation(input, mm);
+		return AgentUtil.setMessageInformation(input, mm);
 	}
 
 	private static Model createModelFromResponse(final String BASE_URI, final boolean forceRDF, final MultivaluedMap mm, final InputStream response, final String entityFormat) throws HttpResponseException {
@@ -97,20 +96,27 @@ public final class MimeUtil {
 		}
 		if (forceRDF && !rdfMimeType(mime)) {
 			try {
-				Model model = new LinkedHashModel();
-				String content = new String(response.readAllBytes(), StandardCharsets.UTF_8);
-				model.add(VF.createIRI("http://www.w3.org/2011/http#Response"), VF.createIRI("http://www.w3.org/2011/http#body"), VF.createLiteral(content));
-				return setMessageInformation(model, mm);
+				return createModelFromRawInput(mm, response);
 			} catch (IOException ex) {
 				throw new HttpResponseException("Error while reading content.", ex);
 			}
 		} else {
 			try {
 				Model model = Rio.parse(response, BASE_URI, formatForMimeType(mime));
-				return setMessageInformation(model, mm);
+				return AgentUtil.setResponseMessageInformation(model, mm);
 			} catch (IllegalArgumentException | RDFParseException | IOException ex) {
 				throw new HttpResponseException("Error while parsing " + mime + " based response into RDF graph.", ex);
 			}
 		}
 	}
+
+	private static Model createModelFromRawInput(final MultivaluedMap mm, final InputStream response) throws IOException {
+		Model model = new LinkedHashModel();
+		BNode subject = VF.createBNode();
+		String content = new String(response.readAllBytes(), StandardCharsets.UTF_8);
+		model.add(subject, RDF.TYPE, VF.createIRI("http://www.w3.org/2011/content#ContentAsText"));
+		model.add(subject, VF.createIRI("http://www.w3.org/2011/content#chars"), VF.createLiteral(content));
+		return AgentUtil.setResponseMessageInformation(model, mm);
+	}
 }
+

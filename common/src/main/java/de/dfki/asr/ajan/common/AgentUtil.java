@@ -32,6 +32,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -41,13 +42,14 @@ import org.apache.commons.validator.UrlValidator;
 import org.apache.xerces.dom.DocumentImpl;
 import org.apache.xerces.parsers.DOMParser;
 import org.eclipse.rdf4j.model.BNode;
-import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
+import org.eclipse.rdf4j.model.util.RDFCollections;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.query.GraphQueryResult;
 import org.eclipse.rdf4j.rio.RDFFormat;
@@ -145,9 +147,13 @@ public final class AgentUtil {
 			.add(stmt.getPredicate(), stmt.getObject());
 	}
 
-	public static boolean rdfMimeType(final String mimeType) throws IllegalArgumentException {
-		Optional<RDFFormat> fileFormatForMIMEType = RDFWriterRegistry.getInstance().getFileFormatForMIMEType(mimeType);
-		return !fileFormatForMIMEType.isPresent();
+	public static boolean rdfMimeType(final String mimeType) {
+		try {
+			Optional<RDFFormat> fileFormatForMIMEType = RDFWriterRegistry.getInstance().getFileFormatForMIMEType(mimeType);
+			return fileFormatForMIMEType.isPresent();
+		} catch (IllegalArgumentException ex) {
+			return false;
+		}
 	}
 
 	public static RDFFormat formatForMimeType(final String mimeType) throws IllegalArgumentException {
@@ -169,18 +175,49 @@ public final class AgentUtil {
 		return subject;
 	}
 
-	public static Model setMessageInformation(final Model input, final MultivaluedMap<String, String> mm) {
-		BNode subject = VF.createBNode();
-		IRI type = VF.createIRI("http://www.ajan.de/ajan-ns#RequestInformation");
-		input.add(subject, RDF.TYPE, type);
+	public static Model setResponseMessageInformation(final Model input, final MultivaluedMap<String, String> mm) {
+		BNode resSubj = VF.createBNode();
+		input.add(resSubj, RDF.TYPE, VF.createIRI("http://www.w3.org/2011/http#Response"));
+		return setMessageInformation(resSubj, input, mm);
+	}
+
+	public static Model setRequestMessageInformation(final Model input, final MultivaluedMap<String, String> mm) {
+		BNode reqSubj = VF.createBNode();
+		input.add(reqSubj, RDF.TYPE, VF.createIRI("http://www.w3.org/2011/http#Request"));
+		return setMessageInformation(reqSubj, input, mm);
+	}
+
+	private static Model setMessageInformation(final Resource subject, final Model input, final MultivaluedMap<String, String> mm) {
 		input.add(subject, VF.createIRI("https://www.w3.org/TR/owl-time/inXSDDateTimeStamp"), VF.createLiteral(OffsetDateTime.now(ZoneOffset.UTC).toString()));
-		for (Map.Entry<String, List<String>> entry: mm.entrySet()) {
-			IRI entryPred = VF.createIRI("http://www.ajan.de/generated-ns#has_" + entry.getKey());
-			for (String value: entry.getValue()) {
-				input.add(subject, entryPred, VF.createLiteral(value));
-			}
+		input.addAll(setBodyInformation(subject, input));
+		if (!mm.isEmpty()) {
+			addHeaders(subject, input, mm);
 		}
 		return input;
+	}
+
+	private static Model setBodyInformation(final Resource subject, final Model input) {
+		Model body = new LinkedHashModel();
+		for (Statement stmt: input) {
+			body.add(subject, VF.createIRI("http://www.w3.org/2011/http#body"), stmt.getSubject());
+		}
+		return body;
+	}
+
+	private static void addHeaders(final Resource subject, final Model input, final MultivaluedMap<String, String> mm) {
+		BNode headers = VF.createBNode();
+		input.add(subject, VF.createIRI("http://www.w3.org/2011/http#headers"), headers);
+		List<Resource> headersColl = new ArrayList();
+		for (Map.Entry<String, List<String>> entry: mm.entrySet()) {
+			BNode responseHeader = VF.createBNode();
+			headersColl.add(responseHeader);
+			input.add(responseHeader, RDF.TYPE, VF.createIRI("http://www.w3.org/2011/http#MessageHeader"));
+			input.add(responseHeader, VF.createIRI("http://www.w3.org/2011/http#fieldName"), VF.createLiteral(entry.getKey()));
+			for (String value: entry.getValue()) {
+				input.add(responseHeader, VF.createIRI("http://www.w3.org/2011/http#fieldValue"), VF.createLiteral(value));
+			}
+		}
+		input.addAll(RDFCollections.asRDF(headersColl, headers, input));
 	}
 
 	public static JsonNode setMessageInformation(final JsonNode input, final MultivaluedMap<String, String> mm) {
