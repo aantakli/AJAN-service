@@ -84,7 +84,7 @@ public class QueryDomain extends SyncMessage {
 		List list = new ArrayList();
 		HttpHeader accept = new HttpHeader();
 		accept.setHeaderName(new URI(AJANVocabulary.HTTP_HEADER_ACCEPT.toString()));
-		accept.setHeaderValue("text/turtle,application/ld+json,application/rdf+xml,application/n-quads");
+		accept.setHeaderValue("text/turtle,application/ld+json,application/rdf+xml,application/n-quads,application/json");
 		list.add(accept);
 		return list;
 	}
