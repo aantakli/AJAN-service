@@ -132,7 +132,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 	private File getPython() {
 		String OS = System.getProperty("os.name").toLowerCase();
 		if (isWindows(OS))
-			return new File(getClass().getClassLoader().getResource("win_venv/Scripts/python.exe").getFile());
+			return new File(getClass().getClassLoader().getResource("win_venv/python/python.exe").getFile());
 		else if (isUnix(OS))
 			return new File(getClass().getClassLoader().getResource("nix_venv/bin/python").getFile());
 		else return null;
