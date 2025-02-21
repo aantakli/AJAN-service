@@ -1,0 +1,102 @@
+Metadata-Version: 2.3
+Name: harfile
+Version: 0.3.0
+Summary: Writer for HTTP Archive (HAR) files
+Project-URL: Changelog, https://github.com/schemathesis/harfile/blob/main/CHANGELOG.md
+Project-URL: Bug Tracker, https://github.com/schemathesis/harfile
+Project-URL: Funding, https://github.com/sponsors/Stranger6667
+Project-URL: Source Code, https://github.com/schemathesis/harfile
+Author-email: Dmitry Dygalo <dmitry@dygalo.dev>
+Maintainer-email: Dmitry Dygalo <dmitry@dygalo.dev>
+License-Expression: MIT
+License-File: LICENSE
+Keywords: har,http,testing
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Topic :: Software Development :: Testing
+Requires-Python: >=3.8
+Provides-Extra: bench
+Requires-Dist: pytest-codspeed==2.2.1; extra == 'bench'
+Provides-Extra: cov
+Requires-Dist: coverage-enable-subprocess; extra == 'cov'
+Requires-Dist: coverage[toml]>=7; extra == 'cov'
+Provides-Extra: dev
+Requires-Dist: coverage-enable-subprocess; extra == 'dev'
+Requires-Dist: coverage>=7; extra == 'dev'
+Requires-Dist: coverage[toml]>=7; extra == 'dev'
+Requires-Dist: hypothesis-jsonschema>=0.23.1; extra == 'dev'
+Requires-Dist: hypothesis>=6; extra == 'dev'
+Requires-Dist: jsonschema>=4.18.0; extra == 'dev'
+Requires-Dist: pytest-codspeed==2.2.1; extra == 'dev'
+Requires-Dist: pytest<8,>=6.2.0; extra == 'dev'
+Provides-Extra: tests
+Requires-Dist: coverage>=7; extra == 'tests'
+Requires-Dist: hypothesis-jsonschema>=0.23.1; extra == 'tests'
+Requires-Dist: hypothesis>=6; extra == 'tests'
+Requires-Dist: jsonschema>=4.18.0; extra == 'tests'
+Requires-Dist: pytest<8,>=6.2.0; extra == 'tests'
+Description-Content-Type: text/markdown
+
+# harfile
+
+[![CI](https://github.com/schemathesis/harfile/actions/workflows/ci.yml/badge.svg)](https://github.com/schemathesis/harfile/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/schemathesis/harfile/branch/main/graph/badge.svg)](https://codecov.io/gh/schemathesis/harfile/branch/main)
+[![Version](https://img.shields.io/pypi/v/harfile.svg)](https://pypi.org/project/harfile/)
+[![Python versions](https://img.shields.io/pypi/pyversions/harfile.svg)](https://pypi.org/project/harfile/)
+[![License](https://img.shields.io/pypi/l/harfile.svg)](https://opensource.org/licenses/MIT)
+
+This package provides zero dependency writer for building HAR (HTTP Archive) files in Python.
+
+**NOTES**: 
+
+- The writer assumes single-threaded
+- Pages are not supported
+
+## Usage
+
+```python
+import datetime
+import io
+
+import harfile
+
+
+# Write to a file
+with harfile.open("filename.har") as har:
+    har.add_entry(
+        startedDateTime=datetime.datetime.now(datetime.timezone.utc),
+        time=42,
+        request=harfile.Request(
+            method="GET",
+            url="http://example.com",
+            httpVersion="HTTP/1.1",
+        ),
+        response=harfile.Response(
+            status=200,
+            status_text="OK",
+            httpVersion="HTTP/1.1",
+        ),
+    )
+
+
+# Write to a string buffer
+buffer = io.StringIO()
+with harfile.open(buffer) as har:
+    pass
+
+```
+
+## License
+
+The code in this project is licensed under [MIT license](https://opensource.org/licenses/MIT).
+By contributing to `harfile`, you agree that your contributions will be licensed under its MIT license.
