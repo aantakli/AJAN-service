@@ -81,6 +81,8 @@ public class Message extends AbstractTDBLeafTask {
 	protected String requestURI;
 	@Getter @Setter
 	protected HttpConnection request;
+	@Getter @Setter
+	private boolean forceRDF;
 
 	@Override
 	public Resource getType() {
@@ -112,6 +114,7 @@ public class Message extends AbstractTDBLeafTask {
 
 	protected void prepareRequest() throws URISyntaxException, IOException, MessageEvaluationException {
 		String payload = null;
+		getRequest().setForceRDF(forceRDF);
 		if (getBinding().getPayload() != null) {
 			payload = getInput(getBinding());
 		}

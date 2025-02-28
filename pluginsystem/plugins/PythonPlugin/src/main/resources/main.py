@@ -17,7 +17,7 @@ def runLeafNode(input: rdflib.Graph):
     print(result.status)
     print(result.label)
     print('RDF--------')
-    print(result.rdf_output.serialize(format="turtle"))
+    print(result.rdf_output)
     print('--------RDF')
 
 def rewriteQuotes(input):
