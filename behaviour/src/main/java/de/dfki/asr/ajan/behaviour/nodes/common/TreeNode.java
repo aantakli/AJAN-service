@@ -33,7 +33,7 @@ public interface TreeNode {
 	Resource getType();
 	String getLabel();
 
-	void evaluate(final EvaluationResult result);
+	void simulate(final SimulationResult result);
 
 	Model getModel(Model model, BTRoot root, ModelMode mode);
 }

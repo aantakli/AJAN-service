@@ -187,7 +187,7 @@ public final class BTUtil {
 
 	public static Resource setBasicEvaluationResult(final Model stmts, final String url) {
 		Resource root = VF.createBNode();
-		stmts.add(root, RDF.TYPE, BTVocabulary.EVALUATION_RESULT);
+		stmts.add(root, RDF.TYPE, BTVocabulary.SIMULATION_RESULT);
 		stmts.add(root, BTVocabulary.BT_NODE, VF.createIRI(url));
 		return root;
 	}

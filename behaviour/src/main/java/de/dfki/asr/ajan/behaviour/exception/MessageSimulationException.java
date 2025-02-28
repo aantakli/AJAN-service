@@ -19,16 +19,16 @@
 
 package de.dfki.asr.ajan.behaviour.exception;
 
-public class ConditionEvaluationException extends Exception {
-	public ConditionEvaluationException(final String message) {
+public class MessageSimulationException extends Exception {
+	public MessageSimulationException(final String message) {
 		super(message);
 	}
 
-	public ConditionEvaluationException(final String message, final Throwable cause) {
+	public MessageSimulationException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 
-	public ConditionEvaluationException(final Throwable cause) {
+	public MessageSimulationException(final Throwable cause) {
 		super(cause);
 	}
 }

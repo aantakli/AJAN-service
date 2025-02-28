@@ -20,6 +20,7 @@
 @RDFNamespaces({"ajan = http://www.ajan.de/ajan-ns#",
 				"bt = http://www.ajan.de/behavior/bt-ns#",
 				"asp = http://www.ajan.de/behavior/asp-ns#",
+				"ilp = http://www.ajan.de/behavior/ilp-ns#",
 				"clingo = http://www.ajan.de/behavior/clingo-ns#",
 				"rdfs = http://www.w3.org/2000/01/rdf-schema#"})
 

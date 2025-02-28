@@ -20,8 +20,8 @@
 package de.dfki.asr.ajan.behaviour.nodes;
 
 import de.dfki.asr.ajan.behaviour.nodes.common.*;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Direction;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Direction;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Result;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.common.AgentUtil;
@@ -38,8 +38,8 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.repository.Repository;
 
-@RDFBean("bt:Evaluate")
-public class Evaluate extends AbstractTDBLeafTask {
+@RDFBean("bt:Simulate")
+public class Simulate extends AbstractTDBLeafTask {
 	@Getter @Setter
 	@RDFSubject
 	private String url;
@@ -62,7 +62,7 @@ public class Evaluate extends AbstractTDBLeafTask {
 
 	@Override
 	public Resource getType() {
-		return BTVocabulary.EVALUATE;
+		return BTVocabulary.SIMULATE;
 	}
 
 	@Override
@@ -98,9 +98,9 @@ public class Evaluate extends AbstractTDBLeafTask {
 			Repository origin = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
 			init = AgentUtil.mergeModels(init, query.getResult(origin), null);
 		}
-		EvaluationResult result = new EvaluationResult(init, this.getObject());
-		evaluate(result);
-		((TreeNode)control).evaluate(result.setDirection(Direction.Up));
+		SimulationResult result = new SimulationResult(init, this.getObject());
+		simulate(result);
+		((TreeNode)control).simulate(result.setDirection(Direction.Up));
 		Model model = AgentUtil.setNamedGraph(result.getEvaluationModel(), context);
 		writeToTarget(model);
 	}
@@ -115,11 +115,11 @@ public class Evaluate extends AbstractTDBLeafTask {
 
 	@Override
 	public String toString() {
-		return "Evalaute (" + label + ")";
+		return "Simulate (" + label + ")";
 	}
 
 	@Override
-	public Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
+	public Result simulateNodeLogic(final SimulationResult result, final Resource root) {
 		return Result.SUCCESS;
 	}
 

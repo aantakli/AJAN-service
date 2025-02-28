@@ -24,7 +24,7 @@ import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
@@ -167,8 +167,8 @@ public class HandleMappingEvent extends AbstractTDBLeafTask implements NodeExten
     }
 
     @Override
-    public EvaluationResult.Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
-        return EvaluationResult.Result.UNCLEAR;
+    public SimulationResult.Result simulateNodeLogic(final SimulationResult result, final Resource root) {
+        return SimulationResult.Result.UNCLEAR;
     }
 
     @Override

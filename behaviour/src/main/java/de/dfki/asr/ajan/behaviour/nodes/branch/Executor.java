@@ -21,11 +21,11 @@ package de.dfki.asr.ajan.behaviour.nodes.branch;
 
 import com.badlogic.gdx.ai.btree.Task;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
-import de.dfki.asr.ajan.behaviour.exception.SelectEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.SelectSimulationException;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBBranchTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Direction;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Direction;
 import de.dfki.asr.ajan.behaviour.nodes.common.TreeNode;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -102,7 +102,7 @@ public class Executor extends AbstractTDBBranchTask {
 			} else {
 				runningChild.run();
 			}
-		} catch (SelectEvaluationException ex) {
+		} catch (SelectSimulationException ex) {
 			LOG.info(ex.toString());
 			fail();
 		}
@@ -152,18 +152,18 @@ public class Executor extends AbstractTDBBranchTask {
 	}
 
 	@Override
-	public void evaluate(final EvaluationResult result) {
-		EvaluationResult.Direction direction = result.getDirection();
-		if (direction.equals(EvaluationResult.Direction.Up)) {
-			((TreeNode)control).evaluate(result);
+	public void simulate(final SimulationResult result) {
+		SimulationResult.Direction direction = result.getDirection();
+		if (direction.equals(SimulationResult.Direction.Up)) {
+			((TreeNode)control).simulate(result);
 		} else {
 			try {
 				Repository evalRepo = result.getRepo().initialize();
 				int child = selectedChild.getIntValue(evalRepo).get(0);
-				((TreeNode)this.getChild(child)).evaluate(result.setDirection(Direction.Down));
-			} catch (SelectEvaluationException ex) {
+				((TreeNode)this.getChild(child)).simulate(result.setDirection(Direction.Down));
+			} catch (SelectSimulationException ex) {
 				LOG.error("Problems with the Select Query", ex);
-				result.setChildResult(EvaluationResult.Result.FAIL);
+				result.setChildResult(SimulationResult.Result.FAIL);
 			}
 		}
 	}

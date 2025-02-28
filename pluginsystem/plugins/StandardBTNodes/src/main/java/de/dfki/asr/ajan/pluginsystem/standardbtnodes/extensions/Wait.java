@@ -20,12 +20,10 @@
 package de.dfki.asr.ajan.pluginsystem.standardbtnodes.extensions;
 
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
-import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.pluginsystem.standardbtnodes.exceptions.BeliefBaseUpdateException;
 import de.dfki.asr.ajan.pluginsystem.standardbtnodes.vocabularies.StandardBTVocabulary;
@@ -132,7 +130,7 @@ public class Wait extends AbstractTDBLeafTask implements NodeExtension {
 	}
 
 	@Override
-	public Result simulateNodeLogic(EvaluationResult result, Resource root) {
-		return Result.SUCCESS;
+	public SimulationResult.Result simulateNodeLogic(SimulationResult result, Resource root) {
+		return SimulationResult.Result.SUCCESS;
 	}
 }

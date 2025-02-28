@@ -24,7 +24,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.TreeNode;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.pluginsystem.standardbtnodes.vocabularies.StandardBTVocabulary;
 import lombok.Getter;
@@ -56,8 +56,8 @@ public class Fail extends AbstractTDBLeafTask implements NodeExtension, TreeNode
     }
 
     @Override
-    public EvaluationResult.Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
-        return EvaluationResult.Result.FAIL;
+    public SimulationResult.Result simulateNodeLogic(final SimulationResult result, final Resource root) {
+        return SimulationResult.Result.FAIL;
     }
 
     @Override

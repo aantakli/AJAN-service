@@ -23,8 +23,8 @@ import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorQuery;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Result;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -135,7 +135,7 @@ public class Update extends AbstractTDBLeafTask {
 	}
 
 	@Override
-	public Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
+	public Result simulateNodeLogic(final SimulationResult result, final Resource root) {
 		if (performUpdateLogic(result.getRepo().initialize())) {
 			return Result.SUCCESS;
 		} else {

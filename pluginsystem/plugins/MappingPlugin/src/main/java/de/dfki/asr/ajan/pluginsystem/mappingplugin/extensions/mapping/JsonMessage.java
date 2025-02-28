@@ -20,7 +20,7 @@ package de.dfki.asr.ajan.pluginsystem.mappingplugin.extensions.mapping;
 
 import com.badlogic.gdx.ai.btree.Task;
 import de.dfki.asr.ajan.behaviour.exception.AJANRequestException;
-import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.MessageSimulationException;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.messages.Message;
@@ -113,7 +113,7 @@ public class JsonMessage extends Message implements NodeExtension {
 				return new NodeStatus(Task.Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to malformed response model");
 			}
 			return new NodeStatus(Task.Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
-		} catch (IOException | URISyntaxException | MessageEvaluationException | InputMappingException | SAXException ex) {
+		} catch (IOException | URISyntaxException | MessageSimulationException | InputMappingException | SAXException ex) {
 			return new NodeStatus(Task.Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to query evaluation error", ex);
 		} catch (AJANRequestException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to wrong content-type in response. Expecting RDF-based content!");

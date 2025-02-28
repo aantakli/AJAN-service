@@ -24,7 +24,7 @@ import com.badlogic.gdx.ai.btree.Task;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.TreeNode;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.standardbtnodes.vocabularies.StandardBTVocabulary;
@@ -69,7 +69,7 @@ public class Inverter extends Invert<AgentTaskInformation> implements NodeExtens
 	}
 
 	@Override
-	public void evaluate(final EvaluationResult result) {
+	public void simulate(final SimulationResult result) {
 		// no body needed here
 	}
 

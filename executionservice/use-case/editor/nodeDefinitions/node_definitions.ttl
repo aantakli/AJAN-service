@@ -1,0 +1,2400 @@
+@prefix : <http://localhost:8090/rdf4j/repositories/node_definitions#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix http-core: <http://www.w3.org/2006/http#> .
+@prefix http-headers: <http://www.w3.org/2008/http-headers#> .
+@prefix http-methods: <http://www.w3.org/2008/http-methods#> .
+@prefix strips: <http://www.ajan.de/behavior/strips-ns#> .
+@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+@prefix poser: <http://www.ajan.de/poser-ns#> .
+
+@prefix metagol: <http://www.ajan.de/behavior/metagol-ns#> .
+
+@prefix nd: <http://www.ajan.de/behavior/nd-ns#> .
+@prefix clingo: <http://www.ajan.de/behavior/clingo-ns#> .
+@prefix ajan: <http://www.ajan.de/ajan-ns#> .
+@prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
+@prefix actn: <http://www.ajan.de/actn#> .
+@prefix steer: <http://www.ajan.de/behavior/steer-ns#> .
+@prefix ml: <http://www.ajan.de/behavior/ml-ns#> .
+@prefix hybrit: <http://www.dfki.de/hybrit-ns#> .
+@prefix bt-mosim: <http://www.ajan.de/behavior/mosim-ns#> .
+@prefix bt-mqtt: <http://www.ajan.de/behavior/mqtt-ns#> .
+@prefix tcp: <http://www.ajan.de/behavior/tcp-ns#> .
+@prefix python: <http://www.ajan.de/behavior/python-ns#> .
+@prefix ws: <http://bla/ws#> .
+
+
+# --------------------------------------------
+# ------------------ Default -----------------
+# --------------------------------------------
+
+:Root nd:class nd:Root;
+    nd:name "Tree";
+    nd:labelType nd:Fixed;
+    rdfs:label "\u2205";
+    nd:type bt:Root;
+    nd:style [
+        a nd:styleDef;
+        nd:color "#FFE1DB";
+        nd:shape nd:Ellipse;
+    ] .
+
+:BehaviorTree nd:class nd:BehaviorTree;
+    nd:name "BehaviorTree";
+    nd:labelType nd:Dynamic;
+    rdfs:label "BehaviorTree";
+    nd:type bt:BehaviorTree;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#EA5B97";
+        nd:shape nd:Rectangle;
+        nd:padding "600%";
+        nd:paddingTo "width";
+        nd:icon "icons8-tree-structure.png";
+    ] .
+
+
+
+# --------------------------------------------
+# ---------------- Composites ----------------
+# --------------------------------------------
+
+:Executor nd:class nd:Composite;
+    nd:name "Executor";
+    nd:labelType nd:Fixed;
+    rdfs:label "!";
+    nd:type bt:Executor;
+    nd:style [
+        a nd:styleDef;
+        nd:color "#FFFFFF";
+        nd:shape nd:Hexagon;
+        nd:padding "600%";
+        nd:paddingTo "width";
+    ] ;
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:sequence;
+		nd:title "Sequence";
+		nd:input xsd:boolean ;
+		nd:default "true"^^xsd:boolean;
+	] ;
+    nd:parameterSet [
+		a nd:ParameterSet;
+		nd:mapsTo bt:selectChild ;
+		nd:title "Select Child";
+		nd:type bt:IntValue;
+		nd:parameters ([
+				a nd:Parameter;
+				nd:mapsTo bt:intValue;
+				nd:title "Value";
+				nd:input xsd:int ;
+				nd:default "1"^^xsd:int;
+			][
+				a nd:Parameter;
+				nd:input nd:Query;
+				nd:mapsTo bt:query;
+				nd:title "Select Query";
+				bt:originBase "true";
+				bt:targetBase "false";
+				nd:type bt:SelectQuery;
+			]
+		)
+    ] .
+
+:Sequence nd:class nd:Composite;
+    nd:name "Sequence";
+    nd:labelType nd:Fixed;
+    rdfs:label "\u2B62";
+    nd:type bt:Sequence;
+    nd:style [
+        a nd:styleDef;
+        nd:color "#FFFFFF";
+        nd:shape nd:Hexagon;
+        nd:padding "600%";
+        nd:paddingTo "width";
+    ] .
+
+:Priority nd:class nd:Composite;
+    nd:name "Priority";
+    nd:labelType nd:Fixed;
+    rdfs:label "?";
+    nd:type bt:Priority;
+    nd:style [
+        a nd:styleDef;
+        nd:color "#FFFFFF";
+        nd:shape nd:Hexagon;
+        nd:padding "600%";
+        nd:paddingTo "width";
+    ] .
+
+:Parallel nd:class nd:Composite;
+    nd:name "Parallel";
+    nd:labelType nd:Fixed;
+    rdfs:label "\u21C9";
+    nd:type bt:Parallel;
+    nd:style [
+        a nd:styleDef;
+        nd:color "#FFFFFF";
+        nd:shape nd:Hexagon;
+        nd:padding "600%";
+        nd:paddingTo "width";
+    ] ;
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:join;
+		nd:title "Join";
+		nd:input xsd:boolean ;
+		nd:default "true"^^xsd:boolean;
+	] .
+
+:PrioParallel nd:class nd:Composite;
+    nd:name "PrioParallel";
+    nd:labelType nd:Fixed;
+    rdfs:label "?\u21C9";
+    nd:type bt:PrioParallel;
+    nd:style [
+        a nd:styleDef;
+        nd:color "#FFFFFF";
+        nd:shape nd:Hexagon;
+        nd:padding "600%";
+        nd:paddingTo "width";
+    ] ;
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:join;
+		nd:title "Join";
+		nd:input xsd:boolean ;
+		nd:default "true"^^xsd:boolean;
+	] .
+
+
+
+# --------------------------------------------
+# ---------------- Decorators ----------------
+# --------------------------------------------
+
+:Repeater nd:class nd:Decorator;
+    nd:name "Repeater";
+    nd:labelType nd:Fixed;
+    rdfs:label "\u27F3";
+    nd:type bt:Repeater;
+    nd:style [
+        a nd:styleDef;
+        nd:color "#ede8ff";
+        nd:shape nd:Diamond;
+        nd:padding "600%";
+        nd:paddingTo "width";
+    ] ;
+	nd:parameterSet [
+		a nd:ParameterSet;
+		nd:mapsTo bt:setTimes ;
+		nd:title "Set Times";
+		nd:type bt:IntValue;
+		nd:parameters ([
+				a nd:Parameter;
+				nd:mapsTo bt:intValue;
+				nd:title "Value";
+				nd:input xsd:int ;
+				nd:default "1"^^xsd:int;
+			][
+				a nd:Parameter;
+				nd:mapsTo bt:query;
+				nd:type bt:SelectQuery;
+				nd:title "Select Query: ?intValue";
+				nd:input nd:Query;
+				nd:optional "true";
+				bt:originBase "true";
+				bt:targetBase "false";
+			]
+		)
+	] .
+
+:Inverter nd:class nd:Decorator;
+    nd:name "Inverter";
+    nd:labelType nd:Fixed;
+    rdfs:label "\u2755";
+    nd:type bt:Invert;
+    nd:style [
+        a nd:styleDef;
+        nd:color "#ede8ff";
+        nd:shape nd:Diamond;
+        nd:padding "600%";
+        nd:paddingTo "width";
+    ] .
+
+:UntilFail nd:class nd:Decorator;
+    nd:name "UntilFail";
+    nd:labelType nd:Fixed;
+    rdfs:label "\u27F3";
+    nd:type bt:UntilFail;
+    nd:style [
+        a nd:styleDef;
+        nd:color "#ede8ff";
+        nd:labelColor "#C40000";
+        nd:shape nd:Diamond;
+        nd:padding "600%";
+        nd:paddingTo "width";
+    ] .
+
+:UntilSuccess nd:class nd:Decorator;
+    nd:name "UntilSuccess";
+    nd:labelType nd:Fixed;
+    rdfs:label "\u27F3";
+    nd:type bt:UntilSuccess;
+    nd:style [
+        a nd:styleDef;
+        nd:color "#ede8ff";
+        nd:labelColor "#00BF00";
+        nd:shape nd:Diamond;
+        nd:padding "600%";
+        nd:paddingTo "width";
+    ] .
+
+:IsSucceeding nd:class nd:Decorator;
+    nd:name "IsSucceeding";
+    nd:labelType nd:Fixed;
+    rdfs:label "\u2713";
+    nd:type bt:IsSucceeding;
+    nd:style [
+        a nd:styleDef;
+        nd:color "#ede8ff";
+        nd:labelColor "#00BF00";
+        nd:shape nd:Diamond;
+        nd:padding "600%";
+        nd:paddingTo "width";
+    ] .
+
+:IsFailing nd:class nd:Decorator;
+    nd:name "IsFailing";
+    nd:labelType nd:Fixed;
+    rdfs:label "X";
+    nd:type bt:IsFailing;
+    nd:style [
+        a nd:styleDef;
+        nd:color "#ede8ff";
+        nd:labelColor "#C40000";
+        nd:shape nd:Diamond;
+        nd:padding "600%";
+        nd:paddingTo "width";
+    ] .
+
+
+
+# --------------------------------------------
+# ------------------- Leafs ------------------
+# --------------------------------------------
+
+:Success nd:class nd:Leaf;
+	nd:name "Success";
+    nd:labelType nd:Dynamic;
+    rdfs:label "Success";
+    nd:type bt:Success;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#00BF00";
+        nd:shape nd:Polygon;
+        nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "icons8-success.png";
+    ]
+.
+
+:Fail nd:class nd:Leaf;
+	nd:name "Fail";
+    nd:labelType nd:Dynamic;
+    rdfs:label "Fail";
+    nd:type bt:Fail;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#C40000";
+        nd:shape nd:Polygon;
+        nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "icons8-fail.png";
+    ]
+.
+
+:Breakpoint nd:class nd:Leaf;
+	nd:name "Breakpoint" ;
+    nd:labelType nd:Fixed ;
+	rdfs:label "\u25A0";
+    nd:type bt:Breakpoint ;
+    nd:style [
+        a nd:styleDef ;
+        nd:color "#C40000" ;
+        nd:shape nd:Ellipse ;
+    ]
+.
+
+:Action nd:class nd:Leaf;
+    nd:name "Action";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultAction";
+    nd:type bt:Action;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#FFF176";
+        nd:shape nd:Polygon;
+        nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "icons8-action.png";
+    ];
+    nd:list [
+        a nd:List;
+        nd:mapsTo bt:inputs;
+        nd:title "Action Inputs";
+        nd:parameter [
+            a nd:Parameter;
+            nd:input nd:Query;
+            bt:originBase "true";
+            bt:targetBase "false";
+            nd:title "Construct Query";
+            nd:type bt:ConstructQuery;
+            nd:type bt:Input;
+        ];
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt:definition;
+        nd:input nd:ACTNDef;
+        nd:title "Definition";
+    ];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:targetBase;
+		nd:title "Target Base";
+		nd:input nd:Repo ;
+	] ;
+	nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt:evaluate;
+        nd:input xsd:boolean;
+        nd:default "true"^^xsd:boolean;
+        nd:title "Evaluate IO";
+    ];
+.
+
+:Condition nd:class nd:Leaf;
+    nd:name "Condition";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultCondition";
+    nd:type bt:Condition;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#81B7E4";
+        nd:shape nd:Ellipse;
+        nd:padding "900%";
+        nd:paddingTo "width";
+        nd:icon "icons8-ask-question-100.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt:query;
+        nd:title "Ask Query";
+		nd:input nd:Query;
+		nd:default "ASK WHERE {?s ?p ?o}\n"^^xsd:string;
+		bt:originBase "true";
+		bt:targetBase "false";
+		nd:type bt:AskQuery;
+    ]
+.
+
+:LoadBehavior nd:class nd:Leaf;
+	nd:name "Load Behavior";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultLoadBehavior";
+    nd:type bt:LoadBehavior;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#F5A399";
+        nd:shape nd:Rectangle;
+        nd:padding "900%";
+        nd:paddingTo "width";
+        nd:icon "icons8-tree-loadbt.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt:resetBehavior;
+        nd:input xsd:boolean;
+        nd:default "true"^^xsd:boolean;
+        nd:title "Reset Behavior";
+    ];
+	nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt:behaviorUri;
+        nd:title "Select Query: ?behaviorURI";
+		nd:default """SELECT ?behaviorURI WHERE {VALUES ?behaviorURI {"http://"}}"""^^xsd:string;
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:BehaviorUri;
+        nd:type bt:SelectQuery;
+    ]
+.
+
+:Message nd:class nd:Leaf;
+	nd:category "Message Nodes";
+	nd:name "Message";
+	nd:labelType nd:Dynamic;
+	rdfs:label "DefaultMessage";
+	nd:type bt:Message;
+	nd:style [
+        a nd:StyleDef;
+        nd:color "#fccafa";
+        nd:shape nd:Polygon;
+        nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "icons8-new-post.png";
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt:targetBase;
+	    nd:title "Target Base";
+	    nd:input nd:Repo;
+    ];
+    nd:parameterSet [
+        a nd:ParameterSet;
+        nd:mapsTo bt:binding;
+        nd:type http-core:Request;
+        nd:title "Binding Configuration";
+        nd:parameters ([
+	        a nd:Parameter;
+	        nd:mapsTo http-core:httpVersion;
+	        nd:title "HTTP Version";
+	        nd:default "1.1"^^xsd:string;
+	        nd:input xsd:string;
+	    ][
+	        a nd:Parameter;
+	        nd:mapsTo http-core:mthd;
+	        nd:title "HTTP Method";
+	        nd:input xsd:anyURI ;
+	        nd:default "http://www.w3.org/2008/http-methods#POST"^^xsd:anyURI;
+	    ]);
+		nd:list [
+			a nd:List;
+			nd:title "HTTP Headers";
+	        nd:mapsTo http-core:headers;
+			nd:parameterSet [
+				a nd:ParameterSet;
+				nd:title "HTTP Header";
+				nd:type http-core:Header;
+				nd:parameters ( [
+						a nd:Parameter;
+						nd:mapsTo http-core:hdrName;
+						nd:title "Header Name";
+						nd:input xsd:anyURI ;
+						nd:default "http://www.w3.org/2008/http-headers#content-type"^^xsd:anyURI;
+					] [
+						a nd:Parameter;
+						nd:mapsTo http-core:fieldValue;
+						nd:title "Field Value";
+						nd:input xsd:string ;
+						nd:default "text/turtle"^^xsd:string;
+					] 
+				)
+			]
+		];
+		nd:parameter [
+			a nd:Parameter;
+			nd:mapsTo bt:headers;
+			nd:type bt:SelectQuery;
+			nd:title "(Opt) Dynamic Headers: ?hdrName ?fieldValue";
+			nd:input nd:Query;
+			nd:optional "true";
+			bt:originBase "true";
+			bt:targetBase "false";
+		] ;
+        nd:parameterSet [
+	        a nd:ParameterSet;
+	        nd:mapsTo http-core:body;
+	        nd:title "HTTP Body";
+            nd:type actn:Payload;
+			nd:parameter [
+				a nd:Parameter;
+				nd:mapsTo bt:query;
+				nd:title "Construct Query";
+				nd:input nd:Query;
+				bt:originBase "true";
+				bt:targetBase "false";
+				nd:type bt:ConstructQuery;
+			]
+	    ];
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt:queryUri;
+        nd:type bt:QueryUri;
+        nd:type bt:SelectQuery;
+        nd:title "Select Query: ?requestURI";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+    ]
+.
+
+:GoalProducer nd:class nd:Leaf;
+	nd:category "Event & Goal Nodes";
+	nd:name "Produce Goal";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultGoalProducer";
+    nd:type bt:GoalProducer;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#F39B10";
+        nd:shape nd:Roundrectangle;
+        nd:padding "900%";
+        nd:paddingTo "width";
+         nd:icon "goal.png";
+    ];
+    nd:parameter [
+		a nd:Parameter;
+        nd:mapsTo ajan:goal;
+        nd:input nd:Goal;
+        nd:title "Goal";
+    ];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:content;
+		nd:title "Construct Query";
+		nd:input nd:Query;
+		bt:originBase "true";
+		bt:targetBase "false";
+		nd:type bt:ConstructQuery;
+		nd:type bt:QueryUri;
+	]
+.
+
+:EventProducer nd:class nd:Leaf;
+	nd:category "Event & Goal Nodes";
+	nd:name "Produce Event";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultEventProducer";
+    nd:type bt:EventProducer;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#F8C370";
+        nd:shape nd:Roundrectangle;
+        nd:padding "900%";
+        nd:paddingTo "width";
+         nd:icon "produce-event.png";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo ajan:event;
+        nd:input nd:Event;
+        nd:title "Event";
+    ];
+	nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt:content;
+        nd:title "Construct Query";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
+    ]
+.
+
+:QueryDomain nd:class nd:Leaf;
+	nd:category "Message Nodes";
+	nd:name "Query Domain";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultQueryDomain";
+    nd:type bt:QueryDomain;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#fc7cb3";
+        nd:shape nd:Polygon;
+        nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "icons8-new-post.png";
+    ];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:targetBase;
+		nd:title "Target Base";
+		nd:input nd:Repo ;
+	];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:queryUri;
+		nd:title "Select Query: ?requestURI";
+		nd:input nd:Query;
+		bt:originBase "true";
+		bt:targetBase "false";
+		nd:type bt:SelectQuery;
+		nd:type bt:QueryUri;
+    ]
+.
+
+:Update nd:class nd:Leaf;
+    nd:name "Update";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultUpdate";
+    nd:type bt:Update;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#8EC8B2";
+        nd:shape nd:Roundrectangle;
+        nd:padding "600%";
+        nd:paddingTo "width";
+        nd:icon "icons8-synchronize-filled.png";
+    ];
+	nd:parameter [
+        a nd:Parameter;
+		nd:mapsTo bt:useW3C;
+		nd:input xsd:boolean;
+		nd:default "false"^^xsd:boolean;
+		nd:title "Use W3C Standard";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt:query;
+        nd:title "Update Query";
+		nd:input nd:Query;
+		bt:originBase "true";
+		bt:targetBase "false";
+		nd:type bt:UpdateQuery;
+    ];
+.
+
+:HandleEvent nd:class nd:Leaf;
+	nd:category "Event & Goal Nodes";
+	nd:name "Handle Event";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultHandleEvent";
+    nd:type bt:HandleEvent;
+    nd:style [
+        a nd:StyleDef;
+		nd:labelColor "#FFFFFF";
+        nd:color "#1B3284";
+        nd:shape nd:Roundrectangle;
+        nd:padding "900%";
+        nd:paddingTo "width";
+        nd:icon "handle-event.png";
+		nd:node-icon "handle-event-w.png";
+    ];
+	nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo ajan:event;
+        nd:input nd:EventGoal;
+        nd:title "Event/Goal";
+    ];
+	nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt:validate;
+        nd:title "Construct Query";
+        nd:input nd:Query;
+        bt:originBase "false";
+        bt:targetBase "true";
+        nd:type bt:ConstructQuery;
+    ]
+.
+
+:HandleQueueEvent nd:class nd:Leaf;
+	nd:category "Event & Goal Nodes";
+	nd:name "Handle Queue Event";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultHandleQueueEvent";
+    nd:type bt:HandleQueueEvent;
+    nd:style [
+        a nd:StyleDef;
+		nd:labelColor "#FFFFFF";
+        nd:color "#1E1B55";
+        nd:shape nd:Roundrectangle;
+        nd:padding "900%";
+        nd:paddingTo "width";
+        nd:icon "handle-queue-event.png";
+		nd:node-icon "handle-queue-event-w.png";
+    ];
+	nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo ajan:event;
+        nd:input nd:EventGoal;
+        nd:title "Event/Goal";
+    ];
+	nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt:validate;
+        nd:title "Construct Query";
+        nd:input nd:Query;
+        bt:originBase "false";
+        bt:targetBase "true";
+        nd:type bt:ConstructQuery;
+    ]
+.
+
+:Write nd:class nd:Leaf;
+	nd:name "Write";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultWrite";
+    nd:type bt:Write;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#5CB697";
+        nd:shape nd:Roundrectangle;
+        nd:padding "600%";
+        nd:paddingTo "width";
+        nd:icon "icons8-write.png";
+    ];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:query;
+		nd:title "Construct Query";
+		nd:input nd:Query;
+		bt:originBase "true";
+		bt:targetBase "true";
+		nd:type bt:ConstructQuery
+	]
+.
+
+:Evaluate nd:class nd:Leaf;
+    nd:name "Evaluate";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultEvaluate";
+    nd:type bt:Evaluate;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#000000";
+        nd:shape nd:Roundrectangle;
+        nd:padding "600%";
+        nd:paddingTo "width";
+        nd:icon "evaluate.png";
+    ];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:context;
+		nd:title "Context";
+        nd:input xsd:anyURI ;
+        nd:default "http://"^^xsd:anyURI;
+	];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:targetBase;
+		nd:title "Target Base";
+		nd:input nd:Repo ;
+	];
+    nd:list [
+        a nd:List;
+        nd:mapsTo bt:initialKnowledge;
+        nd:title "Query";
+        nd:parameter [
+            a nd:Parameter;
+            nd:input nd:Query;
+            bt:originBase "true";
+            bt:targetBase "false";
+            nd:title "Construct Query";
+            nd:type bt:ConstructQuery;
+        ];
+    ];
+.
+
+# -------------------------------------------------
+# ------------------ Plugins ----------------------
+# -------------------------------------------------
+
+:Wait nd:class nd:Leaf;
+	nd:name "Wait";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultWait";
+    nd:type bt:Wait;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#7F7F7F";
+        nd:shape nd:Roundrectangle;
+        nd:padding "600%";
+        nd:paddingTo "width";
+        nd:icon "wait.png";
+    ];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:milliseconds;
+		nd:title "Milliseconds";
+		nd:input xsd:int ;
+		nd:default 0;
+	]
+.
+
+# --------------- Mapping -------------------
+
+
+:HandleMappingEvent nd:class nd:Leaf;
+	nd:category "Event & Goal Nodes";
+	nd:name "Handle Mapping Event";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultHandleMappingEvent";
+    nd:type bt:HandleMappingEvent;
+    nd:style [
+        a nd:StyleDef;
+		nd:labelColor "#FFFFFF";
+        nd:color "#504AC5";
+        nd:shape nd:Roundrectangle;
+        nd:padding "900%";
+        nd:paddingTo "width";
+        nd:icon "handle-json-event.png";
+		nd:node-icon "handle-json-event-w.png";
+    ];
+    nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo ajan:event;
+		nd:input nd:EventGoal;
+		nd:title "Event/Goal";
+	];
+    nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:mapping;
+		nd:title "Mapping";
+		nd:input xsd:anyURI ;
+		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
+	] ;
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:validate;
+		nd:title "Construct Query";
+		nd:input nd:Query;
+		bt:originBase "false";
+		bt:targetBase "true";
+		nd:type bt:ConstructQuery;
+	]
+.
+
+:QueryMappingDomain nd:class nd:Leaf;
+	nd:category "Message Nodes";
+	nd:name "Query Mapping Domain";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultQueryMappingDomain";
+    nd:type bt:QueryMappingDomain;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#fc2b86";
+        nd:shape nd:Polygon;
+        nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "icons8-new-post.png";
+    ];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:mapping;
+		nd:title "Mapping";
+		nd:input xsd:anyURI ;
+		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
+	];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:targetBase;
+		nd:title "Target Base";
+		nd:input nd:Repo ;
+	];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:queryUri;
+		nd:title "Select Query: ?requestURI";
+		nd:input nd:Query;
+		bt:originBase "true";
+		bt:targetBase "false";
+		nd:type bt:SelectQuery;
+		nd:type bt:QueryUri;
+    ]
+.
+
+:MappingMessage nd:class nd:Leaf;
+	nd:category "Message Nodes";
+	nd:name "Mapping Message";
+	nd:labelType nd:Dynamic;
+	rdfs:label "DefaultMappingMessage";
+	nd:type bt:MappingMessage;
+	nd:style [
+        a nd:StyleDef;
+        nd:color "#ff8cf9";
+        nd:shape nd:Polygon;
+        nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "icons8-new-post.png";
+    ];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:mapping;
+		nd:title "Mapping";
+		nd:input xsd:anyURI ;
+		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
+	];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt:targetBase;
+	    nd:title "Target Base";
+	    nd:input nd:Repo;
+    ];
+    nd:parameterSet [
+        a nd:ParameterSet;
+        nd:mapsTo bt:binding;
+        nd:type http-core:Request;
+        nd:title "Binding Configuration";
+        nd:parameters ([
+	        a nd:Parameter;
+	        nd:mapsTo http-core:httpVersion;
+	        nd:title "HTTP Version";
+	        nd:default "1.1"^^xsd:string;
+	        nd:input xsd:string;
+	    ][
+	        a nd:Parameter;
+	        nd:mapsTo http-core:mthd;
+	        nd:title "HTTP Method";
+	        nd:input xsd:anyURI ;
+	        nd:default "http://www.w3.org/2008/http-methods#POST"^^xsd:anyURI;
+	    ]);
+		nd:list [
+			a nd:List;
+			nd:title "HTTP Headers";
+	        nd:mapsTo http-core:headers;
+			nd:parameterSet [
+				a nd:ParameterSet;
+				nd:title "HTTP Header";
+				nd:type http-core:Header;
+				nd:parameters ( [
+						a nd:Parameter;
+						nd:mapsTo http-core:hdrName;
+						nd:title "Header Name";
+						nd:input xsd:anyURI ;
+						nd:default "http://www.w3.org/2008/http-headers#content-type"^^xsd:anyURI;
+					] [
+						a nd:Parameter;
+						nd:mapsTo http-core:fieldValue;
+						nd:title "Field Value";
+						nd:input xsd:string ;
+						nd:default "application/json"^^xsd:string;
+					] 
+				)
+			]
+		];
+		nd:parameter [
+			a nd:Parameter;
+			nd:mapsTo bt:headers;
+			nd:type bt:SelectQuery;
+			nd:title "(Opt) Dynamic Headers: ?hdrName ?fieldValue";
+			nd:input nd:Query;
+			nd:optional "true";
+			bt:originBase "true";
+			bt:targetBase "false";
+		] ;
+        nd:parameterSet [
+	        a nd:ParameterSet;
+	        nd:mapsTo http-core:body;
+	        nd:title "HTTP Body";
+            nd:type actn:Payload;
+			nd:parameter [
+				a nd:Parameter;
+				nd:mapsTo bt:query;
+				nd:title "Construct Query";
+				nd:input nd:Query;
+				bt:originBase "true";
+				bt:targetBase "false";
+				nd:type bt:ConstructQuery;
+			]
+	    ];
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt:queryUri;
+        nd:type bt:QueryUri;
+        nd:type bt:SelectQuery;
+        nd:title "Select Query: ?requestURI";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+    ]
+.
+
+:JsonMessage nd:class nd:Leaf;
+	nd:category "Message Nodes";
+	nd:name "Json Message";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultMappingMessage";
+    nd:type bt:JsonMessage;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ff3af5";
+        nd:shape nd:Polygon;
+        nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "icons8-new-post.png";
+    ];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo poser:dataMapping;
+		nd:title "Data Mapping";
+		nd:input xsd:anyURI ;
+		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
+	];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo poser:apiMapping;
+		nd:title "API Mapping";
+		nd:input xsd:anyURI ;
+		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
+	];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:mapping;
+		nd:title "Response Mapping";
+		nd:input xsd:anyURI ;
+		nd:default <http://localhost:8090/rdf4j/repositories/domain#>;
+	];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:targetBase;
+		nd:title "Target Base";
+		nd:input nd:Repo ;
+	];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:queryUri;
+		nd:title "Select Query: ?requestURI";
+		nd:input nd:Query;
+		bt:originBase "true";
+		bt:targetBase "false";
+		nd:type bt:SelectQuery;
+		nd:type bt:QueryUri;
+	];
+	nd:parameterSet [
+		a nd:ParameterSet;
+		nd:mapsTo bt:binding;
+		nd:type http-core:Request;
+		nd:title "Binding Configuration";
+		nd:parameters ( [
+				a nd:Parameter;
+				nd:mapsTo http-core:httpVersion;
+				nd:title "HTTP Version";
+				nd:default "1.1"^^xsd:string;
+				nd:input xsd:string;
+			][
+				a nd:Parameter;
+				nd:mapsTo http-core:mthd;
+				nd:title "HTTP Method";
+				nd:input xsd:anyURI ;
+				nd:default "http://www.w3.org/2008/http-methods#POST"^^xsd:anyURI;
+			]);
+		nd:list [
+			a nd:List;
+			nd:title "HTTP Headers";
+			nd:mapsTo http-core:headers;
+			nd:parameterSet [
+				a nd:ParameterSet;
+				nd:title "HTTP Header";
+				nd:type http-core:Header;
+				nd:parameters ( [
+						a nd:Parameter;
+						nd:mapsTo http-core:hdrName;
+						nd:title "Header Name";
+						nd:input xsd:anyURI ;
+						nd:default "http://www.w3.org/2008/http-headers#content-type"^^xsd:anyURI;
+					] [
+						a nd:Parameter;
+						nd:mapsTo http-core:fieldValue;
+						nd:title "Field Value";
+						nd:input xsd:string ;
+						nd:default "application/json"^^xsd:string;
+					] 
+				)
+			]
+		];
+		nd:parameter [
+			a nd:Parameter;
+			nd:mapsTo bt:headers;
+			nd:type bt:QueryUri;
+			nd:type bt:SelectQuery;
+			nd:title "(Opt) Dynamic Headers: ?hdrName ?fieldValue";
+			nd:input nd:Query;
+			nd:optional "true";
+			bt:originBase "true";
+			bt:targetBase "false";
+		] ;
+		nd:parameterSet [
+			a nd:ParameterSet;
+			nd:mapsTo http-core:body;
+			nd:title "HTTP Body";
+			nd:type actn:Payload;
+			nd:parameters ([
+				a nd:Parameter;
+				nd:mapsTo bt:query;
+				nd:title "Construct Query";
+				nd:input nd:Query;
+				bt:originBase "true";
+				bt:targetBase "false";
+				nd:type bt:ConstructQuery;
+			])
+		]
+	]
+.
+
+
+:Convert2UnixTime nd:class nd:Leaf;
+	nd:name "Convert2UnixTime";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultConvert2UnixTime";
+    nd:type bt:ConvertToUnixTime;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#FFFFFF";
+        nd:shape nd:Polygon;
+        nd:polygon "[-1, 0, -0.9, 1, 0.9, 1, 1, 0, 0.9, -1, -0.9, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "convert.png";
+    ];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:targetBase;
+		nd:title "Target Base";
+		nd:input nd:Repo ;
+	];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:timeMapping;
+		nd:title "Construct Query";
+		nd:input nd:Query;
+		bt:originBase "true";
+		bt:targetBase "false";
+		nd:type bt:ConstructQuery;
+    ]
+.
+
+
+# --------------- GraphPlan -------------------
+
+:Plan nd:class nd:Leaf;
+	nd:category "Reasoning Nodes";
+    nd:name "Action Planning";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultActionPlan";
+    nd:type strips:Problem;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#FFCCFF";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "icons8-plan.png";
+    ];
+    nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:resetBehavior;
+		nd:input xsd:boolean;
+		nd:default "true"^^xsd:boolean;
+		nd:title "Reset Behavior";
+    ];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo strips:randomExecute;
+		nd:input xsd:boolean;
+		nd:default "true"^^xsd:boolean;
+		nd:title "Random Execute";
+    ];
+    nd:list [
+        a nd:List;
+        nd:mapsTo strips:actions;
+        nd:title "Actions";
+        nd:parameter [
+            a nd:Parameter;
+            nd:input xsd:anyURI ;
+            nd:title "Action";
+        ];
+    ];
+    nd:list [
+        a nd:List;
+        nd:mapsTo strips:goalStates;
+        nd:title "Goal States";
+        nd:parameter [
+            a nd:Parameter;
+			#nd:mapsTo rdf:first;
+            nd:input nd:Query;
+            bt:originBase "true";
+            bt:targetBase "false";
+            nd:title "Query";
+            nd:type bt:ConstructQuery;
+            nd:type strips:State;
+        ];
+    ];
+    nd:list [
+        a nd:List;
+        nd:mapsTo strips:initStates;
+        nd:title "Initial States";
+        nd:parameter [
+            a nd:Parameter;
+			#nd:mapsTo rdf:first;
+            nd:input nd:Query;
+            bt:originBase "true";
+            bt:targetBase "false";
+            nd:title "Query";
+            nd:type bt:ConstructQuery;
+            nd:type strips:State;
+        ];
+    ];
+    nd:parameterSet [
+        a nd:ParameterSet;
+        nd:mapsTo strips:config;
+        nd:title "StripsConfig";
+        nd:type strips:GraphPlanConfig;
+        nd:parameters ([
+            a nd:Parameter;
+            nd:mapsTo strips:allSolutions;
+            nd:input xsd:boolean;
+            nd:default "true"^^xsd:boolean;
+            nd:title "All Solutions";
+        ][
+            a nd:Parameter;
+            nd:mapsTo strips:maxLength;
+            nd:input xsd:int;
+            nd:default "0"^^xsd:int;
+            nd:title "Maximum Length";
+        ][
+            a nd:Parameter;
+            nd:mapsTo strips:maxLevels;
+            nd:input xsd:int;
+            nd:default "1"^^xsd:int;
+            nd:title "Maximum Levels";
+        ][
+            a nd:Parameter;
+            nd:mapsTo strips:timeout;
+            nd:input xsd:long;
+            nd:default "5000"^^xsd:long;
+            nd:title "Timeout";
+        ]);
+    ];
+.
+
+# ----------------- ASP ---------------------
+
+:Problem nd:class nd:Leaf;
+	nd:category "Reasoning Nodes";
+    nd:name "ASP Rules";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultProblem";
+    nd:type asp:Problem;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#FFCC00";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "icons8-rules.png";
+    ];
+	nd:list [
+		a nd:List;
+		nd:mapsTo asp:ruleSets;
+		nd:title "Rule Sets";
+		nd:parameterSet [
+			a nd:ParameterSet;
+			nd:title "Rule Set Location";
+			nd:type asp:RuleSetLocation;
+			nd:parameters ([
+				a nd:Parameter;
+				nd:mapsTo bt:originBase;
+				nd:title "Origin Base";
+				nd:input nd:Repo ;
+			][
+				a nd:Parameter;
+				nd:mapsTo asp:ruleSet;
+				nd:input xsd:anyURI ;
+				nd:title "Rule Set";
+			]);
+		];
+	];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo asp:domain;
+        nd:title "Domain";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
+    ];
+    nd:parameterSet [
+        a nd:ParameterSet;
+        nd:mapsTo asp:config;
+        nd:title "ASP Config";
+        nd:type clingo:Config;
+        nd:parameters ([
+            a nd:Parameter;
+            nd:mapsTo clingo:execution-limit;
+            nd:input xsd:int;
+            nd:default "1"^^xsd:int;
+            nd:title "Execution Limit";
+        ][
+            a nd:Parameter;
+            nd:mapsTo clingo:solver;
+            nd:input xsd:string;
+            nd:default "clingo"^^xsd:string;
+            nd:title "Solver Name (e.g. clingo)";
+        ][
+            a nd:Parameter;
+            nd:mapsTo clingo:models;
+            nd:input xsd:int;
+            nd:default "1"^^xsd:int;
+            nd:title "Models";
+        ][
+            a nd:Parameter;
+            nd:mapsTo clingo:parallel-mode;
+            nd:input xsd:int;
+            nd:default "2"^^xsd:int;
+            nd:title "Parallel Mode";
+        ][
+            a nd:Parameter;
+            nd:mapsTo clingo:time-limit;
+            nd:input xsd:int;
+            nd:default "5"^^xsd:int;
+            nd:title "Time Limit";
+        ]);
+        nd:list [
+            a nd:List;
+            nd:mapsTo clingo:const;
+            nd:title "Constants";
+            nd:parameterSet [
+                a nd:ParameterSet;
+                nd:title "Constant Set";
+                nd:type clingo:Constant;
+                nd:parameters ([
+                    a nd:Parameter;
+                    nd:mapsTo clingo:name;
+                    nd:input xsd:string;
+                    nd:default "";
+                    nd:title "Name";
+                ][
+                    a nd:Parameter;
+                    nd:mapsTo clingo:value;
+                    nd:input xsd:string;
+                    nd:default "5";
+                    nd:title "Value";
+                ]);
+            ];
+        ];
+    ];
+    nd:parameterSet [
+        a nd:ParameterSet;
+        nd:mapsTo asp:write;
+        nd:title "ASP Write";
+        nd:type asp:Write;
+        nd:parameters ([
+            a nd:Parameter;
+            nd:mapsTo asp:saveString;
+            nd:input xsd:boolean;
+            nd:default "false"^^xsd:boolean;
+            nd:title "Save String";
+        ][
+            a nd:Parameter;
+            nd:mapsTo asp:random;
+            nd:input xsd:boolean;
+            nd:default "false"^^xsd:boolean;
+            nd:title "Random";
+        ][
+            a nd:Parameter;
+            nd:mapsTo asp:contextBase;
+            nd:input xsd:anyURI;
+            nd:default "http://"^^xsd:anyURI;
+            nd:title "Context Base";
+        ][
+            a nd:Parameter;
+            nd:mapsTo bt:targetBase;
+            nd:input xsd:anyURI;
+            nd:default ajan:ExecutionKnowledge;
+            nd:title "Target Base";
+        ]);
+    ];
+.
+
+:ILASPInput nd:class nd:Leaf;
+	nd:category "Reasoning Nodes";
+    nd:name "ILASP Rules";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultILASPInput";
+    nd:type asp:ILASPInput;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#FFE478";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "icons8-rules.png";
+    ];
+	nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo asp:posExamples;
+        nd:title "Positive Examples: ?pos";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+	nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo asp:negExamples;
+        nd:title "Negative Examples: ?neg";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo asp:domain;
+        nd:title "Domain";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
+    ];
+	nd:list [
+		a nd:List;
+		nd:mapsTo asp:ruleSets;
+		nd:title "Rule Sets";
+		nd:parameterSet [
+			a nd:ParameterSet;
+			nd:title "Rule Set Location";
+			nd:type asp:RuleSetLocation;
+			nd:parameters ([
+				a nd:Parameter;
+				nd:mapsTo bt:originBase;
+				nd:title "Origin Base";
+				nd:input nd:Repo ;
+			][
+				a nd:Parameter;
+				nd:mapsTo asp:ruleSet;
+				nd:input xsd:anyURI ;
+				nd:title "Rule Set";
+			]);
+		];
+	];
+    nd:parameterSet [
+        a nd:ParameterSet;
+        nd:mapsTo asp:config;
+        nd:title "ASP Config";
+        nd:type clingo:Config;
+        nd:parameters ([
+            a nd:Parameter;
+            nd:mapsTo clingo:execution-limit;
+            nd:input xsd:int;
+            nd:default "5"^^xsd:int;
+            nd:title "Execution Limit";
+        ][
+            a nd:Parameter;
+            nd:mapsTo clingo:models;
+            nd:input xsd:int;
+            nd:default "5"^^xsd:int;
+            nd:title "Models";
+        ][
+            a nd:Parameter;
+            nd:mapsTo clingo:parallel-mode;
+            nd:input xsd:int;
+            nd:default "2"^^xsd:int;
+            nd:title "Parallel Mode";
+        ][
+            a nd:Parameter;
+            nd:mapsTo clingo:time-limit;
+            nd:input xsd:int;
+            nd:default "5"^^xsd:int;
+            nd:title "Time Limit";
+        ]);
+        nd:list [
+            a nd:List;
+            nd:mapsTo clingo:const;
+            nd:title "Constants";
+            nd:parameterSet [
+                a nd:ParameterSet;
+                nd:title "Constant Set";
+                nd:type clingo:Constant;
+                nd:parameters ([
+                    a nd:Parameter;
+                    nd:mapsTo clingo:name;
+                    nd:input xsd:string;
+                    nd:default "";
+                    nd:title "Name";
+                ][
+                    a nd:Parameter;
+                    nd:mapsTo clingo:value;
+                    nd:input xsd:string;
+                    nd:default "5";
+                    nd:title "Value";
+                ]);
+            ];
+        ];
+    ];
+	nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt:queryUri;
+        nd:type bt:QueryUri;
+        nd:type bt:SelectQuery;
+        nd:title "Select Query: ?requestURI";
+        nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+    ];
+	nd:parameterSet [
+        a nd:ParameterSet;
+        nd:mapsTo bt:binding;
+        nd:type http-core:Request;
+        nd:title "Binding Configuration";
+        nd:parameters ([
+	        a nd:Parameter;
+	        nd:mapsTo http-core:httpVersion;
+	        nd:title "HTTP Version";
+	        nd:default "1.1"^^xsd:string;
+	        nd:input xsd:string;
+	    ][
+	        a nd:Parameter;
+	        nd:mapsTo http-core:mthd;
+	        nd:title "HTTP Method";
+	        nd:input xsd:anyURI ;
+	        nd:default "http://www.w3.org/2008/http-methods#POST"^^xsd:anyURI;
+	    ]);
+		nd:list [
+			a nd:List;
+			nd:title "HTTP Headers";
+	        nd:mapsTo http-core:headers;
+			nd:parameterSet [
+				a nd:ParameterSet;
+				nd:title "HTTP Header";
+				nd:type http-core:Header;
+				nd:parameters ( [
+						a nd:Parameter;
+						nd:mapsTo http-core:hdrName;
+						nd:title "Header Name";
+						nd:input xsd:anyURI ;
+						nd:default "http://www.w3.org/2008/http-headers#content-type"^^xsd:anyURI;
+					] [
+						a nd:Parameter;
+						nd:mapsTo http-core:fieldValue;
+						nd:title "Field Value";
+						nd:input xsd:string ;
+						nd:default "text/turtle"^^xsd:string;
+					] 
+				)
+			]
+		];
+		nd:parameter [
+			a nd:Parameter;
+			nd:mapsTo bt:headers;
+			nd:type bt:SelectQuery;
+			nd:title "(Opt) Dynamic Headers: ?hdrName ?fieldValue";
+			nd:input nd:Query;
+			bt:originBase "true";
+			bt:targetBase "false";
+		] ;
+    ];
+.
+
+# --------------- MOSIMBehavior -------------------
+ 
+:GetScene nd:class nd:Leaf;
+	nd:category "MOSIM Nodes";
+    nd:name "GetScene";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultGetScene";
+    nd:type bt-mosim:GetScene;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ddf2f7";
+		nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "scene-mosim.png";
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:host;
+	    nd:title "Scene Service: ?host ?port";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt:targetBase;
+	    nd:title "Target Base";
+	    nd:input nd:Repo;
+    ].
+
+:GetAvatarTransform nd:class nd:Leaf;
+	nd:category "MOSIM Nodes";
+    nd:name "GetAvatarTransform";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultGetAvatarTransform";
+    nd:type bt-mosim:GetAvatarTransform;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ddf2f7";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "scene-mosim.png";
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:avatarID;
+	    nd:title "Avatar URI&ID";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:host;
+	    nd:title "SkeletonAccess Host&Port";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt:targetBase;
+	    nd:title "Target Base";
+	    nd:input nd:Repo;
+    ].
+
+:RegisterListener nd:class nd:Leaf;
+	nd:category "MOSIM Nodes";
+	nd:name "RegisterListener";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultRegisterListener";
+    nd:type bt-mosim:RegisterListener;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ddf2f7";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "register.png";
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:eventTypeQuery;
+	    nd:title "EventType: ?eventType";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:coSim;
+	    nd:title "CoSim: ?host ?port ?avatarId";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:callback;
+	    nd:title "CallbackPort: ?port";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt:targetBase;
+	    nd:title "Target Base";
+	    nd:input nd:Repo;
+    ].
+
+:UnregisterListener nd:class nd:Leaf;
+	nd:category "MOSIM Nodes";
+	nd:name "UnregisterListener";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultUnregisterListener";
+    nd:type bt-mosim:UnregisterListener;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ddf2f7";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "unregister.png";
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:eventTypeQuery;
+	    nd:title "EventType: ?eventType";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:coSim;
+	    nd:title "CoSim: ?host ?port ?avatarId";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:callback;
+	    nd:title "CallbackPort: ?port";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt:targetBase;
+	    nd:title "Target Base";
+	    nd:input nd:Repo;
+    ].
+
+:CreateCallbackServer nd:class nd:Leaf;
+	nd:category "MOSIM Nodes";
+	nd:name "CreateCallbackServer";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultCreateCallbackServer";
+    nd:type bt-mosim:CreateCallbackServer;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ddf2f7";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "createCallbackServer.png";
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:callback;
+	    nd:title "CallbackPort: ?port";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ].
+
+:DeleteCallbackServer nd:class nd:Leaf;
+	nd:category "MOSIM Nodes";
+	nd:name "DeleteCallbackServer";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultDeleteCallbackServer";
+    nd:type bt-mosim:DeleteCallbackServer;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ddf2f7";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "deleteCallbackServer.png";
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:callback;
+	    nd:title "CallbackPort: ?port";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ].
+
+:GetMMUs nd:class nd:Leaf;
+	nd:category "MOSIM Nodes";
+	nd:name "GetMMUs";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultGetMMUs";
+    nd:type bt-mosim:GetAvailableMMUs;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ddf2f7";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "getMMUs.png";
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:host;
+	    nd:title "Registry Service: ?host ?port";
+		nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:sessionID;
+	    nd:title "SessionID";
+	    nd:input xsd:string;
+	    nd:default bt:current;
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt:targetBase;
+	    nd:title "Target Base";
+	    nd:input nd:Repo;
+    ].
+
+:AbortInstruction nd:class nd:Leaf;
+	nd:category "MOSIM Nodes";
+	nd:name "AbortInstruction";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultAbortInstruction";
+    nd:type bt-mosim:AbortInstruction;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ddf2f7";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "abortMMU.png";
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt:targetBase;
+	    nd:title "Target Base";
+	    nd:input nd:Repo;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:host;
+	    nd:title "Host: ?host ?port";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:instructionID;
+	    nd:title "Instruction ID";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ].
+
+:GetWalkPoints nd:class nd:Leaf;
+	nd:category "MOSIM Nodes";
+	nd:name "GetWalkPoints";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultGetWalkPoints";
+    nd:type bt-mosim:GetWalkPoints;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ddf2f7";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "walkPoint.png";
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt:targetBase;
+	    nd:title "Target Base";
+	    nd:input nd:Repo;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:walkTarget;
+	    nd:title "Walk Target";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:sceneObjects;
+	    nd:title "SceneObjects";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:host;
+	    nd:title "Walkpoint Service: ?host ?port";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ] .
+
+:GetBoundaryConstraints nd:class nd:Leaf;
+	nd:category "MOSIM Nodes";
+	nd:name "GetBoundaryConstraints";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultGetBoundaryConstraints";
+    nd:type bt-mosim:GetBoundaryConstraints;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ddf2f7";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "walkPoint.png";
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt:targetBase;
+	    nd:title "Target Base";
+	    nd:input nd:Repo;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:instruction;
+	    nd:title "MMU Instruction";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
+    ] .
+
+:PathAvailable nd:class nd:Leaf;
+	nd:category "MOSIM Nodes";
+	nd:name "PathAvailable";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultPathAvailable";
+    nd:type bt-mosim:PathAvailable;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ddf2f7";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "walkPoint.png";
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt:targetBase;
+	    nd:title "Target Base";
+	    nd:input nd:Repo;
+    ];
+	nd:parameter [
+		a nd:Parameter;
+	    nd:mapsTo bt-mosim:avatar;
+	    nd:title "Avatar";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:walkTarget;
+	    nd:title "Walk Target";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:sceneObjects;
+	    nd:title "SceneObjects";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:host;
+	    nd:title "PathPlanning Service: ?host ?port";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ] .
+
+:SendHTLELogs nd:class nd:Leaf;
+	nd:category "MOSIM Nodes";
+	nd:name "SendHTLELogs";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultSendHTLELogs";
+    nd:type bt-mosim:SendHTLELogs;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ddf2f7";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "logHTLE.png";
+     ] ;
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:endpointHTLE;
+	    nd:title "HTLE Endpoint";
+	    nd:input xsd:anyURI;
+    ] ;
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt:originBase;
+	    nd:title "Loging Base";
+	    nd:input nd:Repo;
+    ] ;
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mosim:infoHTLE;
+	    nd:title "HTLE Infos: ?token ?resultSet";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ] .
+
+# --------------- MQTT Plugin -------------------
+
+
+:CreateMQTTBroker nd:class nd:Leaf;
+	nd:category "MQTT Nodes";
+	nd:name "CreateMQTTBroker";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultCreateMQTTBroker";
+    nd:type bt-mqtt:CreateMQTTBroker;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "mqtt_broker.png";
+    ].
+
+:DeleteMQTTBroker nd:class nd:Leaf;
+	nd:category "MQTT Nodes";
+	nd:name "DeleteMQTTBroker";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultDeleteMQTTBroker";
+    nd:type bt-mqtt:DeleteMQTTBroker;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "mqtt_broker_close.png";
+    ].
+
+:PublishMQTTMessage nd:class nd:Leaf;
+	nd:category "MQTT Nodes";
+	nd:name "PublishMQTTMessage";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultMQTTMessage";
+    nd:type bt-mqtt:PublishMessage;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "mqtt_pub.png";
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mqtt:serverUrlCallback;
+	    nd:title "Server URL: ?serverUrl";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mqtt:publishDetails;
+	    nd:title "Topic and Message: ?topic ?message";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ].
+
+:PublishMessageRDF nd:class nd:Leaf;
+	nd:category "MQTT Nodes";
+	nd:name "PublishMQTTMessageRDF";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultPublishMQTTMessageRDF";
+    nd:type bt-mqtt:PublishMessageRDF;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "mqtt_pub_rdf.png";
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mqtt:serverUrlCallback;
+	    nd:title "Server URL: ?serverUrl";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mqtt:publishDetails;
+	    nd:title "Topic and Message: ?topic";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt-mqtt:contentType;
+		nd:title "Content-Type";
+		nd:input xsd:string ;
+		nd:default "text/turtle"^^xsd:string;
+	];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mqtt:rdfMessage;
+	    nd:title "RDF Message: (Construct Query)";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
+    ].
+
+:SubscribeMQTTTopic nd:class nd:Leaf;
+	nd:category "MQTT Nodes";
+	nd:name "Subscribe2MQTTTopic";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultSubscribeTopic";
+    nd:type bt-mqtt:SubscribeTopic;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "mqtt_sub.png";
+    ];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:targetBase;
+		nd:title "Target Base";
+		nd:input nd:Repo ;
+	] ;
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:mapping;
+		nd:title "Mapping";
+		nd:input xsd:anyURI ;
+		nd:default "http://"^^xsd:anyURI;
+	];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mqtt:serverUrlCallback;
+	    nd:title "Server URL: ?serverUrl";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mqtt:subscribeDetails;
+	    nd:title "Topic: ?topic";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ].
+
+:SubscribeTopicAlwaysListen nd:class nd:Leaf;
+	nd:category "MQTT Nodes";
+	nd:name "Subscribe2MQTTTopic_AlwaysListen";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultSubscribeTopic_AlwaysListen";
+    nd:type bt-mqtt:SubscribeTopicAlwaysListen;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "mqtt_sub_all.png";
+    ];
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:targetBase;
+		nd:title "Target Base";
+		nd:input nd:Repo ;
+	] ;
+	nd:parameter [
+		a nd:Parameter;
+		nd:mapsTo bt:mapping;
+		nd:title "Mapping";
+		nd:input xsd:anyURI ;
+		nd:default "http://"^^xsd:anyURI;
+	];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mqtt:serverUrlCallback;
+	    nd:title "Server URL: ?serverUrl";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mqtt:subscribeDetails;
+	    nd:title "Topic: ?topic";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ].
+
+:SubscribeTopicProduceEvent nd:class nd:Leaf;
+	nd:category "MQTT Nodes";
+	nd:name "Subscribe2MQTTTopic_ProduceEvent";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultSubscribeTopic_ProduceEvent";
+    nd:type bt-mqtt:SubscribeTopicProduceEvent;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "mqtt_sub_event.png";
+    ];
+	nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo ajan:event;
+        nd:input nd:EventGoal;
+        nd:title "Event/Goal";
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mqtt:serverUrlCallback;
+	    nd:title "Server URL: ?serverUrl";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mqtt:subscribeDetails;
+	    nd:title "Topic: ?topic";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ].
+
+:UnsubscribeMQTTTopic nd:class nd:Leaf;
+    nd:category "MQTT Nodes";
+	nd:name "UnsubscribeMQTTTopic_ProduceEvent";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultUnsubscribeMQTTTopic_ProduceEvent";
+    nd:type bt-mqtt:UnsubscribeTopic;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#ebe8ed";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "mqtt_sub_event_close.png";
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mqtt:serverUrlCallback;
+	    nd:title "Server URL: ?serverUrl";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt-mqtt:unsubscribeDetails;
+	    nd:title "Id & Topic: ?id ?topic";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:SelectQuery;
+   ].
+
+# --------------- PythonBehavior -------------------
+ 
+:PythonLeafNode nd:class nd:Leaf;
+	nd:category "Python Nodes";
+    nd:name "PythonLeafNode";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultPythonLeafNode";
+    nd:type python:LeafNode;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#c9c308";
+		nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "python_icon.png";
+    ];
+    nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo python:input;
+	    nd:title "Python Input";
+	    nd:input nd:Query;
+        bt:originBase "true";
+        bt:targetBase "false";
+        nd:type bt:ConstructQuery;
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo python:script;
+	    nd:title "Python Script";
+	    nd:input nd:textarea;
+        nd:default "import AJANlib\nimport rdflib\n\n\nclass MyNode(AJANlib.LeafNode):\n\tdef executeLeafNode(self, input: rdflib.Graph):\n\t\treturn AJANlib.NodeResult(status=AJANlib.Status.SUCCEEDED, label='Hallo World!', rdf_output=input)\n\n\tdef getClassName(self):\n\t\treturn 'MyNode'";
+        nd:title "Name";
+    ];
+	nd:parameter [
+	    a nd:Parameter;
+	    nd:mapsTo bt:targetBase;
+	    nd:title "Target Base";
+	    nd:input nd:Repo;
+    ].
+
+# --------------- Plugin X -------------------
+

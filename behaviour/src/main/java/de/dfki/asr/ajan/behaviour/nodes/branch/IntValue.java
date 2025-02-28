@@ -20,7 +20,7 @@
 package de.dfki.asr.ajan.behaviour.nodes.branch;
 
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
-import de.dfki.asr.ajan.behaviour.exception.SelectEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.SelectSimulationException;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import java.net.URISyntaxException;
@@ -48,19 +48,19 @@ public class IntValue {
 	@Getter @Setter
 	private BehaviorSelectQuery query;
 
-	public List<Integer> getIntValue(final AgentTaskInformation info) throws SelectEvaluationException {
+	public List<Integer> getIntValue(final AgentTaskInformation info) throws SelectSimulationException {
 		try {
 			if (query == null || query.getSparql().equals("")) {
 				return returnValue();
 			}
 			return getIntValue(BTUtil.getInitializedRepository(info, query.getOriginBase()));
 		} catch (URISyntaxException ex) {
-			throw new SelectEvaluationException("IntValue not defined as Integer", ex);
+			throw new SelectSimulationException("IntValue not defined as Integer", ex);
 		}
 	}
 
 	@SuppressWarnings({"PMD.AvoidCatchingGenericException","PMD.AvoidInstantiatingObjectsInLoops"})
-	public List<Integer> getIntValue(final Repository repo) throws SelectEvaluationException {
+	public List<Integer> getIntValue(final Repository repo) throws SelectSimulationException {
 		try {
 			if (query == null) {
 				return returnValue();
@@ -80,7 +80,7 @@ public class IntValue {
 				return values;
 			}
 		} catch (QueryEvaluationException ex) {
-			throw new SelectEvaluationException("IntValue not defined as Integer", ex);
+			throw new SelectSimulationException("IntValue not defined as Integer", ex);
 		}
 	}
 

@@ -20,14 +20,14 @@
 package de.dfki.asr.ajan.behaviour.nodes.messages;
 
 import de.dfki.asr.ajan.behaviour.exception.AJANRequestException;
-import de.dfki.asr.ajan.behaviour.exception.MessageEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.MessageSimulationException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.*;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpBinding;
 import de.dfki.asr.ajan.behaviour.service.impl.HttpConnection;
 import de.dfki.asr.ajan.common.AJANVocabulary;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Result;
 import de.dfki.asr.ajan.behaviour.service.impl.SelectQueryTemplate;
 import de.dfki.asr.ajan.behaviour.nodes.action.common.ACTNUtil;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorQuery;
@@ -103,7 +103,7 @@ public class Message extends AbstractTDBLeafTask {
 				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to malformed response model");
 			}
 			return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), toString() + " SUCCEEDED");
-		} catch (URISyntaxException | MessageEvaluationException ex) {
+		} catch (URISyntaxException | MessageSimulationException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to malformed URI");
 		} catch (IOException | SAXException ex) {
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED due to IO exception", ex);
@@ -112,7 +112,7 @@ public class Message extends AbstractTDBLeafTask {
 		}
 	}
 
-	protected void prepareRequest() throws URISyntaxException, IOException, MessageEvaluationException {
+	protected void prepareRequest() throws URISyntaxException, IOException, MessageSimulationException {
 		String payload = null;
 		getRequest().setForceRDF(forceRDF);
 		if (getBinding().getPayload() != null) {
@@ -153,16 +153,16 @@ public class Message extends AbstractTDBLeafTask {
 	}
 
 	@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-	protected void setRequestUri() throws URISyntaxException, MessageEvaluationException {
+	protected void setRequestUri() throws URISyntaxException, MessageSimulationException {
 		Repository repo = BTUtil.getInitializedRepository(getObject(), getQueryURI().getOriginBase());
 		List<BindingSet> result = getQueryURI().getResult(repo);
 		if (result.isEmpty()) {
-			throw new MessageEvaluationException("No ?requestURI defined in Message description");
+			throw new MessageSimulationException("No ?requestURI defined in Message description");
 		}
 		BindingSet bindings = result.get(0);
 		Value strValue = bindings.getValue("requestURI");
 		if (strValue == null) {
-			throw new MessageEvaluationException("No ?requestURI defined in Message description");
+			throw new MessageSimulationException("No ?requestURI defined in Message description");
 		} else {
 			setRequestURI(strValue.stringValue());
 		}
@@ -222,7 +222,7 @@ public class Message extends AbstractTDBLeafTask {
 	}
 
 	@Override
-	public Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
+	public Result simulateNodeLogic(final SimulationResult result, final Resource root) {
 		return Result.UNCLEAR;
 	}
 }

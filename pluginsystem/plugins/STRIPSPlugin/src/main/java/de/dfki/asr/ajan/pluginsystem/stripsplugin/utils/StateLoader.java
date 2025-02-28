@@ -20,7 +20,7 @@
 package de.dfki.asr.ajan.pluginsystem.stripsplugin.utils;
 
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
-import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.ConditionSimulationException;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.stripsplugin.vocabularies.STRIPSVocabulary;
@@ -47,7 +47,7 @@ public final class StateLoader {
 	private StateLoader() {}
 
 	public static List<Proposition> getState(List<BehaviorQuery> queries, AgentTaskInformation taskInfos, URIManager uriManager)
-			throws ConditionEvaluationException, URISyntaxException {
+			throws ConditionSimulationException, URISyntaxException {
 		List<Proposition> state = new ArrayList();
 		LinkedHashModel model = getModel(queries, taskInfos);
 		model.stream().map((stat) -> {
@@ -80,7 +80,7 @@ public final class StateLoader {
 	}
 
 	private static LinkedHashModel getModel(List<BehaviorQuery> queries, AgentTaskInformation taskInfos)
-			throws ConditionEvaluationException, URISyntaxException {
+			throws ConditionSimulationException, URISyntaxException {
 		LinkedHashModel model = new LinkedHashModel();
 		for (BehaviorQuery query: queries) {
 			Repository repo = getInitializedRepository(query.getOriginBase(), taskInfos);

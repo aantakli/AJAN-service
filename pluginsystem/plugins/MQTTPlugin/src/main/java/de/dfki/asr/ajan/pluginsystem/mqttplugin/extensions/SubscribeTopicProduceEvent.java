@@ -4,11 +4,11 @@ import de.dfki.asr.ajan.behaviour.events.Event;
 import de.dfki.asr.ajan.behaviour.events.MappingEvent;
 import de.dfki.asr.ajan.behaviour.events.ModelEvent;
 import de.dfki.asr.ajan.behaviour.events.ModelQueueEvent;
-import de.dfki.asr.ajan.behaviour.exception.EventEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.EventSimulationException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
@@ -68,29 +68,29 @@ public class SubscribeTopicProduceEvent extends AbstractTDBLeafTask implements N
             subscribeToTopic(serverUrl, topic, repo);
             report = toString()+ " SUCCEEDED";
             stat = Status.SUCCEEDED;
-        } catch (URISyntaxException | EventEvaluationException e) {
+        } catch (URISyntaxException | EventSimulationException e) {
             report = toString()+ "FAILED";
             stat = Status.FAILED;
         }
         return new NodeStatus(stat, this.getObject().getLogger(), this.getClass(), report);
     }
 
-    private String subscribeToTopic(String serverUrl, String topic, Repository repo) throws EventEvaluationException {
+    private String subscribeToTopic(String serverUrl, String topic, Repository repo) throws EventSimulationException {
         MessageService messageService = MessageService.getMessageService(clientId, serverUrl);
         return messageService.subscribe(topic, true, goalEventURI, null, repo, null, getEvent());
     }
 
-    private Event getEvent() throws EventEvaluationException {
+    private Event getEvent() throws EventSimulationException {
         Map<URI,Event> events = this.getObject().getEvents();
         if (events.containsKey(goalEventURI)) {
             if (events.get(goalEventURI) instanceof ModelEvent || events.get(goalEventURI) instanceof ModelQueueEvent
                     || events.get(goalEventURI) instanceof MappingEvent) {
                 return events.get(goalEventURI);
             } else {
-                throw new EventEvaluationException("Event is no ModelEvent or Mapping Event");
+                throw new EventSimulationException("Event is no ModelEvent or Mapping Event");
             }
         } else {
-            throw new EventEvaluationException("No such Event defined");
+            throw new EventSimulationException("No such Event defined");
         }
     }
     @Override
@@ -104,8 +104,8 @@ public class SubscribeTopicProduceEvent extends AbstractTDBLeafTask implements N
     }
 
     @Override
-    public EvaluationResult.Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
-        return EvaluationResult.Result.UNCLEAR;
+    public SimulationResult.Result simulateNodeLogic(final SimulationResult result, final Resource root) {
+        return SimulationResult.Result.UNCLEAR;
     }
 
     @Override

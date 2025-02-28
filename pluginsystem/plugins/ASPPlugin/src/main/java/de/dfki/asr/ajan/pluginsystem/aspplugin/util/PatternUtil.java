@@ -20,6 +20,7 @@
 package de.dfki.asr.ajan.pluginsystem.aspplugin.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,29 @@ public final class PatternUtil {
 
 	private PatternUtil() {
 	
+	}
+
+	public static List<List<String>> getRulesAndConstraints(final String stableModel) {
+		List<List<String>> result = new ArrayList();
+		List<String> columns = Arrays.asList(stableModel.split("\\."));
+		for (String column: columns) {
+			result.add(getElements(column));
+		}
+		return result;
+	}
+	
+	public static List<String> getElements(final String stableModel) {
+		List<String> statements = new ArrayList();
+		Matcher m = FACTS_PATTERN.matcher(" " + stableModel);
+		while (m.find()) {
+			String element = m.group().replaceAll(" ", "");
+			if (element.endsWith(";") || element.endsWith(",")) {
+				element = element.substring(0, element.length() - 1);
+			}
+			if (!element.equals(""))
+				statements.add(element);
+		}
+		return statements;
 	}
 
 	public static List<String> getFacts(final String stableModel) {

@@ -20,7 +20,7 @@
 package de.dfki.asr.ajan.behaviour.nodes;
 
 import de.dfki.asr.ajan.behaviour.nodes.common.*;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Result;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -61,7 +61,7 @@ public class Breakpoint extends AbstractTDBLeafTask {
 	}
 
 	@Override
-	public Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
+	public Result simulateNodeLogic(final SimulationResult result, final Resource root) {
 		return Result.SUCCESS;
 	}
 

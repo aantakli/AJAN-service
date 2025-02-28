@@ -21,7 +21,7 @@ package de.dfki.asr.ajan.behaviour.nodes;
 
 import de.dfki.asr.ajan.behaviour.nodes.common.*;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.ModelMode;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Result;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorAskQuery;
 import java.net.URISyntaxException;
 import lombok.Getter;
@@ -95,7 +95,7 @@ public class Condition extends AbstractTDBLeafTask {
 	}
 
 	@Override
-	public Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
+	public Result simulateNodeLogic(final SimulationResult result, final Resource root) {
 		if (performConditionLogic(result.getRepo().initialize())) {
 			return Result.SUCCESS;
 		} else {

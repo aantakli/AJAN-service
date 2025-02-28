@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 see AJAN-service/AUTHORS.txt (German Research Center for Artificial Intelligence, DFKI).
+ * Copyright (C) 2020 Andre Antakli (German Research Center for Artificial Intelligence, DFKI).
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,19 +17,14 @@
  * MA 02110-1301  USA
  */
 
-package de.dfki.asr.ajan.behaviour.exception;
+package de.dfki.asr.ajan.pluginsystem.aspplugin.vocabularies;
 
-public class ActionEvaluationException extends Exception {
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
-	public ActionEvaluationException(final String message) {
-		super(message);
-	}
+public class ILPVocabulary {
 
-	public ActionEvaluationException(final String message, final Throwable cause) {
-		super(message, cause);
-	}
-
-	public ActionEvaluationException(final Throwable cause) {
-		super(cause);
-	}
+	private static final ValueFactory FACTORY = SimpleValueFactory.getInstance();
+	public final static IRI HYPOTHESIS = FACTORY.createIRI("http://www.ajan.de/behavior/ilp-ns#Hypothesis");
 }

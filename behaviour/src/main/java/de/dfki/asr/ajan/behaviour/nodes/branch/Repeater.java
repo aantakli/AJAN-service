@@ -25,11 +25,11 @@ import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
 import com.badlogic.gdx.ai.utils.random.ConstantIntegerDistribution;
 import com.badlogic.gdx.ai.utils.random.IntegerDistribution;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
-import de.dfki.asr.ajan.behaviour.exception.SelectEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.SelectSimulationException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.*;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Direction;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Direction;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Result;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -96,7 +96,7 @@ public class Repeater extends LoopDecorator<AgentTaskInformation> implements Tre
 		try {
 			times = updateTimes();
 			count = times.nextInt();
-		} catch (SelectEvaluationException ex) {
+		} catch (SelectSimulationException ex) {
 			Logger.getLogger(Repeater.class.getName()).log(Level.SEVERE, null, ex);
 		}
 	}
@@ -144,12 +144,12 @@ public class Repeater extends LoopDecorator<AgentTaskInformation> implements Tre
 		super.resetTask();
 	}
 
-	private IntegerDistribution updateTimes() throws SelectEvaluationException {
+	private IntegerDistribution updateTimes() throws SelectSimulationException {
 		List<Integer> intList = intValue.getIntValue(this.getObject());
 		return new ConstantIntegerDistribution(intList.get(0));
 	}
 
-	private IntegerDistribution updateTimes(final Repository repo) throws SelectEvaluationException {
+	private IntegerDistribution updateTimes(final Repository repo) throws SelectSimulationException {
 		List<Integer> intList = intValue.getIntValue(repo);
 		return new ConstantIntegerDistribution(intList.get(0));
 	}
@@ -176,7 +176,7 @@ public class Repeater extends LoopDecorator<AgentTaskInformation> implements Tre
 	}
 
 	@Override
-	public void evaluate(final EvaluationResult result) {
+	public void simulate(final SimulationResult result) {
 		Direction direction = result.getDirection();
 		try {
 			if (count == 0) {
@@ -189,18 +189,18 @@ public class Repeater extends LoopDecorator<AgentTaskInformation> implements Tre
 				evalCount--;
 			}
 			evaluateChild(result);
-		} catch (SelectEvaluationException ex) {
+		} catch (SelectSimulationException ex) {
 			LOG.error("Problems with defined query", ex);
 			result.setChildResult(Result.FAIL);
 		}
 		if (direction.equals(Direction.Up)) {
-			((TreeNode)control).evaluate(result.setDirection(Direction.Up));
+			((TreeNode)control).simulate(result.setDirection(Direction.Up));
 		}
 	}
 
-	protected void evaluateChild(final EvaluationResult result) {
+	protected void evaluateChild(final SimulationResult result) {
 		while (evalCount > 0) {
-			((TreeNode)child).evaluate(result.setDirection(Direction.Down));
+			((TreeNode)child).simulate(result.setDirection(Direction.Down));
 			evalCount--;
 		}
 		result.setChildResult(Result.SUCCESS);

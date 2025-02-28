@@ -20,7 +20,7 @@ package de.dfki.asr.ajan.pluginsystem.mosimplugin.extensions.instructions;
 
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.events.ModelEvent;
-import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.ConditionSimulationException;
 import de.dfki.asr.ajan.behaviour.exception.LoadPredicateException;
 import de.dfki.asr.ajan.behaviour.nodes.Action;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ActionVariable;
@@ -95,7 +95,7 @@ public abstract class AbstractInstruction extends ThriftAction {
         InstructionParameters parameters = readInput(inputModel, info);
         try {
             executeOperation(id, parameters);
-        } catch (ConditionEvaluationException | URISyntaxException | LoadPredicateException ex) {
+        } catch (ConditionSimulationException | URISyntaxException | LoadPredicateException ex) {
             java.util.logging.Logger.getLogger(AbstractInstruction.class.getName()).log(Level.SEVERE, null, ex);
         }
         ResultModel result = new ResultModel();
@@ -110,7 +110,7 @@ public abstract class AbstractInstruction extends ThriftAction {
 
     protected abstract InstructionParameters readInput(final InputModel inputModel, final AgentTaskInformation info);
 
-    protected void executeOperation(String actionID, InstructionParameters parameters) throws ConditionEvaluationException, URISyntaxException, LoadPredicateException {
+    protected void executeOperation(String actionID, InstructionParameters parameters) throws ConditionSimulationException, URISyntaxException, LoadPredicateException {
         try {
             try (TTransport transport = new TSocket(parameters.getCosimHost(), parameters.getCosimPort())) {
                 transport.open();

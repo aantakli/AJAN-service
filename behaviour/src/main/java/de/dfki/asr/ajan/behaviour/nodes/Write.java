@@ -20,13 +20,13 @@
 package de.dfki.asr.ajan.behaviour.nodes;
 
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
-import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.ConditionSimulationException;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTVocabulary;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Result;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import java.net.URISyntaxException;
 import lombok.Getter;
@@ -68,13 +68,13 @@ public class Write extends AbstractTDBLeafTask {
 			performWrite();
 			String report = toString() + " SUCCEEDED";
 			return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), report);
-		} catch (ConditionEvaluationException ex) {
+		} catch (ConditionSimulationException ex) {
 			String report = toString() + " FAILED due to evaluation error";
 			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), report, ex);
 		}
 	}
 
-	private void performWrite() throws ConditionEvaluationException {
+	private void performWrite() throws ConditionSimulationException {
 		try {
 			if (query.getTargetBase().toString().equals(AJANVocabulary.DOMAIN_KNOWLEDGE.toString())
 							|| query.getTargetBase().toString().equals(AJANVocabulary.SERVICE_KNOWLEDGE.toString())
@@ -90,7 +90,7 @@ public class Write extends AbstractTDBLeafTask {
 				updateExternalRepo(new SPARQLRepository(query.getTargetBase().toString()), model);
 			}
 		} catch (URISyntaxException | QueryEvaluationException ex) {
-			throw new ConditionEvaluationException(ex);
+			throw new ConditionSimulationException(ex);
 		}
 	}
 
@@ -140,7 +140,7 @@ public class Write extends AbstractTDBLeafTask {
 	}
 
 	@Override
-	public Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
+	public Result simulateNodeLogic(final SimulationResult result, final Resource root) {
 		return Result.SUCCESS;
 	}
 }

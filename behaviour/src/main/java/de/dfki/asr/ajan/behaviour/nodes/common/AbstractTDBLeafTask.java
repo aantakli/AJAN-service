@@ -25,7 +25,7 @@ import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.DebugMode;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil.ModelMode;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Result;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.ValueFactory;
@@ -79,7 +79,7 @@ public abstract class AbstractTDBLeafTask extends LeafTask<AgentTaskInformation>
 	public abstract void end();
 
 	@Override
-	public void evaluate(final EvaluationResult result) {
+	public void simulate(final SimulationResult result) {
 		Model stmts = new LinkedHashModel();
 		Resource root = BTUtil.setBasicEvaluationResult(stmts, getUrl());
 		Result childResult = simulateNodeLogic(result,root);
@@ -102,7 +102,7 @@ public abstract class AbstractTDBLeafTask extends LeafTask<AgentTaskInformation>
 		}
 	}
 
-	public abstract Result simulateNodeLogic(final EvaluationResult result, final Resource root);
+	public abstract Result simulateNodeLogic(final SimulationResult result, final Resource root);
 
 	@Override
 	protected Task<AgentTaskInformation> copyTo(final Task<AgentTaskInformation> task) {

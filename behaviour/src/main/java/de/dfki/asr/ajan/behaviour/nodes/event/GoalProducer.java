@@ -21,12 +21,12 @@ package de.dfki.asr.ajan.behaviour.nodes.event;
 
 import de.dfki.asr.ajan.behaviour.events.*;
 import de.dfki.asr.ajan.behaviour.exception.AJANBindingsException;
-import de.dfki.asr.ajan.behaviour.exception.ConditionEvaluationException;
-import de.dfki.asr.ajan.behaviour.exception.EventEvaluationException;
+import de.dfki.asr.ajan.behaviour.exception.ConditionSimulationException;
+import de.dfki.asr.ajan.behaviour.exception.EventSimulationException;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ActionVariable;
 import de.dfki.asr.ajan.behaviour.nodes.common.*;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult.Result;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Result;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.SPARQLUtil;
 import java.net.URI;
@@ -86,7 +86,7 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 			exStatus = Status.RUNNING;
 			try {
 				produceGoal();
-			} catch (EventEvaluationException | AJANBindingsException | URISyntaxException | ConditionEvaluationException ex) {
+			} catch (EventSimulationException | AJANBindingsException | URISyntaxException | ConditionSimulationException ex) {
 				goalStatus = Status.FAILED;
 				return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED", ex);
 			}
@@ -114,21 +114,21 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 		}
 	}
 
-	private void produceGoal() throws EventEvaluationException, AJANBindingsException, URISyntaxException, ConditionEvaluationException {
+	private void produceGoal() throws EventSimulationException, AJANBindingsException, URISyntaxException, ConditionSimulationException {
 		Map<URI,Event> events = this.getObject().getEvents();
 		if (events.containsKey(goalURI)) {
 			if (events.get(goalURI) instanceof AJANGoal) {
 				goal = (AJANGoal)events.get(goalURI);
 				createGoalEvent(goal);
 			} else {
-				throw new EventEvaluationException("Event is no AJANGoal");
+				throw new EventSimulationException("Event is no AJANGoal");
 			}
 		} else {
-			throw new EventEvaluationException("No such AJANGoal defined");
+			throw new EventSimulationException("No such AJANGoal defined");
 		}
 	}
 
-	private void createGoalEvent(final AJANGoal goal) throws AJANBindingsException, URISyntaxException, ConditionEvaluationException {
+	private void createGoalEvent(final AJANGoal goal) throws AJANBindingsException, URISyntaxException, ConditionSimulationException {
 		Model inputModel = getModel();
 		if (!inputModel.isEmpty() && checkConsumables(inputModel)) {
 			goal.setEventInformation(this, new GoalInformation(inputModel));
@@ -137,12 +137,12 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 		}
 	}
 
-	private Model getModel() throws ConditionEvaluationException {
+	private Model getModel() throws ConditionSimulationException {
 		try {
 			Repository repo = BTUtil.getInitializedRepository(getObject(), content.getOriginBase());
 			return content.getResult(repo);
 		} catch (URISyntaxException | QueryEvaluationException ex) {
-			throw new ConditionEvaluationException(ex);
+			throw new ConditionSimulationException(ex);
 		}
 	}
 
@@ -224,7 +224,7 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 	}
 
 	@Override
-	public Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
+	public Result simulateNodeLogic(final SimulationResult result, final Resource root) {
 		return Result.UNCLEAR;
 	}
 }

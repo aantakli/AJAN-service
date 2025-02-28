@@ -29,9 +29,9 @@ import org.eclipse.rdf4j.model.Resource;
  * @author andredfki
  */
 @Data
-public class EvaluationResult {
+public class SimulationResult {
 	private final ResultCollection collection;
-	private final EvaluationBase repo;
+	private final SimulationBase repo;
 	private final AgentTaskInformation object;
 	private Result childResult;
 	private Direction direction;
@@ -47,9 +47,9 @@ public class EvaluationResult {
 		Down
 	}
 
-	public EvaluationResult(final Model model, final AgentTaskInformation object) {
+	public SimulationResult(final Model model, final AgentTaskInformation object) {
 		this.collection = new ResultCollection();
-		this.repo = new EvaluationBase(model);
+		this.repo = new SimulationBase(model);
 		this.object = object;
 	}
 
@@ -68,7 +68,7 @@ public class EvaluationResult {
 		return collection.getCollectionModel();
 	}
 
-	public EvaluationResult setDirection(final Direction direction) {
+	public SimulationResult setDirection(final Direction direction) {
 		this.direction = direction;
 		return this;
 	}

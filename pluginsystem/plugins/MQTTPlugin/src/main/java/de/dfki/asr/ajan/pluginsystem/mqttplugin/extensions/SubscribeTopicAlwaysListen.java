@@ -3,7 +3,7 @@ package de.dfki.asr.ajan.pluginsystem.mqttplugin.extensions;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
-import de.dfki.asr.ajan.behaviour.nodes.common.EvaluationResult;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorSelectQuery;
 import de.dfki.asr.ajan.knowledge.AbstractBeliefBase;
@@ -100,8 +100,8 @@ public class SubscribeTopicAlwaysListen extends AbstractTDBLeafTask implements N
     }
 
     @Override
-    public EvaluationResult.Result simulateNodeLogic(final EvaluationResult result, final Resource root) {
-        return EvaluationResult.Result.UNCLEAR;
+    public SimulationResult.Result simulateNodeLogic(final SimulationResult result, final Resource root) {
+        return SimulationResult.Result.UNCLEAR;
     }
 
     @Override
