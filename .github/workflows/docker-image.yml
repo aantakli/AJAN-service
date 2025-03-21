@@ -171,55 +171,55 @@ jobs:
         uses: pr-mpt/actions-commit-hash@v1
       -
         name: Load triplestore jar
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: triplestore
           path: .
       -
         name: Load executionservice jar
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: executionservice
           path: .
       -
         name: Load ASPPlugin jar
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ASPPlugin
           path: ./pluginsystem/plugins/ASPPlugin/target/
       -
         name: Load MappingPlugin jar
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: MappingPlugin
           path: ./pluginsystem/plugins/MappingPlugin/target/
       -
         name: Load MOSIMPlugin jar
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: MOSIMPlugin
           path: ./pluginsystem/plugins/MOSIMPlugin/target/
       -
         name: Load StandardBTNodes jar
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: StandardBTNodes
           path: ./pluginsystem/plugins/StandardBTNodes/target/
       -
         name: Load STRIPSPlugin jar
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STRIPSPlugin
           path: ./pluginsystem/plugins/STRIPSPlugin/target/
       -
         name: Load MQTTPlugin jar
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: MQTTPlugin
           path: ./pluginsystem/plugins/MQTTPlugin/target/
       -
         name: Load PythonPlugin jar
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: PythonPlugin
           path: ./pluginsystem/plugins/PythonPlugin/target/
@@ -266,19 +266,19 @@ jobs:
           prerelease: false
       -
         name: Load triplestore jar
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: triplestore
           path: .
       -
         name: Load executionservice jar
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: executionservice
           path: .
       -
         name: Load release zip
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: release
           path: .
