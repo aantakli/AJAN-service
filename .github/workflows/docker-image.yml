@@ -15,7 +15,7 @@ jobs:
         uses: pr-mpt/actions-commit-hash@v1
       -
         name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       -
         name: Cache local Maven repository
         uses: actions/cache@v4
@@ -40,61 +40,61 @@ jobs:
         run: mvn install
       - 
         name: Temporally save triplestore jar
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: triplestore
           path: ./triplestore/target/triplestore-0.1-war-exec.jar
       - 
         name: Temporally save executionservice jar
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: executionservice
           path: ./executionservice/target/executionservice-0.1.jar
       -
         name: Temporally save loader
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: executionservice
           path: ./pluginsystem/loader/target/
       -
         name: Temporally save ASPPlugin
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ASPPlugin
           path: ./pluginsystem/plugins/ASPPlugin/target/
       -
         name: Temporally save MappingPlugin
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MappingPlugin
           path: ./pluginsystem/plugins/MappingPlugin/target/
       -
         name: Temporally save MOSIMPlugin
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MOSIMPlugin
           path: ./pluginsystem/plugins/MOSIMPlugin/target/
       -
         name: Temporally save StandardBTNodes
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: StandardBTNodes
           path: ./pluginsystem/plugins/StandardBTNodes/target/
       -
         name: Temporally save STRIPSPlugin
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: STRIPSPlugin
           path: ./pluginsystem/plugins/STRIPSPlugin/target/
       -
         name: Temporally save MQTT Plugin
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MQTTPlugin
           path: ./pluginsystem/plugins/MQTTPlugin/target/
       -
         name: Temporally save Python Plugin
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: PythonPlugin
           path: ./pluginsystem/plugins/PythonPlugin/target/    
@@ -128,7 +128,7 @@ jobs:
           dest: ajanservice-${{ steps.commit.outputs.short }}.zip
       -
         name: Temporally save release.zip
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: release
           path: ./ajanservice-${{ steps.commit.outputs.short }}.zip
