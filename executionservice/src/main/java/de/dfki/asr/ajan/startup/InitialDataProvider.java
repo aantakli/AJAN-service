@@ -140,6 +140,7 @@ public class InitialDataProvider {
             Path target = Paths.get(nodeDefinitionsFolderPath).resolve(origin.getFileName());
             LOG.info("Copying file from {} to {}", origin, target);
             try {
+                Files.createDirectories(target.getParent());
                 Files.copy(origin, target);
             } catch (IOException e) {
                 LOG.error(Arrays.toString(e.getStackTrace()));
