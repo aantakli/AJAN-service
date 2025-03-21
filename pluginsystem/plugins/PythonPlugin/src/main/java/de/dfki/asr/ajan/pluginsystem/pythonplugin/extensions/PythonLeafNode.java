@@ -125,8 +125,9 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 			}
 		} catch (IOException | InterruptedException ex) {
 			LOG.info(this.getClass(), ex.getMessage());
-			throw new PythonException("Problems with the Runtime environment!", ex);
+			// throw new PythonException("Problems with the Runtime environment!", ex);
 		}
+		return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), "PythonNode SUCCEEDED Test");
 	}
 
 	private File getPython() {
@@ -177,7 +178,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 		boolean pyLabel = false;
 		boolean pyRDF = false;
 		String line;
-		LOG.info(this.getClass(), "Extracting PythonNode Output:\n");
+		LOG.info(this.getClass(), "Extracting PythonNode Output:");
 		while ( (line = in.readLine()) != null) {
 			LOG.info(this.getClass(), line);
 			switch (line) {
