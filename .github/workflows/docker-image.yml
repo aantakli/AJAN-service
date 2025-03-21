@@ -54,7 +54,7 @@ jobs:
         name: Temporally save loader
         uses: actions/upload-artifact@v4
         with:
-          name: executionservice
+          name: loader
           path: ./pluginsystem/loader/target/
       -
         name: Temporally save ASPPlugin
