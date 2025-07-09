@@ -1,12 +1,24 @@
+# Use a specific, stable base image tag
 FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine
 
-RUN apk update
-RUN apk add supervisor wget ca-certificates curl libstdc++ python3 py3-pip py3-wheel
-RUN apk add --no-cache libstdc++=11.2.1_git20220219-r2 --repository https://dl-cdn.alpinelinux.org/alpine/v3.16/main --allow-untrusted
-RUN apk list -I | grep -E 'libstdc++'
+# Combine package installation and cleanup in a single RUN command to reduce layers
+# Use --no-cache to avoid storing the package index
+RUN apk add --no-cache \
+        supervisor \
+        wget \
+        ca-certificates \
+        curl \
+        libstdc++ \
+        python3 \
+        py3-pip \
+        py3-wheel && \
+    apk add --no-cache libstdc++=11.2.1_git20220219-r2 --repository https://dl-cdn.alpinelinux.org/alpine/v3.16/main --allow-untrusted && \
+    # Verify installation (optional, can be removed for smaller image)
+    apk list -I | grep -E 'libstdc++'
 
-WORKDIR app
+WORKDIR /app
 
+# Copy application files
 COPY triplestore-0.1-war-exec.jar .
 COPY executionservice-0.1.jar .
 COPY docker .
@@ -14,23 +26,23 @@ COPY executionservice/use-case ./executionservice/use-case
 COPY pluginsystem/plugins ./pluginsystem/plugins
 COPY .env .
 
-RUN chmod +x /app/startup.sh
-RUN chmod +x /app/create.sh
+# Combine Python and permission setup into a single layer
+RUN python3 -m pip install --upgrade pip && \
+    pip install clingo && \
+    # Setting up ASPPlugin
+    mkdir -p /usr/lib/python3.9/scrpt && \
+    echo "python3 /usr/lib/python3.9/site-packages/clingo" > /usr/lib/python3.9/scrpt/clingo && \
+    chmod +x /usr/lib/python3.9/scrpt/clingo && \
+    # Setting up PythonPlugin
+    cp /usr/bin/python3 /app/pluginsystem/plugins/PythonPlugin/target/classes/nix_venv/bin/python && \
+    # Set permissions
+    chmod +x /app/startup.sh /app/create.sh && \
+    chmod -R +rx /app/pluginsystem/plugins/PythonPlugin/target/classes && \
+    chmod -R +rx /app/pluginsystem/plugins/ASPPlugin/target/classes && \
+    chmod +x /usr/lib/python3.9/site-packages/clingo
 
-# Setting up ASPPlugin
-RUN python3 -m pip install --upgrade pip
-RUN pip install clingo
-RUN mkdir /usr/lib/python3.9/scrpt
-RUN echo python3 /usr/lib/python3.9/site-packages/clingo > /usr/lib/python3.9/scrpt/clingo
-RUN chmod +x /usr/lib/python3.9/scrpt/clingo
+# Add the script directory to the PATH
 ENV PATH="$PATH:/usr/lib/python3.9/scrpt"
-
-# Setting up PythonPlugin
-RUN cp /usr/bin/python3 /app/pluginsystem/plugins/PythonPlugin/target/classes/nix_venv/bin/python
-
-RUN chmod -R +rx /app/pluginsystem/plugins/PythonPlugin/target/classes
-RUN chmod -R +rx /app/pluginsystem/plugins/ASPPlugin/target/classes
-RUN chmod +x /usr/lib/python3.9/site-packages/clingo
 
 WORKDIR /logs
 VOLUME /logs

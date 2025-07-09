@@ -8,144 +8,79 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      commit_hash: ${{ steps.commit.outputs.short }}
     steps:
-      - 
-        name: Get commit Hash
+      - name: Get commit Hash
         id: commit
         uses: pr-mpt/actions-commit-hash@v1
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v4
-      -
-        name: Cache local Maven repository
+      - name: Cache local Maven repository
         uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - 
-        name: Set up JDK 11
-        uses: actions/setup-java@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
         with:
-            distribution: 'temurin'
-            java-version: '11'
-      - 
-        name: Set up Maven
+          distribution: 'temurin'
+          java-version: '11'
+      - name: Set up Maven
         uses: stCarolas/setup-maven@v4.3
         with:
           maven-version: 3.3.9
-      - 
-        name: Build project with Maven
+      - name: Build project with Maven
         run: mvn install
-      - 
-        name: Temporally save triplestore jar
-        uses: actions/upload-artifact@v4
-        with:
-          name: triplestore
-          path: ./triplestore/target/triplestore-0.1-war-exec.jar
-      - 
-        name: Temporally save executionservice jar
-        uses: actions/upload-artifact@v4
-        with:
-          name: executionservice
-          path: ./executionservice/target/executionservice-0.1.jar
-      -
-        name: Temporally save loader
-        uses: actions/upload-artifact@v4
-        with:
-          name: loader
-          path: ./pluginsystem/loader/target/
-      -
-        name: Temporally save ASPPlugin
-        uses: actions/upload-artifact@v4
-        with:
-          name: ASPPlugin
-          path: ./pluginsystem/plugins/ASPPlugin/target/
-      -
-        name: Temporally save MappingPlugin
-        uses: actions/upload-artifact@v4
-        with:
-          name: MappingPlugin
-          path: ./pluginsystem/plugins/MappingPlugin/target/
-      -
-        name: Temporally save MOSIMPlugin
-        uses: actions/upload-artifact@v4
-        with:
-          name: MOSIMPlugin
-          path: ./pluginsystem/plugins/MOSIMPlugin/target/
-      -
-        name: Temporally save StandardBTNodes
-        uses: actions/upload-artifact@v4
-        with:
-          name: StandardBTNodes
-          path: ./pluginsystem/plugins/StandardBTNodes/target/
-      -
-        name: Temporally save STRIPSPlugin
-        uses: actions/upload-artifact@v4
-        with:
-          name: STRIPSPlugin
-          path: ./pluginsystem/plugins/STRIPSPlugin/target/
-      -
-        name: Temporally save MQTT Plugin
-        uses: actions/upload-artifact@v4
-        with:
-          name: MQTTPlugin
-          path: ./pluginsystem/plugins/MQTTPlugin/target/
-      -
-        name: Temporally save Python Plugin
-        uses: actions/upload-artifact@v4
-        with:
-          name: PythonPlugin
-          path: ./pluginsystem/plugins/PythonPlugin/target/    
-      - 
-        name: Remove default start scripts
+      - name: Create distribution directory
+        run: mkdir -p dist/pluginsystem/plugins
+      - name: Copy artifacts to distribution directory
         run: |
-          rm -f \
-            *.sh \
-            *.bat \
-      - 
-        name: Copy start scripts for release
-        run: |
-          cp \
-            ./.github/*.sh .\
-          && \
-          cp \
-            ./.github/*.bat .\
-      -
-        name: Overwrite file
+          cp ./triplestore/target/triplestore-0.1-war-exec.jar dist/
+          cp ./executionservice/target/executionservice-0.1.jar dist/
+          cp -r ./pluginsystem/loader/target/* dist/pluginsystem/
+          cp -r ./pluginsystem/plugins/ASPPlugin/target/* dist/pluginsystem/plugins/
+          cp -r ./pluginsystem/plugins/MappingPlugin/target/* dist/pluginsystem/plugins/
+          cp -r ./pluginsystem/plugins/MOSIMPlugin/target/* dist/pluginsystem/plugins/
+          cp -r ./pluginsystem/plugins/StandardBTNodes/target/* dist/pluginsystem/plugins/
+          cp -r ./pluginsystem/plugins/STRIPSPlugin/target/* dist/pluginsystem/plugins/
+          cp -r ./pluginsystem/plugins/MQTTPlugin/target/* dist/pluginsystem/plugins/
+          cp -r ./pluginsystem/plugins/PythonPlugin/target/* dist/pluginsystem/plugins/
+          cp ./.github/*.sh dist/
+          cp ./.github/*.bat dist/
+      - name: Create .env file
         uses: "DamianReeves/write-file-action@master"
         with:
-          path: .env
+          path: ./dist/.env
           write-mode: overwrite
           contents: |
             VERSION="${{ steps.commit.outputs.short }}"
-      - 
+      - name: Zip release files
         uses: vimtor/action-zip@v1
         with:
-          recursive: true
-          files: ./executionservice/use-case/editor/nodeDefinitions/editor_data.trig ./executionservice/use-case/editor/editorData/editor_data.trig ./pluginsystem/ ./executionservice/target/executionservice-0.1.jar ./triplestore/target/triplestore-0.1-war-exec.jar ./executionservice/ .env startAll.bat startAll.sh startAJAN.sh startAJAN.bat startTriplestore.bat startTriplestore.sh
-          dest: ajanservice-${{ steps.commit.outputs.short }}.zip
-      -
-        name: Temporally save release.zip
+          recursive: false
+          files: ./dist/
+          dest: ./dist/ajanservice-${{ steps.commit.outputs.short }}.zip
+      - name: Upload distribution artifact
         uses: actions/upload-artifact@v4
         with:
-          name: release
-          path: ./ajanservice-${{ steps.commit.outputs.short }}.zip
+          name: dist-artifact
+          path: dist/
+
   docker:
     runs-on: ubuntu-latest
     needs: [build]
     steps:
-      -
-        uses: actions/checkout@v2
-      -  
-        name: Set up JDK 11
-        uses: actions/setup-java@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download distribution artifact
+        uses: actions/download-artifact@v4
         with:
-            distribution: 'temurin'
-            java-version: '11'
-      -
-        name: Setup docker metadata
+          name: dist-artifact
+          path: .
+      - name: Setup docker metadata
         id: meta
         uses: docker/metadata-action@v3
         with:
@@ -153,162 +88,72 @@ jobs:
           tags: |
             type=raw,latest
             type=sha
-      -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      -
-        name: Login to DockerHub
-        uses: docker/login-action@v1 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      -
-        name: Get commit Hash
-        id: commit
-        uses: pr-mpt/actions-commit-hash@v1
-      -
-        name: Load triplestore jar
-        uses: actions/download-artifact@v4
-        with:
-          name: triplestore
-          path: .
-      -
-        name: Load executionservice jar
-        uses: actions/download-artifact@v4
-        with:
-          name: executionservice
-          path: .
-      -
-        name: Load ASPPlugin jar
-        uses: actions/download-artifact@v4
-        with:
-          name: ASPPlugin
-          path: ./pluginsystem/plugins/ASPPlugin/target/
-      -
-        name: Load MappingPlugin jar
-        uses: actions/download-artifact@v4
-        with:
-          name: MappingPlugin
-          path: ./pluginsystem/plugins/MappingPlugin/target/
-      -
-        name: Load MOSIMPlugin jar
-        uses: actions/download-artifact@v4
-        with:
-          name: MOSIMPlugin
-          path: ./pluginsystem/plugins/MOSIMPlugin/target/
-      -
-        name: Load StandardBTNodes jar
-        uses: actions/download-artifact@v4
-        with:
-          name: StandardBTNodes
-          path: ./pluginsystem/plugins/StandardBTNodes/target/
-      -
-        name: Load STRIPSPlugin jar
-        uses: actions/download-artifact@v4
-        with:
-          name: STRIPSPlugin
-          path: ./pluginsystem/plugins/STRIPSPlugin/target/
-      -
-        name: Load MQTTPlugin jar
-        uses: actions/download-artifact@v4
-        with:
-          name: MQTTPlugin
-          path: ./pluginsystem/plugins/MQTTPlugin/target/
-      -
-        name: Load PythonPlugin jar
-        uses: actions/download-artifact@v4
-        with:
-          name: PythonPlugin
-          path: ./pluginsystem/plugins/PythonPlugin/target/
-      -
-        name: Overwrite file
-        uses: "DamianReeves/write-file-action@master"
-        with:
-          path: .env
-          write-mode: overwrite
-          contents: |
-            VERSION="${{ steps.commit.outputs.short }}"
-      -
-        name: Build and push
-        uses: docker/build-push-action@v2
+      - name: Build and push
+        uses: docker/build-push-action@v5
         with:
           context: .
           args:
-            AVERSION="${{ steps.commit.outputs.short }}"
+            AVERSION="${{ needs.build.outputs.commit_hash }}"
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GIT_TOKEN }}
+
   release:
     name: Create Release
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Get commit Hash
-        id: commit
-        uses: pr-mpt/actions-commit-hash@v1
-      - 
-        name: Create Release
+      - name: Download distribution artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-artifact
+          path: dist
+      - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.commit.outputs.short }}
-          release_name: Release ${{ steps.commit.outputs.short }}
+          tag_name: ${{ needs.build.outputs.commit_hash }}
+          release_name: Release ${{ needs.build.outputs.commit_hash }}
           body: |
             Current version of the AJAN-service
           draft: false
           prerelease: false
-      -
-        name: Load triplestore jar
-        uses: actions/download-artifact@v4
-        with:
-          name: triplestore
-          path: .
-      -
-        name: Load executionservice jar
-        uses: actions/download-artifact@v4
-        with:
-          name: executionservice
-          path: .
-      -
-        name: Load release zip
-        uses: actions/download-artifact@v4
-        with:
-          name: release
-          path: .
-      - 
-        name: upload triplestore artifact
+      - name: Upload release assets
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./triplestore-0.1-war-exec.jar
+          asset_path: ./dist/ajanservice-${{ needs.build.outputs.commit_hash }}.zip
+          asset_name: ajanservice-${{ needs.build.outputs.commit_hash }}.zip
+          asset_content_type: application/zip
+      - name: Upload triplestore artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/triplestore-0.1-war-exec.jar
           asset_name: triplestore-0.1-war-exec.jar
           asset_content_type: application/java-archive
-      -
-        name: upload executionservice artifact
+      - name: Upload executionservice artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./executionservice-0.1.jar
+          asset_path: ./dist/executionservice-0.1.jar
           asset_name: executionservice-0.1.jar
           asset_content_type: application/java-archive
-      -
-        name: upload release zip
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ajanservice-${{ steps.commit.outputs.short }}.zip
-          asset_name: ajanservice-${{ steps.commit.outputs.short }}.zip
-          asset_content_type: application/zip
