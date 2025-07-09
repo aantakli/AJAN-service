@@ -27,19 +27,24 @@ COPY pluginsystem/plugins ./pluginsystem/plugins
 COPY .env .
 
 # Combine Python and permission setup into a single layer
-RUN python3 -m pip install --upgrade pip && \
+# Add build dependencies for pip install, then remove them to keep the image lean.
+RUN apk add --no-cache --virtual .build-deps build-base python3-dev && \
+    python3 -m pip install --upgrade pip && \
     pip install clingo && \
     # Setting up ASPPlugin
     mkdir -p /usr/lib/python3.9/scrpt && \
     echo "python3 /usr/lib/python3.9/site-packages/clingo" > /usr/lib/python3.9/scrpt/clingo && \
     chmod +x /usr/lib/python3.9/scrpt/clingo && \
     # Setting up PythonPlugin
+    mkdir -p /app/pluginsystem/plugins/PythonPlugin/target/classes/nix_venv/bin/ && \
     cp /usr/bin/python3 /app/pluginsystem/plugins/PythonPlugin/target/classes/nix_venv/bin/python && \
     # Set permissions
     chmod +x /app/startup.sh /app/create.sh && \
     chmod -R +rx /app/pluginsystem/plugins/PythonPlugin/target/classes && \
     chmod -R +rx /app/pluginsystem/plugins/ASPPlugin/target/classes && \
-    chmod +x /usr/lib/python3.9/site-packages/clingo
+    chmod +x /usr/lib/python3.9/site-packages/clingo && \
+    # Clean up build dependencies
+    apk del .build-deps
 
 # Add the script directory to the PATH
 ENV PATH="$PATH:/usr/lib/python3.9/scrpt"
