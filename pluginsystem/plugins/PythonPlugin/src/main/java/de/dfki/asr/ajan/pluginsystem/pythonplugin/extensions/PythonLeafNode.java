@@ -23,22 +23,19 @@ import de.dfki.asr.ajan.behaviour.AJANLogger;
 import de.dfki.asr.ajan.behaviour.nodes.action.common.ACTNUtil;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
-import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.pythonplugin.exception.PythonException;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
+import jep.JepException;
+import jep.SubInterpreter;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -52,197 +49,173 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.pf4j.Extension;
 
+/*
+m JEP mit portablen Python-Umgebungen (nix_env.zip, win_env.zip) in deinem Java-Projekt korrekt zu nutzen, beachte Folgendes:
+
+
+Entpacken und Setzen der Umgebungsvariablen
+Stelle sicher, dass die jeweilige Umgebung beim Start entpackt und die Umgebungsvariablen korrekt gesetzt werden:
+
+
+PYTHONHOME auf das Root-Verzeichnis der entpackten Umgebung.
+PATH (Windows) bzw. LD_LIBRARY_PATH (Linux) so erweitern, dass die Python-Binaries und -Libraries gefunden werden.
+jep.python.home und jep.library.path als System-Properties setzen.
+JEP native Bibliotheken
+Die JEP-JAR benötigt die nativen Bibliotheken (jep.dll, libjep.so) im Library-Pfad. Diese sollten in deiner portablen Umgebung im richtigen Verzeichnis (Lib, DLLs, lib etc.) liegen.
+
+
+Java-Startparameter
+Falls nötig, gib beim Starten der JVM zusätzliche Parameter an, z. B.:
+
+
+-Djep.python.home=<Pfad_zur_Python-Umgebung>
+-Djep.library.path=<Pfad_zur_JEP-Bibliothek>
+-Djava.library.path=<Pfad_zur_JEP-Bibliothek>
+Ressourcen laden
+Stelle sicher, dass das Entpacken der ZIP-Dateien und das Setzen der Variablen vor der ersten JEP-Nutzung erfolgt (wie in deiner setupEmbeddedPythonEnv()-Methode).
+
+
+Kompatibilität
+Die Python-Umgebung und JEP müssen zur verwendeten Java-Version und zum Betriebssystem passen (32/64 Bit, Versionen).
+
+
+Fehlerbehandlung
+Prüfe, ob beim Starten von JEP Exceptions auftreten, die auf fehlende oder falsch gesetzte Umgebungsvariablen hindeuten.
+
+
+Zusammengefasst:
+
+
+Portable Umgebung entpacken
+Umgebungsvariablen und System-Properties korrekt setzen
+JEP-Bibliotheken im Pfad
+Vor JEP-Nutzung alles initialisieren
+Damit sollte JEP mit deiner portablen Python-Umgebung funktionieren.
+ */
+
 @Extension
 @RDFBean("python:LeafNode")
 public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension {
-	@RDFSubject
-	@Getter @Setter
-	private String url;
+  @RDFSubject @Getter @Setter private String url;
 
-	@RDF("rdfs:label")
-	@Getter @Setter
-	private String label;
+  @RDF("rdfs:label")
+  @Getter
+  @Setter
+  private String label;
 
-	@RDF("python:input")
-	@Getter @Setter
-	private BehaviorConstructQuery query;
+  @RDF("python:input")
+  @Getter
+  @Setter
+  private BehaviorConstructQuery query;
 
-	@RDF("python:script")
-	@Getter @Setter
-	private String script = "";
+  @RDF("python:script")
+  @Getter
+  @Setter
+  private String script = "";
 
-	@RDF("bt:targetBase")
-	@Getter @Setter
-	private URI targetBase;
+  @RDF("bt:targetBase")
+  @Getter
+  @Setter
+  private URI targetBase;
 
-	private AJANLogger LOG;
+  private AJANLogger LOG;
 
-	@Override
-	public String toString() {
-		return "PythonLeafNode (" + label + ")";
-	}
+  @Override
+  public String toString() {
+    return "PythonLeafNode (" + label + ")";
+  }
 
-	@Override
-	public Resource getType() {
-		return vf.createIRI("http://www.ajan.de/behavior/python-ns#LeafNode");
-	}
+  @Override
+  public Resource getType() {
+    return vf.createIRI("http://www.ajan.de/behavior/python-ns#LeafNode");
+  }
 
-	@Override
-	public NodeStatus executeLeaf() {
-		LOG = this.getObject().getLogger();
-		try {
-			return runPythonScript();
-		} catch (PythonException ex) {
-			return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED", ex);
-		}
-	}
-
-	private NodeStatus runPythonScript() throws PythonException {
-		try {
-			File python = getPython();
-			File main = new File(getClass().getClassLoader().getResource("main.py").getFile());
-			if (python.exists() && main.exists()) {
-				List<String> cmdLine = new ArrayList();
-				cmdLine.add(python.getPath());
-				cmdLine.add(main.getPath());
-				cmdLine.add(handleQuotes(getScript()));
-				cmdLine.add(readInputRDF());
-				ProcessBuilder pb = new ProcessBuilder(cmdLine);
-				pb.redirectErrorStream(true);
-				Process p = pb.start();
-				try (BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-					return extractFormResult(in);
-				} finally {
-					p.waitFor();
-					p.descendants().forEach(ph -> {
-						ph.destroy();
-					});
-					p.destroy();
-				}
-			}
-			else {
-				throw new PythonException("Files not existing!");
-			}
-		} catch (IOException | InterruptedException ex) {
-			LOG.info(this.getClass(), ex.getMessage());
-			// throw new PythonException("Problems with the Runtime environment!", ex);
-		}
-		return new NodeStatus(Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), "PythonNode SUCCEEDED Test");
-	}
-
-	private File getPython() {
-		String OS = System.getProperty("os.name").toLowerCase();
-		if (isWindows(OS))
-			return new File(getClass().getClassLoader().getResource("win_venv/python/python.exe").getFile());
-		else if (isUnix(OS))
-			return new File(getClass().getClassLoader().getResource("nix_venv/bin/python").getFile());
-		else return null;
-	}
-	
-	private boolean isWindows(final String OS) {
-        return OS.contains("win");
+  @Override
+  public NodeStatus executeLeaf() {
+    LOG = this.getObject().getLogger();
+    try {
+      return runPythonScript();
+    } catch (PythonException ex) {
+      return new NodeStatus(
+          Status.FAILED, this.getObject().getLogger(), this.getClass(), this + " FAILED", ex);
     }
- 
-    private boolean isUnix(final String OS) {
-        return (OS.contains("nix") || OS.contains("nux") || OS.contains("aix"));
+  }
+
+  private NodeStatus runPythonScript() throws PythonException {
+    try (SubInterpreter jep = new SubInterpreter()) {
+      String script = getScript();
+      String inputRDF = readInputRDF();
+
+      jep.set("input_rdf", inputRDF);
+      jep.eval(script);
+
+      String status = (String) jep.getValue("status");
+      String rdfOutput = (String) jep.getValue("rdf_output");
+
+      Status pyStatus = Status.FAILED;
+      if ("SUCCEEDED".equals(status)) {
+        pyStatus = Status.SUCCEEDED;
+      } else if ("RUNNING".equals(status)) {
+        pyStatus = Status.RUNNING;
+      }
+
+      writeSolution(rdfOutput);
+      return new NodeStatus(
+          pyStatus, this.getObject().getLogger(), this.getClass(), this + " " + status);
+    } catch (JepException | IOException ex) {
+      throw new PythonException("JEP execution failed!", ex);
     }
+  }
 
-	private String readInputRDF() throws PythonException {
-		String input = loadBeliefs();
-		String removedControls = input.replaceAll("\n", " ").replaceAll("\r", " ").replaceAll("\t", " ");
-		return handleQuotes(removedControls);
-	}
+  private String readInputRDF() throws PythonException {
+    String input = loadBeliefs();
+    String removedControls =
+        input.replaceAll("\n", " ").replaceAll("\r", " ").replaceAll("\t", " ");
+    return handleQuotes(removedControls);
+  }
 
-	private String handleQuotes(String input) throws PythonException {
-		input = input.replaceAll("\"", "_AJAN_DQ_");
-		return input.replaceAll("'", "_AJAN_SQ_");
-	}
+  private String handleQuotes(String input) throws PythonException {
+    input = input.replaceAll("\"", "_AJAN_DQ_");
+    return input.replaceAll("'", "_AJAN_SQ_");
+  }
 
-	private String loadBeliefs() throws PythonException {
-		try {
-			if (!getQuery().getSparql().isEmpty()) {
-				Repository origin = BTUtil.getInitializedRepository(getObject(), getQuery().getOriginBase());
-				Model model = getQuery().getResult(origin);
-				return ACTNUtil.getModelPayload(model, "text/turtle");
-			}
-		} catch (UnsupportedEncodingException | QueryEvaluationException | URISyntaxException ex) {
-			throw new PythonException("Problems with loading RDF input!", ex);
-		}
-		return "";
+  private String loadBeliefs() throws PythonException {
+    try {
+      if (!getQuery().getSparql().isEmpty()) {
+        Repository origin =
+            BTUtil.getInitializedRepository(getObject(), getQuery().getOriginBase());
+        Model model = getQuery().getResult(origin);
+        return ACTNUtil.getModelPayload(model, "text/turtle");
+      }
+    } catch (UnsupportedEncodingException | QueryEvaluationException | URISyntaxException ex) {
+      throw new PythonException("Problems with loading RDF input!", ex);
     }
+    return "";
+  }
 
-	private NodeStatus extractFormResult(final BufferedReader in) throws IOException {
-		Status pyStatus = Status.FAILED;
-		String pyStringOutput = "";
-		StringBuilder rdfOutput = new StringBuilder();
-		boolean pyLabel = false;
-		boolean pyRDF = false;
-		String line;
-		LOG.info(this.getClass(), "Extracting PythonNode Output:");
-		while ( (line = in.readLine()) != null) {
-			LOG.info(this.getClass(), line);
-			switch (line) {
-				case "Status.SUCCEEDED":
-					pyStatus = Status.SUCCEEDED;
-					pyStringOutput = toString() + " SUCCEEDED ";
-					pyLabel = true;
-					continue;
-				case "Status.RUNNING":
-					pyStatus = Status.RUNNING;
-					pyStringOutput = toString() + " RUNNING ";
-					pyLabel = true;
-					continue;
-				case "ERROR":
-				case "Status.FAILED":
-					pyStatus = Status.FAILED;
-					pyStringOutput = toString() + " FAILED ";
-					pyLabel = true;
-					continue;
-				default:
-					break;
-			}
-			if (pyLabel) {
-				pyStringOutput = pyStringOutput + line;
-				pyLabel = false;
-				continue;
-			}
-			if (line.endsWith("RDF--------")) {
-				pyRDF = true;
-				continue;
-			}
-			if (line.endsWith("--------RDF")) {
-				pyRDF = false;
-				continue;
-			}
-			if (pyRDF) {
-				rdfOutput.append("\n").append(line);
-			}
-		}
-		writeSolution(rdfOutput.toString());
- 		return new NodeStatus(pyStatus, this.getObject().getLogger(), this.getClass(), pyStringOutput);
- 	}
-
-	private void writeSolution(final String input) throws IOException {
-		Model model;
-		if (input.isEmpty()) {
-			LOG.info(this.getClass(), "Empty PythonNode solution!\n");
-			return;
-		}
-		model = Rio.parse(new ByteArrayInputStream(input.getBytes()),"http://www.ajan.de" , RDFFormat.TURTLE);
-		if (getTargetBase().toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
-			this.getObject().getExecutionBeliefs().update(model);
-		} else if (getTargetBase().toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
-			this.getObject().getAgentBeliefs().update(model);
-		}
+  private void writeSolution(final String input) throws IOException {
+    Model model;
+    if (input.isEmpty()) {
+      LOG.info(this.getClass(), "Empty PythonNode solution!\n");
+      return;
     }
+    model =
+        Rio.parse(
+            new ByteArrayInputStream(input.getBytes()), "http://www.ajan.de", RDFFormat.TURTLE);
+    if (getTargetBase().toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
+      this.getObject().getExecutionBeliefs().update(model);
+    } else if (getTargetBase().toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
+      this.getObject().getAgentBeliefs().update(model);
+    }
+  }
 
-	@Override
-	public void end() {
-		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
-	}
+  @Override
+  public void end() {
+    this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
+  }
 
-	@Override
-	public SimulationResult.Result simulateNodeLogic(SimulationResult result, Resource root) {
-		return SimulationResult.Result.SUCCESS;
-	}
+  @Override
+  public SimulationResult.Result simulateNodeLogic(SimulationResult result, Resource root) {
+    return SimulationResult.Result.SUCCESS;
+  }
 }
