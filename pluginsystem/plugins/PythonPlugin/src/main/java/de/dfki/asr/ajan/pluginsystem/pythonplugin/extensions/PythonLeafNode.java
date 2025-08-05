@@ -134,6 +134,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
   public NodeStatus executeLeaf() {
     LOG = this.getObject().getLogger();
     try {
+      LOG.info(this.getClass(), "Executing PythonLeafNode: " + this);
       return runPythonScript();
     } catch (PythonException ex) {
       return new NodeStatus(
@@ -145,6 +146,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
     try (SharedInterpreter jep = new SharedInterpreter()) {
       String script = getScript();
       String inputRDF = readInputRDF();
+      LOG.info(this.getClass(), "Python script: " + script);
 
       // Redirect Python stdout to a StringIO buffer
       jep.eval("import sys");
