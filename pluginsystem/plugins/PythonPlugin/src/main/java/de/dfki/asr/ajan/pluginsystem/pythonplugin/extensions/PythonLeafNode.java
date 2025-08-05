@@ -35,7 +35,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import jep.JepException;
-import jep.SubInterpreter;
+import jep.SharedInterpreter;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -142,15 +142,29 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
   }
 
   private NodeStatus runPythonScript() throws PythonException {
-    try (SubInterpreter jep = new SubInterpreter()) {
+    try (SharedInterpreter jep = new SharedInterpreter()) {
       String script = getScript();
       String inputRDF = readInputRDF();
+
+      // Redirect Python stdout to a StringIO buffer
+      jep.eval("import sys");
+      jep.eval("from io import StringIO");
+      jep.eval("sys._stdout = sys.stdout"); // Save original stdout
+      jep.eval("sys.stdout = StringIO()");
 
       jep.set("input_rdf", inputRDF);
       jep.eval(script);
 
+      // Get the output from the StringIO buffer
+      String pyStdout = (String) jep.getValue("sys.stdout.getvalue()");
+      // Optionally, restore original stdout
+      jep.eval("sys.stdout = sys._stdout");
+
       String status = (String) jep.getValue("status");
       String rdfOutput = (String) jep.getValue("rdf_output");
+
+      // Log or process pyStdout as needed
+      LOG.info(this.getClass(), "Python stdout: " + pyStdout);
 
       Status pyStatus = Status.FAILED;
       if ("SUCCEEDED".equals(status)) {
