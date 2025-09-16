@@ -57,6 +57,13 @@ if ($sysJep -and (Test-Path $sysJep) -and $portJep) {
 if (Test-Path $Requirements) {
     & .\python-portable\python.exe -m pip install -r $Requirements
 }
+& .\python-portable\python.exe -m pip install rdflib
+
+# 6b. Copy AJANlib.py into site-packages
+$ajanLibSource = "AJANlib.py"
+if (Test-Path $ajanLibSource) {
+    Copy-Item $ajanLibSource "$sitePackages\AJANlib.py" -Force
+}
 
 # 7. Package as zip (overwrite if exists)
 Compress-Archive -Path .\python-portable\* -DestinationPath win_env.zip -Force

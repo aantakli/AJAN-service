@@ -153,9 +153,12 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
       jep.eval("from io import StringIO");
       jep.eval("sys._stdout = sys.stdout"); // Save original stdout
       jep.eval("sys.stdout = StringIO()");
+      jep.eval("import AJANlib"); // Ensure AJANlib is loaded
+      jep.eval("status = 'SUCCEEDED'");
+      jep.eval("rdf_output = ''");
 
       jep.set("input_rdf", inputRDF);
-      jep.eval(script);
+      jep.exec(script);
 
       // Get the output from the StringIO buffer
       String pyStdout = (String) jep.getValue("sys.stdout.getvalue()");
@@ -179,6 +182,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
       return new NodeStatus(
           pyStatus, this.getObject().getLogger(), this.getClass(), this + " " + status);
     } catch (JepException | IOException ex) {
+      System.err.println(ex);
       throw new PythonException("JEP execution failed!", ex);
     }
   }

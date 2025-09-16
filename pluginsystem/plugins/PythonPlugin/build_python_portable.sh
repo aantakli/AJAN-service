@@ -17,6 +17,7 @@ REQUIRED_PACKAGES=(
   libxml2-dev
   libxmlsec1-dev
   zip
+  rdflib
 )
 
 MISSING=()
@@ -74,8 +75,16 @@ export LD_LIBRARY_PATH=$HOME/python-portable/lib:$LD_LIBRARY_PATH
 "$PORTABLE_PY" -m ensurepip
 "$PORTABLE_PY" -m pip install --upgrade pip
 "$PORTABLE_PY" -m pip install jep
+"$PORTABLE_PY" -m pip install rdflib
 if [ -f "$REQS" ]; then
   "$PORTABLE_PY" -m pip install -r "$REQS"
+fi
+
+# 3b. Copy AJANlib.py into site-packages
+AJANLIB_SOURCE="AJANlib.py"
+SITE_PACKAGES="$PWD/python-portable/lib/python3.$("$PORTABLE_PY" -c 'import sys; print(sys.version_info.minor)')/site-packages"
+if [ -f "$AJANLIB_SOURCE" ]; then
+  cp "$AJANLIB_SOURCE" "$SITE_PACKAGES/AJANlib.py"
 fi
 
 # 4. Package the portable Python as a zip
