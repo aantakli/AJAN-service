@@ -76,16 +76,17 @@ public class Write extends AbstractTDBLeafTask {
 
 	private void performWrite() throws ConditionSimulationException {
 		try {
-			if (query.getTargetBase().toString().equals(AJANVocabulary.DOMAIN_KNOWLEDGE.toString())
-							|| query.getTargetBase().toString().equals(AJANVocabulary.SERVICE_KNOWLEDGE.toString())
-							|| query.getTargetBase().toString().equals(AJANVocabulary.BEHAVIOR_KNOWLEDGE.toString())) {
-				return;
-			}
 			Model model = getInputModel();
 			if (query.getTargetBase().toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
 				this.getObject().getExecutionBeliefs().update(model);
 			} else if (query.getTargetBase().toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
 				this.getObject().getAgentBeliefs().update(model);
+			} else if (query.getTargetBase().toString().equals(AJANVocabulary.DOMAIN_KNOWLEDGE.toString())) {
+				this.getObject().getDomainTDB().add(model);
+			} else if (query.getTargetBase().toString().equals(AJANVocabulary.SERVICE_KNOWLEDGE.toString())) {
+				this.getObject().getServiceTDB().add(model);
+			} else if (query.getTargetBase().toString().equals(AJANVocabulary.BEHAVIOR_KNOWLEDGE.toString())) {
+				this.getObject().getBehaviorTDB().add(model);
 			} else {
 				updateExternalRepo(new SPARQLRepository(query.getTargetBase().toString()), model);
 			}

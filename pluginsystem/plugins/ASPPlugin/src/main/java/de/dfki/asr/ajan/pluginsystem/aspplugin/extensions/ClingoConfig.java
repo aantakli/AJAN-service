@@ -133,7 +133,9 @@ public class ClingoConfig implements NodeExtension, ASPConfig {
 				try (SolveHandle handle = control.solve(Collections.emptyList(), null, SolveMode.YIELD)) {
 					while (handle.hasNext() && models > 0) {
 						if (!stat) stat = true;
-						facts.add(handle.next().toString());
+						String line = handle.next().toString();
+						System.out.println(line);
+						facts.add(line);
 						models--;
 					}
 					problem.setFacts(facts);

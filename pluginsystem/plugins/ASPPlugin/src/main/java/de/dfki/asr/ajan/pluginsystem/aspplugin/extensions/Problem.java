@@ -48,7 +48,6 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
-import org.eclipse.rdf4j.model.util.RDFCollections;
 import org.eclipse.rdf4j.repository.Repository;
 import org.pf4j.Extension;
 

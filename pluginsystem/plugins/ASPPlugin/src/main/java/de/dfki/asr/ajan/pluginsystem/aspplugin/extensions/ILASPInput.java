@@ -32,6 +32,7 @@ import de.dfki.asr.ajan.pluginsystem.aspplugin.vocabularies.ILPVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -40,8 +41,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -110,6 +113,7 @@ public class ILASPInput extends AbstractTDBLeafTask implements NodeExtension {
 				try (FileWriter myWriter = new FileWriter(training,false)) {
 					getILASPTrainingData(myWriter);
 				}
+				readFile(training);
 				executeSolver(filePath.replaceFirst("/C:", "/mnt/c"));
 				Model result = readStableModels();
 				writeSolution(result);
@@ -123,6 +127,20 @@ public class ILASPInput extends AbstractTDBLeafTask implements NodeExtension {
 		}
 		return new NodeStatus(Status.FAILED, this.getObject().getLogger(), this.getClass(), toString() + " FAILED");
     }
+
+	private void readFile(final File file) {
+		try {
+			try (Scanner myReader = new Scanner(file)) {
+				while (myReader.hasNextLine()) {
+					String data = myReader.nextLine();
+					System.out.println(data);
+				}
+			}
+		  } catch (FileNotFoundException e) {
+			System.out.println("An error occurred.");
+			e.printStackTrace();
+		  }
+	}
 
 	private void getILASPTrainingData(final FileWriter myWriter) throws URISyntaxException, IOException {
 		getDomainData(myWriter);
@@ -151,7 +169,7 @@ public class ILASPInput extends AbstractTDBLeafTask implements NodeExtension {
 		Repository repo = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());
 		List<BindingSet> bindings = query.getResult(repo);
 		for(BindingSet set: bindings) {
-			if(set.hasBinding(label)) {
+			if(set.hasBinding(label)) {		
 				myWriter.write(set.getBinding(label).getValue().stringValue());
 			}
 		}
@@ -197,18 +215,13 @@ public class ILASPInput extends AbstractTDBLeafTask implements NodeExtension {
 	}
 
 	 private void getNamedModel(final ModelBuilder builder, final String hypothesis) {
-		BNode bnode = vf.createBNode();
+		Resource bnode = vf.createIRI(getWrite().getContext().toString());
 		builder.add(bnode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ILPVocabulary.HYPOTHESIS);
 		builder.add(bnode, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.RULE_SET);
 		if (getWrite().isSaveString()) {
 			StringBuilder adaptedModel = new StringBuilder();
-			for (String value : Arrays.asList(hypothesis.split("\\) "))) {
-				if(value.endsWith(")")) {
-					adaptedModel.append(value).append(". ");
-				}
-				else {
-					adaptedModel.append(value).append("). ");
-				}
+			for (String value : Arrays.asList(hypothesis.split(Pattern.quote(".")))) {
+				adaptedModel.append(value).append(".");
 			}
 			builder.add(bnode, ASPVocabulary.AS_RULES, adaptedModel.toString());
 		}

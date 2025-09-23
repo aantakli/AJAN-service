@@ -181,8 +181,9 @@ public final class Serializer {
 				List<Literal> list = new ArrayList();
 				getParts(list,vf,last);
 				BNode head = vf.createBNode();
+				List<Resource> terms = createTerms(builder, vf, list);
 				builder.add(subject, ASPVocabulary.HAS_TERMS, head);
-				Model partsModel = RDFCollections.asRDF(list, head, new LinkedHashModel());
+				Model partsModel = RDFCollections.asRDF(terms, head, new LinkedHashModel());
 				partsModel.forEach(stmt -> {builder.add(stmt.getSubject(),stmt.getPredicate(),stmt.getObject());});
 			}
 		}
@@ -213,6 +214,31 @@ public final class Serializer {
 				list.add(vf.createLiteral(fact));
 			}
 		}
+	}
+
+	private static List<Resource> createTerms(ModelBuilder builder, final ValueFactory vf, List<Literal> list) {
+		List<Resource> terms = new ArrayList();
+		for (Literal lit: list) {
+			BNode subject = vf.createBNode();
+			try { 
+					Integer.parseInt(lit.stringValue());
+					builder.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.TERM);
+					builder.add(subject, ASPVocabulary.HAS_INT_VALUE, lit.stringValue());
+				} catch(NumberFormatException e) { 
+					if (Character.isUpperCase(lit.stringValue().charAt(0))) {
+						builder.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.VARIABLE);
+						builder.add(subject, ASPVocabulary.HAS_VALUE, lit.stringValue());
+					} else if (Character.isLowerCase(lit.stringValue().charAt(0))) {
+						builder.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.CONSTANT);
+						builder.add(subject, ASPVocabulary.HAS_VALUE, lit.stringValue());
+					} else {
+						builder.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, ASPVocabulary.TERM);
+						builder.add(subject, ASPVocabulary.HAS_STRING_VALUE, lit.stringValue());
+					}
+				}
+			terms.add(subject);
+		}
+		return terms;
 	}
 
 	private static void extractRDFStatements(final List<String> parts, final ValueFactory vf, final ModelBuilder builder) {
