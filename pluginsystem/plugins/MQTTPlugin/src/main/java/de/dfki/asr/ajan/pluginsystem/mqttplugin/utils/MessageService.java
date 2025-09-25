@@ -1,8 +1,10 @@
 package de.dfki.asr.ajan.pluginsystem.mqttplugin.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.events.Event;
+import de.dfki.asr.ajan.behaviour.events.MappingEvent;
 import static de.dfki.asr.ajan.behaviour.service.impl.IConnection.BASE_URI;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import javax.xml.transform.TransformerException;
@@ -113,7 +115,12 @@ public class MessageService {
                 mqttClient.subscribe(topic, CLIENT_QOS, (s, mqttMessage) -> {
                     message[0] = new String(mqttMessage.getPayload());
                     if(eventURI != null){ //false
-                        event.setEventInformation(parseMessage(message[0]));
+						if (event instanceof MappingEvent) {
+							ObjectMapper mapper = new ObjectMapper();
+							event.setEventInformation(mapper.readTree(getInputStream(message[0])));
+						} else {
+							event.setEventInformation(parseRDFMessage(message[0]));
+						}
                         }
                     else
                         storeInKnowledgeBase(message[0], mapping, repo, beliefs); // store it to agent knowledge
@@ -191,32 +198,25 @@ public class MessageService {
         return new LinkedHashModel();
 	}
 
-    private Object parseMessage(String s) {
+    private Object parseRDFMessage(String s) {
         try {
             return Rio.parse(getInputStream(s), BASE_URI, RDFFormat.TURTLE);
-        } catch (IOException e) {
-            LOG.info("Message received is not Text/Turtle, trying to parse as RDF/XML");
-        }
-
-		try {
-            return Rio.parse(getInputStream(s), BASE_URI, RDFFormat.RDFXML);
-        } catch (IOException e) {
-            LOG.info("Message received is not RDF/XML, trying to parse as JSON-LD");
-        }
-
-        try {
-            return Rio.parse(getInputStream(s), BASE_URI, RDFFormat.JSONLD);
-        } catch (IOException e) {
-            LOG.info("Message received is not JSON-LD, trying to parse as InputStream");
-        }
-		
-		try {
-            return getInputStream(s);
-        } catch (IOException e) {
-			LOG.error("Pasing not possible!", e);
-        }
-
-        return null;
+        } catch (Exception e) {
+            try {
+				return Rio.parse(getInputStream(s), BASE_URI, RDFFormat.RDFXML);
+			} catch (Exception f) {
+				try {
+					return Rio.parse(getInputStream(s), BASE_URI, RDFFormat.JSONLD);
+				} catch (Exception g) {
+					try {
+						return getInputStream(s);
+					} catch (Exception h) {
+						LOG.error("Pasing not possible!", e);
+						return null;
+					}
+				}
+			}
+		}
     }
 
     private ByteArrayInputStream getInputStream(String input) throws JsonProcessingException {

@@ -12,7 +12,7 @@
 @prefix ajan: <http://www.ajan.de/ajan-ns#> .
 @prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
 @prefix asp: <http://www.ajan.de/behavior/asp-ns#> .
-@prefix mosim: <http://www.dfki.de/mosim-ns#> .
+@prefix twinmap: <http://www.dfki.de/twinmap-ns#> .
 @prefix aitoc: <http://www.dfki.de/aitoc-ns#> .
 @prefix suite: <http://www.dfki.de/suite-ns#> .
 @prefix aml: <https://w3id.org/i40/aml#> .
@@ -59,8 +59,8 @@
 #														<http://www.ajan.de/ajan-mapping-ns#value> "10.0"^^xsd:double . 	[agents:JsonEvent]
 
 ajan:TBox {
-	mosim:Avatar rdfs:subClassOf mosim:AnimatedObject .
-	mosim:Avatar rdfs:subClassOf mosim:Object .
+	twinmap:Avatar rdfs:subClassOf twinmap:AnimatedObject .
+	twinmap:Avatar rdfs:subClassOf twinmap:Object .
 }
 
 # --------------------------------------------
@@ -394,564 +394,116 @@ ajan:ASP {
 }
 
 # --------------------------------
-# MOSIM --------------------------
+# TwinMap -----------------------
 # --------------------------------
 
-mosim:Mapping {
+# JSON Input --------------------
+# {
+#   "message-type": "data",
+#   "publisher-id": 123,
+#	"publisher-name": "DFKI",
+#	"publisher-version": 1,
+#	"publisher-description": "action input",
+#	"timestamp": "2007-12-24T18:21Z",
+#	"data": {
+#		"actionID": "12345"
+#	}
+# }
+# --------------------------------
 
-	:InstancesMapping
+	# see https://rml.io/specs/rml/ for an example input
+
+:JsonTwinMapMapping {
+
+	:MessageMapping a rr:TriplesMap;
 		rml:logicalSource [
 			rml:source [
 				a carml:Stream ;
 			] ;
 			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$.message.Instances[*]"
-		] ;
+			rml:iterator "$"
+		];
 
 		rr:subjectMap [
-			rr:template "http://www.ajan.de/ajan-mapping-ns#Instances/{Id}" ;
-			rr:class mosim:Instance ;
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate mosim:instanceId ;
-			rr:objectMap [
-				rml:reference "Id" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate mosim:type ;
-			rr:objectMap [
-				rml:reference "Name" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		rr:predicateObjectMap [
-			rr:predicate mosim:partClass ;
-			rr:objectMap [
-				rml:reference "PartClass" ;
-				rr:datatype xsd:string
-			]
-		] .
+			rr:template "http://www.dfki.de/twinmap-ns#Message_{timestamp}";
+			rr:class twinmap:Message
+		];
 
-	:WorkplacesMapping
-		rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$.message.Workplaces.Tasks[*]"
-		] ;
-
-		rr:subjectMap [
-			rr:template "http://www.ajan.de/ajan-mapping-ns#Task/{Id}" ;
-			rr:class mosim:Task ;
-		] ;
-		
 		rr:predicateObjectMap [
-			rr:predicate mosim:taskId ;
+			rr:predicate twinmap:type;
 			rr:objectMap [
-				rml:reference "Id" ;
+				rml:reference "message-type";
 				rr:datatype xsd:string
 			]
-		] ;
-		
+		];
+
 		rr:predicateObjectMap [
-			rr:predicate mosim:step ;
+			rr:predicate twinmap:pub_id;
 			rr:objectMap [
-				rml:reference "No" ;
+				rml:reference "publisher-id";
 				rr:datatype xsd:int
 			]
-		] ;
+		];
+		
 		rr:predicateObjectMap [
-			rr:predicate mosim:operation ;
+			rr:predicate twinmap:pub_name;
 			rr:objectMap [
-				rr:template "http://www.ajan.de/ajan-mapping-ns#Operation/{Operations.[*].Type}_{Operations.[*].No}_{Operations.[*].Part}_{Operations.[*].Location.BasePart}";
+				rml:reference "publisher-name";
+				rr:datatype xsd:string
+			]
+		];
+		
+		rr:predicateObjectMap [
+			rr:predicate twinmap:pub_version;
+			rr:objectMap [
+				rml:reference "publisher-version";
+				rr:datatype xsd:int
+			]
+		];
+		
+		rr:predicateObjectMap [
+			rr:predicate twinmap:pub_description;
+			rr:objectMap [
+				rml:reference "publisher-description";
+				rr:datatype xsd:string
+			]
+		];
+
+		rr:predicateObjectMap [
+			rr:predicate twinmap:timestamp;
+			rr:objectMap [
+				rml:reference "timestamp";
+				rr:datatype xsd:string
+			]
+		];
+		
+		rr:predicateObjectMap [
+			rr:predicate twinmap:data;
+			rr:objectMap [
+				rr:template "http://www.dfki.de/twinmap-ns#Message_{timestamp}_{data.actionID}";
 				rr:termType rr:IRI;
 			]
-		] .
-
-	:OperationMapping
-		rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$.message.Workplaces.Tasks[*].Operations.[*]"
-		] ;
-
-		rr:subjectMap [ 
-			rr:template "http://www.ajan.de/ajan-mapping-ns#Operation/{Type}_{No}_{Part}_{Location.BasePart}" ;
-			rr:class mosim:Operation ;
-		];
-
-		rr:predicateObjectMap [
-			rr:predicate mosim:step ;
-			rr:objectMap [
-				rml:reference "No" ;
-				rr:datatype xsd:int
-			]
-		] ;
-		rr:predicateObjectMap [
-			rr:predicate mosim:type ;
-			rr:objectMap [
-				rml:reference "Type" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		rr:predicateObjectMap [
-			rr:predicate mosim:part ;
-			rr:objectMap [
-				rml:reference "Part" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		rr:predicateObjectMap [
-			rr:predicate mosim:tool ;
-			rr:objectMap [
-				rml:reference "Tool" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		rr:predicateObjectMap [
-			rr:predicate mosim:basePart ;
-			rr:objectMap [
-				rml:reference "Location.BasePart" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		rr:predicateObjectMap [
-			rr:predicate mosim:baseMarker ;
-			rr:objectMap [
-				rml:reference "Location.BaseMarker" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		rr:predicateObjectMap [
-			rr:predicate mosim:marker ;
-			rr:objectMap [
-				rml:reference "Location.Marker" ;
-				rr:datatype xsd:string
-			]
-		] .
-}
-
-# --------------------------------
-# AIToC Mappings -----------------
-# --------------------------------
-
-# OR Behavior: KnowledgeE_Event
-# --------------------------------
-
-:JsonRulesMapping {
-
-	:RulesMapping a rr:TriplesMap ;
-		rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$.message"
-		];
-
-		rr:subjectMap [
-			rr:template "http://www.ajan.de/asp_input";
-			rr:class asp:RuleSet, aitoc:ASPInput
-		];
-
-		rr:predicateObjectMap [
-			rr:predicate asp:asRules ;
-			rr:objectMap [
-				rml:reference "rules" ;
-				rr:datatype xsd:string
-			]
-		] .
-}
-
-# OR Behavior: OperationE_Event
-# --------------------------------
-
-:JsonRequestMapping {
-
-	:RequestMapping a rr:TriplesMap ;
-		rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$.message"
-		];
-
-		rr:subjectMap [
-			rr:template "http://www.dfki.de/aitoc-ns#RequestURI";
-			rr:class aitoc:ReasoningRequest
-		];
-
-		rr:predicateObjectMap [
-			rr:predicate <http://www.w3.org/2006/http#requestURI> ;
-			rr:objectMap [
-				rml:reference "responseURI" ;
-				rr:datatype xsd:string
-			]
-		] .
-}
-
-
-# ActiveRegistry -----------------
-# --------------------------------
-
-# POSER --------------------------
-# --------------------------------
-
-# OR Behavior: ListFiles_AR
-# --------------------------------
-
-# RDF Input --------------------
-# 	ar:Message_1 a ar:Message ;
-# 		ar:action ar:Action_1 ;
-# 		ar:project ar:Project_1 ;
-# 		ar:email ar:EMail_1 ;
-# 		ar:password ar:Password_1 .
-#
-# 	ar:Action_1 a ar:Action ;
-# 		ar:value "listFiles" .
-# 	ar:Project_1 a ar:Project ;
-# 		ar:value "17" .
-# 	ar:EMail_1 a ar:EMail ;
-#		ar:value "bron@cko.test" .
-# 	ar:Password_1 a ar:Password ;
-# 		ar:value "XYZ" .
-# --------------------------------
-
-:InputDataType_Files {
-    json:EntryPoint a ar:Message ;
-		ar:action ar:Action ;
-		ar:project ar:Project ;
-		ar:email ar:EMail ;
-		ar:password ar:Password .
-
-	ar:Action ar:value iots:Number .
-	ar:Project ar:value iots:Number .
-	ar:EMail ar:value iots:Number .
-	ar:Password ar:value iots:Number .
-}
-
-:ApiDescription_Files {
-	ctd:JsonModel json:hasRoot ctd:Root .
-
-	ctd:Action a json:String ;
-		json:key "action"^^xsd:string ;
-		json:dataType ar:Action .
-
-	ctd:Project a json:String ;
-		json:key "project"^^xsd:string ;
-		json:dataType ar:Project .
-
-	ctd:EMail a json:String ;
-		json:key "email"^^xsd:string ;
-		json:dataType ar:EMail .
-
-	ctd:Password a json:String ;
-		json:key "password"^^xsd:string ;
-		json:dataType ar:Password .
-
-	ctd:Root a json:RootObject;
-		json:key "message"^^xsd:string ;
-		json:value ctd:Action, ctd:Project, ctd:EMail, ctd:Password ;
-		json:dataType ar:Message .
-}
-
-# JSON Output --------------------
-# {
-#     "action": "listFiles",
-#     "project": 17,
-#     "email": "bron@cko.test",
-#     "password": "XYZ"
-# }
-# --------------------------------
-
-# OR Behavior: GetFileContent_AR
-# --------------------------------
-
-:InputDataType_Content {
-    json:EntryPoint a ar:Message ;
-		ar:action ar:Action ;
-		ar:project ar:Project ;
-		ar:file ar:File ;
-		ar:email ar:EMail ;
-		ar:password ar:Password .
-
-	ar:Action ar:value iots:Number .
-	ar:Project ar:value iots:Number .
-	ar:File ar:value iots:Number .
-	ar:EMail ar:value iots:Number .
-	ar:Password ar:value iots:Number .
-}
-
-:ApiDescription_Content {
-	ctd:JsonModel json:hasRoot ctd:Root .
-
-	ctd:Action a json:String ;
-		json:key "action"^^xsd:string ;
-		json:dataType ar:Action .
-
-	ctd:Project a json:String ;
-		json:key "project"^^xsd:string ;
-		json:dataType ar:Project .
-
-	ctd:File a json:String ;
-		json:key "file"^^xsd:string ;
-		json:dataType ar:File .
-
-	ctd:EMail a json:String ;
-		json:key "email"^^xsd:string ;
-		json:dataType ar:EMail .
-
-	ctd:Password a json:String ;
-		json:key "password"^^xsd:string ;
-		json:dataType ar:Password .
-
-	ctd:Root a json:RootObject;
-		json:key "message"^^xsd:string ;
-		json:value ctd:Action, ctd:Project, ctd:File, ctd:EMail, ctd:Password ;
-		json:dataType ar:Message .
-}
-
-# OR Behavior: Save_Result
-# --------------------------------
-
-:InputDataType_Save {
-    json:EntryPoint a ar:Message ;
-		ar:action ar:Action ;
-		ar:project ar:Project ;
-		ar:file ar:Name ;
-		ar:file ar:NewFile ;
-		ar:email ar:EMail ;
-		ar:password ar:Password .
-
-	ar:Action ar:value iots:Number .
-	ar:Project ar:value iots:Number .
-	ar:Name ar:value iots:Number .
-	ar:NewFile ar:value iots:Number .
-	ar:EMail ar:value iots:Number .
-	ar:Password ar:value iots:Number .
-}
-
-:ApiDescription_Save {
-	ctd:JsonModel json:hasRoot ctd:Root .
-
-	ctd:Action a json:String ;
-		json:key "action"^^xsd:string ;
-		json:dataType ar:Action .
-
-	ctd:Project a json:String ;
-		json:key "project"^^xsd:string ;
-		json:dataType ar:Project .
-
-	ctd:Name a json:String ;
-		json:key "name"^^xsd:string ;
-		json:dataType ar:Name .
-
-	ctd:NewFile a json:String ;
-		json:key "newFile"^^xsd:string ;
-		json:dataType ar:NewFile .
-
-	ctd:EMail a json:String ;
-		json:key "email"^^xsd:string ;
-		json:dataType ar:EMail .
-
-	ctd:Password a json:String ;
-		json:key "password"^^xsd:string ;
-		json:dataType ar:Password .
-
-	ctd:Root a json:RootObject;
-		json:key "message"^^xsd:string ;
-		json:value ctd:Action, ctd:Project, ctd:Name, ctd:NewFile, ctd:EMail, ctd:Password ;
-		json:dataType ar:Message .
-}
-
-# RML ----------------------------
-# --------------------------------
-
-# OR Behavior: ARread_Event
-# OR Behavior: ARwrite_Event
-# --------------------------------
-
-# JSON Input --------------------
-# {
-#   "credentials":
-#   {
-#     "project": 17,
-#     "email": "bron@cko.test",
-#     "password": "XYZ"
-#  }
-# }
-# --------------------------------
-
-:ARInteractionCredentials {
-
-	:ARCredentials a rr:TriplesMap ;
-		rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:referenceFormulation ql:JSONPath ;
-			rml:iterator "$.message"
-		] ;
-
-		rr:subjectMap [
-			rr:template "http://aitoc.eu/active-registry-ns#ARCredentials/{credentials.url}/{credentials.project}";
-			rr:class ar:Credentials
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate ar:url;
-			rr:objectMap [
-				rml:reference "credentials.url" ;
-				rr:datatype xsd:anyURI
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate ar:project;
-			rr:objectMap [
-				rml:reference "credentials.project" ;
-				rr:datatype xsd:string
-			]
-		] ;
+		].
 		
-		rr:predicateObjectMap [
-			rr:predicate ar:email;
-			rr:objectMap [
-				rml:reference "credentials.email" ;
-				rr:datatype xsd:string
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate ar:password;
-			rr:objectMap [
-				rml:reference "credentials.password" ;
-				rr:datatype xsd:string
-			]
-		] .
-}
-
-# JSON Input --------------------
-# { 
-# 	"message": [
-#   	{
-#      		"path": "t",
-#      		"lastModified": "2023-05-03T12:06:27+00:00",
-#      		"size": "17"
-#    	}
-# 	]
-# }
-# --------------------------------
-
-# OR Behavior: ListFiles_AR
-# --------------------------------
-
-:ListFiles {
-
-	:ARFile rml:logicalSource [
+	:DataMapping a rr:TriplesMap;
+		rml:logicalSource [
 			rml:source [
 				a carml:Stream ;
 			] ;
-			rml:referenceFormulation ql:JSONPath ;
-			rml:iterator "$.message.[*]" ;
+			rml:referenceFormulation ql:JSONPath;
+			rml:iterator "$"
 		];
 
 		rr:subjectMap [
-			rr:template "http://aitoc.eu/active-registry-ns#ARFile/{path}";
-			rr:class ar:File 
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate ar:path;
-			rr:objectMap [
-				rml:reference "path" ;
-				rr:datatype xsd:string
-			]
-		] ;
-		
-		rr:predicateObjectMap [
-			rr:predicate ar:lastModified;
-			rr:objectMap [
-				rml:reference "lastModified" ;
-				rr:datatype xsd:string
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate ar:size;
-			rr:objectMap [
-				rml:reference "size" ;
-				rr:datatype xsd:string
-			]
-		] .
-}
-
-# OR Behavior: GetFileContent_AR
-# --------------------------------
-
-:ReadFile {
-
-	:ARFileContent rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:referenceFormulation ql:JSONPath ;
-			rml:iterator "$.message" ;
+			rr:template "http://www.dfki.de/twinmap-ns#Message_{timestamp}_{data.actionID}";
+			rr:class twinmap:Data
 		];
 
-		rr:subjectMap [
-			rr:template "http://aitoc.eu/active-registry-ns#ARFile/{name.name}";
-			rr:class ar:File
-		] ;
-
 		rr:predicateObjectMap [
-			rr:predicate ar:content;
+			rr:predicate twinmap:actionID;
 			rr:objectMap [
-				rml:reference "content" ;
+				rml:reference "data.actionID";
 				rr:datatype xsd:string
 			]
-		] .
-}
-
-# OR Behavior: Save_Result
-# --------------------------------
-
-:SaveResult {
-
-	:ARSaveResult rml:logicalSource [
-			rml:source [
-				a carml:Stream ;
-			] ;
-			rml:referenceFormulation ql:JSONPath ;
-			rml:iterator "$.message" ;
-		];
-
-		rr:subjectMap [
-			rr:template "http://aitoc.eu/active-registry-ns#ARSaveResult/{action}";
-			rr:class ar:File
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate ar:message;
-			rr:objectMap [
-				rml:reference "message" ;
-				rr:datatype xsd:string
-			]
-		] ;
-
-		rr:predicateObjectMap [
-			rr:predicate ar:error;
-			rr:objectMap [
-				rml:reference "error" ;
-				rr:datatype xsd:int
-			]
-		] .
+		].
 }
