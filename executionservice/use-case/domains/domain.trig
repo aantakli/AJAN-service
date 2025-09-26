@@ -403,10 +403,12 @@ ajan:ASP {
 #   "publisher-id": 123,
 #	"publisher-name": "DFKI",
 #	"publisher-version": 1,
-#	"publisher-description": "action input",
+#	"publisher-description": "action detection",
 #	"timestamp": "2007-12-24T18:21Z",
 #	"data": {
-#		"actionID": "12345"
+#		"type": "detectedAction"
+#		"assemblyID": "toycar_simple_output",
+#		"actionID": "403e797ef472eb6814a745b750bcf47b1218c4b9a5018933d8fe89d9ee341b16"
 #	}
 # }
 # --------------------------------
@@ -499,6 +501,22 @@ ajan:ASP {
 			rr:class twinmap:Data
 		];
 
+		rr:predicateObjectMap [
+			rr:predicate twinmap:type;
+			rr:objectMap [
+				rml:reference "data.type";
+				rr:datatype xsd:string
+			]
+		];
+		
+		rr:predicateObjectMap [
+			rr:predicate twinmap:assemblyID;
+			rr:objectMap [
+				rml:reference "data.assemblyID";
+				rr:datatype xsd:string
+			]
+		];
+		
 		rr:predicateObjectMap [
 			rr:predicate twinmap:actionID;
 			rr:objectMap [

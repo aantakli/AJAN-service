@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
 
@@ -61,6 +63,14 @@ public class PublishMessage extends AbstractTDBLeafTask implements NodeExtension
                 topic = entry.getKey();
                 message = entry.getValue();
             }
+			if (message.contains("<UTF-8>")) {
+				String[] utf8_1 = message.split("<UTF-8>");
+				String[] utf8_2 = utf8_1[1].split("</UTF-8>");
+				
+				String utf8EncodedString = utf8_2[0].replaceAll("'", "\"");
+				utf8EncodedString = utf8EncodedString.replaceAll("\"", "\\\\\"");
+				message = utf8_1[0] + utf8EncodedString + utf8_2[1];
+			}
             publishMessage(serverUrl, topic, message);
 //            MQTTPluginServer.publishMessage(topic, message);
             report = toString()+ " SUCCEEDED";
