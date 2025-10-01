@@ -64,12 +64,7 @@ public class PublishMessage extends AbstractTDBLeafTask implements NodeExtension
                 message = entry.getValue();
             }
 			if (message.contains("<UTF-8>")) {
-				String[] utf8_1 = message.split("<UTF-8>");
-				String[] utf8_2 = utf8_1[1].split("</UTF-8>");
-				
-				String utf8EncodedString = utf8_2[0].replaceAll("'", "\"");
-				utf8EncodedString = utf8EncodedString.replaceAll("\"", "\\\\\"");
-				message = utf8_1[0] + utf8EncodedString + utf8_2[1];
+				message = getUtf8Message(message);
 			}
             publishMessage(serverUrl, topic, message);
 //            MQTTPluginServer.publishMessage(topic, message);
@@ -81,6 +76,22 @@ public class PublishMessage extends AbstractTDBLeafTask implements NodeExtension
         }
         return new NodeStatus(stat, this.getObject().getLogger(), this.getClass(), report);
     }
+	
+	private String getUtf8Message(String message) {
+		String[] utf8_1 = message.split("<UTF-8>");
+		String[] utf8_2 = utf8_1[1].split("</UTF-8>");
+
+		String utf8EncodedString = utf8_2[0].replaceAll("\\s+","");
+		if (utf8EncodedString.startsWith("\"")) {
+			utf8EncodedString = utf8EncodedString.substring(1);
+		}
+		if (utf8EncodedString.endsWith("\"")) {
+			utf8EncodedString = utf8EncodedString.substring(0, utf8EncodedString.length() - 1);
+		}
+		utf8EncodedString = utf8EncodedString.replaceAll("'", "\"");
+		utf8EncodedString = utf8EncodedString.replaceAll("\"", "\\\\\"");
+		return utf8_1[0] + '"' + utf8EncodedString + '"' + utf8_2[1];
+	}
 
     private void publishMessage(String serverUrl, String topic, String message) {
         MessageService messageService = MessageService.getMessageService(clientId, serverUrl);
