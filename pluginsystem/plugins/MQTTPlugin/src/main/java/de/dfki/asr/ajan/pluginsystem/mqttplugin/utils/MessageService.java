@@ -116,14 +116,18 @@ public class MessageService {
                     message[0] = new String(mqttMessage.getPayload());
                     if(eventURI != null){ //false
 						if (event instanceof MappingEvent) {
-							ObjectMapper mapper = new ObjectMapper();
-							event.setEventInformation(mapper.readTree(getInputStream(message[0])));
+							try {
+								ObjectMapper mapper = new ObjectMapper();
+								event.setEventInformation(mapper.readTree(getInputStream(message[0])));
+							} catch ( Exception e) {
+								LOG.error(e.getMessage());
+							}
 						} else {
 							event.setEventInformation(parseRDFMessage(message[0]));
 						}
-                        }
-                    else
+                    } else {
                         storeInKnowledgeBase(message[0], mapping, repo, beliefs); // store it to agent knowledge
+					}
                 });
             } else {
                 mqttClient.subscribe(topic, CLIENT_QOS, (s, mqttMessage) -> {
