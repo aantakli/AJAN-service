@@ -50,7 +50,7 @@ public class UnsubscribeTopic extends AbstractTDBLeafTask implements NodeExtensi
         Status stat;
         try {
             String serverUrl = MQTTUtil.getServerUrlInfo(serverUrlCallback, this.getObject());
-			String clientId = MQTTUtil.getId(unsubscribeDetails, this.getObject());
+			String clientId = this.getObject().getAgentBeliefs().getSparqlEndpoint().toString();
             String topic = MQTTUtil.getTopic(unsubscribeDetails, this.getObject());
             unsubscribeTopic(clientId, serverUrl, topic);
             stat = Status.SUCCEEDED;

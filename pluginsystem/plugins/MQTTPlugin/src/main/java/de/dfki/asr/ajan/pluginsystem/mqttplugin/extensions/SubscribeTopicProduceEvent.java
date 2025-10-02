@@ -55,8 +55,6 @@ public class SubscribeTopicProduceEvent extends AbstractTDBLeafTask implements N
     @Getter @Setter
     private URI goalEventURI;
 
-	private final String clientId = UUID.randomUUID().toString();
-
     @Override
     public NodeStatus executeLeaf() {
         String report;
@@ -65,7 +63,7 @@ public class SubscribeTopicProduceEvent extends AbstractTDBLeafTask implements N
             String serverUrl = MQTTUtil.getServerUrlInfo(serverUrlCallback, this.getObject());
             String topic = MQTTUtil.getTopic(subscribeDetails, this.getObject());
             Repository repo = this.getObject().getDomainTDB().getInitializedRepository();
-            subscribeToTopic(serverUrl, topic, repo);
+            subscribeToTopic(this.getObject().getAgentBeliefs().getSparqlEndpoint().toString(), serverUrl, topic, repo);
             report = toString()+ " SUCCEEDED";
             stat = Status.SUCCEEDED;
         } catch (URISyntaxException | EventSimulationException e) {
@@ -75,7 +73,7 @@ public class SubscribeTopicProduceEvent extends AbstractTDBLeafTask implements N
         return new NodeStatus(stat, this.getObject().getLogger(), this.getClass(), report);
     }
 
-    private String subscribeToTopic(String serverUrl, String topic, Repository repo) throws EventSimulationException {
+    private String subscribeToTopic(String clientId, String serverUrl, String topic, Repository repo) throws EventSimulationException {
         MessageService messageService = MessageService.getMessageService(clientId, serverUrl);
         return messageService.subscribe(topic, true, goalEventURI, null, repo, null, getEvent());
     }

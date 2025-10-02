@@ -60,7 +60,11 @@ public class PublishMessage extends AbstractTDBLeafTask implements NodeExtension
                 Map.Entry<String,String> entry = publishDetailsResult.entrySet().iterator().next();
                 topic = entry.getKey();
                 message = entry.getValue();
-            }
+            } else {
+				report = toString()+ "FAILED";
+				stat = Status.FAILED;
+				return new NodeStatus(stat, this.getObject().getLogger(), this.getClass(), report);
+			}
 			if (message.contains("<UTF-8>")) {
 				message = getUtf8Message(message);
 			}
