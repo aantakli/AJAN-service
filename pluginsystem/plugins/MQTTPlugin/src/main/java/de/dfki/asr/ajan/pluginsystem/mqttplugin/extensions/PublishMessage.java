@@ -20,8 +20,6 @@ import org.springframework.stereotype.Component;
 import org.pf4j.Extension;
 
 import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
 
@@ -70,7 +68,7 @@ public class PublishMessage extends AbstractTDBLeafTask implements NodeExtension
 //            MQTTPluginServer.publishMessage(topic, message);
             report = toString()+ " SUCCEEDED";
             stat = Status.SUCCEEDED;
-        } catch (URISyntaxException e) {
+        } catch (URISyntaxException | NullPointerException e) {
             report = toString()+ "FAILED";
             stat = Status.FAILED;
         }

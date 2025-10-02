@@ -407,7 +407,7 @@ ajan:ASP {
 #	"timestamp": "2007-12-24T18:21Z",
 #	"data": {
 #		"type": "detectedAction"
-#		"assemblyID": "toycar_simple_output",
+#		"assembly": "toycar_simple_output",
 #		"actionID": "403e797ef472eb6814a745b750bcf47b1218c4b9a5018933d8fe89d9ee341b16"
 #	}
 # }
@@ -510,9 +510,9 @@ ajan:ASP {
 		];
 		
 		rr:predicateObjectMap [
-			rr:predicate twinmap:assemblyID;
+			rr:predicate twinmap:assembly;
 			rr:objectMap [
-				rml:reference "data.assemblyID";
+				rml:reference "data.assembly";
 				rr:datatype xsd:string
 			]
 		];

@@ -27,7 +27,7 @@ public final class MQTTUtil {
         return getStringStringMap(query, info, "host", "port");
     }
 
-    private static Map<String, String> getStringStringMap(BehaviorSelectQuery query, AgentTaskInformation info, String hostString, String port) throws URISyntaxException {
+    private static Map<String, String> getStringStringMap(BehaviorSelectQuery query, AgentTaskInformation info, String hostString, String port) throws URISyntaxException, NullPointerException {
         Map<String,String> host = new HashMap();
         if (query != null) {
             Repository repo = BTUtil.getInitializedRepository(info, query.getOriginBase());
