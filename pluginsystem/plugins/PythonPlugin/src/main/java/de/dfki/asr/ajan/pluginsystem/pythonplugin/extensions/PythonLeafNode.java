@@ -147,6 +147,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
       String script = getScript();
       String inputRDF = readInputRDF();
       LOG.info(this.getClass(), "Python script: " + script);
+      LOG.info(this.getClass(), "Input RDF: " + inputRDF);
 
       // Redirect Python stdout to a StringIO buffer
       jep.eval("import sys");

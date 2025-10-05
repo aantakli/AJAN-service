@@ -15,18 +15,16 @@ COPY executionservice/use-case ./executionservice/use-case
 COPY pluginsystem/plugins ./pluginsystem/plugins
 
 # Set permissions and make scripts executable
-RUN chmod +x /app/startup.sh /app/create.sh && \
-    chmod -R +rx /app/pluginsystem/plugins/PythonPlugin/target/classes && \
-    chmod -R +rx /app/pluginsystem/plugins/ASPPlugin/target/classes
+RUN chmod +x /app/startup.sh /app/create.sh
 
 ## Setup ASPPlugin and PythonPlugin
-#RUN python3 -m pip install --upgrade pip && \
-#    pip install clingo && \
-#    mkdir -p /usr/lib/python3.9/scrpt && \
-#    echo python3 /usr/lib/python3.9/site-packages/clingo > /usr/lib/python3.9/scrpt/clingo && \
-#    chmod +x /usr/lib/python3.9/scrpt/clingo && \
-#    cp /usr/bin/python3 /app/pluginsystem/plugins/PythonPlugin/target/classes/nix_venv/bin/python && \
-#    chmod +x /usr/lib/python3.9/site-packages/clingo
+RUN python3 -m pip install --upgrade pip && \
+    pip install clingo && \
+    mkdir -p /usr/lib/python3.9/scrpt && \
+    echo python3 /usr/lib/python3.9/site-packages/clingo > /usr/lib/python3.9/scrpt/clingo && \
+    chmod +x /usr/lib/python3.9/scrpt/clingo && \
+    cp /usr/bin/python3 /app/pluginsystem/plugins/PythonPlugin/target/classes/nix_venv/bin/python && \
+    chmod +x /usr/lib/python3.9/site-packages/clingo
 
 ENV PATH="$PATH:/usr/lib/python3.9/scrpt"
 
