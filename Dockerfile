@@ -20,11 +20,6 @@ RUN chmod +x /app/startup.sh /app/create.sh
 ## Setup ASPPlugin and PythonPlugin
 RUN python3 -m pip install --upgrade pip && \
     pip install clingo && \
-    mkdir -p /usr/lib/python3.9/scrpt && \
-    echo python3 /usr/lib/python3.9/site-packages/clingo > /usr/lib/python3.9/scrpt/clingo && \
-    chmod +x /usr/lib/python3.9/scrpt/clingo && \
-    cp /usr/bin/python3 /app/pluginsystem/plugins/PythonPlugin/target/classes/nix_venv/bin/python && \
-    chmod +x /usr/lib/python3.9/site-packages/clingo
 
 ENV PATH="$PATH:/usr/lib/python3.9/scrpt"
 
