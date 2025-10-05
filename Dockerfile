@@ -18,10 +18,10 @@ COPY pluginsystem/plugins ./pluginsystem/plugins
 RUN chmod +x /app/startup.sh /app/create.sh
 
 ## Setup ASPPlugin and PythonPlugin
-RUN python3 -m pip install --upgrade pip && \
-    pip install clingo && \
+RUN python3 -m pip install --upgrade pip
+RUN pip install clingo
 
-ENV PATH="$PATH:/usr/lib/python3.9/scrpt"
+#ENV PATH="$PATH:/usr/lib/python3.9/scrpt"
 
 WORKDIR /logs
 VOLUME /logs
