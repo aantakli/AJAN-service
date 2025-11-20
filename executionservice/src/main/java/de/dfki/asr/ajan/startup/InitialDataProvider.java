@@ -36,6 +36,7 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -157,7 +158,7 @@ public class InitialDataProvider {
             Path target = Paths.get(nodeDefinitionsFolderPath).resolve(origin.getFileName());
             LOG.info("Copying file from {} to {}", origin, target);
             Files.createDirectories(target.getParent());
-            Files.copy(origin, target);
+            Files.copy(origin, target, StandardCopyOption.REPLACE_EXISTING);
           } catch (IOException | IllegalArgumentException e) {
             LOG.error("Error while getting NodeDefinitionsExtension file: {}", e.getMessage());
             LOG.error(Arrays.toString(e.getStackTrace()));

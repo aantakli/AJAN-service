@@ -113,6 +113,11 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
   @Setter
   private String script = "";
 
+  @RDF("python:subject")
+  @Getter
+  @Setter
+  private String subject = "";
+
   @RDF("bt:targetBase")
   @Getter
   @Setter
@@ -133,6 +138,7 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
   @Override
   public NodeStatus executeLeaf() {
     LOG = this.getObject().getLogger();
+    LOG.info(this.getClass(), "================= Test" + getSubject() + "=================");
     try {
       LOG.info(this.getClass(), "Executing PythonLeafNode: " + this);
       return runPythonScript();
@@ -190,14 +196,12 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
 
   private String readInputRDF() throws PythonException {
     String input = loadBeliefs();
-    String removedControls =
-        input.replaceAll("\n", " ").replaceAll("\r", " ").replaceAll("\t", " ");
-    return handleQuotes(removedControls);
+    return handleQuotes(input);
   }
 
-  private String handleQuotes(String input) throws PythonException {
-    input = input.replaceAll("\"", "_AJAN_DQ_");
-    return input.replaceAll("'", "_AJAN_SQ_");
+  private String handleQuotes(String input) {
+    input = input.replaceAll("\t", "");
+    return input;
   }
 
   private String loadBeliefs() throws PythonException {

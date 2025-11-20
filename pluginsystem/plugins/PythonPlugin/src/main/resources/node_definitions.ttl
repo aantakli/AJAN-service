@@ -51,6 +51,13 @@
         bt:targetBase "false";
         nd:type bt:ConstructQuery;
     ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo python:subject;
+        nd:input xsd:string;
+        nd:default "test"^^xsd:string;
+        nd:title "Subject";
+    ];
 	nd:parameter [
 	    a nd:Parameter;
 	    nd:mapsTo python:script;
