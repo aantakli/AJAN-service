@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import jep.JepException;
 import jep.SharedInterpreter;
 import lombok.Getter;
@@ -200,8 +201,9 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
   }
 
   private String handleQuotes(String input) {
-    input = input.replaceAll("\t", "");
-    return input;
+    String utf8Input = new String(input.getBytes(), StandardCharsets.UTF_8);
+    utf8Input = utf8Input.replaceAll("\t", "");
+    return utf8Input;
   }
 
   private String loadBeliefs() throws PythonException {
