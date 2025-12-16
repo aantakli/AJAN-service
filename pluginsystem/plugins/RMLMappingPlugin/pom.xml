@@ -23,36 +23,9 @@ MA 02110-1301  USA
   xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <artifactId>PythonPlugin</artifactId>
+  <artifactId>RMLMappingPlugin</artifactId>
   <build>
     <plugins>
-      <plugin>
-        <artifactId>maven-shade-plugin</artifactId>
-        <executions>
-          <execution>
-            <configuration>
-              <!-- keep a normal pom, avoid dependency-reduced pom issues -->
-              <createDependencyReducedPom>false</createDependencyReducedPom>
-              <minimizeJar>false</minimizeJar>
-              <!-- optional: relocate packages to avoid conflicts with host app -->
-              <!--
-              <relocations>
-                <relocation>
-                  <pattern>net.lingala.zip4j</pattern>
-                  <shadedPattern>shaded.net.lingala.zip4j</shadedPattern>
-                </relocation>
-              </relocations>
-              -->
-            </configuration>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <phase>package</phase>
-          </execution>
-        </executions>
-        <groupId>org.apache.maven.plugins</groupId>
-        <version>3.4.1</version>
-      </plugin>
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
@@ -121,16 +94,8 @@ MA 02110-1301  USA
       </resource>
     </resources>
   </build>
-  <dependencies>
-    <dependency>
-      <artifactId>zip4j</artifactId>
-      <groupId>net.lingala.zip4j</groupId>
-      <version>2.11.5</version>
-    </dependency>
-  </dependencies>
   <modelVersion>4.0.0</modelVersion>
-
-  <name>PythonPlugin</name>
+  <name>RMLMappingPlugin</name>
 
   <packaging>jar</packaging>
 
@@ -142,9 +107,9 @@ MA 02110-1301  USA
 
   <properties>
     <netbeans.hint.license>licenseheader</netbeans.hint.license>
-    <plugin.class>de.dfki.asr.ajan.pluginsystem.pythonplugin.PythonPlugin</plugin.class>
+    <plugin.class>de.dfki.asr.ajan.pluginsystem.rmlmappingplugin.RMLMappingPlugin</plugin.class>
     <plugin.dependencies/>
-    <plugin.id>PythonPlugin</plugin.id>
+    <plugin.id>RMLMappingPlugin</plugin.id>
     <plugin.provider>Andre Antakli</plugin.provider>
     <plugin.version>0.0.1</plugin.version>
   </properties>

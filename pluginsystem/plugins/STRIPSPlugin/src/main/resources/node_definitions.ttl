@@ -23,6 +23,7 @@
 @prefix bt-mqtt: <http://www.ajan.de/behavior/mqtt-ns#> .
 @prefix tcp: <http://www.ajan.de/behavior/tcp-ns#> .
 @prefix python: <http://www.ajan.de/behavior/python-ns#> .
+@prefix rmlmapping: <http://www.ajan.de/behavior/rmlmapping-ns#> .
 @prefix ws: <http://bla/ws#> .
 
 
