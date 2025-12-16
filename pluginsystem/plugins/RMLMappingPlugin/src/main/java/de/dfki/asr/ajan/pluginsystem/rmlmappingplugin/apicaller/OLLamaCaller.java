@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.StringJoiner;
+import org.json.JSONObject;
 
 public class OLLamaCaller extends APICaller {
 
@@ -96,59 +97,12 @@ public class OLLamaCaller extends APICaller {
     if (responseBody == null || responseBody.isBlank()) {
       return "";
     }
-    String contentObject = extractContentObject(responseBody);
-    if (contentObject != null) {
-      return contentObject;
-    }
-    return extractLegacyResponse(responseBody);
+    return extractResponse(responseBody);
   }
 
-  private String extractContentObject(String responseBody) {
-    int contentIndex = responseBody.indexOf("\"content\":");
-    if (contentIndex == -1) {
-      return null;
-    }
-    int start = responseBody.indexOf('{', contentIndex);
-    if (start == -1) {
-      return null;
-    }
-    int depth = 0;
-    boolean inString = false;
-    for (int i = start; i < responseBody.length(); i++) {
-      char current = responseBody.charAt(i);
-      if (current == '"' && (i == 0 || responseBody.charAt(i - 1) != '\\')) {
-        inString = !inString;
-      }
-      if (inString) {
-        continue;
-      }
-      if (current == '{') {
-        depth++;
-      } else if (current == '}') {
-        depth--;
-        if (depth == 0) {
-          return responseBody.substring(start, i + 1);
-        }
-      }
-    }
-    return null;
-  }
-
-  private String extractLegacyResponse(String responseBody) {
-    int responseIndex = responseBody.indexOf("\"response\":");
-    if (responseIndex == -1) {
-      return responseBody;
-    }
-    int start = responseBody.indexOf('"', responseIndex + 12);
-    int end = responseBody.indexOf('"', start + 1);
-    if (start == -1 || end == -1 || end <= start) {
-      return responseBody;
-    }
-    return responseBody
-        .substring(start + 1, end)
-        .replace("\\n", "\n")
-        .replace("\\\"", "\"")
-        .replace("\\\\", "\\");
+  private String extractResponse(String responseBody) {
+    JSONObject json = new JSONObject(responseBody);
+    return json.getString("message.content");
   }
 
   private String escapePayloadPart(String part) {

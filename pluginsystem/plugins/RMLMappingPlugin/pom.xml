@@ -24,6 +24,7 @@ MA 02110-1301  USA
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <artifactId>RMLMappingPlugin</artifactId>
+
   <build>
     <plugins>
       <plugin>
@@ -94,6 +95,14 @@ MA 02110-1301  USA
       </resource>
     </resources>
   </build>
+
+  <dependencies>
+    <dependency>
+      <artifactId>json</artifactId>
+      <groupId>org.json</groupId>
+      <version>20250517</version>
+    </dependency>
+  </dependencies>
   <modelVersion>4.0.0</modelVersion>
   <name>RMLMappingPlugin</name>
 
