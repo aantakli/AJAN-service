@@ -12,6 +12,7 @@ import java.util.Map;
 import jep.JepConfig;
 import jep.JepException;
 import jep.SharedInterpreter;
+import lombok.Getter;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.pf4j.Plugin;
@@ -24,6 +25,7 @@ public class PythonPlugin extends Plugin {
 
   private static final Logger LOG = LoggerFactory.getLogger(PythonPlugin.class);
   private static SharedInterpreter mainInterpreter = null;
+  @Getter private static PowerShellManager powerShellManager = null;
 
   public PythonPlugin(PluginWrapper wrapper) throws IOException, URISyntaxException {
     super(wrapper);
@@ -31,6 +33,10 @@ public class PythonPlugin extends Plugin {
 
     // Setup environment FIRST
     Path pythonEnvPath = setupEmbeddedPythonEnv();
+
+    // Initialize PowerShellManager
+    powerShellManager = new PowerShellManager();
+    powerShellManager.start();
 
     // Initialize JEP with proper configuration
     initializeJep(pythonEnvPath);
@@ -253,6 +259,13 @@ public class PythonPlugin extends Plugin {
   @Override
   public void start() {
     System.out.println("PythonPlugin.start()");
+    if (powerShellManager != null) {
+      try {
+        powerShellManager.start();
+      } catch (IOException e) {
+        LOG.error("Failed to start PowerShellManager", e);
+      }
+    }
     if (RuntimeMode.DEVELOPMENT.equals(wrapper.getRuntimeMode())) {
       LOG.debug("PythonPlugin");
     }
@@ -261,6 +274,9 @@ public class PythonPlugin extends Plugin {
   @Override
   public void stop() {
     System.out.println("PythonPlugin.stop()");
+    if (powerShellManager != null) {
+      powerShellManager.stop();
+    }
     if (mainInterpreter != null) {
       try {
         mainInterpreter.close();
