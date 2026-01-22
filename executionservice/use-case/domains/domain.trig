@@ -31,7 +31,7 @@
 @prefix ex:     <http://www.example.com/> .
 @prefix carml: <http://carml.taxonic.com/carml/> .
 
-
+@prefix aas:  <https://admin-shell.io/aas/3/0/RC01/> .
 
 # --------------------------------------------
 # --------------- RML Mappings ---------------
@@ -406,7 +406,7 @@ ajan:ASP {
 #	"publisher-description": "action detection",
 #	"timestamp": "2007-12-24T18:21Z",
 #	"data": {
-#		"type": "detectedAction"
+#		"type": "detectedAction",
 #		"assembly": "toycar_simple_output",
 #		"actionID": "403e797ef472eb6814a745b750bcf47b1218c4b9a5018933d8fe89d9ee341b16"
 #	}
@@ -423,7 +423,7 @@ ajan:ASP {
 				a carml:Stream ;
 			] ;
 			rml:referenceFormulation ql:JSONPath;
-			rml:iterator "$"
+			rml:iterator "$.message"
 		];
 
 		rr:subjectMap [
@@ -524,4 +524,156 @@ ajan:ASP {
 				rr:datatype xsd:string
 			]
 		].
+}
+
+
+:test {
+	<#HumanDynPropMapping> a rr:TriplesMap ;
+	  rml:logicalSource [
+		rml:source [
+			a carml:Stream ;
+		] ;
+		rml:referenceFormulation ql:JSONPath;
+		rml:iterator "$.message.submodels[?(@.idShort=='HumanDynProp')]"
+	  ] ;
+
+	  rr:subjectMap [
+		rr:template "{id}" ;
+		rr:termType rr:IRI ;
+		rr:class aas:Submodel
+	  ] ;
+
+	  rr:predicateObjectMap [
+		rr:predicate aas:idShort ;
+		rr:objectMap [ rml:reference "idShort" ; rr:datatype xsd:string ]
+	  ] ;
+
+	  rr:predicateObjectMap [
+		rr:predicate aas:kind ;
+		rr:objectMap [ rml:reference "kind" ; rr:datatype xsd:string ]
+	  ] ;
+
+	  # Link to top-level DynProp collection (contained in submodelElements)
+	  rr:predicateObjectMap [
+		rr:predicate aas:submodelElement ;
+		rr:objectMap [
+		  rr:template "{id}/DynProp" ;
+		  rr:termType rr:IRI
+		]
+	  ] .
+	  
+	#################################################################
+	# DynProp (SubmodelElementCollection)
+	#################################################################
+
+	<#DynPropCollectionMapping> a rr:TriplesMap ;
+	  rml:logicalSource [
+		rml:source [
+			a carml:Stream ;
+		] ;
+		rml:referenceFormulation ql:JSONPath;
+		rml:iterator "$.message.submodels[?(@.idShort=='HumanDynProp')].submodelElements[?(@.idShort=='DynProp')]"
+	  ] ;
+
+	  rr:subjectMap [
+		rr:template "https://evobus.twinmap.de/sm/humandynprop/DynProp" ;
+		rr:termType rr:IRI ;
+		rr:class aas:SubmodelElementCollection
+	  ] ;
+
+	  rr:predicateObjectMap [
+		rr:predicate aas:idShort ;
+		rr:objectMap [ rml:reference "idShort" ; rr:datatype xsd:string ]
+	  ] ;
+
+	  # DynProp contains Properties and nested SubmodelElementCollections in "value"
+	  rr:predicateObjectMap [
+		rr:predicate aas:value ;
+		rr:objectMap [
+		  rr:template "https://evobus.twinmap.de/sm/humandynprop/DynProp/{value[*].idShort}" ;
+		  rr:termType rr:IRI
+		]
+	  ] .
+
+	#################################################################
+	# DynProp direct Properties (AreaOfActivity, Group, Workstation, ...)
+	#################################################################
+
+	<#DynPropPropertyMapping> a rr:TriplesMap ;
+	  rml:logicalSource [
+		rml:source [
+			a carml:Stream ;
+		] ;
+		rml:referenceFormulation ql:JSONPath;
+		rml:iterator "$.message.submodels[?(@.idShort=='HumanDynProp')].submodelElements[?(@.idShort=='DynProp')].value[?(@.modelType=='Property')]"
+	  ] ;
+
+	  rr:subjectMap [
+		rr:template "https://evobus.twinmap.de/sm/humandynprop/DynProp/{idShort}" ;
+		rr:termType rr:IRI ;
+		rr:class aas:Property
+	  ] ;
+
+	  rr:predicateObjectMap [
+		rr:predicate aas:idShort ;
+		rr:objectMap [ rml:reference "idShort" ; rr:datatype xsd:string ]
+	  ] ;
+
+	  rr:predicateObjectMap [
+		rr:predicate aas:valueType ;
+		rr:objectMap [ rml:reference "valueType" ; rr:datatype xsd:string ]
+	  ] ;
+
+	  rr:predicateObjectMap [
+		rr:predicate aas:value ;
+		rr:objectMap [ rml:reference "value" ; rr:datatype xsd:string ]
+	  ] ;
+
+	  rr:predicateObjectMap [
+		rr:predicate aas:semanticId ;
+		rr:objectMap [
+		  rr:template "https://evobus.twinmap.de/sm/humandynprop/DynProp/{idShort}/{semanticId.keys[*].value}" ;
+		  rr:termType rr:IRI
+		]
+	  ] .
+	  
+	#################################################################
+	# DynProp nested Collections (AbsencesPlanned, Location, FutureActions, Tools)
+	#################################################################
+
+	<#DynPropNestedCollectionMapping> a rr:TriplesMap ;
+	  rml:logicalSource [
+		rml:source [
+			a carml:Stream ;
+		] ;
+		rml:referenceFormulation ql:JSONPath;
+		rml:iterator "$.message.submodels[?(@.idShort=='HumanDynProp')].submodelElements[?(@.idShort=='DynProp')].value[?(@.modelType=='SubmodelElementCollection')]"
+	  ] ;
+
+	  rr:subjectMap [
+		rr:template "https://evobus.twinmap.de/sm/humandynprop/DynProp/{idShort}" ;
+		rr:termType rr:IRI ;
+		rr:class aas:SubmodelElementCollection
+	  ] ;
+
+	  rr:predicateObjectMap [
+		rr:predicate aas:idShort ;
+		rr:objectMap [ rml:reference "idShort" ; rr:datatype xsd:string ]
+	  ] ;
+
+	  rr:predicateObjectMap [
+		rr:predicate aas:value ;
+		rr:objectMap [
+		  rr:template "https://evobus.twinmap.de/sm/humandynprop/DynProp/{idShort}" ;
+		  rr:termType rr:IRI
+		]
+	  ] ;
+
+	  rr:predicateObjectMap [
+		rr:predicate aas:value ;
+		rr:objectMap [
+		  rr:template "{value[*].value[*].semanticId.keys[?(@.type=='GlobalReference')].value}" ;
+		  rr:termType rr:IRI
+		]
+	  ] .
 }
