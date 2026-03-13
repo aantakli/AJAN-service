@@ -25,14 +25,16 @@ public class PythonPlugin extends Plugin {
 
   private static final Logger LOG = LoggerFactory.getLogger(PythonPlugin.class);
   private static SharedInterpreter mainInterpreter = null;
+  private static jep.JepConfig jepConfig = null;
   @Getter private static PowerShellManager powerShellManager = null;
+  @Getter private static Path pythonEnvPath = null;
 
   public PythonPlugin(PluginWrapper wrapper) throws IOException, URISyntaxException {
     super(wrapper);
     System.out.println("PythonPlugin.constructor()");
 
     // Setup environment FIRST
-    Path pythonEnvPath = setupEmbeddedPythonEnv();
+    setupEmbeddedPythonEnv();
 
     // Initialize PowerShellManager
     powerShellManager = new PowerShellManager();
@@ -40,6 +42,14 @@ public class PythonPlugin extends Plugin {
 
     // Initialize JEP with proper configuration
     initializeJep(pythonEnvPath);
+  }
+
+  public static SharedInterpreter getMainInterpreter() {
+    return mainInterpreter;
+  }
+
+  public static jep.JepConfig getJepConfig() {
+    return jepConfig;
   }
 
   private static void initializeJep(Path pythonEnvPath) {
@@ -57,15 +67,15 @@ public class PythonPlugin extends Plugin {
                   .toAbsolutePath()
                   .toString());
 
-      JepConfig config = new JepConfig();
+      jepConfig = new JepConfig();
 
       // Use addIncludePaths for Python module paths
       for (String path : pythonPath.split(File.pathSeparator)) {
-        config.addIncludePaths(path);
+        jepConfig.addIncludePaths(path);
       }
 
       // Initialize SharedInterpreter (no config parameter)
-      SharedInterpreter.setConfig(config);
+      SharedInterpreter.setConfig(jepConfig);
       mainInterpreter = new SharedInterpreter();
 
       LOG.info("Successfully initialized JEP with embedded Python environment");
@@ -121,6 +131,7 @@ public class PythonPlugin extends Plugin {
     String envFolder = os.contains("win") ? "win_env" : "nix_env";
     String resourcePath = "/" + envFolder;
     Path tempDir = Files.createTempDirectory("embedded_python_env");
+    pythonEnvPath = tempDir;
     unzip(PythonPlugin.class.getResourceAsStream(resourcePath + ".zip"), tempDir);
 
     Path jepPath = tempDir.resolve("Lib").resolve("site-packages").resolve("jep");

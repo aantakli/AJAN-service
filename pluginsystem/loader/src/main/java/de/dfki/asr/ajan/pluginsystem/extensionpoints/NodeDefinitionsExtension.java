@@ -9,22 +9,23 @@ import java.nio.file.Paths;
 
 public abstract class NodeDefinitionsExtension implements ExtensionPoint {
 
-    public Path getDefinitionPath() {
-        ClassLoader classLoader = getClass().getClassLoader();
-        try (InputStream inputStream = classLoader.getResourceAsStream("node_definitions.ttl")) {
-            if (inputStream == null) {
-                throw new IllegalArgumentException("File not found!");
-            }
-            String filePath = System.getProperty("java.class.path");
-            String[] packagePath = this.getClass().getPackage().toString().split("\\.");
-            Path path = Paths.get(filePath).toAbsolutePath().getParent().resolve(packagePath[packagePath.length - 2] + "_node_definitions.ttl");
-            Files.deleteIfExists(path);
-            Files.copy(inputStream, path);
-            return path;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+  public Path getDefinitionPath() {
+    ClassLoader classLoader = getClass().getClassLoader();
+    try (InputStream inputStream = classLoader.getResourceAsStream("node_definitions.ttl")) {
+      if (inputStream == null) {
+        // Try searching for it if it's not in the root
         return null;
+      }
+      // Create a temporary file to hold the TTL data
+      Path tempFile = Files.createTempFile("ajan-" + getClass().getSimpleName() + "-", ".ttl");
+      Files.copy(inputStream, tempFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+      // Register for deletion on exit
+      tempFile.toFile().deleteOnExit();
+      return tempFile;
+    } catch (Exception e) {
+      e.printStackTrace();
     }
+    return null;
+  }
 }
 

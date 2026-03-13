@@ -46,57 +46,26 @@ import org.pf4j.Extension;
 @Extension
 @RDFBean("bt:Parallel")
 public class Parallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTaskInformation> implements NodeExtension, TreeNode {
-	@Getter @Setter
-	@RDFSubject
-	private String url;
-
 	private final ValueFactory vf = SimpleValueFactory.getInstance();
-	private Resource instance;
-	protected int currentEvaluatingChild;
-
-	@RDF("rdfs:label")
-	@Getter @Setter
-	private String label;
-
-	@RDF("bt:join")
-	public void setOrchestrator(final boolean join) {
-		if (join) {
-			this.orchestrator = Orchestrator.Join;
-		}
-	}
-
-	@RDF("bt:policy")
-	public void setPolicy(final URI policy) {
-		if (policy.getFragment().equals("Priority")) {
-			this.policy = Policy.Selector;
-		}
-	}
-
-	@RDF("bt:hasChildren")
-	public List<Task<AgentTaskInformation>> getChildren() {
-		return Arrays.asList(children.items);
-	}
-
-	public void setChildren(final List<Task<AgentTaskInformation>> newChildren) {
-		children.clear();
-		newChildren.stream().forEach((task) -> {
-			children.add(task);
-		});
-	}
-
-	// ---------------------
-	// GDX-AI implementation
-	// ---------------------
-
 	/** Optional task attribute specifying the parallel policy (defaults to {@link Policy#Sequence}) */
 	@TaskAttribute public Policy policy;
 	/** Optional task attribute specifying the execution policy (defaults to {@link Orchestrator#Resume}) */
 	@TaskAttribute public Orchestrator orchestrator;
-
+	protected int currentEvaluatingChild;
+	@Getter @Setter
+	@RDFSubject
+	private String url;
+	private Resource instance;
+	@RDF("rdfs:label")
+	@Getter @Setter
+	private String label;
 	private boolean noRunningTasks;
 	private Boolean lastResult;
-	private int currentChildIndex;
 
+	// ---------------------
+	// GDX-AI implementation
+	// ---------------------
+	private int currentChildIndex;
 	/** Creates a parallel task with sequence policy, resume orchestrator and no children */
 	public Parallel () {
 		this(new Array<Task<AgentTaskInformation>>());
@@ -107,13 +76,11 @@ public class Parallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTaskInfo
 	public Parallel (Task<AgentTaskInformation>... tasks) {
 		this(new Array<Task<AgentTaskInformation>>(tasks));
 	}
-
 	/** Creates a parallel task with sequence policy, resume orchestrator and the given children
 	 * @param tasks the children */
 	public Parallel (Array<Task<AgentTaskInformation>> tasks) {
 		this(Policy.Sequence, tasks);
 	}
-
 	/** Creates a parallel task with the given policy, resume orchestrator and no children
 	 * @param policy the policy */
 	public Parallel (Policy policy) {
@@ -140,14 +107,14 @@ public class Parallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTaskInfo
 	public Parallel (Orchestrator orchestrator, Array<Task<AgentTaskInformation>> tasks) {
 		this(Policy.Sequence, orchestrator, tasks);
 	}
-	
+
 	/** Creates a parallel task with the given orchestrator, sequence policy and the given children
 	 * @param orchestrator the orchestrator
 	 * @param tasks the children */
 	public Parallel (Orchestrator orchestrator, Task<AgentTaskInformation>... tasks) {
 		this(Policy.Sequence, orchestrator, new Array<Task<AgentTaskInformation>>(tasks));
 	}
-	
+
 	/** Creates a parallel task with the given orchestrator, policy and children
 	 * @param policy the policy
 	 * @param orchestrator the orchestrator
@@ -157,6 +124,33 @@ public class Parallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTaskInfo
 		this.policy = policy;
 		this.orchestrator = orchestrator;
 		noRunningTasks = true;
+	}
+
+	@RDF("bt:join")
+	public void setOrchestrator(final boolean join) {
+		if (join) {
+			this.orchestrator = Orchestrator.Join;
+		}
+	}
+
+	@RDF("bt:policy")
+	public void setPolicy(final URI policy) {
+		if (policy.getFragment().equals("Priority")) {
+			this.policy = Policy.Selector;
+		}
+	}
+	
+	@RDF("bt:hasChildren")
+	public List<Task<AgentTaskInformation>> getChildren() {
+		return Arrays.asList(children.items);
+	}
+	
+	@RDF("bt:hasChildren")
+	public void setChildren(final List<Task<AgentTaskInformation>> newChildren) {
+		children.clear();
+		newChildren.stream().forEach((task) -> {
+			children.add(task);
+		});
 	}
 
 	@Override
@@ -235,6 +229,62 @@ public class Parallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTaskInfo
 		}
 	}
 	
+	@Override
+	public void reset() {
+		policy = Policy.Sequence;
+		orchestrator = Orchestrator.Resume;
+		noRunningTasks = true;
+		lastResult = null;
+		currentChildIndex = 0;
+		super.reset();
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Parallel (");
+		sb.append(url);
+		sb.append(" {");
+		for (Task<AgentTaskInformation> task : children) {
+			sb.append(task.toString());
+			sb.append(", ");
+		}
+		sb.append(" })");
+		return sb.toString();
+	}
+
+	@Override
+	public Resource getType() {
+		return StandardBTVocabulary.PARALLEL;
+	}
+
+	// -------------------------
+	// GDX-AI Implemantation END
+	// -------------------------
+
+	@Override
+	public Resource getInstance(final Resource btInstance) {
+		if (instance == null) {
+			instance = BTUtil.getInstanceResource(url, btInstance);
+		}
+		return instance;
+	}
+
+	@Override
+	public Resource getDefinition(final Resource btDefinition) {
+		if (url == null) {
+			return btDefinition;
+		}
+		return vf.createIRI(url);
+	}
+
+	@Override
+	public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
+		BTUtil.setGeneralNodeModel(model, root, mode, this);
+		BTUtil.setBranchNodeModel(model, root, mode, this);
+		return model;
+	}
+
 	/** The enumeration of the child orchestrators supported by the {@link Parallel} task */
 	public enum Orchestrator {
 		/** The default orchestrator - starts or resumes all children every single step */
@@ -276,7 +326,7 @@ public class Parallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTaskInfo
 				parallel.lastResult = null;
 				for (parallel.currentChildIndex = 0; parallel.currentChildIndex < parallel.children.size; parallel.currentChildIndex++) {
 					Task child = parallel.children.get(parallel.currentChildIndex);
-					
+
 					switch(child.getStatus()) {
 					case RUNNING:
 						child.run();
@@ -293,7 +343,7 @@ public class Parallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTaskInfo
 							child.fail();
 						break;
 					}
-					
+
 					if (parallel.lastResult != null) { // Current child has finished either with success or fail
 						parallel.cancelRunningChildren(parallel.noRunningTasks ? parallel.currentChildIndex + 1 : 0);
 						parallel.resetAllChildren();
@@ -307,23 +357,14 @@ public class Parallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTaskInfo
 				parallel.running();
 			}
 		};
-		
+
 		/**
 		 * Called by parallel task each run
 		 * @param parallel The {@link Parallel} task
 		 */
 		public abstract void execute(Parallel parallel);
 	}
-	
-	@Override
-	public void reset() {
-		policy = Policy.Sequence;
-		orchestrator = Orchestrator.Resume;
-		noRunningTasks = true;
-		lastResult = null;
-		currentChildIndex = 0;
-		super.reset();
-	}
+
 
 	/** The enumeration of the policies supported by the {@link Parallel} task. */
 	public enum Policy {
@@ -372,52 +413,5 @@ public class Parallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTaskInfo
 		 *         parallel must keep on running. */
 		public abstract Boolean onChildFail (Parallel parallel);
 
-	}
-
-	// -------------------------
-	// GDX-AI Implemantation END
-	// -------------------------
-
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("Parallel (");
-		sb.append(url);
-		sb.append(" {");
-		for (Task<AgentTaskInformation> task : children) {
-			sb.append(task.toString());
-			sb.append(", ");
-		}
-		sb.append(" })");
-		return sb.toString();
-	}
-
-	@Override
-	public Resource getType() {
-		return StandardBTVocabulary.PARALLEL;
-	}
-
-	@Override
-	public Resource getInstance(final Resource btInstance) {
-		if (instance == null) {
-			instance = BTUtil.getInstanceResource(url, btInstance);
-		}
-		return instance;
-	}
-
-	@Override
-	public Resource getDefinition(final Resource btDefinition) {
-		if (url == null) {
-			return btDefinition;
-		}
-		return vf.createIRI(url);
-	}
-
-
-	@Override
-	public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
-		BTUtil.setGeneralNodeModel(model, root, mode, this);
-		BTUtil.setBranchNodeModel(model, root, mode, this);
-		return model;
 	}
 }

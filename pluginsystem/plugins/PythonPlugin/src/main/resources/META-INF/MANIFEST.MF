@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Plugin-Id: PythonPlugin
+Plugin-Version: 0.1
+Plugin-Class: de.dfki.asr.ajan.pluginsystem.pythonplugin.PythonPlugin
+Plugin-Provider: Andre Antakli

@@ -36,7 +36,7 @@ import org.eclipse.rdf4j.model.Resource;
 import org.pf4j.Extension;
 
 @Extension
-@RDFBean("python:StartSelectedJoiningNode")
+@RDFBean("http://www.ajan.de/behavior/python-ns#StartSelectedJoiningNode")
 public class StartSelectedJoiningNode extends AbstractTDBLeafTask implements NodeExtension {
   @RDFSubject @Getter @Setter private String url;
 

@@ -36,3 +36,6 @@ nbactions.xml
 /pluginsystem/plugins/PythonPlugin/target/
 /target/
 /pluginsystem/plugins/MDPPlugin/target/
+/use-case/
+*.jar
+*/**/target

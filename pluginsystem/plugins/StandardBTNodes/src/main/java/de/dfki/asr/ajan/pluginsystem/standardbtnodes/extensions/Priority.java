@@ -38,74 +38,75 @@ import org.pf4j.Extension;
 @Extension
 @RDFBean("bt:Priority")
 public class Priority extends AbstractTDBBranchTask implements NodeExtension {
-	@Getter @Setter
-	@RDFSubject
-	private String url;
+  @Getter @Setter @RDFSubject private String url;
 
-	@RDF("rdfs:label")
-	@Getter @Setter
-	private String label;
+  @RDF("rdfs:label")
+  @Getter
+  @Setter
+  private String label;
 
-	@RDF("bt:hasChildren")
-	public List<Task<AgentTaskInformation>> getChildren() {
-		return Arrays.asList(children.items);
-	}
+  @RDF("bt:hasChildren")
+  public List<Task<AgentTaskInformation>> getChildren() {
+    return Arrays.asList(children.items);
+  }
 
-	@Override
-	protected boolean nodeLogic(final SimulationResult result) {
-		return result.getChildResult().equals(SimulationResult.Result.SUCCESS);
-	}
+  @RDF("bt:hasChildren")
+  public void setChildren(final List<Task<AgentTaskInformation>> children) {
+    this.children.clear();
+    children.forEach(
+        (task) -> {
+          this.children.add(task);
+        });
+  }
 
-	public void setChildren(final List<Task<AgentTaskInformation>> children) {
-		this.children.clear();
-		children.forEach((task) -> {
-			this.children.add(task);
-		});
-	}
+  @Override
+  protected boolean nodeLogic(final SimulationResult result) {
+    return result.getChildResult().equals(SimulationResult.Result.SUCCESS);
+  }
 
-	@Override
-	public Resource getType() {
-		return StandardBTVocabulary.PRIORITY;
-	}
+  @Override
+  public Resource getType() {
+    return StandardBTVocabulary.PRIORITY;
+  }
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("Priority (");
-		sb.append(url);
-		sb.append(" {");
-		for (Task<AgentTaskInformation> task : children) {
-			sb.append(task.toString());
-			sb.append(", ");
-		}
-		sb.append(" })");
-		return sb.toString();
-	}
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Priority (");
+    sb.append(url);
+    sb.append(" {");
+    for (Task<AgentTaskInformation> task : children) {
+      sb.append(task.toString());
+      sb.append(", ");
+    }
+    sb.append(" })");
+    return sb.toString();
+  }
 
-	@Override
-	// From gdx.ai Sequence
-	public void childFail (Task<AgentTaskInformation> runningTask) {
-		super.childFail(runningTask);
-		++currentChildIndex;
-		if (currentChildIndex < children.size) {
-			run(); // Run next child
-		} else {
-			resetSkippedChilds(currentChildIndex);
-			fail(); // All children processed, return failure status
-		}
-	}
+  @Override
+  // From gdx.ai Sequence
+  public void childFail(Task<AgentTaskInformation> runningTask) {
+    super.childFail(runningTask);
+    ++currentChildIndex;
+    if (currentChildIndex < children.size) {
+      run(); // Run next child
+    } else {
+      resetSkippedChilds(currentChildIndex);
+      fail(); // All children processed, return failure status
+    }
+  }
 
-	@Override
-	// From gdx.ai Sequence
-	public void childSuccess (Task<AgentTaskInformation> runningTask) {
-		super.childSuccess(runningTask);
-		resetSkippedChilds(++currentChildIndex);
-		success(); // Return success status when a child says it succeeded
-	}
+  @Override
+  // From gdx.ai Sequence
+  public void childSuccess(Task<AgentTaskInformation> runningTask) {
+    super.childSuccess(runningTask);
+    resetSkippedChilds(++currentChildIndex);
+    success(); // Return success status when a child says it succeeded
+  }
 
-	private void resetSkippedChilds(final int childIndex) {
-		for (int i = childIndex; i < children.size; i++) {
-			getChild(i).resetTask();
-		}
-	}
+  private void resetSkippedChilds(final int childIndex) {
+    for (int i = childIndex; i < children.size; i++) {
+      getChild(i).resetTask();
+    }
+  }
 }

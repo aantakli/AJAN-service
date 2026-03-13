@@ -36,7 +36,7 @@ import org.eclipse.rdf4j.model.Resource;
 import org.pf4j.Extension;
 
 @Extension
-@RDFBean("python:EnableAssetNode")
+@RDFBean("http://www.ajan.de/behavior/python-ns#EnableAssetNode")
 public class EnableAssetNode extends AbstractTDBLeafTask implements NodeExtension {
   @RDFSubject @Getter @Setter private String url;
 

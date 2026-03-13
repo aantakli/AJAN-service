@@ -36,7 +36,7 @@ import org.eclipse.rdf4j.model.Resource;
 import org.pf4j.Extension;
 
 @Extension
-@RDFBean("python:SetupNode")
+@RDFBean("http://www.ajan.de/behavior/python-ns#SetupNode")
 public class SetupNode extends AbstractTDBLeafTask implements NodeExtension {
   @RDFSubject @Getter @Setter private String url;
 

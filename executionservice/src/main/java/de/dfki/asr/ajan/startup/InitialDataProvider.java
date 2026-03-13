@@ -124,6 +124,7 @@ public class InitialDataProvider {
     if (loadFiles) {
       loadTTLFromFolders();
     }
+    copyNodeDefinitionsExtensions();
     pushPluginsToStore(pluginLoader, services);
     loadEndpoints(pluginLoader);
     agentManager.setBaseURI(publicHostName, usePort);
@@ -131,7 +132,6 @@ public class InitialDataProvider {
 
   private void loadTTLFromFolders() {
     Map<String, TripleDataBase> tripleStoreMap = new ConcurrentHashMap<>();
-    copyNodeDefinitionsExtensions();
     // loads ttl file(s) for each folder to its corresponding repository
     tripleStoreMap.put(agentFolderPath, agents);
     tripleStoreMap.put(behaviorsFolderPath, behaviors);
@@ -155,10 +155,18 @@ public class InitialDataProvider {
               return;
             }
             LOG.info("NodeDefinitionsExtension file found: {}", origin);
-            Path target = Paths.get(nodeDefinitionsFolderPath).resolve(origin.getFileName());
+            String pluginId =
+                pluginLoader
+                    .getPLUGIN_MANAGER()
+                    .whichPlugin(pathExtension.getClass())
+                    .getPluginId();
+            String uniqueName =
+                pluginId.toLowerCase() + "_" + origin.getFileName().toString().replace("ajan-", "");
+            Path target = Paths.get(nodeDefinitionsFolderPath).resolve(uniqueName);
             LOG.info("Copying file from {} to {}", origin, target);
             Files.createDirectories(target.getParent());
             Files.copy(origin, target, StandardCopyOption.REPLACE_EXISTING);
+            pushFileToStore(target.toString(), nodeDefinitions);
           } catch (IOException | IllegalArgumentException e) {
             LOG.error("Error while getting NodeDefinitionsExtension file: {}", e.getMessage());
             LOG.error(Arrays.toString(e.getStackTrace()));

@@ -37,69 +37,70 @@ import org.pf4j.Extension;
 @Extension
 @RDFBean("bt:Sequence")
 public class Sequence extends AbstractTDBBranchTask implements NodeExtension {
-	@Getter @Setter
-	@RDFSubject
-	private String url;
+  @Getter @Setter @RDFSubject private String url;
 
-	@RDF("rdfs:label")
-	@Getter @Setter
-	private String label;
+  @RDF("rdfs:label")
+  @Getter
+  @Setter
+  private String label;
 
-	@RDF("bt:hasChildren")
-	public List<Task<AgentTaskInformation>> getChildren() {
-		return Arrays.asList(children.items);
-	}
+  @RDF("bt:hasChildren")
+  public List<Task<AgentTaskInformation>> getChildren() {
+    return Arrays.asList(children.items);
+  }
 
-	public void setChildren(final List<Task<AgentTaskInformation>> newChildren) {
-		children.clear();
-		newChildren.forEach((task) -> {
-			children.add(task);
-		});
-	}
+  @RDF("bt:hasChildren")
+  public void setChildren(final List<Task<AgentTaskInformation>> newChildren) {
+    children.clear();
+    newChildren.forEach(
+        (task) -> {
+          children.add(task);
+        });
+  }
 
-	@Override
-	public Resource getType() {
-		return StandardBTVocabulary.SEQUENCE;
-	}
+  @Override
+  public Resource getType() {
+    return StandardBTVocabulary.SEQUENCE;
+  }
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder(26);
-		sb.append("Sequence (");
-		sb.append(url);
-		sb.append(" { ");
-		for (Task<AgentTaskInformation> task : children) {
-			sb.append(task.toString());
-			sb.append(", ");
-		}
-		sb.append(" })");
-		return sb.toString();
-	}
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder(26);
+    sb.append("Sequence (");
+    sb.append(url);
+    sb.append(" { ");
+    for (Task<AgentTaskInformation> task : children) {
+      sb.append(task.toString());
+      sb.append(", ");
+    }
+    sb.append(" })");
+    return sb.toString();
+  }
 
-	@Override
-	// From gdx.ai Sequence
-	public void childSuccess (final Task<AgentTaskInformation> runningTask) {
-		super.childSuccess(runningTask);
-		++currentChildIndex;
-		if (currentChildIndex < children.size) {
-			run(); // Run next child
-		} else {
-			resetSkipedChilds(currentChildIndex);
-			success(); // All children processed, return success status
-		}
-	}
+  @Override
+  // From gdx.ai Sequence
+  public void childSuccess(final Task<AgentTaskInformation> runningTask) {
+    super.childSuccess(runningTask);
+    ++currentChildIndex;
+    if (currentChildIndex < children.size) {
+      run(); // Run next child
+    } else {
+      resetSkipedChilds(currentChildIndex);
+      success(); // All children processed, return success status
+    }
+  }
 
-	@Override
-	// From gdx.ai Sequence
-	public void childFail (final Task<AgentTaskInformation> runningTask) {
-		super.childFail(runningTask);
-		resetSkipedChilds(++currentChildIndex);
-		fail(); // Return failure status when a child says it failed
-	}
+  @Override
+  // From gdx.ai Sequence
+  public void childFail(final Task<AgentTaskInformation> runningTask) {
+    super.childFail(runningTask);
+    resetSkipedChilds(++currentChildIndex);
+    fail(); // Return failure status when a child says it failed
+  }
 
-	private void resetSkipedChilds(final int childIndex) {
-		for (int i = childIndex; i < children.size; i++) {
-			getChild(i).resetTask();
-		}
-	}
+  private void resetSkipedChilds(final int childIndex) {
+    for (int i = childIndex; i < children.size; i++) {
+      getChild(i).resetTask();
+    }
+  }
 }

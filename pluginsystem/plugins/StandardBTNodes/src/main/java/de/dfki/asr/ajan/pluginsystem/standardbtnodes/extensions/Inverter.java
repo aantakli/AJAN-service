@@ -42,67 +42,65 @@ import org.pf4j.Extension;
 @Extension
 @RDFBean("bt:Invert")
 public class Inverter extends Invert<AgentTaskInformation> implements NodeExtension, TreeNode {
-	@Getter @Setter
-	@RDFSubject
-	private String url;
+  private static final Logger LOG = LoggerFactory.getLogger(Invert.class);
+  private final ValueFactory vf = SimpleValueFactory.getInstance();
+  @Getter @Setter @RDFSubject private String url;
+  @RDF("rdfs:label")
+  @Getter
+  @Setter
+  private String label;
+  private Resource instance;
 
-	@RDF("rdfs:label")
-	@Getter @Setter
-	private String label;
+  @RDF("bt:hasChild")
+  public Task<AgentTaskInformation> getChild() {
+    return getChild(0);
+  }
 
-	private final ValueFactory vf = SimpleValueFactory.getInstance();
-	private static final Logger LOG = LoggerFactory.getLogger(Invert.class);
-	private Resource instance;
+  @RDF("bt:hasChild")
+  public void setChild(final Task<AgentTaskInformation> task) {
+    this.addChild(task);
+  }
 
-	@RDF("bt:hasChild")
-	public Task<AgentTaskInformation> getChild() {
-		return getChild(0);
-	}
+  @Override
+  public void end() {
+    LOG.info("Status (" + getStatus() + ")");
+  }
 
-	public void setChild(final Task<AgentTaskInformation> task) {
-		this.addChild(task);
-	}
+  @Override
+  public void simulate(final SimulationResult result) {
+    // no body needed here
+  }
 
-	@Override
-	public void end() {
-		LOG.info("Status (" + getStatus() + ")");
-	}
+  @Override
+  public String toString() {
+    return "Invert (" + url + " {" + child.toString() + "})";
+  }
 
-	@Override
-	public void simulate(final SimulationResult result) {
-		// no body needed here
-	}
+  @Override
+  public Resource getType() {
+    return StandardBTVocabulary.INVERT;
+  }
 
-	@Override
-	public String toString() {
-		return "Invert (" + url + " {" + child.toString() + "})";
-	}
+  @Override
+  public Resource getInstance(final Resource btInstance) {
+    if (instance == null) {
+      instance = BTUtil.getInstanceResource(url, btInstance);
+    }
+    return instance;
+  }
 
-	@Override
-	public Resource getType() {
-	    return StandardBTVocabulary.INVERT;
-	}
+  @Override
+  public Resource getDefinition(final Resource btDefinition) {
+    if (url == null) {
+      return btDefinition;
+    }
+    return vf.createIRI(url);
+  }
 
-	@Override
-	public Resource getInstance(final Resource btInstance) {
-		if (instance == null) {
-			instance = BTUtil.getInstanceResource(url, btInstance);
-		}
-		return instance;
-	}
-
-	@Override
-	public Resource getDefinition(final Resource btDefinition) {
-		if (url == null) {
-			return btDefinition;
-		}
-		return vf.createIRI(url);
-	}
-
-	@Override
-	public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
-		BTUtil.setGeneralNodeModel(model, root, mode, this);
-		BTUtil.setDecoratorNodeModel(model, root, mode, this);
-		return model;
-	}
+  @Override
+  public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
+    BTUtil.setGeneralNodeModel(model, root, mode, this);
+    BTUtil.setDecoratorNodeModel(model, root, mode, this);
+    return model;
+  }
 }
