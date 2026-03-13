@@ -159,7 +159,8 @@ public class InitialDataProvider {
                 pluginLoader
                     .getPLUGIN_MANAGER()
                     .whichPlugin(pathExtension.getClass())
-                    .getPluginId();
+                    .getPluginId()
+                    .replaceAll("-\\d+$", "");
             String uniqueName =
                 pluginId.toLowerCase() + "_" + origin.getFileName().toString().replace("ajan-", "");
             Path target = Paths.get(nodeDefinitionsFolderPath).resolve(uniqueName);
