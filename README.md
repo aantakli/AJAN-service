@@ -4,7 +4,7 @@ This is the Maven based JAVA service to create and run AJAN agents.
 
 ## Prerequisites
 
-You will need the following things properly installed on your computer.
+You will need the following things properly installed on your computer. So please make sure, that mvn and java (also JAVA_HOME) are correctly set in the environmental variables.
 
 * [Java OpenJDK (Version 11)](https://adoptium.net/temurin/releases/?version=11)
 * [Maven (Version 3.3.9)](https://archive.apache.org/dist/maven/maven-3/3.3.9/)
