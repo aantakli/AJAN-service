@@ -1,0 +1,124 @@
+@prefix :      <http://localhost:8090/rdf4j/repositories/node_definitions#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix nd:    <http://www.ajan.de/behavior/nd-ns#> .
+@prefix ajan:  <http://www.ajan.de/ajan-ns#> .
+@prefix bt:    <http://www.ajan.de/behavior/bt-ns#> .
+@prefix opcua: <http://www.ajan.de/behavior/opcua-ns#> .
+
+:OPCUASetupNode
+    nd:class     nd:Leaf ;
+    nd:category  "OPC UA Nodes" ;
+    nd:name      "OPCUASetupNode" ;
+    nd:labelType nd:Dynamic ;
+    rdfs:label   "DefaultOPCUASetupNode" ;
+    nd:type      opcua:SetupNode ;
+    nd:style     [ a            nd:StyleDef ;
+                   nd:color     "#1b84f3" ;
+                   nd:shape     nd:Polygon ;
+                   nd:polygon   "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]" ;
+                   nd:padding   "700%" ;
+                   nd:paddingTo "width" ;
+                   nd:icon      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" ] ;
+    nd:parameter [ a          nd:Parameter ;
+                   nd:mapsTo  opcua:endpointUrl ;
+                   nd:input   xsd:string ;
+                   nd:default "opc.tcp://localhost:4840"^^xsd:string ;
+                   nd:title   "Endpoint URL" ; ] ;
+    nd:parameter [ a          nd:Parameter ;
+                   nd:mapsTo  opcua:venvPath ;
+                   nd:input   xsd:string ;
+                   nd:default "C:/"^^xsd:string ;
+                   nd:title   "Venv Path" ; ] ;
+    nd:parameter [ a         nd:Parameter ;
+                   nd:mapsTo bt:targetBase ;
+                   nd:title  "Target Base" ;
+                   nd:input  nd:Repo ; ] .
+
+:OPCUASelectJointNode
+    nd:class     nd:Leaf ;
+    nd:category  "OPC UA Nodes" ;
+    nd:name      "OPCUASelectJointNode" ;
+    nd:labelType nd:Dynamic ;
+    rdfs:label   "DefaultOPCUASelectJointNode" ;
+    nd:type      opcua:SelectJointNode ;
+    nd:style     [ a            nd:StyleDef ;
+                   nd:color     "#1b84f3" ;
+                   nd:shape     nd:Polygon ;
+                   nd:polygon   "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]" ;
+                   nd:padding   "700%" ;
+                   nd:paddingTo "width" ;
+                   nd:icon      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" ] ;
+    nd:parameter [ a          nd:Parameter ;
+                   nd:mapsTo  opcua:endpointUrl ;
+                   nd:input   xsd:string ;
+                   nd:default "opc.tcp://localhost:4840"^^xsd:string ;
+                   nd:title   "Endpoint URL" ; ] ;
+    nd:parameter [ a          nd:Parameter ;
+                   nd:mapsTo  opcua:jointId ;
+                   nd:input   xsd:string ;
+                   nd:default "Joint_1"^^xsd:string ;
+                   nd:title   "Joint ID" ; ] ;
+    nd:parameter [ a         nd:Parameter ;
+                   nd:mapsTo bt:targetBase ;
+                   nd:title  "Target Base" ;
+                   nd:input  nd:Repo ; ] .
+
+:OPCUAEnableAssetNode
+    nd:class     nd:Leaf ;
+    nd:category  "OPC UA Nodes" ;
+    nd:name      "OPCUAEnableAssetNode" ;
+    nd:labelType nd:Dynamic ;
+    rdfs:label   "DefaultOPCUAEnableAssetNode" ;
+    nd:type      opcua:EnableAssetNode ;
+    nd:style     [ a            nd:StyleDef ;
+                   nd:color     "#1b84f3" ;
+                   nd:shape     nd:Polygon ;
+                   nd:polygon   "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]" ;
+                   nd:padding   "700%" ;
+                   nd:paddingTo "width" ;
+                   nd:icon      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" ] ;
+    nd:parameter [ a          nd:Parameter ;
+                   nd:mapsTo  opcua:endpointUrl ;
+                   nd:input   xsd:string ;
+                   nd:default "opc.tcp://localhost:4840"^^xsd:string ;
+                   nd:title   "Endpoint URL" ; ] ;
+    nd:parameter [ a          nd:Parameter ;
+                   nd:mapsTo  opcua:enabled ;
+                   nd:input   xsd:boolean ;
+                   nd:default "false"^^xsd:boolean ;
+                   nd:title   "Enable Asset" ; ] ;
+    nd:parameter [ a         nd:Parameter ;
+                   nd:mapsTo bt:targetBase ;
+                   nd:title  "Target Base" ;
+                   nd:input  nd:Repo ; ] .
+
+:OPCUAStartJoiningNode
+    nd:class     nd:Leaf ;
+    nd:category  "OPC UA Nodes" ;
+    nd:name      "OPCUAStartJoiningNode" ;
+    nd:labelType nd:Dynamic ;
+    rdfs:label   "DefaultOPCUAStartJoiningNode" ;
+    nd:type      opcua:StartJoiningNode ;
+    nd:style     [ a            nd:StyleDef ;
+                   nd:color     "#1b84f3" ;
+                   nd:shape     nd:Polygon ;
+                   nd:polygon   "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]" ;
+                   nd:padding   "700%" ;
+                   nd:paddingTo "width" ;
+                   nd:icon      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" ] ;
+    nd:parameter [ a          nd:Parameter ;
+                   nd:mapsTo  opcua:endpointUrl ;
+                   nd:input   xsd:string ;
+                   nd:default "opc.tcp://localhost:4840"^^xsd:string ;
+                   nd:title   "Endpoint URL" ; ] ;
+    nd:parameter [ a          nd:Parameter ;
+                   nd:mapsTo  opcua:deselect ;
+                   nd:input   xsd:boolean ;
+                   nd:default "false"^^xsd:boolean ;
+                   nd:title   "Deselect" ; ] ;
+    nd:parameter [ a         nd:Parameter ;
+                   nd:mapsTo bt:targetBase ;
+                   nd:title  "Target Base" ;
+                   nd:input  nd:Repo ; ] .

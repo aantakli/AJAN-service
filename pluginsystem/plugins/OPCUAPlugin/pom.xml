@@ -7,6 +7,22 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Plugin-Class>${plugin.class}</Plugin-Class>
+              <Plugin-Dependencies>${plugin.dependencies}</Plugin-Dependencies>
+              <Plugin-Id>${plugin.id}</Plugin-Id>
+              <Plugin-Provider>${plugin.provider}</Plugin-Provider>
+              <Plugin-Version>${plugin.version}</Plugin-Version>
+            </manifestEntries>
+          </archive>
+        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>2.6</version>
+      </plugin>
+      <plugin>
         <artifactId>maven-shade-plugin</artifactId>
         <executions>
           <execution>
