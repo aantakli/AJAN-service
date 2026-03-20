@@ -85,21 +85,14 @@ public class PythonExecutionServiceImpl implements PythonExecutionService {
   }
 
   @Override
+  @Deprecated
   public synchronized PythonExecutionResult executePowerShellCommand(String command) {
-    long startTime = System.currentTimeMillis();
-    try {
-      if (PythonPlugin.getPowerShellManager() != null) {
-        PythonPlugin.getPowerShellManager().executeCommand(command);
-        return PythonExecutionResult.success(
-            "Command sent to PowerShell", null, System.currentTimeMillis() - startTime);
-      } else {
-        return PythonExecutionResult.failed("PowerShellManager not available", null, 0);
-      }
-    } catch (Exception e) {
-      LOG.error("Error executing PowerShell command", e);
-      return PythonExecutionResult.failed(
-          e.getMessage(), e, System.currentTimeMillis() - startTime);
-    }
+    LOG.error(
+        "executePowerShellCommand is deprecated and no longer supported. Command was: {}", command);
+    return PythonExecutionResult.failed(
+        "PowerShell support has been removed. Use executeScript or executeScriptFile instead.",
+        null,
+        0);
   }
 
   @Override

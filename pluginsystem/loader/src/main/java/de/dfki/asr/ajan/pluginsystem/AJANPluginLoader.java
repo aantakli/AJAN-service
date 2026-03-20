@@ -24,13 +24,13 @@ import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.PythonExecutionService;
 import java.util.List;
 import lombok.Data;
+import lombok.Getter;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanValidationException;
 import org.pf4j.DefaultPluginManager;
 import org.pf4j.ExtensionFinder;
 import org.pf4j.LegacyExtensionFinder;
 import org.pf4j.PluginManager;
 import org.springframework.stereotype.Component;
-import lombok.Getter;
 
 @Data
 @Component
@@ -77,5 +77,9 @@ public class AJANPluginLoader {
           "PythonExecutionService not available. Make sure PythonPlugin is loaded.");
     }
     return services.get(0);
+  }
+
+  public PluginManager getPluginManager() {
+    return PLUGIN_MANAGER;
   }
 }

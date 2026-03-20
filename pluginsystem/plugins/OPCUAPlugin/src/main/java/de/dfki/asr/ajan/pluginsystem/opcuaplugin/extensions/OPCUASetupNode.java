@@ -17,16 +17,22 @@
  * MA 02110-1301  USA
  */
 
-package de.dfki.asr.ajan.pluginsystem.pythonplugin.extensions;
+package de.dfki.asr.ajan.pluginsystem.opcuaplugin.extensions;
 
 import de.dfki.asr.ajan.behaviour.AJANLogger;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
+import de.dfki.asr.ajan.pluginsystem.AJANPluginLoader;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import de.dfki.asr.ajan.pluginsystem.pythonplugin.PythonPlugin;
+import de.dfki.asr.ajan.pluginsystem.extensionpoints.PythonExecutionService;
+import de.dfki.asr.ajan.pluginsystem.opcuaplugin.OPCUAPlugin;
 import de.dfki.asr.ajan.pluginsystem.pythonplugin.exception.PythonException;
+import de.dfki.asr.ajan.pluginsystem.utils.ScriptExtractor;
 import java.net.URI;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -36,14 +42,24 @@ import org.eclipse.rdf4j.model.Resource;
 import org.pf4j.Extension;
 
 @Extension
-@RDFBean("http://www.ajan.de/behavior/python-ns#StartSelectedJoiningNode")
-public class StartSelectedJoiningNode extends AbstractTDBLeafTask implements NodeExtension {
+@RDFBean("http://www.ajan.de/behavior/opcua-ns#SetupNode")
+public class OPCUASetupNode extends AbstractTDBLeafTask implements NodeExtension {
   @RDFSubject @Getter @Setter private String url;
 
   @RDF("rdfs:label")
   @Getter
   @Setter
   private String label;
+
+  @RDF("opcua:endpointUrl")
+  @Getter
+  @Setter
+  private String endpointUrl = "";
+
+  @RDF("opcua:venvPath")
+  @Getter
+  @Setter
+  private String venvPath = "";
 
   @RDF("bt:targetBase")
   @Getter
@@ -54,20 +70,20 @@ public class StartSelectedJoiningNode extends AbstractTDBLeafTask implements Nod
 
   @Override
   public String toString() {
-    return "StartSelectedJoiningNode (" + label + ")";
+    return "OPCUASetupNode (" + label + ")";
   }
 
   @Override
   public Resource getType() {
-    return vf.createIRI("http://www.ajan.de/behavior/python-ns#StartSelectedJoiningNode");
+    return vf.createIRI("http://www.ajan.de/behavior/opcua-ns#SetupNode");
   }
 
   @Override
   public NodeStatus executeLeaf() {
     LOG = this.getObject().getLogger();
-    LOG.info(this.getClass(), "================= Test=================");
+    LOG.info(this.getClass(), "================= Test" + getEndpointUrl() + "=================");
     try {
-      LOG.info(this.getClass(), "Executing StartSelectedJoiningNode: " + this);
+      LOG.info(this.getClass(), "Executing OPCUASetupNode: " + this);
       return runPythonScript();
     } catch (PythonException ex) {
       return new NodeStatus(
@@ -76,10 +92,30 @@ public class StartSelectedJoiningNode extends AbstractTDBLeafTask implements Nod
   }
 
   private NodeStatus runPythonScript() throws PythonException {
-    LOG.info(this.getClass(), "Executing Python script for assetEnabled: ");
-    PythonPlugin.getPowerShellManager()
-        .executeCommand(
-            "python .\\main.py --url \"opc.tcp://localhost:40451\" --call start_selected_joining --deselect false");
+    LOG.info(this.getClass(), "Executing Python script for OPCUASetupNode: " + getEndpointUrl());
+
+    PythonExecutionService pythonService =
+        AJANPluginLoader.getInstance().getPythonExecutionService();
+    if (pythonService == null) {
+      throw new PythonException("PythonExecutionService not available");
+    }
+
+    OPCUAPlugin plugin =
+        (OPCUAPlugin)
+            AJANPluginLoader.getInstance().getPluginManager().getPlugin("OPCUAPlugin").getPlugin();
+    Path scriptPath = ScriptExtractor.getScriptPath(plugin, "opcua/main.py");
+
+    if (scriptPath == null || !scriptPath.toFile().exists()) {
+      throw new PythonException("Could not find opcua/main.py script in extracted resources");
+    }
+
+    Map<String, Object> inputs = new HashMap<>();
+    inputs.put("url", getEndpointUrl());
+    // Note: venvPath is not directly used by main.py but kept for compatibility/future use
+    inputs.put("venv_path", getVenvPath());
+
+    pythonService.executeScriptFile(scriptPath, inputs);
+
     return new NodeStatus(
         Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), this + " SUCCEEDED");
   }

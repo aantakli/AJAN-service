@@ -9,62 +9,73 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PythonPackageManager {
-    private static final Logger LOG = LoggerFactory.getLogger(PythonPackageManager.class);
-    private static PythonPackageManager instance;
-    private final Set<String> installedPackages = Collections.newSetFromMap(new ConcurrentHashMap<>());
+  private static final Logger LOG = LoggerFactory.getLogger(PythonPackageManager.class);
+  private static PythonPackageManager instance;
+  private final Set<String> installedPackages =
+      Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-    private PythonPackageManager() {
+  private PythonPackageManager() {}
+
+  public static synchronized PythonPackageManager getInstance() {
+    if (instance == null) {
+      instance = new PythonPackageManager();
+    }
+    return instance;
+  }
+
+  public synchronized void installPackage(String packageName) {
+    if (isPackageInstalled(packageName)) {
+      LOG.info("Package {} is already installed.", packageName);
+      return;
     }
 
-    public static synchronized PythonPackageManager getInstance() {
-        if (instance == null) {
-            instance = new PythonPackageManager();
-        }
-        return instance;
-    }
+    LOG.info("Installing Python package: {}", packageName);
+    executePipCommand("install", packageName);
+    installedPackages.add(packageName);
+  }
 
-    public synchronized void installPackage(String packageName) {
-        if (isPackageInstalled(packageName)) {
-            LOG.info("Package {} is already installed.", packageName);
-            return;
-        }
+  public synchronized void installRequirements(Path requirementsFile) {
+    LOG.info("Installing requirements from: {}", requirementsFile);
+    executePipCommand("install", "-r", requirementsFile.toAbsolutePath().toString());
+  }
 
-        LOG.info("Installing Python package: {}", packageName);
-        PowerShellManager psManager = PythonPlugin.getPowerShellManager();
-        if (psManager != null) {
-            psManager.executeCommand("pip install " + packageName);
-            installedPackages.add(packageName);
-        } else {
-            LOG.error("Cannot install package {}: PowerShellManager is not available.", packageName);
-        }
-    }
+  public boolean isPackageInstalled(String packageName) {
+    return installedPackages.contains(packageName);
+  }
 
-    public synchronized void installRequirements(Path requirementsFile) {
-        LOG.info("Installing requirements from: {}", requirementsFile);
-        PowerShellManager psManager = PythonPlugin.getPowerShellManager();
-        if (psManager != null) {
-            psManager.executeCommand("pip install -r '" + requirementsFile.toAbsolutePath().toString().replace("'", "''") + "'");
-        } else {
-            LOG.error("Cannot install requirements: PowerShellManager is not available.");
-        }
-    }
+  public Set<String> listInstalledPackages() {
+    return new HashSet<>(installedPackages);
+  }
 
-    public boolean isPackageInstalled(String packageName) {
-        return installedPackages.contains(packageName);
-    }
+  public synchronized void uninstallPackage(String packageName) {
+    LOG.info("Uninstalling Python package: {}", packageName);
+    executePipCommand("uninstall", "-y", packageName);
+    installedPackages.remove(packageName);
+  }
 
-    public Set<String> listInstalledPackages() {
-        return new HashSet<>(installedPackages);
-    }
+  private void executePipCommand(String... args) {
+    try {
+      Path pythonExecutable =
+          PythonPlugin.getPythonEnvPath()
+              .resolve(
+                  System.getProperty("os.name").toLowerCase().contains("win")
+                      ? "python.exe"
+                      : "bin/python");
+      String[] command = new String[args.length + 3];
+      command[0] = pythonExecutable.toAbsolutePath().toString();
+      command[1] = "-m";
+      command[2] = "pip";
+      System.arraycopy(args, 0, command, 3, args.length);
 
-    public synchronized void uninstallPackage(String packageName) {
-        LOG.info("Uninstalling Python package: {}", packageName);
-        PowerShellManager psManager = PythonPlugin.getPowerShellManager();
-        if (psManager != null) {
-            psManager.executeCommand("pip uninstall -y " + packageName);
-            installedPackages.remove(packageName);
-        } else {
-            LOG.error("Cannot uninstall package {}: PowerShellManager is not available.", packageName);
-        }
+      ProcessBuilder pb = new ProcessBuilder(command);
+      pb.inheritIO();
+      Process process = pb.start();
+      int exitCode = process.waitFor();
+      if (exitCode != 0) {
+        LOG.error("Pip command failed with exit code: {}", exitCode);
+      }
+    } catch (Exception e) {
+      LOG.error("Failed to execute pip command", e);
     }
+  }
 }

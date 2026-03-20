@@ -1,8 +1,8 @@
 package de.dfki.asr.ajan.pluginsystem.extensionpoints;
 
-import org.pf4j.ExtensionPoint;
 import java.nio.file.Path;
 import java.util.Map;
+import org.pf4j.ExtensionPoint;
 
 public interface PythonExecutionService extends ExtensionPoint {
 
@@ -10,6 +10,7 @@ public interface PythonExecutionService extends ExtensionPoint {
 
   PythonExecutionResult executeScriptFile(Path scriptPath, Map<String, Object> inputs);
 
+  @Deprecated
   PythonExecutionResult executePowerShellCommand(String command);
 
   Path getPythonEnvironmentPath();
