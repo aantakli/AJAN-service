@@ -1,18 +1,45 @@
+# VCS / IDE
+.git
 .github
-.dockerignore
+.idea
+.vscode
+**/*.iml
+
+# Maven build outputs - Docker uses prebuilt JARs from the dist artifact (overlaid
+# at context root and inside pluginsystem/plugins/), never the local target/ dirs.
+**/target
+
+# Python caches and pre-built venvs; PythonPlugin unpacks its own embedded venv
+# from JAR resources at runtime.
+**/__pycache__
+**/*.pyc
+**/nix_venv
+
+# Source code is not needed by the runtime image.
+**/src
+**/build-configuration
+
+# Module manifests / module-level POMs
+**/pom.xml
+
+# Plugin source trees (their compiled JARs come in via the dist artifact overlay
+# at pluginsystem/plugins/*.jar, so we don't need the directories themselves).
+pluginsystem/loader/
+pluginsystem/plugins/*/
+
+# Docs / licenses
+*.md
+LICENSE*
+THIRDPARTY*
+AUTHORS.txt
+licenseheader*.txt
+
+# Local helper scripts - the CI dist already contains its own start scripts and
+# the image runs supervisord directly anyway.
+/*.sh
+/*.bat
 .gitignore
 .gitmodules
-.idea
-AUTHORS.txt
-installAJAN.bat
-LICENSE
-licenseheader.txt
-licenseheader_authors.txt
-README.md
-startAJAN-loadTTL-false.bat
-startAJAN.bat
-startAll.bat
-startTriplestore.bat
-THIRDPARTYLICENSE
-./pluginsystem/plugins/plugins.iml
-./pluginsystem/plugins/pom.xml
+
+# Docker meta
+.dockerignore

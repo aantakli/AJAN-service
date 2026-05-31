@@ -38,16 +38,16 @@ jobs:
         run: mkdir -p dist/pluginsystem/plugins
       - name: Copy artifacts to distribution directory
         run: |
+          set -eu
           cp ./triplestore/target/triplestore-0.1-war-exec.jar dist/
           cp ./executionservice/target/executionservice-0.1.jar dist/
-          cp -r ./pluginsystem/loader/target/* dist/pluginsystem/
-          cp -r ./pluginsystem/plugins/ASPPlugin/target/* dist/pluginsystem/plugins/
-          cp -r ./pluginsystem/plugins/MappingPlugin/target/* dist/pluginsystem/plugins/
-          cp -r ./pluginsystem/plugins/MOSIMPlugin/target/* dist/pluginsystem/plugins/
-          cp -r ./pluginsystem/plugins/StandardBTNodes/target/* dist/pluginsystem/plugins/
-          cp -r ./pluginsystem/plugins/STRIPSPlugin/target/* dist/pluginsystem/plugins/
-          cp -r ./pluginsystem/plugins/MQTTPlugin/target/* dist/pluginsystem/plugins/
-          cp -r ./pluginsystem/plugins/PythonPlugin/target/* dist/pluginsystem/plugins/
+          cp ./pluginsystem/loader/target/loader-0.1.jar dist/pluginsystem/
+          # Only the canonical plugin JAR per plugin - avoid original-*.jar /
+          # *-shaded.jar duplicates and the per-plugin classes/ + lib/ trees,
+          # which otherwise overwrite each other and break pf4j loading.
+          for plugin in ASPPlugin MappingPlugin MOSIMPlugin StandardBTNodes STRIPSPlugin MQTTPlugin PythonPlugin RMLMappingPlugin; do
+            cp "./pluginsystem/plugins/${plugin}/target/${plugin}-0.1.jar" "dist/pluginsystem/plugins/"
+          done
           cp ./.github/*.sh dist/
           cp ./.github/*.bat dist/
       - name: Create .env file
