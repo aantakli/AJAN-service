@@ -82,7 +82,7 @@
     <dependency>
       <artifactId>jep</artifactId>
       <groupId>black.ninia</groupId>
-      <version>4.2.0</version>
+      <version>4.2.2</version>
     </dependency>
     <dependency>
       <artifactId>zip4j</artifactId>

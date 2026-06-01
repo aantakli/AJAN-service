@@ -61,7 +61,7 @@ MA 02110-1301  USA
     <dependency>
       <artifactId>jep</artifactId>
       <groupId>black.ninia</groupId>
-      <version>4.2.0</version>
+      <version>4.2.2</version>
     </dependency>
   </dependencies>
   <modelVersion>4.0.0</modelVersion>
