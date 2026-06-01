@@ -8,7 +8,10 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import jep.JepConfig;
 import jep.JepException;
 import jep.SharedInterpreter;
@@ -32,10 +35,7 @@ public class PythonPlugin extends Plugin {
     super(wrapper);
     System.out.println("PythonPlugin.constructor()");
 
-    // Setup environment FIRST
     setupEmbeddedPythonEnv();
-
-    // Initialize JEP with proper configuration
     initializeJep(pythonEnvPath);
   }
 
@@ -47,42 +47,42 @@ public class PythonPlugin extends Plugin {
     return jepConfig;
   }
 
-  private static void initializeJep(Path pythonEnvPath) {
+  private static void initializeJep(Path pythonHome) {
     try {
-      String pythonPath =
-          String.join(
-              File.pathSeparator,
-              pythonEnvPath.toAbsolutePath().toString(),
-              pythonEnvPath.resolve("Lib").toAbsolutePath().toString(),
-              pythonEnvPath.resolve("Lib").resolve("site-packages").toAbsolutePath().toString(),
-              pythonEnvPath
-                  .resolve("Lib")
-                  .resolve("site-packages")
-                  .resolve("jep")
-                  .toAbsolutePath()
-                  .toString());
+      Path sitePkgs = findSitePackages(pythonHome);
+      if (sitePkgs == null) {
+        throw new RuntimeException("site-packages not found for JEP initialization");
+      }
+      Path jepPath = sitePkgs.resolve("jep");
+
+      String pythonPath = String.join(
+          File.pathSeparator,
+          pythonHome.toAbsolutePath().toString(),
+          sitePkgs.getParent().toAbsolutePath().toString(),
+          sitePkgs.toAbsolutePath().toString(),
+          jepPath.toAbsolutePath().toString());
 
       jepConfig = new JepConfig();
-
-      // Use addIncludePaths for Python module paths
       for (String path : pythonPath.split(File.pathSeparator)) {
         jepConfig.addIncludePaths(path);
       }
 
-      // Initialize SharedInterpreter (no config parameter)
       SharedInterpreter.setConfig(jepConfig);
       mainInterpreter = new SharedInterpreter();
 
       LOG.info("Successfully initialized JEP with embedded Python environment");
 
+    } catch (IOException e) {
+      LOG.error("Failed to locate site-packages for JEP", e);
+      throw new RuntimeException("JEP initialization failed", e);
     } catch (JepException e) {
       LOG.error("Failed to initialize JEP", e);
       throw new RuntimeException("JEP initialization failed", e);
     }
   }
 
-  private static void fixJepBatFile(Path tempDir) throws IOException {
-    Path jepBatPath = tempDir.resolve("Scripts").resolve("jep.bat");
+  private static void fixJepBatFile(Path pythonHome) throws IOException {
+    Path jepBatPath = pythonHome.resolve("Scripts").resolve("jep.bat");
 
     if (Files.exists(jepBatPath)) {
       LOG.info("Fixing jep.bat file at: {}", jepBatPath);
@@ -117,45 +117,87 @@ public class PythonPlugin extends Plugin {
       Files.write(jepBatPath, correctedBatContent.getBytes());
       LOG.info("Fixed jep.bat file with embedded environment paths");
     } else {
-      LOG.warn("jep.bat not found at expected location: {}", jepBatPath);
+      LOG.debug("jep.bat not present (expected on non-Windows): {}", jepBatPath);
     }
+  }
+
+  /**
+   * Finds the actual Python home inside an extracted zip. Handles the case where the zip has a
+   * single root wrapper directory (e.g. python-portable/).
+   */
+  private static Path findPythonHome(Path extractedRoot) throws IOException {
+    try (var stream = Files.list(extractedRoot)) {
+      List<Path> children = stream.collect(Collectors.toList());
+      if (children.size() == 1 && Files.isDirectory(children.get(0))) {
+        LOG.info("Python home resolved to: {}", children.get(0));
+        return children.get(0);
+      }
+    }
+    return extractedRoot;
+  }
+
+  /**
+   * Locates site-packages inside the given Python home, handling both Windows-style (Lib/) and
+   * Linux-style (lib/python3.x/) layouts.
+   */
+  private static Path findSitePackages(Path pythonHome) throws IOException {
+    // Windows: Lib/site-packages
+    Path winStyle = pythonHome.resolve("Lib").resolve("site-packages");
+    if (Files.exists(winStyle)) return winStyle;
+
+    // Linux: lib/python3.x/site-packages
+    Path libDir = pythonHome.resolve("lib");
+    if (Files.exists(libDir)) {
+      try (var stream = Files.list(libDir)) {
+        Optional<Path> pythonDir = stream
+            .filter(Files::isDirectory)
+            .filter(p -> p.getFileName().toString().startsWith("python"))
+            .findFirst();
+        if (pythonDir.isPresent()) {
+          Path candidate = pythonDir.get().resolve("site-packages");
+          if (Files.exists(candidate)) return candidate;
+        }
+      }
+    }
+    return null;
   }
 
   private static Path setupEmbeddedPythonEnv() throws IOException {
     String os = System.getProperty("os.name").toLowerCase();
     String envFolder = os.contains("win") ? "win_env" : "nix_env";
-    String resourcePath = "/" + envFolder;
     Path tempDir = Files.createTempDirectory("embedded_python_env");
-    pythonEnvPath = tempDir;
-    unzip(PythonPlugin.class.getResourceAsStream(resourcePath + ".zip"), tempDir);
+    unzip(PythonPlugin.class.getResourceAsStream("/" + envFolder + ".zip"), tempDir);
 
-    Path jepPath = tempDir.resolve("Lib").resolve("site-packages").resolve("jep");
+    Path pythonHome = findPythonHome(tempDir);
+    pythonEnvPath = pythonHome;
+
+    Path sitePkgs = findSitePackages(pythonHome);
+    if (sitePkgs == null) {
+      throw new IOException("site-packages not found in embedded Python environment");
+    }
+
+    Path jepPath = sitePkgs.resolve("jep");
     if (!Files.exists(jepPath)) {
       LOG.error("JEP not found in embedded environment at: {}", jepPath);
       throw new IOException("JEP not found in embedded Python environment");
-    } else {
-      LOG.info("JEP found in embedded environment at: {}", jepPath);
     }
+    LOG.info("JEP found in embedded environment at: {}", jepPath);
 
-    fixJepBatFile(tempDir);
+    fixJepBatFile(pythonHome);
 
-    String pythonHome = tempDir.toAbsolutePath().toString();
-    Path sitePkgsPath = tempDir.resolve("Lib").resolve("site-packages");
+    String pythonHomeStr = pythonHome.toAbsolutePath().toString();
+    String pythonPath = String.join(
+        File.pathSeparator,
+        pythonHomeStr,
+        sitePkgs.getParent().toAbsolutePath().toString(),
+        sitePkgs.toAbsolutePath().toString(),
+        jepPath.toAbsolutePath().toString());
 
-    String pythonPath =
-        String.join(
-            File.pathSeparator,
-            pythonHome,
-            pythonHome + File.separator + "Lib",
-            sitePkgsPath.toAbsolutePath().toString(),
-            jepPath.toAbsolutePath().toString());
-
-    // Set all environment variables and system properties BEFORE JEP loads
-    setEnv("PYTHONHOME", pythonHome);
+    setEnv("PYTHONHOME", pythonHomeStr);
     setEnv("PYTHONPATH", pythonPath);
 
-    System.setProperty("jep.python.home", pythonHome);
-    System.setProperty("PYTHONHOME", pythonHome);
+    System.setProperty("jep.python.home", pythonHomeStr);
+    System.setProperty("PYTHONHOME", pythonHomeStr);
     System.setProperty("PYTHONPATH", pythonPath);
     System.setProperty("jep.pythonpath", pythonPath);
     System.setProperty("jep.library.path", jepPath.toAbsolutePath().toString());
@@ -168,33 +210,31 @@ public class PythonPlugin extends Plugin {
       LOG.warn("JEP JAR not found at: {}", jepJarPath);
     }
 
-    // Add library paths for native libraries
     try {
-      addLibraryPath(pythonHome);
+      addLibraryPath(pythonHomeStr);
       addLibraryPath(jepPath.toString());
 
       if (os.contains("win")) {
-        Path dllsPath = tempDir.resolve("DLLs");
+        Path dllsPath = pythonHome.resolve("DLLs");
         if (Files.exists(dllsPath)) {
           addLibraryPath(dllsPath.toString());
           prependToPathEnv(dllsPath.toString());
         }
         prependToPathEnv(jepPath.toString());
-        prependToPathEnv(pythonHome);
+        prependToPathEnv(pythonHomeStr);
       }
     } catch (Exception e) {
       LOG.error("Failed to add to library path", e);
     }
 
     LOG.info("Configured embedded Python environment:");
-    LOG.info(" - PYTHONHOME: {}", pythonHome);
+    LOG.info(" - PYTHONHOME: {}", pythonHomeStr);
     LOG.info(" - PYTHONPATH: {}", pythonPath);
     LOG.info(" - jep.library.path: {}", jepPath.toAbsolutePath());
 
-    return tempDir;
+    return pythonHome;
   }
 
-  // Helper method to add paths to java.library.path at runtime
   private static void addLibraryPath(String pathToAdd) throws Exception {
     Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
     usrPathsField.setAccessible(true);
@@ -210,7 +250,6 @@ public class PythonPlugin extends Plugin {
     usrPathsField.set(null, newPaths);
   }
 
-  // Helper method to update environment variables (for current process)
   private static void setEnv(String name, String value) {
     try {
       Map<String, String> env = System.getenv();
@@ -221,7 +260,6 @@ public class PythonPlugin extends Plugin {
       Map<String, String> writableEnv = (Map<String, String>) field.get(env);
       writableEnv.put(name, value);
     } catch (Exception e) {
-      // fallback for Windows
       try {
         Class<?> pe = Class.forName("java.lang.ProcessEnvironment");
         Field theEnvironmentField = pe.getDeclaredField("theEnvironment");
@@ -238,11 +276,9 @@ public class PythonPlugin extends Plugin {
     }
   }
 
-  // Prepend a directory to the process PATH environment variable
   private static void prependToPathEnv(String dir) {
     String currentPath = System.getenv("PATH");
-    String newPath = dir + File.pathSeparator + currentPath;
-    setEnv("PATH", newPath);
+    setEnv("PATH", dir + File.pathSeparator + currentPath);
   }
 
   private static void unzip(InputStream is, Path targetDir) throws IOException {

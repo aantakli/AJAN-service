@@ -1,18 +1,21 @@
 # syntax=docker/dockerfile:1.6
 
-FROM eclipse-temurin:11-jre-alpine
+# glibc-based base required: PythonPlugin unpacks an embedded portable Python
+# (python-portable/) with binaries and libjep.so linked against glibc. Alpine
+# (musl libc) would fail to load these even after pip/JEP paths resolve.
+FROM eclipse-temurin:11-jre-jammy
 
 # supervisor for running triplestore + executionservice side by side,
 # curl for healthchecks/operator use, python3 because PythonPlugin needs an
 # interpreter present at runtime (the plugin unpacks an embedded venv from
 # its own JAR resources).
-RUN apk add --no-cache \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
         supervisor \
         ca-certificates \
         curl \
-        libstdc++ \
         python3 \
-    && rm -rf /var/cache/apk/*
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
