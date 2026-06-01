@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ajan-editor" type="docker-deploy" factoryName="docker-image" server-name="Docker">
+    <deployment type="docker-image">
+      <settings>
+        <option name="imageTag" value="aantakli/ajan-editor:latest" />
+        <option name="containerName" value="ajan-editor" />
+        <option name="commandLineOptions" value="--rm --pull=always -p 8081:80" />
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>
