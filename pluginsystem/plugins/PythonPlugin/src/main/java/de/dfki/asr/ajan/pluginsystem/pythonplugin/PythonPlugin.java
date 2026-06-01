@@ -14,6 +14,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import jep.JepConfig;
 import jep.JepException;
+import jep.MainInterpreter;
+import jep.PyConfig;
 import jep.SharedInterpreter;
 import lombok.Getter;
 import net.lingala.zip4j.ZipFile;
@@ -61,6 +63,16 @@ public class PythonPlugin extends Plugin {
           sitePkgs.getParent().toAbsolutePath().toString(),
           sitePkgs.toAbsolutePath().toString(),
           jepPath.toAbsolutePath().toString());
+
+      // Tell JEP to call Py_SetPythonHome() natively before Py_Initialize().
+      // The reflection-based setEnv() above only mutates Java's view of getenv()
+      // and does not update the C environ array, so the embedded interpreter
+      // would otherwise fail with "ModuleNotFoundError: No module named 'encodings'".
+      // Must be set before the first MainInterpreter access (i.e. before any
+      // SharedInterpreter is constructed).
+      PyConfig pyConfig = new PyConfig();
+      pyConfig.setPythonHome(pythonHome.toAbsolutePath().toString());
+      MainInterpreter.setInitParams(pyConfig);
 
       jepConfig = new JepConfig();
       for (String path : pythonPath.split(File.pathSeparator)) {
