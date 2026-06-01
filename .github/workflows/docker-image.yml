@@ -42,11 +42,14 @@ jobs:
           cp ./triplestore/target/triplestore-0.1-war-exec.jar dist/
           cp ./executionservice/target/executionservice-0.1.jar dist/
           cp ./pluginsystem/loader/target/loader-0.1.jar dist/pluginsystem/
-          # Only the canonical plugin JAR per plugin - avoid original-*.jar /
-          # *-shaded.jar duplicates and the per-plugin classes/ + lib/ trees,
-          # which otherwise overwrite each other and break pf4j loading.
+          # Use the assembly fat JARs (jar-with-dependencies) from
+          # pluginsystem/deployments/. pf4j's JarPluginLoader only puts the
+          # loaded JAR on the plugin classpath, so each plugin must carry its
+          # non-provided runtime deps inside. The per-plugin target/<plugin>.jar
+          # is slim and would miss them. Drop the -all suffix so pf4j sees a
+          # single canonical filename per plugin.
           for plugin in ASPPlugin MappingPlugin MOSIMPlugin StandardBTNodes STRIPSPlugin MQTTPlugin PythonPlugin RMLMappingPlugin; do
-            cp "./pluginsystem/plugins/${plugin}/target/${plugin}-0.1.jar" "dist/pluginsystem/plugins/"
+            cp "./pluginsystem/deployments/${plugin}-0.1-all.jar" "dist/pluginsystem/plugins/${plugin}-0.1.jar"
           done
           cp ./.github/*.sh dist/
           cp ./.github/*.bat dist/

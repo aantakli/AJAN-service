@@ -1,21 +1,5 @@
 # syntax=docker/dockerfile:1.6
 
-# --- Stage 1: clean up the plugins layout -------------------------------------
-# The dist artifact overlays the prebuilt plugin JARs on top of the source tree,
-# leaving behind source directories plus duplicate jars (original-*, *-shaded.jar)
-# that confuse pf4j. This stage keeps only the canonical plugin JARs.
-FROM alpine:3.19 AS plugins
-WORKDIR /staging
-COPY pluginsystem/plugins/ ./
-RUN set -eux; \
-    mkdir -p /out; \
-    find . -maxdepth 1 -type f -name "*.jar" \
-        ! -name "original-*.jar" \
-        ! -name "*-shaded.jar" \
-        -exec cp {} /out/ \;; \
-    ls -la /out
-
-# --- Stage 2: runtime ---------------------------------------------------------
 FROM eclipse-temurin:11-jre-alpine
 
 # supervisor for running triplestore + executionservice side by side,
@@ -42,8 +26,12 @@ COPY executionservice/use-case ./executionservice/use-case
 COPY docker/supervisord.conf /app/supervisord.conf
 COPY .env /app/.env
 
-# Deduplicated plugin JARs from the prep stage.
-COPY --from=plugins /out/ /app/pluginsystem/plugins/
+# Self-contained plugin fat JARs (from pluginsystem/deployments, see the CI
+# workflow). pf4j's JarPluginLoader only puts the loaded JAR on the plugin
+# classpath, so each plugin must already bundle its non-provided deps.
+# .dockerignore drops the source subdirectories under pluginsystem/plugins/,
+# leaving only the *.jar files from the dist artifact overlay.
+COPY pluginsystem/plugins/ /app/pluginsystem/plugins/
 
 # Pre-create the folder NodeDefinitionsExtension copies into at startup so the
 # initial RDF graph walk always finds a real directory even when no plugin
