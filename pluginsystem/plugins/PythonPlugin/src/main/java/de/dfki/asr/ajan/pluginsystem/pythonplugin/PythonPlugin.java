@@ -25,21 +25,26 @@ public class PythonPlugin extends Plugin {
 
   private static final Logger LOG = LoggerFactory.getLogger(PythonPlugin.class);
   private static SharedInterpreter mainInterpreter = null;
-  @Getter private static PowerShellManager powerShellManager = null;
+  private static jep.JepConfig jepConfig = null;
+  @Getter private static Path pythonEnvPath = null;
 
   public PythonPlugin(PluginWrapper wrapper) throws IOException, URISyntaxException {
     super(wrapper);
     System.out.println("PythonPlugin.constructor()");
 
     // Setup environment FIRST
-    Path pythonEnvPath = setupEmbeddedPythonEnv();
-
-    // Initialize PowerShellManager
-    powerShellManager = new PowerShellManager();
-    powerShellManager.start();
+    setupEmbeddedPythonEnv();
 
     // Initialize JEP with proper configuration
     initializeJep(pythonEnvPath);
+  }
+
+  public static SharedInterpreter getMainInterpreter() {
+    return mainInterpreter;
+  }
+
+  public static jep.JepConfig getJepConfig() {
+    return jepConfig;
   }
 
   private static void initializeJep(Path pythonEnvPath) {
@@ -57,15 +62,15 @@ public class PythonPlugin extends Plugin {
                   .toAbsolutePath()
                   .toString());
 
-      JepConfig config = new JepConfig();
+      jepConfig = new JepConfig();
 
       // Use addIncludePaths for Python module paths
       for (String path : pythonPath.split(File.pathSeparator)) {
-        config.addIncludePaths(path);
+        jepConfig.addIncludePaths(path);
       }
 
       // Initialize SharedInterpreter (no config parameter)
-      SharedInterpreter.setConfig(config);
+      SharedInterpreter.setConfig(jepConfig);
       mainInterpreter = new SharedInterpreter();
 
       LOG.info("Successfully initialized JEP with embedded Python environment");
@@ -121,6 +126,7 @@ public class PythonPlugin extends Plugin {
     String envFolder = os.contains("win") ? "win_env" : "nix_env";
     String resourcePath = "/" + envFolder;
     Path tempDir = Files.createTempDirectory("embedded_python_env");
+    pythonEnvPath = tempDir;
     unzip(PythonPlugin.class.getResourceAsStream(resourcePath + ".zip"), tempDir);
 
     Path jepPath = tempDir.resolve("Lib").resolve("site-packages").resolve("jep");
@@ -259,13 +265,6 @@ public class PythonPlugin extends Plugin {
   @Override
   public void start() {
     System.out.println("PythonPlugin.start()");
-    if (powerShellManager != null) {
-      try {
-        powerShellManager.start();
-      } catch (IOException e) {
-        LOG.error("Failed to start PowerShellManager", e);
-      }
-    }
     if (RuntimeMode.DEVELOPMENT.equals(wrapper.getRuntimeMode())) {
       LOG.debug("PythonPlugin");
     }
@@ -274,9 +273,6 @@ public class PythonPlugin extends Plugin {
   @Override
   public void stop() {
     System.out.println("PythonPlugin.stop()");
-    if (powerShellManager != null) {
-      powerShellManager.stop();
-    }
     if (mainInterpreter != null) {
       try {
         mainInterpreter.close();

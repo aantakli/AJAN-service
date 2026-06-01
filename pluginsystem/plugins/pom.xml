@@ -7,6 +7,25 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <artifactId>lombok</artifactId>
+              <groupId>org.projectlombok</groupId>
+              <version>1.18.30</version>
+            </path>
+            <path>
+              <artifactId>pf4j</artifactId>
+              <groupId>org.pf4j</groupId>
+              <version>3.6.0</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>3.8.1</version>
+      </plugin>
+      <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
           <appendAssemblyId>false</appendAssemblyId>
@@ -108,6 +127,8 @@
     <module>MQTTPlugin</module>
     <module>PythonPlugin</module>
     <module>RMLMappingPlugin</module>
+    <module>ScriptExecutorPlugin</module>
+    <module>OPCUAPlugin</module>
   </modules>
 
   <name>plugins</name>

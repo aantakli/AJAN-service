@@ -124,6 +124,7 @@ public class InitialDataProvider {
     if (loadFiles) {
       loadTTLFromFolders();
     }
+    copyNodeDefinitionsExtensions();
     pushPluginsToStore(pluginLoader, services);
     loadEndpoints(pluginLoader);
     agentManager.setBaseURI(publicHostName, usePort);
@@ -131,7 +132,6 @@ public class InitialDataProvider {
 
   private void loadTTLFromFolders() {
     Map<String, TripleDataBase> tripleStoreMap = new ConcurrentHashMap<>();
-    copyNodeDefinitionsExtensions();
     // loads ttl file(s) for each folder to its corresponding repository
     tripleStoreMap.put(agentFolderPath, agents);
     tripleStoreMap.put(behaviorsFolderPath, behaviors);
@@ -146,24 +146,38 @@ public class InitialDataProvider {
     List<NodeDefinitionsExtension> files =
         pluginLoader.getPLUGIN_MANAGER().getExtensions(NodeDefinitionsExtension.class);
     LOG.info("Number of NodeDefinitionsExtension files found: {}", files.size());
-    files.forEach(
-        (pathExtension) -> {
-          try {
-            Path origin = pathExtension.getDefinitionPath();
-            if (origin == null) {
-              LOG.warn("NodeDefinitionsExtension file path is null, skipping.");
-              return;
-            }
-            LOG.info("NodeDefinitionsExtension file found: {}", origin);
-            Path target = Paths.get(nodeDefinitionsFolderPath).resolve(origin.getFileName());
-            LOG.info("Copying file from {} to {}", origin, target);
-            Files.createDirectories(target.getParent());
-            Files.copy(origin, target, StandardCopyOption.REPLACE_EXISTING);
-          } catch (IOException | IllegalArgumentException e) {
-            LOG.error("Error while getting NodeDefinitionsExtension file: {}", e.getMessage());
-            LOG.error(Arrays.toString(e.getStackTrace()));
-          }
-        });
+    files.forEach(this::copyNodeDefinitionExtension);
+  }
+
+  private void copyNodeDefinitionExtension(final NodeDefinitionsExtension pathExtension) {
+    try {
+      Path origin = pathExtension.getDefinitionPath();
+      if (origin == null) {
+        LOG.warn("NodeDefinitionsExtension file path is null, skipping.");
+        return;
+      }
+      LOG.info("NodeDefinitionsExtension file found: {}", origin);
+      String pluginId =
+          pluginLoader
+              .getPLUGIN_MANAGER()
+              .whichPlugin(pathExtension.getClass())
+              .getPluginId();
+      String originalFileName = origin.getFileName().toString();
+      String baseName = FilenameUtils.getBaseName(originalFileName);
+      String ext = FilenameUtils.getExtension(originalFileName);
+      // Strip "ajan-" prefix and trailing numeric hash (e.g. -16799041010783821257),
+      // then append "-ajan" so the name is stable across restarts and never duplicates.
+      String normalizedBase = baseName.replace("ajan-", "").replaceAll("-\\d+$", "");
+      String uniqueName = pluginId.toLowerCase() + "_" + normalizedBase + "-ajan." + ext;
+      Path target = Paths.get(nodeDefinitionsFolderPath).resolve(uniqueName);
+      LOG.info("Copying file from {} to {}", origin, target);
+      Files.createDirectories(target.getParent());
+      Files.copy(origin, target, StandardCopyOption.REPLACE_EXISTING);
+      pushFileToStore(target.toString(), nodeDefinitions);
+    } catch (IOException | IllegalArgumentException e) {
+      LOG.error("Error while getting NodeDefinitionsExtension file: {}", e.getMessage());
+      LOG.error(Arrays.toString(e.getStackTrace()));
+    }
   }
 
   private void pushRDFGraphs(final Map<String, TripleDataBase> tripleStoreMap) {

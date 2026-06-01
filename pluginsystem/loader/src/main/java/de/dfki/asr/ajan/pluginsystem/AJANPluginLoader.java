@@ -19,13 +19,16 @@
 
 package de.dfki.asr.ajan.pluginsystem;
 
-
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.EndpointExtension;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
+import de.dfki.asr.ajan.pluginsystem.extensionpoints.PythonExecutionService;
 import java.util.List;
 import lombok.Data;
+import lombok.Getter;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanValidationException;
 import org.pf4j.DefaultPluginManager;
+import org.pf4j.ExtensionFinder;
+import org.pf4j.LegacyExtensionFinder;
 import org.pf4j.PluginManager;
 import org.springframework.stereotype.Component;
 
@@ -33,22 +36,50 @@ import org.springframework.stereotype.Component;
 @Component
 public class AJANPluginLoader {
 
-	private final PluginManager PLUGIN_MANAGER = new DefaultPluginManager();
+  @Getter private static AJANPluginLoader instance;
 
-	public void init() throws RDFBeanValidationException {
-		PLUGIN_MANAGER.loadPlugins();
-		PLUGIN_MANAGER.startPlugins();
-	}
+  private final PluginManager PLUGIN_MANAGER =
+      new DefaultPluginManager() {
+        @Override
+        protected ExtensionFinder createExtensionFinder() {
+          // Use LegacyExtensionFinder which scans for @Extension annotations at runtime
+          // This works in development mode without needing extensions.idx files
+          return new LegacyExtensionFinder(this);
+        }
+      };
 
-	public void stop() {
-		PLUGIN_MANAGER.stopPlugins();
-	}
+  public AJANPluginLoader() {
+    instance = this;
+  }
 
-	public List<NodeExtension> getNodeExtensions() {
-		return PLUGIN_MANAGER.getExtensions(NodeExtension.class);
-	}
+  public void init() throws RDFBeanValidationException {
+    PLUGIN_MANAGER.loadPlugins();
+    PLUGIN_MANAGER.startPlugins();
+  }
 
-        public List<EndpointExtension> getEndpointExtensions() {
-		return PLUGIN_MANAGER.getExtensions(EndpointExtension.class);
-	}
+  public void stop() {
+    PLUGIN_MANAGER.stopPlugins();
+  }
+
+  public List<NodeExtension> getNodeExtensions() {
+    return PLUGIN_MANAGER.getExtensions(NodeExtension.class);
+  }
+
+  public List<EndpointExtension> getEndpointExtensions() {
+    return PLUGIN_MANAGER.getExtensions(EndpointExtension.class);
+  }
+
+  public PythonExecutionService getPythonExecutionService() {
+    List<PythonExecutionService> services =
+        PLUGIN_MANAGER.getExtensions(PythonExecutionService.class);
+    if (services.isEmpty()) {
+      throw new IllegalStateException(
+          "PythonExecutionService not available. Make sure PythonPlugin is loaded.");
+    }
+    return services.get(0);
+  }
+
+  public PluginManager getPluginManager() {
+    return PLUGIN_MANAGER;
+  }
 }

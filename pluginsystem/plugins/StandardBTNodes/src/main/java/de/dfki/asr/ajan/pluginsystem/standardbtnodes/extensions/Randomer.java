@@ -19,8 +19,8 @@
 
 package de.dfki.asr.ajan.pluginsystem.standardbtnodes.extensions;
 
-import com.badlogic.gdx.ai.btree.decorator.Random;
 import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.ai.btree.decorator.Random;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -35,19 +35,18 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.pf4j.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.pf4j.Extension;
 
 @Extension
 @RDFBean("bt:Random")
 public class Randomer extends Random<AgentTaskInformation> implements NodeExtension, TreeNode {
+	private static final Logger LOG = LoggerFactory.getLogger(Randomer.class);
+	private final ValueFactory vf = SimpleValueFactory.getInstance();
 	@Getter @Setter
 	@RDFSubject
 	private String url;
-
-	private final ValueFactory vf = SimpleValueFactory.getInstance();
-	private static final Logger LOG = LoggerFactory.getLogger(Randomer.class);
 	private Resource instance;
 
 	@RDF("rdfs:label")
@@ -59,6 +58,7 @@ public class Randomer extends Random<AgentTaskInformation> implements NodeExtens
 		return getChild(0);
 	}
 
+	@RDF("bt:hasChild")
 	public void setChild(final Task<AgentTaskInformation> task) {
 		this.addChild(task);
 	}

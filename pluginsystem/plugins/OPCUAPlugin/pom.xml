@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <artifactId>OPCUAPlugin</artifactId>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Plugin-Class>${plugin.class}</Plugin-Class>
+              <Plugin-Dependencies>${plugin.dependencies}</Plugin-Dependencies>
+              <Plugin-Id>${plugin.id}</Plugin-Id>
+              <Plugin-Provider>${plugin.provider}</Plugin-Provider>
+              <Plugin-Version>${plugin.version}</Plugin-Version>
+            </manifestEntries>
+          </archive>
+        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>2.6</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+            </configuration>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>3.4.1</version>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <artifactId>PythonPlugin</artifactId>
+      <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
+      <scope>provided</scope>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <modelVersion>4.0.0</modelVersion>
+  <name>OPCUAPlugin</name>
+
+  <packaging>jar</packaging>
+
+  <parent>
+    <artifactId>plugins</artifactId>
+    <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
+    <version>0.1</version>
+  </parent>
+
+  <properties>
+    <plugin.class>de.dfki.asr.ajan.pluginsystem.opcuaplugin.OPCUAPlugin</plugin.class>
+    <plugin.dependencies>PythonPlugin</plugin.dependencies>
+    <plugin.id>OPCUAPlugin</plugin.id>
+    <plugin.provider>DFKI</plugin.provider>
+    <plugin.version>0.0.1</plugin.version>
+  </properties>
+</project>

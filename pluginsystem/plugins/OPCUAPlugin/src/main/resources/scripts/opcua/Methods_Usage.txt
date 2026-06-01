@@ -1,0 +1,18 @@
+
+# First Run
+python .\setup_client.py --url "opc.tcp://localhost:40451"
+
+# Then Terminate the Command Line and Open a new command line and run below for Methods
+# Method call (via main.py)
+
+# Run below step explicity
+.\venv\Scripts\Activate.ps1
+
+# Select Joint Method
+python .\main.py --origin-id= --joint-id Joint_1 --call select_joint --url "opc.tcp://localhost:40451"
+
+# EnableAsset Method
+python .\main.py --url "opc.tcp://localhost:40451" --call enable_asset --enable true
+
+# StartSelectedJoining Method
+python .\main.py --url "opc.tcp://localhost:40451" --call start_selected_joining --deselect false

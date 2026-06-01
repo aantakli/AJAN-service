@@ -95,7 +95,7 @@ Damit sollte JEP mit deiner portablen Python-Umgebung funktionieren.
  */
 
 @Extension
-@RDFBean("python:LeafNode")
+@RDFBean("http://www.ajan.de/behavior/python-ns#LeafNode")
 public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension {
   @RDFSubject @Getter @Setter private String url;
 

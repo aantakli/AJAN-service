@@ -1,0 +1,36 @@
+@prefix : <http://localhost:8090/rdf4j/repositories/node_definitions#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bt: <http://www.ajan.de/behavior/bt-ns#> .
+@prefix nd: <http://www.ajan.de/behavior/nd-ns#> .
+@prefix script: <http://www.ajan.de/behavior/script-ns#> .
+
+:CustomScriptNode nd:class nd:Leaf;
+    nd:category "Scripting Nodes";
+    nd:name "CustomScriptNode";
+    nd:labelType nd:Dynamic;
+    rdfs:label "DefaultCustomScriptNode";
+    nd:type script:CustomScriptNode;
+    nd:style [
+        a nd:StyleDef;
+        nd:color "#4CAF50";
+        nd:shape nd:Polygon;
+        nd:polygon "[-0.9, 0, -1, 1, 0.9, 1, 1, 0, 0.9, -1, -1, -1]";
+        nd:padding "700%";
+        nd:paddingTo "width";
+        nd:icon "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo script:path;
+        nd:input xsd:string;
+        nd:default "scripts/example_script.py"^^xsd:string;
+        nd:title "Script Path";
+    ];
+    nd:parameter [
+        a nd:Parameter;
+        nd:mapsTo bt:targetBase;
+        nd:title "Target Base";
+        nd:input nd:Repo;
+    ].

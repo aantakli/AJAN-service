@@ -39,46 +39,52 @@ import org.springframework.stereotype.Component;
 @Provider
 @Component
 public class WebExceptionMapper implements ExceptionMapper<WebApplicationException> {
-	private static final Logger LOG = LoggerFactory.getLogger(WebExceptionMapper.class);
-	private final ValueFactory factory = SimpleValueFactory.getInstance();
+  private static final Logger LOG = LoggerFactory.getLogger(WebExceptionMapper.class);
+  private final ValueFactory factory = SimpleValueFactory.getInstance();
 
-	@Override
-	public Response toResponse(final WebApplicationException e) {
-		return createRDFExceptionResponse(e);
-	}
+  @Override
+  public Response toResponse(final WebApplicationException e) {
+    return createRDFExceptionResponse(e);
+  }
 
-	private Response createRDFExceptionResponse(final WebApplicationException e) {
-		Model message = createRDFExceptionDescription(e);
-		return Response.status(getStatusCode(e)).type("text/turtle").entity(message).build();
-	}
+  private Response createRDFExceptionResponse(final WebApplicationException e) {
+    Model message = createRDFExceptionDescription(e);
+    return Response.status(getStatusCode(e)).type("text/turtle").entity(message).build();
+  }
 
-	@SuppressWarnings("PMD.AvoidCatchingGenericException")
-	private Model createRDFExceptionDescription(final Throwable e) {
-		Model model = new LinkedHashModel();
-		try {
-			addExceptionToModel(e, model);
-		} catch (Exception inner) {
-			LOG.error("Cannot add exception to reply", inner);
-			LOG.error("While handling outer error", e);
-		}
-		return model;
-	}
+  @SuppressWarnings("PMD.AvoidCatchingGenericException")
+  private Model createRDFExceptionDescription(final Throwable e) {
+    Model model = new LinkedHashModel();
+    try {
+      addExceptionToModel(e, model);
+    } catch (Exception inner) {
+      LOG.error("Cannot add exception to reply", inner);
+      LOG.error("While handling outer error", e);
+    }
+    return model;
+  }
 
-	private BNode addExceptionToModel(final Throwable thrown, final Model model) {
-		IRI cls = factory.createIRI("urn:java-class:", thrown.getClass().getCanonicalName());
-		BNode thrownDescription = factory.createBNode();
-		model.add(factory.createStatement(thrownDescription, RDF.TYPE, cls));
-		model.add(factory.createStatement(thrownDescription, RDF.TYPE, AJANVocabulary.EXC_EXCEPTION));
-		model.add(factory.createStatement(thrownDescription, RDFS.LABEL, factory.createLiteral(thrown.getMessage())));
-		Throwable cause = thrown.getCause();
-		if (cause != null) {
-			BNode causeDescription = addExceptionToModel(cause, model);
-			model.add(factory.createStatement(thrownDescription, AJANVocabulary.EXC_HAS_CAUSE, causeDescription));
-		}
-		return thrownDescription;
-	}
+  private BNode addExceptionToModel(final Throwable thrown, final Model model) {
+    IRI cls = factory.createIRI("urn:java-class:", thrown.getClass().getCanonicalName());
+    BNode thrownDescription = factory.createBNode();
+    model.add(factory.createStatement(thrownDescription, RDF.TYPE, cls));
+    model.add(factory.createStatement(thrownDescription, RDF.TYPE, AJANVocabulary.EXC_EXCEPTION));
+    String msg = thrown.getMessage();
+    if (msg == null) {
+      msg = "null";
+    }
+    model.add(factory.createStatement(thrownDescription, RDFS.LABEL, factory.createLiteral(msg)));
+    Throwable cause = thrown.getCause();
+    if (cause != null) {
+      BNode causeDescription = addExceptionToModel(cause, model);
+      model.add(
+          factory.createStatement(
+              thrownDescription, AJANVocabulary.EXC_HAS_CAUSE, causeDescription));
+    }
+    return thrownDescription;
+  }
 
-	private int getStatusCode(final WebApplicationException e) {
-		return e.getResponse().getStatus();
-	}
+  private int getStatusCode(final WebApplicationException e) {
+    return e.getResponse().getStatus();
+  }
 }

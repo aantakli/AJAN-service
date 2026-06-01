@@ -40,62 +40,63 @@ import org.pf4j.Extension;
 
 @Extension
 @RDFBean("bt:UntilSuccess")
-public class UntilSuccess extends com.badlogic.gdx.ai.btree.decorator.UntilSuccess<AgentTaskInformation> implements NodeExtension, TreeNode {
-	@Getter @Setter
-	@RDFSubject
-	private String url;
+public class UntilSuccess
+    extends com.badlogic.gdx.ai.btree.decorator.UntilSuccess<AgentTaskInformation>
+    implements NodeExtension, TreeNode {
+  private final ValueFactory vf = SimpleValueFactory.getInstance();
+  @Getter @Setter @RDFSubject private String url;
+  private Resource instance;
 
-	private final ValueFactory vf = SimpleValueFactory.getInstance();
-	private Resource instance;
+  @RDF("rdfs:label")
+  @Getter
+  @Setter
+  private String label;
 
-	@RDF("rdfs:label")
-	@Getter @Setter
-	private String label;
+  @RDF("bt:hasChild")
+  public Task<AgentTaskInformation> getChild() {
+    return child;
+  }
 
-	@RDF("bt:hasChild")
-	public Task<AgentTaskInformation> getChild() {
-		return child;
-	}
+  @RDF("bt:hasChild")
+  public void setChild(final Task<AgentTaskInformation> newChild) {
+    child = newChild;
+  }
 
-	public void setChild(final Task<AgentTaskInformation> newChild) {
-		child = newChild;
-	}
+  @Override
+  public String toString() {
+    return "UntilSuccess (" + url + " {" + child.toString() + "})";
+  }
 
-	@Override
-	public String toString() {
-		return "UntilSuccess (" + url + " {" + child.toString() + "})";
-	}
+  @Override
+  public Resource getType() {
+    return StandardBTVocabulary.UNTIL_SUCCESS;
+  }
 
-	@Override
-	public Resource getType() {
-	    return StandardBTVocabulary.UNTIL_SUCCESS;
-	}
+  @Override
+  public Resource getInstance(final Resource btInstance) {
+    if (instance == null) {
+      instance = BTUtil.getInstanceResource(url, btInstance);
+    }
+    return instance;
+  }
 
-	@Override
-	public Resource getInstance(final Resource btInstance) {
-		if (instance == null) {
-			instance = BTUtil.getInstanceResource(url, btInstance);
-		}
-		return instance;
-	}
+  @Override
+  public Resource getDefinition(final Resource btDefinition) {
+    if (url == null) {
+      return btDefinition;
+    }
+    return vf.createIRI(url);
+  }
 
-	@Override
-	public Resource getDefinition(final Resource btDefinition) {
-		if (url == null) {
-			return btDefinition;
-		}
-		return vf.createIRI(url);
-	}
+  @Override
+  public void simulate(final SimulationResult result) {
+    // no body needed here
+  }
 
-	@Override
-	public void simulate(final SimulationResult result) {
-		// no body needed here
-	}
-
-	@Override
-	public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
-		BTUtil.setGeneralNodeModel(model, root, mode, this);
-		BTUtil.setDecoratorNodeModel(model, root, mode, this);
-		return model;
-	}
+  @Override
+  public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
+    BTUtil.setGeneralNodeModel(model, root, mode, this);
+    BTUtil.setDecoratorNodeModel(model, root, mode, this);
+    return model;
+  }
 }

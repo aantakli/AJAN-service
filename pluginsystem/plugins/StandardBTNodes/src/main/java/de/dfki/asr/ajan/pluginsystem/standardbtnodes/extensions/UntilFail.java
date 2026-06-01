@@ -23,9 +23,9 @@ import com.badlogic.gdx.ai.btree.Task;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
+import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.behaviour.nodes.common.TreeNode;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.pluginsystem.standardbtnodes.vocabularies.StandardBTVocabulary;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,24 +41,24 @@ import org.pf4j.Extension;
 @Extension
 @RDFBean("bt:UntilFail")
 public class UntilFail extends com.badlogic.gdx.ai.btree.decorator.UntilFail<AgentTaskInformation> implements NodeExtension, TreeNode {
+	private final ValueFactory vf = SimpleValueFactory.getInstance();
 	@Getter @Setter
 	@RDFSubject
 	private String url;
-
-	private final ValueFactory vf = SimpleValueFactory.getInstance();
 	private Resource instance;
 
 	@RDF("rdfs:label")
 	@Getter @Setter
 	private String label;
 
-	public void setChild(final Task<AgentTaskInformation> newChild) {
-		child = newChild;
-	}
-
 	@RDF("bt:hasChild")
 	public Task<AgentTaskInformation> getChild() {
 		return child;
+	}
+
+	@RDF("bt:hasChild")
+	public void setChild(final Task<AgentTaskInformation> newChild) {
+		child = newChild;
 	}
 
 	@Override

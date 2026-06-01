@@ -18,105 +18,138 @@
  */
 package de.dfki.asr.ajan.common;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import static de.dfki.asr.ajan.common.AgentUtil.formatForMimeType;
 import static de.dfki.asr.ajan.common.AgentUtil.rdfMimeType;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.dfki.asr.ajan.common.exceptions.HttpResponseException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.MultivaluedMap;
+import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
-import org.xml.sax.SAXException;
-import de.dfki.asr.ajan.common.exceptions.HttpResponseException;
-import java.io.ByteArrayInputStream;
-import org.eclipse.rdf4j.model.BNode;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
-@SuppressWarnings({"PMD.ExcessiveImports", "PMD.CyclomaticComplexity", "PMD.ExcessiveParameterList"})
+@SuppressWarnings({
+  "PMD.ExcessiveImports",
+  "PMD.CyclomaticComplexity",
+  "PMD.ExcessiveParameterList"
+})
 public final class MimeUtil {
 
-	private static final ValueFactory VF = SimpleValueFactory.getInstance();
-	private static final Logger LOG = LoggerFactory.getLogger(AgentUtil.class);
+  private static final ValueFactory VF = SimpleValueFactory.getInstance();
+  private static final Logger LOG = LoggerFactory.getLogger(AgentUtil.class);
 
-	private MimeUtil() {
+  private MimeUtil() {}
 
-	}
+  public static Object encodeContent(
+      final String BASE_URI,
+      final boolean forceRDF,
+      final MultivaluedMap mm,
+      final InputStream content,
+      final String mimeType)
+      throws HttpResponseException, IOException, SAXException {
+    if (forceRDF || mimeType == null) {
+      return createModelFromResponse(BASE_URI, forceRDF, mm, content, mimeType);
+    } else if (mimeType.contains("application/json")) {
+      return createJsonFromResponse(mm, content);
+    } else if (mimeType.contains("application/xml") || mimeType.contains("text/xml")) {
+      return createXMLFromResponse(mm, content);
+    } else if (mimeType.contains("text/html")) {
+      return createHTMLFromResponse(mm, content);
+    } else if (mimeType.contains("text/csv")) {
+      return createCSVFromResponse(mm, content);
+    }
+    return createModelFromResponse(BASE_URI, forceRDF, mm, content, mimeType);
+  }
 
-	public static Object encodeContent(final String BASE_URI, final boolean forceRDF, final MultivaluedMap mm, final InputStream content, final String mimeType) throws HttpResponseException, IOException, SAXException {
-		if (forceRDF || mimeType == null) {
-			return createModelFromResponse(BASE_URI, forceRDF, mm, content, mimeType);
-		} else if (mimeType.contains("application/json")) {
-			return createJsonFromResponse(mm, content);
-		} else if (mimeType.contains("application/xml") || mimeType.contains("text/xml")) {
-			return createXMLFromResponse(mm, content);
-		} else if (mimeType.contains("text/html")) {
-			return createHTMLFromResponse(mm, content);
-		} else if (mimeType.contains("text/csv")) {
-			return createCSVFromResponse(mm, content);
-		}
-		return createModelFromResponse(BASE_URI, forceRDF, mm, content, mimeType);
-	}
+  public static JsonNode createJsonFromResponse(final MultivaluedMap mm, final InputStream response)
+      throws IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    String text = readUtf8FromStream(response);
+    LOG.info(text);
+    JsonNode input = mapper.readTree(new ByteArrayInputStream(text.getBytes()));
+    return AgentUtil.setMessageInformation(input, mm);
+  }
 
-	public static JsonNode createJsonFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		String text = new String(response.readAllBytes(), StandardCharsets.UTF_8);
-		LOG.info(text);
-		JsonNode input =  mapper.readTree(new ByteArrayInputStream(text.getBytes()));
-		return AgentUtil.setMessageInformation(input, mm);
-	}
+  public static Document createXMLFromResponse(final MultivaluedMap mm, final InputStream response)
+      throws IOException, SAXException {
+    Document input = AgentUtil.getXMLFromStream(response);
+    return AgentUtil.setMessageInformation(input, mm);
+  }
 
-	public static Document createXMLFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException, SAXException {
-		Document input = AgentUtil.getXMLFromStream(response);
-		return AgentUtil.setMessageInformation(input, mm);
-	}
+  public static Document createHTMLFromResponse(final MultivaluedMap mm, final InputStream response)
+      throws IOException, SAXException {
+    Document input = AgentUtil.getHTMLFromStream(response);
+    return AgentUtil.setMessageInformation(input, mm);
+  }
 
-	public static Document createHTMLFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException, SAXException {
-		Document input = AgentUtil.getHTMLFromStream(response);
-		return AgentUtil.setMessageInformation(input, mm);
-	}
+  public static CSVInput createCSVFromResponse(final MultivaluedMap mm, final InputStream response)
+      throws IOException {
+    CSVInput input = AgentUtil.getCSVFromStream(response);
+    return AgentUtil.setMessageInformation(input, mm);
+  }
 
-	public static CSVInput createCSVFromResponse(final MultivaluedMap mm, final InputStream response) throws IOException {
-		CSVInput input = AgentUtil.getCSVFromStream(response);
-		return AgentUtil.setMessageInformation(input, mm);
-	}
+  private static Model createModelFromResponse(
+      final String BASE_URI,
+      final boolean forceRDF,
+      final MultivaluedMap mm,
+      final InputStream response,
+      final String entityFormat)
+      throws HttpResponseException {
+    String mime = entityFormat;
+    if (entityFormat.contains("charset")) {
+      mime = entityFormat.split(";")[0];
+    }
+    if (forceRDF && !rdfMimeType(mime)) {
+      try {
+        return createModelFromRawInput(mm, response);
+      } catch (IOException ex) {
+        throw new HttpResponseException("Error while reading content.", ex);
+      }
+    } else {
+      try {
+        Model model = Rio.parse(response, BASE_URI, formatForMimeType(mime));
+        return AgentUtil.setResponseMessageInformation(model, mm);
+      } catch (IllegalArgumentException | RDFParseException | IOException ex) {
+        throw new HttpResponseException(
+            "Error while parsing " + mime + " based response into RDF graph.", ex);
+      }
+    }
+  }
 
-	private static Model createModelFromResponse(final String BASE_URI, final boolean forceRDF, final MultivaluedMap mm, final InputStream response, final String entityFormat) throws HttpResponseException {
-		String mime = entityFormat;
-		if (entityFormat.contains("charset")) {
-			mime = entityFormat.split(";")[0];
-		}
-		if (forceRDF && !rdfMimeType(mime)) {
-			try {
-				return createModelFromRawInput(mm, response);
-			} catch (IOException ex) {
-				throw new HttpResponseException("Error while reading content.", ex);
-			}
-		} else {
-			try {
-				Model model = Rio.parse(response, BASE_URI, formatForMimeType(mime));
-				return AgentUtil.setResponseMessageInformation(model, mm);
-			} catch (IllegalArgumentException | RDFParseException | IOException ex) {
-				throw new HttpResponseException("Error while parsing " + mime + " based response into RDF graph.", ex);
-			}
-		}
-	}
+  private static Model createModelFromRawInput(final MultivaluedMap mm, final InputStream response)
+      throws IOException {
+    Model model = new LinkedHashModel();
+    BNode subject = VF.createBNode();
+    String content = readUtf8FromStream(response);
+    model.add(subject, RDF.TYPE, VF.createIRI("http://www.w3.org/2011/content#ContentAsText"));
+    model.add(
+        subject, VF.createIRI("http://www.w3.org/2011/content#chars"), VF.createLiteral(content));
+    return AgentUtil.setResponseMessageInformation(model, mm);
+  }
 
-	private static Model createModelFromRawInput(final MultivaluedMap mm, final InputStream response) throws IOException {
-		Model model = new LinkedHashModel();
-		BNode subject = VF.createBNode();
-		String content = new String(response.readAllBytes(), StandardCharsets.UTF_8);
-		model.add(subject, RDF.TYPE, VF.createIRI("http://www.w3.org/2011/content#ContentAsText"));
-		model.add(subject, VF.createIRI("http://www.w3.org/2011/content#chars"), VF.createLiteral(content));
-		return AgentUtil.setResponseMessageInformation(model, mm);
-	}
+  private static String readUtf8FromStream(final InputStream response) throws IOException {
+    ByteArrayOutputStream result = new ByteArrayOutputStream();
+    byte[] buffer = new byte[1024];
+    int length = response.read(buffer);
+    while (length != -1) {
+      result.write(buffer, 0, length);
+      length = response.read(buffer);
+    }
+    return result.toString(StandardCharsets.UTF_8.name());
+  }
 }
-
