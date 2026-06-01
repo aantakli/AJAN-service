@@ -31,7 +31,7 @@ COPY .env /app/.env
 # classpath, so each plugin must already bundle its non-provided deps.
 # .dockerignore drops the source subdirectories under pluginsystem/plugins/,
 # leaving only the *.jar files from the dist artifact overlay.
-COPY pluginsystem/plugins/ /app/pluginsystem/plugins/
+COPY pluginsystem/plugins/* /app/pluginsystem/plugins/
 
 # Pre-create the folder NodeDefinitionsExtension copies into at startup so the
 # initial RDF graph walk always finds a real directory even when no plugin
