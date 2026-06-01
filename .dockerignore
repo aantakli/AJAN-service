@@ -24,8 +24,13 @@
 
 # Plugin source trees (their compiled JARs come in via the dist artifact overlay
 # at pluginsystem/plugins/*.jar, so we don't need the directories themselves).
+# Docker's .dockerignore does NOT treat a trailing "/" as "directories only" the
+# way gitignore does, so a bare "pluginsystem/plugins/*/" would also strip the
+# overlaid *.jar files and leave the plugin dir empty in the image. Use an
+# explicit re-include for the JARs.
 pluginsystem/loader/
-pluginsystem/plugins/*/
+pluginsystem/plugins/*
+!pluginsystem/plugins/*.jar
 
 # Docs / licenses
 *.md
