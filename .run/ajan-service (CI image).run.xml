@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ajan-service (CI image)" type="docker-deploy" factoryName="docker-image" server-name="Docker">
+    <deployment type="docker-image">
+      <settings>
+        <option name="imageTag" value="aantakli/ajan-service:latest" />
+        <option name="containerName" value="ajan-service-ci-test" />
+        <option name="commandLineOptions" value="--rm --pull=always -p 8080:8080 -p 8090:8090" />
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>
