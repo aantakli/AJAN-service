@@ -26,12 +26,15 @@ COPY executionservice/use-case ./executionservice/use-case
 COPY docker/supervisord.conf /app/supervisord.conf
 COPY .env /app/.env
 
-# Self-contained plugin fat JARs (from pluginsystem/deployments, see the CI
-# workflow). pf4j's JarPluginLoader only puts the loaded JAR on the plugin
-# classpath, so each plugin must already bundle its non-provided deps.
-# .dockerignore drops the source subdirectories under pluginsystem/plugins/,
-# leaving only the *.jar files from the dist artifact overlay.
-COPY pluginsystem/plugins/* /app/pluginsystem/plugins/
+# Self-contained plugin fat JARs (from pluginsystem/deployments, renamed to
+# <plugin>-0.1.jar under dist/pluginsystem/plugins/ by the CI workflow). pf4j's
+# JarPluginLoader only puts the loaded JAR on the plugin classpath, so each
+# plugin must already bundle its non-provided deps. The *.jar glob excludes the
+# checked-out source subdirectories that still sit alongside the JARs in the
+# build context; without it, COPY would flatten their contents (plugin.properties,
+# lib/, examples/, ...) into the plugins folder and pf4j in deployment mode
+# would refuse to load. Fails loudly if the dist overlay didn't produce JARs.
+COPY pluginsystem/plugins/*.jar /app/pluginsystem/plugins/
 
 # Pre-create the folder NodeDefinitionsExtension copies into at startup so the
 # initial RDF graph walk always finds a real directory even when no plugin
