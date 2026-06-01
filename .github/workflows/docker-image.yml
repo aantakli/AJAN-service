@@ -83,6 +83,20 @@ jobs:
         with:
           name: dist-artifact
           path: .
+      - name: Verify plugin JARs landed in build context
+        run: |
+          set -eu
+          echo "=== pluginsystem/plugins/ (top level) ==="
+          ls -la pluginsystem/plugins/
+          echo "=== Top-level *.jar files (Dockerfile's COPY source) ==="
+          jars=$(find pluginsystem/plugins/ -maxdepth 1 -name '*.jar' -type f | sort)
+          printf '%s\n' "$jars"
+          count=$(printf '%s\n' "$jars" | grep -c . || true)
+          echo "Found $count plugin JAR(s)"
+          if [ "$count" -eq 0 ]; then
+            echo "ERROR: no plugin JARs at pluginsystem/plugins/*.jar — Docker COPY would either fail or build an image with an empty plugins folder." >&2
+            exit 1
+          fi
       - name: Setup docker metadata
         id: meta
         uses: docker/metadata-action@v3
@@ -104,8 +118,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          args:
-            AVERSION="${{ needs.build.outputs.commit_hash }}"
+          build-args: |
+            AVERSION=${{ needs.build.outputs.commit_hash }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           secrets: |

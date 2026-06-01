@@ -34,7 +34,7 @@ COPY .env /app/.env
 # build context; without it, COPY would flatten their contents (plugin.properties,
 # lib/, examples/, ...) into the plugins folder and pf4j in deployment mode
 # would refuse to load. Fails loudly if the dist overlay didn't produce JARs.
-COPY pluginsystem/plugins/*.jar /app/pluginsystem/plugins/
+COPY pluginsystem/ /app/pluginsystem
 
 # Pre-create the folder NodeDefinitionsExtension copies into at startup so the
 # initial RDF graph walk always finds a real directory even when no plugin

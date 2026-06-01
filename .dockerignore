@@ -9,6 +9,15 @@
 # at context root and inside pluginsystem/plugins/), never the local target/ dirs.
 **/target
 
+# Plugin source tree under pluginsystem/plugins/ — only the *.jar files the CI
+# overlays from the dist artifact (renamed from pluginsystem/deployments/*-all.jar)
+# should reach the build context. Without these rules the checked-out per-plugin
+# source directories (ASPPlugin/, MOSIMPlugin/, …) sit next to the JARs and pf4j
+# in deployment mode trips over them. Exclude everything at that level, then
+# re-include the JARs.
+pluginsystem/plugins/*
+!pluginsystem/plugins/*.jar
+
 # Python caches and pre-built venvs; PythonPlugin unpacks its own embedded venv
 # from JAR resources at runtime.
 **/__pycache__
