@@ -53,6 +53,14 @@ jobs:
           done
           cp ./.github/*.sh dist/
           cp ./.github/*.bat dist/
+          # Initial RDF data the startup scripts load via relative use-case/* paths.
+          # Without this the release-zip start scripts fail with
+          # NoSuchFileException: use-case\agents (etc.). The Docker image gets this
+          # data via the Dockerfile's COPY executionservice/use-case step instead.
+          cp -r ./executionservice/use-case dist/use-case
+          # nodeDefinitions is populated at runtime by NodeDefinitionsExtension;
+          # pre-create it so the initial RDF graph walk finds a real directory.
+          mkdir -p dist/use-case/editor/nodeDefinitions
       - name: Create .env file
         uses: "DamianReeves/write-file-action@master"
         with:
