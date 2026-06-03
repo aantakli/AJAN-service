@@ -51,6 +51,19 @@ jobs:
           for plugin in ASPPlugin MappingPlugin MOSIMPlugin StandardBTNodes STRIPSPlugin MQTTPlugin PythonPlugin RMLMappingPlugin; do
             cp "./pluginsystem/deployments/${plugin}-0.1-all.jar" "dist/pluginsystem/plugins/${plugin}-0.1.jar"
           done
+          # Ship the initial use-case data so InitialDataProvider can preload
+          # agents/behaviors/domains/services/editorData into the triplestore on
+          # first start. The start scripts reference these as use-case/<...>.
+          # Note: the data is split across two source locations in the repo -
+          # the bulk lives under executionservice/use-case/, while the editor
+          # nodeDefinitions live in the top-level use-case/editor/nodeDefinitions.
+          mkdir -p dist/use-case/editor
+          cp -r ./executionservice/use-case/agents dist/use-case/
+          cp -r ./executionservice/use-case/behaviors dist/use-case/
+          cp -r ./executionservice/use-case/domains dist/use-case/
+          cp -r ./executionservice/use-case/services dist/use-case/
+          cp -r ./executionservice/use-case/editor/editorData dist/use-case/editor/
+          cp -r ./use-case/editor/nodeDefinitions dist/use-case/editor/
           cp ./.github/*.sh dist/
           cp ./.github/*.bat dist/
       - name: Create .env file

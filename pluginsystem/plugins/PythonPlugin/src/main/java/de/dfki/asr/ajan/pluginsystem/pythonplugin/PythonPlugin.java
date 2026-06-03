@@ -197,6 +197,10 @@ public class PythonPlugin extends Plugin {
 
     fixJepBatFile(pythonHome);
 
+    if (os.contains("win")) {
+      normalizeEmbeddableWindowsLayout(pythonHome);
+    }
+
     String pythonHomeStr = pythonHome.toAbsolutePath().toString();
     String pythonPath = String.join(
         File.pathSeparator,
@@ -247,8 +251,70 @@ public class PythonPlugin extends Plugin {
     return pythonHome;
   }
 
+  /**
+   * Turns the Windows "embeddable" Python package into a layout the embedded
+   * interpreter can bootstrap deterministically.
+   *
+   * <p>The embeddable distribution ships the standard library only inside
+   * {@code python3XX.zip} and pins {@code sys.path} via a {@code python3XX._pth}
+   * file. That {@code ._pth} is anchored next to the hosting executable/DLL,
+   * which works for {@code python.exe} but is unreliable when CPython is
+   * initialized by JEP inside {@code java.exe}: the interpreter then fails with
+   * "Failed to import encodings module". By extracting the stdlib into
+   * {@code <home>/Lib} and removing the {@code ._pth}, the explicit
+   * {@code Py_SetPythonHome(home)} prefix drives {@code sys.path} the same way a
+   * regular (non-embeddable) install would, so {@code encodings} is found.
+   */
+  private static void normalizeEmbeddableWindowsLayout(Path pythonHome) throws IOException {
+    Path lib = pythonHome.resolve("Lib");
+    boolean stdlibPresent =
+        Files.exists(lib.resolve("os.py"))
+            || Files.exists(lib.resolve("encodings").resolve("__init__.py"));
+
+    try (var stream = Files.list(pythonHome)) {
+      List<Path> entries = stream.collect(Collectors.toList());
+
+      if (!stdlibPresent) {
+        Optional<Path> stdlibZip = entries.stream()
+            .filter(p -> p.getFileName().toString().toLowerCase().matches("python3\\d+\\.zip"))
+            .findFirst();
+        if (stdlibZip.isPresent()) {
+          Files.createDirectories(lib);
+          extractZipInto(stdlibZip.get(), lib);
+          LOG.info("Extracted embedded stdlib {} into {}", stdlibZip.get().getFileName(), lib);
+        } else {
+          LOG.warn("No python3XX.zip stdlib archive in {}; encodings import may fail", pythonHome);
+        }
+      }
+
+      for (Path p : entries) {
+        if (p.getFileName().toString().toLowerCase().endsWith("._pth")) {
+          Files.deleteIfExists(p);
+          LOG.info("Removed {} to enable PYTHONHOME-based sys.path discovery", p.getFileName());
+        }
+      }
+    }
+  }
+
+  private static void extractZipInto(Path zipFile, Path targetDir) throws IOException {
+    try (ZipFile zip = new ZipFile(zipFile.toFile())) {
+      zip.extractAll(targetDir.toString());
+    } catch (ZipException e) {
+      throw new IOException("Failed to extract " + zipFile, e);
+    }
+  }
+
   private static void addLibraryPath(String pathToAdd) throws Exception {
-    Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
+    Field usrPathsField;
+    try {
+      usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
+    } catch (NoSuchFieldException e) {
+      // Removed/renamed on Java 9+. The native library lookup is instead served
+      // by the PATH entries prepended below, so this reflective patch is a
+      // best-effort no-op rather than a failure.
+      LOG.debug("ClassLoader.usr_paths unavailable; skipping java.library.path patch");
+      return;
+    }
     usrPathsField.setAccessible(true);
 
     String[] paths = (String[]) usrPathsField.get(null);

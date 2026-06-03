@@ -4,7 +4,7 @@
       <settings>
         <option name="imageTag" value="aantakli/ajan-editor:latest" />
         <option name="containerName" value="ajan-editor" />
-        <option name="commandLineOptions" value="--rm --pull=always -p 8081:80" />
+        <option name="commandLineOptions" value="--rm -p 4200:4200 -p 4201:4201 -p 4202:4202" />
       </settings>
     </deployment>
     <method v="2" />

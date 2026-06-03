@@ -4,7 +4,7 @@
       <settings>
         <option name="imageTag" value="aantakli/ajan-service:latest" />
         <option name="containerName" value="ajan-service-ci-test" />
-        <option name="commandLineOptions" value="--rm --pull=always -p 8080:8080 -p 8090:8090" />
+        <option name="commandLineOptions" value="--rm -p 8080:8080 -p 8090:8090" />
       </settings>
     </deployment>
     <method v="2" />
