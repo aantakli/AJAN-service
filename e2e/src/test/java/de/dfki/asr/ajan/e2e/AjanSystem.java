@@ -37,6 +37,8 @@ public final class AjanSystem implements AutoCloseable {
         Files.createDirectories(logDir);
         String java = Paths.get(System.getProperty("java.home"), "bin", "java").toString();
 
+        failIfPortInUse(SERVICE_PORT);
+
         String externalTriplestore = System.getProperty("ajan.e2e.triplestoreUrl");
         Process ts = null;
         String triplestoreUrl;
@@ -57,10 +59,14 @@ public final class AjanSystem implements AutoCloseable {
                     .redirectErrorStream(true)
                     .redirectOutput(logDir.resolve("triplestore.log").toFile())
                     .start();
-            Http.awaitOk(triplestoreUrl + "/repositories", Duration.ofSeconds(120));
+            try {
+                Http.awaitOk(triplestoreUrl + "/repositories", Duration.ofSeconds(120));
+            } catch (AssertionError e) {
+                destroy(ts);
+                throw e;
+            }
         }
 
-        failIfPortInUse(SERVICE_PORT);
         Path serviceLog = logDir.resolve("service.log");
         List<String> cmd = new ArrayList<>(List.of(java,
                 "-Dtriplestore.initialData.agentFolderPath=executionservice/use-case/agents",
