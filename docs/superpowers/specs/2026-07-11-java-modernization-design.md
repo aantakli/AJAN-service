@@ -53,7 +53,7 @@ Gewählter Ansatz: **inkrementelle Etappen** (statt Big Bang oder Strangler-Neua
 E2E-Smoke-Suite als eigenes Testmodul oder Skript + CI-Job gegen den **Ist-Zustand**:
 - Projekt bauen, Triplestore + executionservice wie in `startAll` starten, Healthcheck abwarten.
 - Kernflüsse aus der Postman-Collection: Repositories abfragbar; Use-Case-Agenten geladen; Agent per REST instanziieren; Event/Endpoint ansprechen; Agentenausführung beobachten; Ergebnis-RDF im Triplestore prüfen; Agent löschen.
-- Plugin-Ladecheck: alle 10 Plugins erscheinen beim Start (Log/API).
+- Plugin-Ladecheck: alle im jeweiligen Deployment enthaltenen Plugins erscheinen beim Start (Log/API). Achtung: lokal/Entwicklung sind es 10; der CI-Workflow paketiert heute nur 8 ins dist/Docker-Image (OPCUAPlugin und ScriptExecutorPlugin fehlen dort). Der Check erwartet je Umgebung die passende Menge; ob OPCUA/ScriptExecutor bewusst fehlen, wird in Etappe 5 geklärt.
 Die Suite läuft ab dann in CI gegen jeden Etappen-Stand.
 
 ### Etappe 1 — Build-Hygiene (keine Framework-Sprünge)
@@ -112,5 +112,5 @@ Der bestehende Workflow `docker-build-and-publish` triggert **nur auf Push nach 
 ## 7. Verifikation
 
 - **Pro Etappe:** `mvn install` grün + E2E-Smoke-Suite grün (lokal und im Branch-CI).
-- **Kern-Sprung zusätzlich:** Unit-Tests pro migriertem Modul; Plugin-Ladecheck aller 10 Plugins; manueller Gegentest mit dem AJAN-editor gegen die laufende Instanz.
+- **Kern-Sprung zusätzlich:** Unit-Tests pro migriertem Modul; Plugin-Ladecheck (alle 10 im Entwicklungsmodus); manueller Gegentest mit dem AJAN-editor gegen die laufende Instanz.
 - **Abschluss:** Docker-Image lokal bauen (`ajan-service:dev`), Container-Healthcheck + E2E-Suite gegen den Container.
