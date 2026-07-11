@@ -58,10 +58,10 @@ Die Suite läuft ab dann in CI gegen jeden Etappen-Stand.
 
 ### Etappe 1 — Build-Hygiene (keine Framework-Sprünge)
 - rdfbeans vendoren (Submodul raus, Quellen als Modul rein, `.gitmodules` löschen).
-- findbugs-Plugin entfernen; Maven-Plugins aktualisieren; tote Plugin-Repositories entfernen.
-- RDF4J-Versions-Mix im Parent zentralisieren (noch auf 3.6.3-Stand).
+- findbugs- und pegdown-javadoc-Plugin entfernen; jar-Plugin aktualisieren; Surefire pinnen. (Checkstyle/PMD-Modernisierung erst in Etappe 4, wenn der JDK-Wechsel sie erzwingt; die toten Plugin-Repositories im triplestore-POM können erst in Etappe 3 raus — das retired tomcat8-maven-plugin wird daraus aufgelöst.)
+- RDF4J-Versions-Mix dokumentieren; Vereinheitlichung erfolgt mit dem Triplestore-Neubau (Etappe 3) bzw. Kern-Sprung (Etappe 4).
 - Alle Module einheitlich auf Java 11 target (Ist-Docker-Runtime).
-- Harmlose Dependency-Bumps (TestNG, Hamcrest, opencsv, zip4j).
+- Harmlose Dependency-Bumps (TestNG, Hamcrest; ungenutztes jcommander entfernen). opencsv 4→5 ist ein API-Bruch und wandert in Etappe 4; zip4j ist bereits aktuell.
 - Riskante Bausteine (Boot, RDF4J-Major, pf4j) bleiben unangetastet.
 
 ### Etappe 2 — Spikes (je ~1 Tag timeboxed)
