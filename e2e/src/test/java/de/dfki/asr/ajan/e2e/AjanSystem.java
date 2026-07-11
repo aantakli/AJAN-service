@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -20,6 +21,7 @@ public final class AjanSystem implements AutoCloseable {
 
     private static final int TRIPLESTORE_PORT = 8090;
     private static final int SERVICE_PORT = 8080;
+    private static final Duration PORT_RELEASE_TIMEOUT = Duration.ofSeconds(30);
 
     private final Process triplestore; // null, wenn extern (Spike A)
     private final Process service;
@@ -112,6 +114,34 @@ public final class AjanSystem implements AutoCloseable {
     public void close() {
         destroy(service);
         destroy(triplestore);
+        // Windows: Nach dem Toeten eines Prozesses bleibt dessen Listen-Socket
+        // noch 1-3s in der TCP-Tabelle (Owner-PID bereits tot, connect()
+        // gelingt trotzdem). Ohne dieses Warten schlaegt failIfPortInUse()
+        // in der naechsten AjanSystem.start()-Instanz (z.B. der naechsten
+        // IT-Klasse) faelschlich an.
+        awaitPortFree(SERVICE_PORT);
+        if (triplestore != null) {
+            awaitPortFree(TRIPLESTORE_PORT);
+        }
+    }
+
+    private static void awaitPortFree(int port) {
+        Instant deadline = Instant.now().plus(PORT_RELEASE_TIMEOUT);
+        while (Instant.now().isBefore(deadline)) {
+            try (Socket ignored = new Socket("localhost", port)) {
+                // noch belegt (ggf. Linger eines toten Prozesses)
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            } catch (IOException portFree) {
+                return;
+            }
+        }
+        throw new IllegalStateException("Port " + port + " wurde nach close() nicht innerhalb von "
+                + PORT_RELEASE_TIMEOUT.getSeconds() + "s frei.");
     }
 
     private static void destroy(Process p) {
