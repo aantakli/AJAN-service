@@ -86,6 +86,7 @@ MA 02110-1301  USA
           </excludes>
         </configuration>
         <groupId>org.apache.maven.plugins</groupId>
+        <version>3.5.2</version>
       </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
