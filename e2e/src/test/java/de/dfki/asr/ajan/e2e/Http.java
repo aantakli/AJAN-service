@@ -26,6 +26,18 @@ public final class Http {
         return CLIENT.send(b.method(method, pub).build(), HttpResponse.BodyHandlers.ofString());
     }
 
+    /** GET with an explicit Accept header, for content-negotiation characterization. */
+    public static HttpResponse<String> getWithAccept(String url, String accept)
+            throws java.io.IOException, InterruptedException {
+        HttpRequest.Builder b = HttpRequest.newBuilder(URI.create(url))
+                .timeout(Duration.ofSeconds(30))
+                .GET();
+        if (accept != null) {
+            b.header("Accept", accept);
+        }
+        return CLIENT.send(b.build(), HttpResponse.BodyHandlers.ofString());
+    }
+
     /** Pollt bis 200 oder Timeout; wirft AssertionError mit letzter Antwort. */
     public static void awaitOk(String url, Duration timeout) throws InterruptedException {
         long deadline = System.nanoTime() + timeout.toNanos();
