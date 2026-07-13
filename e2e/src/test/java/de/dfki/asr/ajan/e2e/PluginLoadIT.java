@@ -3,13 +3,11 @@ package de.dfki.asr.ajan.e2e;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.regex.Pattern;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class PluginLoadIT {
+class PluginLoadIT extends AjanSystemBase {
 
     // Entwicklungsmodus (pf4j.mode=development): alle 10 muessen laden.
     // Achtung: das CI-dist/Docker-Image enthaelt heute nur 8 (ohne OPCUA,
@@ -18,20 +16,6 @@ class PluginLoadIT {
             "ASPPlugin", "MappingPlugin", "MOSIMPlugin", "MQTTPlugin", "OPCUAPlugin",
             "PythonPlugin", "RMLMappingPlugin", "ScriptExecutorPlugin", "STRIPSPlugin",
             "StandardBTNodes");
-
-    private static AjanSystem system;
-
-    @BeforeAll
-    static void startSystem() throws Exception {
-        system = AjanSystem.start();
-    }
-
-    @AfterAll
-    static void stopSystem() {
-        if (system != null) {
-            system.close();
-        }
-    }
 
     // A bare substring match on the plugin id is a false-positive trap: it also
     // matches error/stacktrace lines that mention a plugin which resolved but

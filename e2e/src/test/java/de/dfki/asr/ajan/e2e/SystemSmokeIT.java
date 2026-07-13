@@ -1,27 +1,11 @@
 package de.dfki.asr.ajan.e2e;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class SystemSmokeIT {
-
-    private static AjanSystem system;
-
-    @BeforeAll
-    static void startSystem() throws Exception {
-        system = AjanSystem.start();
-    }
-
-    @AfterAll
-    static void stopSystem() {
-        if (system != null) {
-            system.close();
-        }
-    }
+class SystemSmokeIT extends AjanSystemBase {
 
     @Test
     void triplestoreListsRepositoriesIncludingAgents() throws Exception {
