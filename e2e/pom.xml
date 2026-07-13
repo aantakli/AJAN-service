@@ -23,6 +23,22 @@
       <version>5.10.2</version>
       <scope>test</scope>
     </dependency>
+    <!-- Same RDF4J line as the current project (3.6.3) so RDF-body
+         characterization in RdfResponseIT/AgentLifecycleIT parses with a
+         real Rio parser instead of substring matching. Test-scope only:
+         the E2E suite still ships no production dependency on RDF4J. -->
+    <dependency>
+      <groupId>org.eclipse.rdf4j</groupId>
+      <artifactId>rdf4j-rio-turtle</artifactId>
+      <version>3.6.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.rdf4j</groupId>
+      <artifactId>rdf4j-model</artifactId>
+      <version>3.6.3</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
