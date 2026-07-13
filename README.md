@@ -20,7 +20,6 @@ You will need the following things properly installed on your computer. So pleas
 ### Clean Installation
 * cmd: `git clone <repository-url>` this repository
 * cmd: `cd AJAN-service`
-* cmd: `git submodule update --init --recursive`
 * run `installAJAN.bat` or cmd: `mvn install`
 
 ### Docker
