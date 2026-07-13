@@ -643,6 +643,45 @@ Expected: Workflow `ci-branch` grün (Build + E2E). Erst weiter, wenn grün.
 
 ---
 
+### Task 4b: Sicherheitsnetz härten (aus Whole-Branch-Review Etappe 0)
+
+**Kontext:** Das Whole-Branch-Review von Etappe 0 stufte das Netz als „with fixes" ein: Assertions prüfen nur Statuscode + Substring — genau die Serialisierungs-, Fehlerpfad- und Plugin-Funktions-Regressionen, die RDF4J 5 / Boot 4 am wahrscheinlichsten still einführen, sind ungetestet. Dieser Task zieht die Coverage nach und behebt die billigen Robustheits-/CI-Fixes. **Charakterisierungsprinzip gilt weiter:** das IST-Verhalten empirisch feststellen und festnageln; wenn ein Effekt nicht zuverlässig über die API beobachtbar ist, das als Befund melden statt zu erzwingen. Kein Service-Code ändern.
+
+**REST-Surface (verifiziert in `executionservice/.../rest/AgentResource.java`):** `GET /ajan/agents/{id}` → Agent als `@Produces({TURTLE,JSONLD})`; `GET /ajan/agents/{id}/behaviors/{behaviorId}?method=knowledge` → Execution-Belief-Base als RDF-Model (Fenster auf die HelloWorld-Wirkung); `DELETE /ajan/agents/{id}` → 200 bzw. 404 (bei unbekanntem Agenten, via `IllegalArgumentException`→NOT_FOUND). Fehler-Mapping: `executionservice/.../exceptions/WebExceptionMapper.java`.
+
+**Files:**
+- Modify: `e2e/src/test/java/de/dfki/asr/ajan/e2e/AjanSystem.java` (Artefakt-Glob #3, Readiness-Gate #6, ggf. `127.0.0.1`)
+- Create: `e2e/src/test/java/de/dfki/asr/ajan/e2e/AjanSystemBase.java` (gemeinsame `@BeforeAll/@AfterAll`-Basis, Minor-Dedup)
+- Create: `e2e/src/test/java/de/dfki/asr/ajan/e2e/RdfResponseIT.java` (Content-Type + RDF-Body-Charakterisierung)
+- Create: `e2e/src/test/java/de/dfki/asr/ajan/e2e/ErrorPathIT.java` (404/400-Fehlerpfade)
+- Modify: `e2e/src/test/java/de/dfki/asr/ajan/e2e/AgentLifecycleIT.java` (HelloWorld-Wirkungsprobe vor dem Delete)
+- Modify: `e2e/pom.xml` (nur falls für RDF-Parsing eine Dependency nötig ist — bevorzugt rdf4j-rio-turtle/-model in Testscope, Version passend zum aktuellen Projekt-RDF4J 3.6.3)
+- Modify: `.github/workflows/ci-branch.yml` (CI-Härtung #7)
+
+**Interfaces:**
+- Consumes: bestehende `AjanSystem`/`Http`-API.
+- Produces: ein tragendes Netz, das Serialisierung, Fehlerpfade und mind. eine echte Plugin-/BT-Wirkung festnagelt.
+
+- [ ] **Step 1: Artefakt-Glob (#3)** — In `AjanSystem` die hartkodierten `triplestore/target/triplestore-0.1-war-exec.jar` und `executionservice/target/executionservice-0.1.jar` durch Glob-Auflösung ersetzen (`executionservice/target/executionservice-*.jar` bzw. `triplestore/target/triplestore-*-war-exec.jar`); genau EINEN Treffer erwarten, sonst mit klarer Meldung scheitern. Verifizieren, dass die Suite weiter startet.
+
+- [ ] **Step 2: Readiness-Gate (#6)** — Das Service-Readiness-Gate in `AjanSystem.start()` zusätzlich davon abhängig machen, dass der TTL-Load fertig ist: nach `GET /ajan/agents == 200` pollen, bis das `agents`-Repo im Triplestore existiert (`GET <triplestoreUrl>/repositories` enthält `agents`) UND das HelloWorld-Template dereferenzierbar ist. Gleiche `Http.awaitOk`/Poll-Idiome nutzen; Timeout großzügig.
+
+- [ ] **Step 3: Gemeinsame Basis (Minor-Dedup)** — `AjanSystemBase` mit statischem `system`, `@BeforeAll start()`, `@AfterAll close()`; die drei bestehenden IT-Klassen darauf umstellen (Verhalten identisch lassen). Volle Suite grün halten.
+
+- [ ] **Step 4: RDF-Body-Charakterisierung (#1)** — `RdfResponseIT`: nach Anlegen eines Agenten (Muster aus `AgentLifecycleIT`) `GET /ajan/agents/{id}` **mit `Accept: text/turtle`** abrufen; den `Content-Type`-Header festnageln (beobachteten Wert exakt asserten) UND den Body mit einem echten RDF-Parser (rdf4j Rio, Turtle) parsen und eine stabile, migrations-robuste Eigenschaft prüfen (z. B. das Agent-Subjekt ist als Ressource enthalten; Triple-Anzahl > 0 und der erwartete `rdf:type` vorhanden). Zusätzlich denselben GET mit `Accept: application/ld+json` und den JSON-LD-`Content-Type` festnageln (Content-Negotiation). Beobachtete Werte im Test dokumentieren.
+
+- [ ] **Step 5: Fehlerpfade (#1)** — `ErrorPathIT`: (a) `GET /ajan/agents/DoesNotExist_{random}` → beobachteten Statuscode+ggf. Body festnageln; (b) `POST /ajan/agents/` mit `Content-Type: text/turtle` und kaputtem Turtle (`"@@@ not turtle"`) → beobachteten 4xx-Code festnageln; (c) `DELETE /ajan/agents/DoesNotExist_{random}` → 404 (laut Code). Jeweils das IST-Verhalten charakterisieren (nicht das „richtige" — wenn der Service z. B. 500 statt 400 liefert, das festnageln und im Report vermerken).
+
+- [ ] **Step 6: HelloWorld-Wirkungsprobe (#2, #4)** — In `AgentLifecycleIT` zwischen `sendMessageToHelloWorldCapability` (Order-4) und `deleteAgentAndVerifyGone` (Order-5) eine Wirkungs-Assertion einziehen: nach dem Senden auf einen API-beobachtbaren Effekt **pollen** (mit Timeout), bevor gelöscht wird — bevorzugt via `GET /ajan/agents/{id}/behaviors/{behaviorId}?method=knowledge` (Belief-Base) oder via Triplestore-SPARQL auf das Agenten-Wissen. Den Behavior-Fragment-Bezeichner aus `GET /ajan/agents/{id}` bzw. `agents.trig` (BE_af5944db-7060-45ae-a099-bbed3c232188 → Fragment `BE_af5944db-…`) ermitteln. **Falls kein Effekt zuverlässig beobachtbar ist:** nicht erzwingen — stattdessen asserten, dass der Agent nach der Nachricht noch lebt/konsistent ist (`GET {id}` == 200 + wohlgeformtes RDF), und die Nicht-Beobachtbarkeit als Befund in den Report schreiben (das ist dann ein bewusst dokumentiertes Netz-Loch).
+
+- [ ] **Step 7: CI-Härtung (#7)** — In `.github/workflows/ci-branch.yml`: Build-Step auf `mvn -B -ntp -DskipTests install` (JARs werden weiter erzeugt, aber der Reaktor-Testlauf blockiert das Netz nicht mehr; die E2E-`verify` bleibt der Test); Job `timeout-minutes: 30`; `permissions: { contents: read }`; `concurrency: { group: ci-branch-${{ github.ref }}, cancel-in-progress: true }`; zusätzlich `e2e/target/failsafe-reports/` beim Failure-Upload mitnehmen.
+
+- [ ] **Step 8: Volle Verifikation + Commit(s)** — `mvn install` (JDK 11) und `mvn -f e2e/pom.xml verify` grün (jetzt 5 IT-Klassen). Commit(s) mit sprechenden Messages; Push löst `ci-branch` aus → grün abwarten. Report mit allen festgenagelten IST-Werten (Content-Types, Fehlercodes, HelloWorld-Effekt oder dessen Nicht-Beobachtbarkeit).
+
+**Verifikation:** `mvn -f e2e/pom.xml verify` grün; CI grün; Report dokumentiert jeden charakterisierten IST-Wert.
+
+---
+
 ### Task 5: rdfbeans vendoren (Submodul auflösen)
 
 **Files:**
