@@ -91,8 +91,7 @@ MA 02110-1301  USA
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>11</source>
-          <target>11</target>
+          <release>11</release>
         </configuration>
         <groupId>org.apache.maven.plugins</groupId>
       </plugin>
@@ -237,8 +236,6 @@ MA 02110-1301  USA
   </parent>
 
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
     <netbeans.hint.license>licenseheader</netbeans.hint.license>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>

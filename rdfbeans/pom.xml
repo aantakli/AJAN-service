@@ -75,8 +75,7 @@ MA 02110-1301  USA
 		<rdf4j.version>2.0M1</rdf4j.version>
 		<slf4j.version>1.7.9</slf4j.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.release>11</maven.compiler.release>
 		<maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
 	 <netbeans.hint.license>lgpl21</netbeans.hint.license>
 	</properties>
@@ -187,8 +186,9 @@ MA 02110-1301  USA
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
+				<version>3.13.0</version>
 				<configuration>
+					<release>${maven.compiler.release}</release>
 					<compilerArgs>
 						<arg>-Xlint:unchecked</arg>
 					</compilerArgs>

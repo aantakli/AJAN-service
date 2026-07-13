@@ -86,8 +86,7 @@
                 <version>1.18.30</version>
               </path>
             </annotationProcessorPaths>
-            <source>${maven.compiler.source}</source>
-            <target>${maven.compiler.target}</target>
+            <release>${maven.compiler.release}</release>
           </configuration>
           <groupId>org.apache.maven.plugins</groupId>
           <version>3.13.0</version>
@@ -163,8 +162,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.release>11</maven.compiler.release>
     <org.eclipse.rdf4j.version>3.6.3</org.eclipse.rdf4j.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
