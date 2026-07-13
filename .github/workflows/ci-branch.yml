@@ -5,9 +5,17 @@ on:
     branches:
       - 'modernization/**'
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-branch-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-e2e:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,7 +38,7 @@ jobs:
         with:
           maven-version: 3.9.9
       - name: Build project
-        run: mvn install
+        run: mvn -B -ntp -DskipTests install
       - name: Run E2E smoke suite
         run: mvn -f e2e/pom.xml verify
       - name: Upload E2E logs on failure
@@ -38,4 +46,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: e2e-logs
-          path: e2e/target/logs/
+          path: |
+            e2e/target/logs/
+            e2e/target/failsafe-reports/
