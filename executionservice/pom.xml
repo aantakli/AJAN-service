@@ -90,6 +90,7 @@ MA 02110-1301  USA
       </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
         <configuration>
           <release>11</release>
         </configuration>
