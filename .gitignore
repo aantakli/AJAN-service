@@ -39,3 +39,12 @@ nbactions.xml
 /use-case/
 *.jar
 */**/target
+
+# Meridian / Mars — local-only agent tooling setup (not shared via repo)
+.meridian/
+meridian.toml
+meridian.local.toml
+mars.toml
+mars.lock
+.mars/
+.claude/
