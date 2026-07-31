@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.0</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>spike</groupId>
+    <artifactId>boot4-resteasy</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <java.version>21</java.version>
+    </properties>
+
+    <dependencies>
+        <!-- Spike B result (VERIFIED by actually running it, see task-10-12-report.md):
+             GREEN. resteasy-servlet-spring-boot-starter:6.3.0.Final DOES work on Boot 4.1.0
+             with JDK 21, once two brief-template issues are corrected:
+             1) brief's pom.xml used groupId org.jboss.resteasy.spring.boot, which does not
+                exist on Maven Central (resolution fails: "Could not find artifact ... in
+                central"). Real coordinate is groupId org.jboss.resteasy.
+             2) the starter alone declares zero transitive dependencies (verified via
+                dependency:tree) - it needs an explicit servlet-container starter added by
+                the app, exactly like on Boot 3.x. Without spring-boot-starter-web the app
+                fails with NoClassDefFoundError: jakarta/servlet/ServletContextListener.
+             With both fixes: app starts, JaxrsConfig/HelloResource (JAX-RS annotations) are
+             deployed by RESTEasy, GET http://localhost:18080/api/hello -> 200 "hello".
+             One benign WARN remains: "Failed to introspect meta-annotation @AutoConfiguration
+             on class org.jboss.resteasy.springboot.ResteasyAutoConfiguration:
+             java.lang.TypeNotPresentException: Type ...WebMvcAutoConfiguration not present"
+             - does not stop startup or break the endpoint. -->
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-servlet-spring-boot-starter</artifactId>
+            <version>6.3.0.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
