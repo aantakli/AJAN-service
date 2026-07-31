@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>spike</groupId>
+  <artifactId>pf4j-java21</artifactId>
+  <version>0.1</version>
+  <packaging>jar</packaging>
+
+  <properties>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <!-- Spike D result (VERIFIED by actually running it, JDK 21): GREEN.
+         3.15.0 is the actual latest release (confirmed via central.sonatype.com and
+         github.com/pf4j/pf4j/releases; a naive search.maven.org solr query without an
+         explicit sort had returned a stale-looking 3.13.0 as "latest" - do not trust that
+         endpoint's default ordering). Also smoke-tested with 3.13.0, same result.
+         `mvn compile exec:java` against pluginsystem/deployments/StandardBTNodes-0.1-all.jar
+         under JDK 21 (Temurin ms-21.0.11) resolves cleanly:
+         "RESOLVED: StandardBTNodes state=RESOLVED".
+         Relevant changelog delta vs. the pinned 3.6.0 in pluginsystem/loader/pom.xml:
+         - 3.15.0: "Rename LegacyExtension* classes to IndexedExtension*". LegacyExtensionFinder
+           (used by pluginsystem/loader/AJANPluginLoader.java, both as an import and via
+           `new LegacyExtensionFinder(this)` in an overridden createExtensionFinder()) still
+           exists in 3.15.0 but is now a thin deprecated subclass of the new
+           IndexedExtensionFinder (verified with javap: same public constructor
+           LegacyExtensionFinder(PluginManager)) - so AJANPluginLoader compiles unchanged, but
+           should migrate to IndexedExtensionFinder to drop the deprecated class.
+         - 3.10.0: migrated internal logging to slf4j-2.x - matches this spike's slf4j-simple
+           2.0.13 choice.
+         - 3.11.0: new InvalidPluginDescriptorException, recovery strategy for unresolved
+           plugins - descriptor/classloading behavior otherwise unchanged for our case.
+         - No changes found across 3.6.0->3.15.0 affecting DefaultPluginManager's fat-JAR /
+           deployment-mode resolution path used here. -->
+    <dependency>
+      <groupId>org.pf4j</groupId>
+      <artifactId>pf4j</artifactId>
+      <version>3.15.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>2.0.13</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+          <mainClass>spike.PluginLoadCheck</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
