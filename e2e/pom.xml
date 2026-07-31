@@ -14,6 +14,10 @@
   <properties>
     <maven.compiler.release>11</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- Default leer: erlaubt -Dajan.e2e.triplestoreUrl=... auf der mvn-Kommandozeile,
+         ohne dass ${ajan.e2e.triplestoreUrl} unaufgeloest bleibt, wenn der Hook nicht
+         gesetzt wird. -->
+    <ajan.e2e.triplestoreUrl></ajan.e2e.triplestoreUrl>
   </properties>
 
   <dependencies>
@@ -50,6 +54,13 @@
         <configuration>
           <systemPropertyVariables>
             <ajan.root>${project.basedir}/..</ajan.root>
+            <!-- Ohne diese Weiterleitung erreicht -Dajan.e2e.triplestoreUrl auf der
+                 mvn-Kommandozeile nie die geforkte Test-JVM (Failsafe forwarded
+                 System-Properties nicht automatisch bei forkCount=1), und
+                 AjanSystem.start() startet faelschlich immer den lokalen
+                 Triplestore statt den per Hook angegebenen externen Server zu
+                 verwenden. Befund aus Spike A (Task 9). -->
+            <ajan.e2e.triplestoreUrl>${ajan.e2e.triplestoreUrl}</ajan.e2e.triplestoreUrl>
           </systemPropertyVariables>
           <!-- ITs starten echte Prozesse auf festen Ports: strikt sequenziell -->
           <forkCount>1</forkCount>
