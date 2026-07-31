@@ -42,6 +42,26 @@
             <artifactId>resteasy-servlet-spring-boot-starter</artifactId>
             <version>6.3.0.Final</version>
         </dependency>
+        <!-- Spike C result (VERIFIED by actually running it): RED - staying on Tomcat.
+             Step 1 as literally written in the brief (exclude spring-boot-starter-tomcat from
+             spring-boot-starter-web + add spring-boot-starter-undertow with no explicit
+             version, relying on the Boot BOM to manage it) fails at the POM-validation stage:
+             "'dependencies.dependency.version' for org.springframework.boot:
+             spring-boot-starter-undertow:jar is missing" - spring-boot-dependencies:4.1.0 does
+             not manage this artifact at all, i.e. Boot no longer ships a managed Undertow
+             starter version in the 4.x line.
+             Follow-up attempt (not in brief, done to see how far this goes): explicitly pinning
+             <version>4.0.0-M1</version> (the only Boot-4-line release that exists on Maven
+             Central for this artifact) resolves and compiles, but fails at startup with:
+             "An attempt was made to call a method that does not exist... The following method
+             did not exist: 'PropertyMapper PropertyMapper.alwaysApplyingWhenNonNull()'" thrown
+             from org.springframework.boot.undertow.autoconfigure.UndertowWebServerFactoryCustomizer
+             (compiled against the 4.0.0-M1 milestone's spring-boot-context API) when loaded
+             against spring-boot:4.1.0 on the classpath - i.e. even the abandoned milestone
+             artifact is binary-incompatible with the 4.1.0 GA core APIs that shipped since.
+             Reverted to the default Tomcat starter pulled in transitively by
+             spring-boot-starter-web (no exclusion, no undertow dependency) - the state
+             verified to work in Spike B. -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
