@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.ContextConfig;
 import org.apache.catalina.startup.Tomcat;
@@ -100,8 +101,38 @@ public final class TriplestoreLauncher {
         // setDefaultWebXml(defaultWebXml) unten tatsaechlich wirkt.
         tomcat.setAddDefaultWebXmlToWebapp(false);
 
-        tomcat.addWebapp(tomcat.getHost(), "/rdf4j", serverWar.toString(), newContextConfig(defaultWebXml));
-        tomcat.addWebapp(tomcat.getHost(), "/workbench", workbenchWar.toString(), newContextConfig(defaultWebXml));
+        Context rdf4jCtx = tomcat.addWebapp(tomcat.getHost(), "/rdf4j", serverWar.toString(),
+                newContextConfig(defaultWebXml));
+        Context workbenchCtx = tomcat.addWebapp(tomcat.getHost(), "/workbench", workbenchWar.toString(),
+                newContextConfig(defaultWebXml));
+        // setAddDefaultWebXmlToWebapp(false) above also disabled
+        // Tomcat.getDefaultWebXmlListener()'s initWebappDefaults(), which is
+        // the ONLY source of the ~200 default MIME type mappings
+        // (MimeTypeMappings.properties) when no real conf/web.xml is given.
+        // The restored triplestore/src/main/tomcatconf/web.xml has ZERO
+        // <mime-mapping> entries (it only ever carried CorsFilter plus the
+        // default/JSP servlet setup), so without this call every static
+        // asset in both WARs (workbench alone ships 90: *.js/*.css/*.png/
+        // *.xsl) would be served with no Content-Type at all -- a regression
+        // the old tomcat8-maven-plugin runner never had, because it combined
+        // Tomcat's OWN real global conf/web.xml (which DOES carry the full
+        // MIME table) with the app's web.xml, i.e. never went through this
+        // embedded-only "programmatic defaults XOR custom default web.xml"
+        // fork in Tomcat.addWebapp() at all. Re-adding just the MIME table
+        // here (not re-enabling addDefaultWebXmlToWebapp) restores that
+        // parity without re-registering default/jsp servlets a second time:
+        // doing that instead (setAddDefaultWebXmlToWebapp(true) and setting
+        // our defaultWebXml again after addWebapp()) was verified to crash
+        // both contexts with "IllegalArgumentException: Child name [default]
+        // is not unique", because initWebappDefaults() and our web.xml's own
+        // <servlet-name>default</servlet-name>/<servlet-name>jsp</servlet-name>
+        // would both try to register the same two servlet names. Everything
+        // else initWebappDefaults() sets up (default servlet, JSP servlet,
+        // their mappings, welcome files) is already supplied by the restored
+        // web.xml itself; session-timeout defaults to 30 in StandardContext
+        // regardless, matching initWebappDefaults()'s explicit setting.
+        Tomcat.addDefaultMimeTypeMappings(rdf4jCtx);
+        Tomcat.addDefaultMimeTypeMappings(workbenchCtx);
 
         tomcat.start();
         // Parity mit der TomcatShutdownHook, die der frueher genutzte
