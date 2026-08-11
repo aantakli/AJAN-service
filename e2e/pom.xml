@@ -54,12 +54,18 @@
         <configuration>
           <systemPropertyVariables>
             <ajan.root>${project.basedir}/..</ajan.root>
-            <!-- Ohne diese Weiterleitung erreicht -Dajan.e2e.triplestoreUrl auf der
-                 mvn-Kommandozeile nie die geforkte Test-JVM (Failsafe forwarded
-                 System-Properties nicht automatisch bei forkCount=1), und
-                 AjanSystem.start() startet faelschlich immer den lokalen
-                 Triplestore statt den per Hook angegebenen externen Server zu
-                 verwenden. Befund aus Spike A (Task 9). -->
+            <!-- Explizite Deklaration des Hook-Properties: macht den Vertrag
+                 "-Dajan.e2e.triplestoreUrl auf der mvn-Kommandozeile erreicht die
+                 geforkte Test-JVM" sichtbar, statt ihn von der internen
+                 Property-Propagation von Surefire/Failsafe abhaengen zu lassen.
+                 ACHTUNG, keine allgemeine Regel: Maven-User-Properties (-D) kommen
+                 auch OHNE Eintrag hier im Fork an. Die urspruengliche Spike-A-Diagnose
+                 ("Failsafe leitet bei forkCount=1 nicht weiter, der Hook war
+                 wirkungslos") wurde im Whole-Branch-Review widerlegt - mit dem
+                 byte-identischen Pre-Fix-POM unter Maven 3.9.16 / failsafe 3.2.5 /
+                 JDK 11 kam das Property sehr wohl in der Test-JVM an. Diese Zeile
+                 bleibt, weil sie harmlos und robust gegen kuenftige
+                 Surefire-Versionen ist, nicht weil sie eine Luecke schliesst. -->
             <ajan.e2e.triplestoreUrl>${ajan.e2e.triplestoreUrl}</ajan.e2e.triplestoreUrl>
           </systemPropertyVariables>
           <!-- ITs starten echte Prozesse auf festen Ports: strikt sequenziell -->
