@@ -105,7 +105,7 @@ public final class StateLoader {
 			repo = taskInfos.getAgentBeliefs().getInitializedRepository();
 		} else {
 			repo = new SPARQLRepository(url.toString());
-			repo.initialize();
+			repo.init();
 		}
 		return repo;
 	}
