@@ -26,6 +26,7 @@ import java.util.List;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.BindingSet;
@@ -39,10 +40,16 @@ import org.testng.annotations.Test;
 
 /**
  * Charakterisierung der SPARQLUtil-Query-Pfade, die beim RDF4J-Umstieg
- * 3.6.3 -> 5.3.1 umgebaut werden muessen (die alte Query-Builder-Factory und
- * der alte Sail-Query-Preparer existieren in RDF4J 5 nicht mehr). Die Tests
- * sind vor dem Umbau gegen die alte Implementierung geschrieben und muessen
- * danach unveraendert gruen bleiben.
+ * 3.6.3 -> 5.3.1 umgebaut werden muessen (org.eclipse.rdf4j.queryrender.builder.
+ * QueryBuilderFactory und org.eclipse.rdf4j.repository.sail.SailQueryPreparer
+ * existieren in RDF4J 5 nicht mehr). Die Tests sind vor dem Umbau gegen die
+ * alte Implementierung geschrieben und muessen danach unveraendert gruen
+ * bleiben. Fix-Runde 1 ergaenzt drei Tests, die die urspruengliche Sechser-
+ * Suite nicht abdeckte: eine verlustfreie Rueckgabe von FILTER NOT EXISTS und
+ * BIND(...AS...) (die alte Implementierung wertete die Algebra direkt aus,
+ * der Render-Text-Umweg verliert beides) sowie ein Blank-Node-Describe (der
+ * String-Interpolations-Zwischenstand haette hier eine ungueltige relative
+ * IRI erzeugt).
  */
 public class SPARQLUtilQueryTest {
 
@@ -114,5 +121,66 @@ public class SPARQLUtilQueryTest {
 		Model all = SPARQLUtil.queryRepository(SPARQLUtil.createRepository(model),
 				"CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }");
 		assertEquals(all.size(), 3, "createRepository must return a repository ready for querying");
+	}
+
+	@Test
+	public void selectQueryWithFilterNotExistsIsNotLostOnTheQueryModelPath() throws IOException {
+		// Pins the loss described in fix round 1, finding 1: rendering a
+		// ParsedTupleQuery back to SPARQL text via SPARQLQueryRenderer and
+		// re-parsing it fails to reproduce FILTER NOT EXISTS (it used to throw
+		// MalformedQueryException). getSelectQuery(String, List) now keeps the
+		// original source text so queryModel(Model, ParsedTupleQuery) can reuse
+		// it instead of rendering.
+		Model model = data();
+		List<String> vars = new ArrayList<>(Arrays.asList("s"));
+		ParsedTupleQuery query = SPARQLUtil.getSelectQuery(
+				"SELECT ?s WHERE { ?s ?p ?o . FILTER NOT EXISTS { ?s <http://ajan.test/q> ?any } }", vars);
+		List<BindingSet> bindings = SPARQLUtil.queryModel(model, query);
+		assertEquals(bindings.size(), 2, "t:a and t:c have no t:q predicate, t:b does and must be excluded");
+	}
+
+	@Test
+	public void selectQueryWithBindKeepsTheBoundValueOnTheQueryModelPath() throws IOException {
+		// Pins the loss described in fix round 1, finding 1: BIND(...AS ?x)
+		// used to be silently dropped by the render+reparse round-trip.
+		Model model = data();
+		List<String> vars = new ArrayList<>(Arrays.asList("s", "x"));
+		ParsedTupleQuery query = SPARQLUtil.getSelectQuery(
+				"SELECT ?s ?x WHERE { ?s <http://ajan.test/q> ?o . BIND(STR(?o) AS ?x) }", vars);
+		List<BindingSet> bindings = SPARQLUtil.queryModel(model, query);
+		assertEquals(bindings.size(), 1, "only t:b has predicate t:q");
+		assertTrue(bindings.get(0).hasBinding("x"), "BIND-introduced variable x must be bound");
+		assertEquals(bindings.get(0).getValue("x").stringValue(), "literal", "?x must carry the bound STR(?o) value");
+	}
+
+	// NOTE (fix round 1, finding 2 follow-up -- see fix report for the full
+	// analysis): getDescribeQuery no longer interpolates resource.stringValue()
+	// into query text, so this no longer embeds a bare BNode id as an invalid
+	// "<id>" relative IRI (the superseded string-based implementation did).
+	// But queryModel(Model, ParsedGraphQuery) still renders the algebra back to
+	// SPARQL text to evaluate it (SailQueryPreparer no longer exists), and
+	// SPARQL text has no syntax to address one specific pre-existing blank
+	// node from a FILTER -- "_:label" in query text is a fresh, query-scoped
+	// variable, never a reference to an existing blank node in the data. This
+	// is a structural consequence of SailQueryPreparer's removal, independent
+	// of getDescribeQuery's construction method (the pre-refactor
+	// QueryBuilderFactory-based algebra renders to the identical unparseable
+	// text). Net effect vs. the superseded implementation: a loud, correct
+	// MalformedQueryException instead of a silent bogus-IRI match -- an
+	// improvement, but not full parity with the pre-refactor behaviour.
+	@Test(expectedExceptions = org.eclipse.rdf4j.query.MalformedQueryException.class)
+	public void describeQueryForBlankNodeResourceFailsLoudRatherThanMatchingAnInvalidRelativeIri() throws IOException {
+		String bnodeData =
+				"@prefix t: <http://ajan.test/> .\n"
+				+ "t:d t:s _:bn1 .\n"
+				+ "_:bn1 t:t t:e .\n";
+		Model model = SPARQLUtil.createModel(bnodeData, RDFFormat.TURTLE);
+		IRI d = VF.createIRI("http://ajan.test/d");
+		IRI s = VF.createIRI("http://ajan.test/s");
+		Statement dToBnode = model.filter(d, s, null).iterator().next();
+		Resource bnode = (Resource) dToBnode.getObject();
+		assertTrue(bnode.isBNode(), "test data must contain a blank node object");
+		ParsedGraphQuery query = SPARQLUtil.getDescribeQuery(Arrays.<Resource>asList(bnode).iterator());
+		SPARQLUtil.queryModel(model, query);
 	}
 }

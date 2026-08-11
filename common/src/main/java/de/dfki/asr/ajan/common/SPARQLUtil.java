@@ -44,8 +44,18 @@ import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.query.algebra.Filter;
+import org.eclipse.rdf4j.query.algebra.MultiProjection;
+import org.eclipse.rdf4j.query.algebra.Or;
+import org.eclipse.rdf4j.query.algebra.ProjectionElem;
+import org.eclipse.rdf4j.query.algebra.ProjectionElemList;
+import org.eclipse.rdf4j.query.algebra.SameTerm;
+import org.eclipse.rdf4j.query.algebra.StatementPattern;
 import org.eclipse.rdf4j.query.algebra.TupleExpr;
 import org.eclipse.rdf4j.query.algebra.UpdateExpr;
+import org.eclipse.rdf4j.query.algebra.ValueConstant;
+import org.eclipse.rdf4j.query.algebra.ValueExpr;
+import org.eclipse.rdf4j.query.algebra.Var;
 import org.eclipse.rdf4j.query.parser.ParsedGraphQuery;
 import org.eclipse.rdf4j.query.parser.ParsedQuery;
 import org.eclipse.rdf4j.query.parser.ParsedTupleQuery;
@@ -111,9 +121,14 @@ public final class SPARQLUtil {
 		Model resultModel;
 		try (SailRepositoryConnection conn = repo.getConnection()) {
 			conn.begin();
-			// RDF4J 5 hat den bisherigen Sail-Query-Preparer entfernt; die Query
-			// wird deshalb gerendert und ueber die Connection vorbereitet
-			// (derselbe Weg wie in queryRepository(Repository, ParsedQuery)).
+			// RDF4J 5 hat org.eclipse.rdf4j.repository.sail.SailQueryPreparer
+			// entfernt; die Query wird deshalb gerendert und ueber die
+			// Connection vorbereitet (derselbe Weg wie in
+			// queryRepository(Repository, ParsedQuery)). Diese Query stammt
+			// ausschliesslich aus getDescribeQuery(...), deren Rendering
+			// byte-identisch zur alten QueryBuilderFactory-Ausgabe ist (siehe
+			// SPARQLUtilQueryTest) -- anders als der ParsedTupleQuery-Zweig ist
+			// dieser Render-Weg daher unveraendert sicher.
 			GraphQuery graphQuery = conn.prepareGraphQuery(renderQuery(query));
 			GraphQueryResult results = graphQuery.evaluate();
 			resultModel = QueryResults.asModel(results);
@@ -128,7 +143,15 @@ public final class SPARQLUtil {
 		List<BindingSet> resultModel;
 		try (SailRepositoryConnection conn = repo.getConnection()) {
 			conn.begin();
-			TupleQuery tupleQuery = conn.prepareTupleQuery(renderQuery(query));
+			// SPARQLQueryRenderer (used by renderQuery) does not round-trip the
+			// full SPARQL grammar (e.g. BIND, aggregates, FILTER (NOT) EXISTS
+			// are lost or fail to re-parse). Prefer the original query text
+			// (preserved via getSourceString() since getSelectQuery(String, ...)
+			// now keeps it) and only fall back to rendering the algebra when no
+			// source text is available, e.g. for a ParsedTupleQuery built
+			// directly from a TupleExpr.
+			String queryString = query.getSourceString() == null ? renderQuery(query) : query.getSourceString();
+			TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
 			TupleQueryResult results = tupleQuery.evaluate();
 			resultModel = getBindingSetList(results);
 			conn.commit();
@@ -239,9 +262,15 @@ public final class SPARQLUtil {
 		return new SPARQLQueryRenderer().render(query);
 	}
 
+	@SuppressWarnings("PMD.UnusedFormalParameter")
 	public static ParsedTupleQuery getSelectQuery(final String query, final List<String> varNames) {
 		TupleExpr tupleExpr = getTupleExpr(query);
-		return getSelectQuery(tupleExpr, varNames);
+		// Source text is kept on the ParsedTupleQuery (both the (String, TupleExpr)
+		// constructor and getSourceString() exist under RDF4J 3.6.3 and 5.3.1) so
+		// queryModel(Model, ParsedTupleQuery) can reuse the original SPARQL instead
+		// of reconstructing it via SPARQLQueryRenderer, which is a lossy round-trip
+		// for constructs like BIND, aggregates and FILTER (NOT) EXISTS.
+		return new ParsedTupleQuery(query, tupleExpr);
 	}
 
 	@SuppressWarnings("PMD.UnusedFormalParameter")
@@ -254,25 +283,44 @@ public final class SPARQLUtil {
 	}
 
 	public static ParsedGraphQuery getDescribeQuery(final Iterator<Resource> resourceIterator) {
-		// Frueher ueber QueryBuilderFactory.construct(); das Query-Builder-Paket
-		// existiert in RDF4J 5 nicht mehr. Erzeugt wird dieselbe CONSTRUCT-Query
-		// wie bisher.
-		StringBuilder query = new StringBuilder(256);
-		query.append("CONSTRUCT { ?descr_subj ?descr_pred ?descr_obj } "
-				+ "WHERE { ?descr_subj ?descr_pred ?descr_obj . FILTER ( ");
-		boolean first = true;
-		while (resourceIterator.hasNext()) {
-			Resource resource = resourceIterator.next();
-			if (!first) {
-				query.append(" || ");
-			}
-			first = false;
-			String value = "<" + resource.stringValue() + ">";
-			query.append("sameTerm(").append(value).append(", ?descr_subj) || sameTerm(")
-				.append(value).append(", ?descr_obj)");
+		// Frueher ueber QueryBuilderFactory.construct(); org.eclipse.rdf4j.
+		// queryrender.builder existiert in RDF4J 5 nicht mehr, die Algebra-
+		// Klassen darunter (Filter, MultiProjection, Or, SameTerm,
+		// ValueConstant, Var, ...) aber schon. Der Baum wird deshalb direkt
+		// aus diesen Klassen gebaut statt als SPARQL-Text zu interpolieren:
+		// Ressourcen fliessen als ValueConstant in die Algebra und werden nie
+		// zu Text, was Injection ausschliesst und die BNode-Semantik erhaelt
+		// (SameTerm vergleicht den Wert selbst, nicht dessen stringValue()).
+		// Die erzeugte Struktur ist byte-identisch zur alten
+		// QueryBuilderFactory-Ausgabe fuer ein und zwei Ressourcen sowie fuer
+		// einen BNode (siehe SPARQLUtilQueryTest und Task-3-Fix-Report).
+		String subjVar = "descr_subj";
+		String predVar = "descr_pred";
+		String objVar = "descr_obj";
+		StatementPattern pattern = new StatementPattern(new Var(subjVar), new Var(predVar), new Var(objVar));
+		Filter filter = new Filter(pattern, getDescribeFilter(resourceIterator, subjVar, objVar));
+		ProjectionElemList projectionElems = new ProjectionElemList();
+		projectionElems.addElement(new ProjectionElem(subjVar, "subject"));
+		projectionElems.addElement(new ProjectionElem(predVar, "predicate"));
+		projectionElems.addElement(new ProjectionElem(objVar, "object"));
+		MultiProjection projection = new MultiProjection();
+		projection.addProjection(projectionElems);
+		projection.setArg(filter);
+		return new ParsedGraphQuery(projection);
+	}
+
+	private static ValueExpr getDescribeFilter(final Iterator<Resource> resourceIterator, final String subjVar, final String objVar) {
+		Resource resource = resourceIterator.next();
+		if (resourceIterator.hasNext()) {
+			return new Or(getSameTerm(resource, subjVar),
+					new Or(getSameTerm(resource, objVar), getDescribeFilter(resourceIterator, subjVar, objVar)));
+		} else {
+			return new Or(getSameTerm(resource, subjVar), getSameTerm(resource, objVar));
 		}
-		query.append(" ) }");
-		return (ParsedGraphQuery) new SPARQLParser().parseQuery(query.toString(), null);
+	}
+
+	private static ValueExpr getSameTerm(final Resource resource, final String var) {
+		return new SameTerm(new ValueConstant(resource), new Var(var));
 	}
 
 	public static String queryNamedGraph(final String graphName) {
