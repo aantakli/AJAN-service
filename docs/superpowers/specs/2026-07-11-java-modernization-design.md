@@ -73,7 +73,7 @@ Ergebnisse und Belege: `docs/superpowers/specs/2026-07-11-spike-results.md`, Abs
 
 ### Etappe 3 — Triplestore-Neubau **inkl. RDF4J-Client-Umstieg** (eigenständig; vorregistrierte Regel bewusst überschrieben) — **abgeschlossen**
 
-**Abgeschlossen** (Plan `docs/superpowers/plans/2026-08-11-modernization-plan-2-etappe-3.md`, Tasks 1–6): `mvn install` grün über 21/21 Module, E2E-Suite grün 16/16 (CI-Lauf [31506406844](https://github.com/aantakli/AJAN-service/actions/runs/31506406844)). Details, Belege und der volle Task-für-Task-Verlauf im Ledger: `.superpowers/sdd/progress.md`, Abschnitt „ETAPPE 3 (Triplestore-Neubau + RDF4J-5-Client)".
+**Abgeschlossen** (Plan `docs/superpowers/plans/2026-08-11-modernization-plan-2-etappe-3.md`, Tasks 1–7): `mvn install` grün über 21/21 Module, E2E-Suite grün 16/16 (CI-Lauf [31506406844](https://github.com/aantakli/AJAN-service/actions/runs/31506406844)). Details, Belege und der volle Task-für-Task-Verlauf im Ledger: `.superpowers/sdd/progress.md`, Abschnitt „ETAPPE 3 (Triplestore-Neubau + RDF4J-5-Client)".
 
 **Regel-Override, ausdrücklich bestätigt.** Für den Fall „Spike A rot" war oben und in Risiko 3 vorregistriert: *der Triplestore-Neubau wandert in den Kern-Sprung (Etappe 4)*. Spike A ist rot — und diese Regel wird trotzdem **nicht** angewendet, sondern bewusst überschrieben: Etappe 3 bleibt eigenständig und wird stattdessen um den Client-Umstieg erweitert. **Der Auftraggeber hat den Override am 2026-07-31 ausdrücklich bestätigt** (Option „Etappe 3 erweitern").
 

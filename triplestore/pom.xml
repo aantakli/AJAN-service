@@ -40,6 +40,25 @@
     </dependencies>
 
     <build>
+        <!-- src/main/resources bleibt Maven-Default (derzeit leer); zusaetzlich
+             wird das frueher vom retired tomcat8-maven-plugin als globale
+             conf/web.xml verwendete CorsFilter-Registrierung gebuendelt, damit
+             TriplestoreLauncher sie zur Laufzeit extrahieren und beiden
+             Kontexten geben kann (Parity mit dem alten war-exec-Runner). Der
+             Filter ist deny-all per Default (kein cors.allowed.origins in
+             dieser Datei, nie war eines gesetzt); diese Ressource stellt das
+             historische Ablehnungsverhalten wieder her, keine permissive
+             CORS-Freigabe. Datei bleibt dadurch keine tote/unreferenzierte
+             Ressource mehr. -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/tomcatconf</directory>
+                <targetPath>conf</targetPath>
+            </resource>
+        </resources>
         <plugins>
             <!-- Die beiden WARs werden NICHT als <dependency> deklariert (sie
                  gehoeren nicht auf den Compile-Classpath), sondern als

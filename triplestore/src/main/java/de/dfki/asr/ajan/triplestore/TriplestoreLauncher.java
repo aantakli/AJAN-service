@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.startup.ContextConfig;
 import org.apache.catalina.startup.Tomcat;
 
 /**
@@ -43,6 +44,7 @@ public final class TriplestoreLauncher {
     private static final int DEFAULT_PORT = 8080;
     private static final String PORT_OPTION = "httpPort";
     private static final String EXTRACT_DIR = ".extract";
+    private static final String DEFAULT_WEB_XML_RESOURCE = "conf/web.xml";
 
     private TriplestoreLauncher() { }
 
@@ -53,6 +55,29 @@ public final class TriplestoreLauncher {
 
         Path serverWar = extract("webapps/rdf4j.war", base.resolve("rdf4j.war"));
         Path workbenchWar = extract("webapps/workbench.war", base.resolve("workbench.war"));
+        // Frueher lieferte tomcat8-maven-plugin (exec-war-only) genau diese
+        // Datei als globale conf/web.xml aus und wandte sie via ContextConfig
+        // auf JEDEN deployten Kontext an (siehe triplestore/src/main/tomcatconf
+        // /web.xml). Tomcat.addWebapp(String, String) kennt kein globales
+        // conf/web.xml, nur programmatische Defaults (Default-/JSP-Servlet,
+        // Mime-Mappings, Welcome-Files) -- der darin registrierte CorsFilter
+        // fehlt dadurch ersatzlos. Extrahieren und pro Kontext ueber einen
+        // eigenen ContextConfig#setDefaultWebXml wieder anwenden stellt exakt
+        // dieselbe Wirkung her, die der alte Runner fuer jeden Kontext hatte.
+        //
+        // WICHTIG zur Wirkung: org.apache.catalina.filters.CorsFilter ist
+        // "deny-all by default" (DEFAULT_ALLOWED_ORIGINS = "", Tomcat-eigene
+        // Quelle) -- diese Datei hat seit dem allerersten Commit dieses Repos
+        // nie ein cors.allowed.origins-init-param gesetzt. Diese Restaurierung
+        // stellt also genau das historische Verhalten wieder her: ein
+        // aktiver Cross-Origin-Request bekommt 403 vom Filter, statt (wie
+        // ohne diese Datei) klanglos durchzugehen und erst clientseitig vom
+        // Browser mangels Access-Control-Allow-Origin blockiert zu werden.
+        // Das ist KEINE Wiederherstellung von permissivem CORS -- wer echte
+        // Browser-Clients direkt gegen :8090 erlauben will, muss
+        // cors.allowed.origins bewusst und separat setzen (Produktentscheidung,
+        // nicht Teil dieser Migrations-Etappe).
+        Path defaultWebXml = extract(DEFAULT_WEB_XML_RESOURCE, base.resolve("conf").resolve("web.xml"));
 
         Tomcat tomcat = new Tomcat();
         tomcat.setBaseDir(base.toString());
@@ -66,9 +91,17 @@ public final class TriplestoreLauncher {
         // aus dem appBase-Verzeichnis aufsammeln.
         tomcat.getHost().setDeployOnStartup(false);
         tomcat.getHost().setAutoDeploy(false);
+        // Tomcat.addWebapp(Host, String, String, LifecycleListener) wuerde,
+        // solange addDefaultWebXmlToWebapp (Default: true) aktiv bleibt, jeden
+        // an "config" uebergebenen ContextConfig per
+        // ContextConfig#setDefaultWebXml(noDefaultWebXmlPath()) wieder auf
+        // "kein globales web.xml" zuruecksetzen (siehe
+        // Tomcat.addWebapp-Quelle) -- deaktivieren, damit unser
+        // setDefaultWebXml(defaultWebXml) unten tatsaechlich wirkt.
+        tomcat.setAddDefaultWebXmlToWebapp(false);
 
-        tomcat.addWebapp("/rdf4j", serverWar.toString());
-        tomcat.addWebapp("/workbench", workbenchWar.toString());
+        tomcat.addWebapp(tomcat.getHost(), "/rdf4j", serverWar.toString(), newContextConfig(defaultWebXml));
+        tomcat.addWebapp(tomcat.getHost(), "/workbench", workbenchWar.toString(), newContextConfig(defaultWebXml));
 
         tomcat.start();
         // Parity mit der TomcatShutdownHook, die der frueher genutzte
@@ -113,16 +146,32 @@ public final class TriplestoreLauncher {
     }
 
     /**
-     * Entpackt ein WAR aus dem Fat-JAR neben den Tomcat-Basedir. Idempotent:
-     * bei gleicher Groesse wird nicht erneut geschrieben, damit wiederholte
-     * Starts (E2E-Suite startet das System pro IT-Klasse neu) nicht jedes Mal
-     * ueber 100 MB kopieren.
+     * Baut einen {@link ContextConfig} auf, der Tomcat statt der (deaktivierten,
+     * s. {@code setAddDefaultWebXmlToWebapp(false)} in {@link #main}) internen
+     * programmatischen Defaults die extrahierte globale {@code conf/web.xml}
+     * geben laesst -- inklusive des darin registrierten CorsFilter auf
+     * {@code /*}. Jeder Kontext braucht seine eigene Instanz; ein geteilter
+     * ContextConfig ist nicht wiederverwendbar (Lifecycle-Listener-Bindung an
+     * genau einen Context).
+     */
+    private static ContextConfig newContextConfig(final Path defaultWebXml) {
+        ContextConfig config = new ContextConfig();
+        config.setDefaultWebXml(defaultWebXml.toString());
+        return config;
+    }
+
+    /**
+     * Entpackt eine Ressource (WAR oder die globale conf/web.xml) aus dem
+     * Fat-JAR neben die Tomcat-Basedir. Idempotent: bei gleicher Groesse wird
+     * nicht erneut geschrieben, damit wiederholte Starts (E2E-Suite startet
+     * das System pro IT-Klasse neu) nicht jedes Mal ueber 100 MB kopieren.
      */
     private static Path extract(final String resource, final Path target) throws IOException {
         try (InputStream in = TriplestoreLauncher.class.getClassLoader().getResourceAsStream(resource)) {
             if (in == null) {
                 throw new IllegalStateException("bundled webapp missing from jar: " + resource);
             }
+            Files.createDirectories(target.getParent());
             if (Files.exists(target)) {
                 long bundled = countBytes(resource);
                 if (Files.size(target) == bundled) {
