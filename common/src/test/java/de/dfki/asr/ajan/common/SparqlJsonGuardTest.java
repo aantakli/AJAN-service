@@ -58,17 +58,34 @@ public class SparqlJsonGuardTest {
 	private static final List<String> MODULES = Arrays.asList(
 			"common", "behaviour", "functions", "executionservice", "pluginsystem");
 
+	// Positive control: an empty `hits` list is ambiguous on its own - it is
+	// produced both by a genuine clean scan AND by a scan that silently found
+	// nothing to look at (wrong ajan.root, every module directory missing, the
+	// file filter matching zero files). Only a scanned-file count clears that
+	// ambiguity. The five guarded modules' src/main/java trees hold roughly 490
+	// .java files as of this writing; 100 is comfortably below that, tolerant of
+	// normal churn, but still fails hard on a collapse to zero or to a single
+	// stray directory.
+	private static final int MIN_SCANNED_FILES = 100;
+
 	@Test
 	public void noProductionCodeRequestsSparqlResultsJson() throws IOException {
 		Path root = Paths.get(System.getProperty("ajan.root", "..")).toAbsolutePath().normalize();
 		List<String> hits = new ArrayList<>();
+		int scanned = 0;
 		for (String module: MODULES) {
 			Path moduleDir = root.resolve(module);
 			if (!Files.isDirectory(moduleDir)) {
 				continue;
 			}
-			collectHits(moduleDir, hits);
+			scanned += collectHits(moduleDir, hits);
 		}
+		assertTrue(scanned >= MIN_SCANNED_FILES,
+				"Guard scanned only " + scanned + " .java file(s) under " + root
+				+ " (expected at least " + MIN_SCANNED_FILES + "). The scan found essentially "
+				+ "nothing, which means this test cannot tell an empty result from a broken scan "
+				+ "(wrong ajan.root, missing module directories, ...). Fix the scan before trusting "
+				+ "its verdict.");
 		assertTrue(hits.isEmpty(),
 				"SPARQL-Results-JSON is unusable under the managed Jackson 2.6.6 (see Gate E). "
 				+ "Either switch to another result format or set <jackson.version> in "
@@ -76,11 +93,13 @@ public class SparqlJsonGuardTest {
 	}
 
 	@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-	private void collectHits(final Path moduleDir, final List<String> hits) throws IOException {
+	private int collectHits(final Path moduleDir, final List<String> hits) throws IOException {
+		int scanned = 0;
 		try (Stream<Path> files = Files.walk(moduleDir)) {
 			for (Path file: (Iterable<Path>) files
 					.filter(p -> p.toString().endsWith(".java"))
 					.filter(p -> p.toString().replace('\\', '/').contains("/src/main/java/"))::iterator) {
+				scanned++;
 				String content = new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
 				for (String token: FORBIDDEN) {
 					if (content.contains(token)) {
@@ -89,5 +108,6 @@ public class SparqlJsonGuardTest {
 				}
 			}
 		}
+		return scanned;
 	}
 }
