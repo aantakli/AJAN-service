@@ -71,6 +71,19 @@ public final class TriplestoreLauncher {
         tomcat.addWebapp("/workbench", workbenchWar.toString());
 
         tomcat.start();
+        // Parity mit der TomcatShutdownHook, die der frueher genutzte
+        // tomcat-maven-plugin-Runner (Tomcat7Runner) registriert hat: ohne
+        // diesen Hook beendet SIGTERM (docker stop, supervisord, e2e
+        // Process.destroy()) die JVM ohne contextDestroyed, und RDF4J faehrt
+        // seine Repositories nie sauber herunter.
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                tomcat.stop();
+                tomcat.destroy();
+            } catch (LifecycleException e) {
+                // best effort: die JVM faehrt ohnehin gerade herunter.
+            }
+        }));
         System.out.println("AJAN triplestore started: http://localhost:" + port + "/rdf4j"
                 + " (workbench: http://localhost:" + port + "/workbench)");
         tomcat.getServer().await();

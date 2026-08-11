@@ -171,11 +171,24 @@ public final class AjanSystem implements AutoCloseable {
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, glob)) {
             stream.forEach(matches::add);
         }
-        if (matches.size() != 1) {
-            throw new IllegalStateException("Expected exactly one artifact matching '" + glob + "' in " + dir
-                    + " but found " + matches.size() + ": " + matches);
+        // Transitional (delete in Etappe 5): working trees built before Etappe 3
+        // may still carry the legacy tomcat8-maven-plugin exec-war artifact
+        // (triplestore-0.1-war-exec.jar), which also matches "triplestore-*.jar".
+        // Skip it by name here rather than narrowing the glob itself - Etappe 0
+        // deliberately replaced hard-pinned "-0.1.jar" paths with globs so a
+        // version bump wouldn't break this suite, and a legacy-file check keeps
+        // that property.
+        List<Path> eligible = new ArrayList<>();
+        for (Path match : matches) {
+            if (!match.getFileName().toString().contains("-war-exec")) {
+                eligible.add(match);
+            }
         }
-        return matches.get(0);
+        if (eligible.size() != 1) {
+            throw new IllegalStateException("Expected exactly one artifact matching '" + glob + "' in " + dir
+                    + " but found " + eligible.size() + ": " + eligible);
+        }
+        return eligible.get(0);
     }
 
     public String triplestoreUrl() {
