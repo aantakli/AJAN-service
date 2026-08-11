@@ -281,7 +281,7 @@ public class InversionsClass2Test extends RDFBeansTestBase {
     	// Reinstantiate the RDFBeanManager to get rid of the objects cache
     	manager = new RDFBeanManager(manager.getRepositoryConnection());
     	
-    	CloseableIteration<Child, Exception> childIter = manager.getAll(Child.class);
+    	CloseableIteration<Child> childIter = manager.getAll(Child.class);
     	while (childIter.hasNext()) {
     		Parent p = childIter.next().getParent();
     		assertNull(p);

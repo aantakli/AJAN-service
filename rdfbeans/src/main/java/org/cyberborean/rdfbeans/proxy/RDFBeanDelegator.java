@@ -21,7 +21,7 @@ import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanValidationException;
 import org.cyberborean.rdfbeans.reflect.RDFBeanInfo;
 import org.cyberborean.rdfbeans.reflect.RDFProperty;
-import org.eclipse.rdf4j.RDF4JException;
+import org.eclipse.rdf4j.common.exception.RDF4JException;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
@@ -178,7 +178,7 @@ public class RDFBeanDelegator implements InvocationHandler {
 	})
 	private Object getValue(RDFProperty p) throws RDFBeanException, RepositoryException, RDF4JException {
 		Object result = null;
-		CloseableIteration<Statement, ? extends RDF4JException> sts;
+		CloseableIteration<Statement> sts;
 		if (p.isInversionOfProperty()) {
 			sts = conn.getStatements(null, p.getUri(), subject, false);
 			if (!sts.hasNext()) {

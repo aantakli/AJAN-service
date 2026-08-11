@@ -72,7 +72,11 @@ MA 02110-1301  USA
 	</issueManagement>
 
 	<properties>
-		<rdf4j.version>2.0M1</rdf4j.version>
+		<rdf4j.version>5.3.1</rdf4j.version>
+		<!-- Eigene Property, weil rdfbeans (gevendort) keinen Parent hat.
+		     Muss mit ${org.eclipse.rdf4j.version} im Reaktor-Parent
+		     uebereinstimmen; die Zusammenfuehrung beider Quellen ist als
+		     Aufraeumarbeit fuer Etappe 4 vorgemerkt. -->
 		<slf4j.version>1.7.9</slf4j.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.release>11</maven.compiler.release>

@@ -56,7 +56,7 @@ public class MultipleTypeTest {
 	@Before
 	public void setupManager() throws Exception {
 		repo = new SailRepository(new MemoryStore());
-		repo.initialize();
+		repo.init();
 		RepositoryConnection initialFillConn = repo.getConnection();
 		initialFillConn.add(getClass().getResourceAsStream("listUnmarshal.ttl"), "", RDFFormat.TURTLE);
 		initialFillConn.close();

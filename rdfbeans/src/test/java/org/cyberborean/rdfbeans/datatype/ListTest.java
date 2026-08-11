@@ -26,7 +26,7 @@ import org.cyberborean.rdfbeans.test.entities.DatatypeTestClass;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.eclipse.rdf4j.RDF4JException;
+import org.eclipse.rdf4j.common.exception.RDF4JException;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
@@ -55,7 +55,7 @@ public class ListTest {
     @Before
     public void setupManager() throws Exception {
         repo = new SailRepository(new MemoryStore());
-        repo.initialize();
+        repo.init();
         RepositoryConnection initialFillConn = repo.getConnection();
         initialFillConn.add(getClass().getResourceAsStream("listUnmarshal.ttl"), "", RDFFormat.TURTLE);
         initialFillConn.close();

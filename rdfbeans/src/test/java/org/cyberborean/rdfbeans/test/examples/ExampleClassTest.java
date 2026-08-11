@@ -108,7 +108,7 @@ public class ExampleClassTest extends RDFBeansTestBase {
     
     @Test
     public void testGetAll() throws Exception {                
-        CloseableIteration<Person, Exception> iter = manager.getAll(Person.class);
+        CloseableIteration<Person> iter = manager.getAll(Person.class);
         Set<Person> s = new HashSet<>();
         while (iter.hasNext()) {
             Object o = iter.next();

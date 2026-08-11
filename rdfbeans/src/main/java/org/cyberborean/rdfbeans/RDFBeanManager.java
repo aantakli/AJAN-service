@@ -28,7 +28,7 @@ import org.cyberborean.rdfbeans.proxy.ProxyListener;
 import org.cyberborean.rdfbeans.reflect.RDFBeanInfo;
 import org.cyberborean.rdfbeans.reflect.RDFProperty;
 import org.cyberborean.rdfbeans.reflect.SubjectProperty;
-import org.eclipse.rdf4j.RDF4JException;
+import org.eclipse.rdf4j.common.exception.RDF4JException;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
@@ -85,8 +85,8 @@ import org.eclipse.rdf4j.common.iteration.CloseableIteration;
  * import org.openrdf.sail.nativerdf.NativeStore; 
  * ...
  * 
- * Repository repository = new SailRepository(new NativeStore(new File("~/.sesame/test"))); 
- * repository.initialize(); 
+ * Repository repository = new SailRepository(new NativeStore(new File("~/.sesame/test")));
+ * repository.init();
  * Model model = new RepositoryModel(repository); 
  * model.open(); 
  * RDFBeanManager manager = new RDFBeanManager(model); 
@@ -311,55 +311,63 @@ public class RDFBeanManager {
 	 *             If the class is not a valid RDFBean
 	 * @throws RepositoryException 
 	 */
-	public <T> CloseableIteration<T, Exception> getAll(final Class<T> rdfBeanClass)
+	public <T> CloseableIteration<T> getAll(final Class<T> rdfBeanClass)
 			throws RDFBeanException, RepositoryException {
 		RDFBeanInfo rbi = RDFBeanInfo.get(rdfBeanClass);
 		IRI type = rbi.getRDFType();
 		if (type == null) {
-			return new CloseableIteration<T, Exception>() {
+			return new CloseableIteration<T>() {
 
 				@Override
-				public boolean hasNext() throws Exception {
+				public boolean hasNext() {
 					return false;
 				}
 
 				@Override
-				public T next() throws Exception {
+				public T next() {
 					return null;
 				}
 
 				@Override
-				public void remove() throws Exception {
+				public void remove() {
 					throw new UnsupportedOperationException();
 				}
 
 				@Override
-				public void close() throws Exception {}
-				
+				public void close() {}
+
 			};
-		}		
-		
-		final CloseableIteration<Statement, RepositoryException> sts = conn.getStatements(null, RDF.TYPE, type, false);
-		
-		return new CloseableIteration<T, Exception>() {
+		}
+
+		final CloseableIteration<Statement> sts = conn.getStatements(null, RDF.TYPE, type, false);
+
+		return new CloseableIteration<T>() {
 
 			@Override
-			public boolean hasNext() throws Exception {
+			public boolean hasNext() {
 				return sts.hasNext();
 			}
 
 			@Override
-			public T next() throws Exception {
-				return _get(sts.next().getSubject(), rdfBeanClass);
+			public T next() {
+				try {
+					return _get(sts.next().getSubject(), rdfBeanClass);
+				} catch (RDFBeanException ex) {
+					// java.util.Iterator#next() declares no checked exceptions (CloseableIteration
+					// extends Iterator as of RDF4J 5), so the checked RDFBeanException from _get()
+					// must be wrapped to cross this boundary. Forced by the RDF4J 5 API change,
+					// not present in the pre-migration code.
+					throw new RuntimeException(ex);
+				}
 			}
 
 			@Override
-			public void remove() throws Exception {
+			public void remove() {
 				throw new UnsupportedOperationException();
 			}
 
 			@Override
-			public void close() throws Exception {
+			public void close() {
 				sts.close();
 			}
 		};
@@ -695,7 +703,7 @@ public class RDFBeanManager {
 
 	private Class<?> getBindingClass(Resource r) throws RDFBeanException, RepositoryException {		
 		Class<?> cls = null;
-		try (CloseableIteration<Statement, RepositoryException> ts =
+		try (CloseableIteration<Statement> ts =
 				conn.getStatements(r, RDF.TYPE, null, false)) {
 			while (cls == null && ts.hasNext()) {
 				Value type = ts.next().getObject();
@@ -779,7 +787,7 @@ public class RDFBeanManager {
 		for (RDFProperty p : rbi.getProperties()) {
 			// Get values
 			IRI predicate = p.getUri();
-			CloseableIteration<Statement, ? extends RDF4JException> statements;
+			CloseableIteration<Statement> statements;
 			if (p.isInversionOfProperty()) {				
 				statements = conn.getStatements(null, predicate, resource, false);
 				if (!statements.hasNext()) {
