@@ -22,6 +22,21 @@
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- Variante B1 (Fix-Runde 1, Step 5 des Briefs): erste Stufe des minimalen
+         Override-Sets, einzeln zugeschaltet, s. Gate E in spike-results.md.
+         ABWEICHUNG vom Brief-Wert 2.21.0 (unrelated-to-the-version-question-Fall,
+         s. Aufgabenstellung Punkt 5): com.fasterxml.jackson.core:jackson-annotations
+         hat auf Maven Central KEIN 2.21.0-Release, nur "2.21" (ohne Patch-Ziffer),
+         waehrend jackson-core/jackson-databind nur als "2.21.0" existieren (verifiziert
+         per `mvn dependency:get` fuer alle drei Artefakte an beiden Versionsstrings).
+         Boot 1.3.5 wendet EINE `jackson.version`-Property einheitlich auf core,
+         databind UND annotations an (spring-boot-dependencies-1.3.5.RELEASE.pom,
+         Zeilen 524-536), also ein Wert, der alle drei gleichzeitig aufloest, existiert
+         in der 2.21-Linie nicht. 2.19.4 ist die naechstniedrigere Version, unter der
+         jackson-core, jackson-databind UND jackson-annotations alle unter demselben
+         Versionsstring aufloesen (verifiziert per `mvn dependency:get` fuer alle drei);
+         >= 2.10, enthaelt also JsonFactoryBuilder/StreamWriteFeature/StreamReadFeature. -->
+    <jackson.version>2.19.4</jackson.version>
   </properties>
 
   <dependencies>

@@ -1,0 +1,38 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< de.dfki.asr.ajan.spikes:rdf4j5-boot13 >----------------
+[INFO] Building rdf4j5-boot13 0.1
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:2.6:resources (default-resources) @ rdf4j5-boot13 ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory C:\Users\yanni\IdeaProjects\AJAN-service\spikes\rdf4j5-boot13\src\main\resources
+[INFO] skip non existing resourceDirectory C:\Users\yanni\IdeaProjects\AJAN-service\spikes\rdf4j5-boot13\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.1:compile (default-compile) @ rdf4j5-boot13 ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- exec:3.2.0:java (default-cli) @ rdf4j5-boot13 ---
+jackson-databind : file:/C:/Users/yanni/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.19.4/jackson-databind-2.19.4.jar
+jackson-core 2.10+ marker (JsonFactoryBuilder): file:/C:/Users/yanni/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.19.4/jackson-core-2.19.4.jar
+httpclient       : file:/C:/Users/yanni/.m2/repository/org/apache/httpcomponents/httpclient/4.5.2/httpclient-4.5.2.jar
+slf4j-api        : file:/C:/Users/yanni/.m2/repository/org/slf4j/slf4j-api/1.7.21/slf4j-api-1.7.21.jar
+rdf4j-model      : file:/C:/Users/yanni/.m2/repository/org/eclipse/rdf4j/rdf4j-model/5.3.1/rdf4j-model-5.3.1.jar
+(1) RemoteRepositoryManager.init OK, repos=1
+(1b) upload OK
+(2) Repositories.graphQuery OK, statements=2
+(3) Rio round-trip OK for Turtle
+(3) Rio round-trip OK for JSON-LD
+(4) note: Default-TupleQueryResultFormat der RDF4JProtocolSession laut javap (rdf4j-http-client-5.3.1.jar, SPARQLProtocolSession-Konstruktor) = SPARQL/XML (application/sparql-results+xml); kein oeffentlicher Live-Getter ohne Reflection erreichbar.
+(4) Repositories.tupleQuery (Default-Format) OK, rows=2
+(5a) QueryResultIO.writeTuple(..., SPARQL-Results-JSON, ...) OK, bytes=747
+(5b) QueryResultIO.parseTuple(..., SPARQL-Results-JSON, ...) OK, rows=2
+GATE E: GREEN
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.450 s
+[INFO] Finished at: 2026-08-11T11:24:13+02:00
+[INFO] ------------------------------------------------------------------------
+RUN EXIT CODE: 0

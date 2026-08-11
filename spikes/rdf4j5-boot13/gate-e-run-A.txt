@@ -1,0 +1,104 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< de.dfki.asr.ajan.spikes:rdf4j5-boot13 >----------------
+[INFO] Building rdf4j5-boot13 0.1
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:2.6:resources (default-resources) @ rdf4j5-boot13 ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory C:\Users\yanni\IdeaProjects\AJAN-service\spikes\rdf4j5-boot13\src\main\resources
+[INFO] skip non existing resourceDirectory C:\Users\yanni\IdeaProjects\AJAN-service\spikes\rdf4j5-boot13\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.1:compile (default-compile) @ rdf4j5-boot13 ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 1 source file to C:\Users\yanni\IdeaProjects\AJAN-service\spikes\rdf4j5-boot13\target\classes
+[INFO] 
+[INFO] --- exec:3.2.0:java (default-cli) @ rdf4j5-boot13 ---
+jackson-databind : file:/C:/Users/yanni/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.6.6/jackson-databind-2.6.6.jar
+jackson-core 2.10+ marker (JsonFactoryBuilder): <not resolvable: java.lang.ClassNotFoundException: com.fasterxml.jackson.core.JsonFactoryBuilder>
+httpclient       : file:/C:/Users/yanni/.m2/repository/org/apache/httpcomponents/httpclient/4.5.2/httpclient-4.5.2.jar
+slf4j-api        : file:/C:/Users/yanni/.m2/repository/org/slf4j/slf4j-api/1.7.21/slf4j-api-1.7.21.jar
+rdf4j-model      : file:/C:/Users/yanni/.m2/repository/org/eclipse/rdf4j/rdf4j-model/5.3.1/rdf4j-model-5.3.1.jar
+(1) RemoteRepositoryManager.init OK, repos=0
+(1b) upload OK
+(2) Repositories.graphQuery OK, statements=2
+(3) Rio round-trip OK for Turtle
+(3) Rio round-trip OK for JSON-LD
+(4) note: Default-TupleQueryResultFormat der RDF4JProtocolSession laut javap (rdf4j-http-client-5.3.1.jar, SPARQLProtocolSession-Konstruktor) = SPARQL/XML (application/sparql-results+xml); kein oeffentlicher Live-Getter ohne Reflection erreichbar.
+(4) Repositories.tupleQuery (Default-Format) OK, rows=2
+[WARNING] 
+java.lang.NoClassDefFoundError: com/fasterxml/jackson/core/JsonFactoryBuilder
+    at org.eclipse.rdf4j.query.resultio.sparqljson.AbstractSPARQLJSONWriter.<clinit> (AbstractSPARQLJSONWriter.java:55)
+    at org.eclipse.rdf4j.query.resultio.sparqljson.SPARQLResultsJSONWriterFactory.getWriter (SPARQLResultsJSONWriterFactory.java:39)
+    at org.eclipse.rdf4j.query.resultio.QueryResultIO.createTupleWriter (QueryResultIO.java:186)
+    at org.eclipse.rdf4j.query.resultio.QueryResultIO.writeTuple (QueryResultIO.java:422)
+    at spike.Rdf4j5Boot13Check.checkForcedSparqlJson (Rdf4j5Boot13Check.java:149)
+    at spike.Rdf4j5Boot13Check.main (Rdf4j5Boot13Check.java:138)
+    at org.codehaus.mojo.exec.ExecJavaMojo.doMain (ExecJavaMojo.java:385)
+    at org.codehaus.mojo.exec.ExecJavaMojo.doExec (ExecJavaMojo.java:374)
+    at org.codehaus.mojo.exec.ExecJavaMojo.lambda$execute$0 (ExecJavaMojo.java:296)
+    at java.lang.Thread.run (Thread.java:829)
+Caused by: java.lang.ClassNotFoundException: com.fasterxml.jackson.core.JsonFactoryBuilder
+    at org.codehaus.mojo.exec.URLClassLoaderBuilder$ExecJavaClassLoader.loadClass (URLClassLoaderBuilder.java:181)
+    at java.lang.ClassLoader.loadClass (ClassLoader.java:527)
+    at org.eclipse.rdf4j.query.resultio.sparqljson.AbstractSPARQLJSONWriter.<clinit> (AbstractSPARQLJSONWriter.java:55)
+    at org.eclipse.rdf4j.query.resultio.sparqljson.SPARQLResultsJSONWriterFactory.getWriter (SPARQLResultsJSONWriterFactory.java:39)
+    at org.eclipse.rdf4j.query.resultio.QueryResultIO.createTupleWriter (QueryResultIO.java:186)
+    at org.eclipse.rdf4j.query.resultio.QueryResultIO.writeTuple (QueryResultIO.java:422)
+    at spike.Rdf4j5Boot13Check.checkForcedSparqlJson (Rdf4j5Boot13Check.java:149)
+    at spike.Rdf4j5Boot13Check.main (Rdf4j5Boot13Check.java:138)
+    at org.codehaus.mojo.exec.ExecJavaMojo.doMain (ExecJavaMojo.java:385)
+    at org.codehaus.mojo.exec.ExecJavaMojo.doExec (ExecJavaMojo.java:374)
+    at org.codehaus.mojo.exec.ExecJavaMojo.lambda$execute$0 (ExecJavaMojo.java:296)
+    at java.lang.Thread.run (Thread.java:829)
+[WARNING] thread Thread[rdf4j-SharedHttpClientSessionManager-0,5,spike.Rdf4j5Boot13Check] was interrupted but is still alive after waiting at least 15000msecs
+[WARNING] thread Thread[rdf4j-SharedHttpClientSessionManager-0,5,spike.Rdf4j5Boot13Check] will linger despite being asked to die via interruption
+[WARNING] thread Thread[rdf4j-SharedHttpClientSessionManager-1,5,spike.Rdf4j5Boot13Check] will linger despite being asked to die via interruption
+[WARNING] thread Thread[rdf4j-SharedHttpClientSessionManager-2,5,spike.Rdf4j5Boot13Check] will linger despite being asked to die via interruption
+[WARNING] NOTE: 3 thread(s) did not finish despite being asked to via interruption. This is not a problem with exec:java, it is a problem with the running code. Although not serious, it should be remedied.
+[WARNING] Couldn't destroy threadgroup org.codehaus.mojo.exec.ExecJavaMojo$IsolatedThreadGroup[name=spike.Rdf4j5Boot13Check,maxpri=10]
+java.lang.IllegalThreadStateException
+    at java.lang.ThreadGroup.destroy (ThreadGroup.java:776)
+    at org.codehaus.mojo.exec.ExecJavaMojo.execute (ExecJavaMojo.java:340)
+    at org.apache.maven.plugin.DefaultBuildPluginManager.executeMojo (DefaultBuildPluginManager.java:126)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.doExecute2 (MojoExecutor.java:328)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.doExecute (MojoExecutor.java:316)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.execute (MojoExecutor.java:212)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.execute (MojoExecutor.java:174)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.access$000 (MojoExecutor.java:75)
+    at org.apache.maven.lifecycle.internal.MojoExecutor$1.run (MojoExecutor.java:162)
+    at org.apache.maven.plugin.DefaultMojosExecutionStrategy.execute (DefaultMojosExecutionStrategy.java:39)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.execute (MojoExecutor.java:159)
+    at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject (LifecycleModuleBuilder.java:105)
+    at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject (LifecycleModuleBuilder.java:73)
+    at org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder.build (SingleThreadedBuilder.java:53)
+    at org.apache.maven.lifecycle.internal.LifecycleStarter.execute (LifecycleStarter.java:118)
+    at org.apache.maven.DefaultMaven.doExecute (DefaultMaven.java:261)
+    at org.apache.maven.DefaultMaven.doExecute (DefaultMaven.java:173)
+    at org.apache.maven.DefaultMaven.execute (DefaultMaven.java:101)
+    at org.apache.maven.cli.MavenCli.execute (MavenCli.java:919)
+    at org.apache.maven.cli.MavenCli.doMain (MavenCli.java:285)
+    at org.apache.maven.cli.MavenCli.main (MavenCli.java:207)
+    at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0 (Native Method)
+    at jdk.internal.reflect.NativeMethodAccessorImpl.invoke (NativeMethodAccessorImpl.java:62)
+    at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke (DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke (Method.java:566)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.launchEnhanced (Launcher.java:255)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.launch (Launcher.java:201)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.mainWithExitCode (Launcher.java:362)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.main (Launcher.java:314)
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  19.057 s
+[INFO] Finished at: 2026-08-11T11:20:27+02:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.codehaus.mojo:exec-maven-plugin:3.2.0:java (default-cli) on project rdf4j5-boot13: An exception occurred while executing the Java class. com/fasterxml/jackson/core/JsonFactoryBuilder: com.fasterxml.jackson.core.JsonFactoryBuilder -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
+RUN EXIT CODE: 1
