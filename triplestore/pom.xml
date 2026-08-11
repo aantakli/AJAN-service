@@ -13,13 +13,9 @@
     <!-- Embedded-Tomcat-Launcher statt tomcat8-maven-plugin (retired).
          Tomcat 9 und NICHT 10/11: die RDF4J-5-WARs sind javax.servlet
          (web-app 2.4, spring-webmvc 5.3.x, jstl 1.2) - Jakarta wuerde nicht
-         deployen. Die WAR-Version ist hier bewusst hart gepinnt, weil die
-         Parent-Property zum Zeitpunkt dieses Moduls noch auf 3.6.3 steht;
-         sie wird mit dem zentralen Bump auf ${org.eclipse.rdf4j.version}
-         umgestellt. -->
+         deployen. -->
     <properties>
         <tomcat.version>9.0.109</tomcat.version>
-        <rdf4j.server.version>5.3.1</rdf4j.server.version>
         <mainClass>de.dfki.asr.ajan.triplestore.TriplestoreLauncher</mainClass>
     </properties>
 
@@ -66,14 +62,14 @@
                                 <artifactItem>
                                     <groupId>org.eclipse.rdf4j</groupId>
                                     <artifactId>rdf4j-http-server</artifactId>
-                                    <version>${rdf4j.server.version}</version>
+                                    <version>${org.eclipse.rdf4j.version}</version>
                                     <type>war</type>
                                     <destFileName>rdf4j.war</destFileName>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.eclipse.rdf4j</groupId>
                                     <artifactId>rdf4j-http-workbench</artifactId>
-                                    <version>${rdf4j.server.version}</version>
+                                    <version>${org.eclipse.rdf4j.version}</version>
                                     <type>war</type>
                                     <destFileName>workbench.war</destFileName>
                                 </artifactItem>

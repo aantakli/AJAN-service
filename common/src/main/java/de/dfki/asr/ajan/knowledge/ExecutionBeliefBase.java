@@ -22,10 +22,8 @@ package de.dfki.asr.ajan.knowledge;
 import de.dfki.asr.ajan.common.TripleStoreManager;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
-import org.eclipse.rdf4j.sail.inferencer.fc.DedupingInferencer;
 import org.eclipse.rdf4j.sail.inferencer.fc.SchemaCachingRDFSInferencer;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
-import org.eclipse.rdf4j.sail.spin.SpinSail;
 
 public class ExecutionBeliefBase extends AbstractBeliefBase {
 	private final Repository repo;
@@ -35,18 +33,19 @@ public class ExecutionBeliefBase extends AbstractBeliefBase {
 	}
 
 	private Repository createRepository(final TripleStoreManager.Inferencing useInferencing) {
-		SpinSail spinSail;
 		switch (useInferencing) {
 			case RDFS:
 				return new SailRepository(new SchemaCachingRDFSInferencer(new MemoryStore()));
 			case SPIN:
-				spinSail = new SpinSail();
-				spinSail.setBaseSail(new MemoryStore());
-				return new SailRepository(spinSail);
 			case RDFS_SPIN:
-				spinSail = new SpinSail();
-				spinSail.setBaseSail(new SchemaCachingRDFSInferencer(new DedupingInferencer(new MemoryStore())));
-				return new SailRepository(spinSail);
+				// RDF4J hat das SPIN-Sail mit 4.0 entfernt (rdf4j-sail-spin
+				// existiert ab 4.0 nicht mehr auf Maven Central). Beide Zweige
+				// waren schon vor der Migration unerreichbar: RDFAgentBuilder
+				// und ParameterAgentBuilder setzen Inferencing.NONE hart. Der
+				// Enum-Wert bleibt erhalten, damit die Konfigurationsoberflaeche
+				// unveraendert bleibt; die Auswahl scheitert jetzt laut.
+				throw new UnsupportedOperationException(
+						"SPIN inferencing is no longer supported: RDF4J removed rdf4j-sail-spin in 4.0");
 			default:
 				return new SailRepository(new MemoryStore());
 		}

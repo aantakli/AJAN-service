@@ -32,11 +32,9 @@ import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
 import org.eclipse.rdf4j.repository.manager.RepositoryInfo;
 import org.eclipse.rdf4j.repository.sail.config.SailRepositoryConfig;
 import org.eclipse.rdf4j.sail.config.SailImplConfig;
-import org.eclipse.rdf4j.sail.inferencer.fc.config.DedupingInferencerConfig;
 import org.eclipse.rdf4j.sail.inferencer.fc.config.SchemaCachingRDFSInferencerConfig;
 import org.eclipse.rdf4j.sail.memory.config.MemoryStoreConfig;
 import org.eclipse.rdf4j.sail.nativerdf.config.NativeStoreConfig;
-import org.eclipse.rdf4j.sail.spin.config.SpinSailConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,11 +146,11 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 				createRemoteRDFSRepository(tdbId, cofig);
 				break;
 			case SPIN:
-				createRemoteSPINRepository(tdbId, cofig);
-				break;
 			case RDFS_SPIN:
-				createRemoteRDFSSPINRepository(tdbId, cofig);
-				break;
+				// s. ExecutionBeliefBase: rdf4j-sail-spin gibt es ab RDF4J 4.0
+				// nicht mehr; beide Zweige waren bereits vorher unerreichbar.
+				throw new UnsupportedOperationException(
+						"SPIN inferencing is no longer supported: RDF4J removed rdf4j-sail-spin in 4.0");
 			default:
 				createRemoteRepository(tdbId, cofig);
 				break;
@@ -167,20 +165,6 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 	private void createRemoteRDFSRepository(final String tdbId, final SailImplConfig cofig) throws RepositoryConfigException, RepositoryException {
 		SchemaCachingRDFSInferencerConfig rdfsConfig = new SchemaCachingRDFSInferencerConfig(cofig);
 		addRepositoryConfig(tdbId, new SailRepositoryConfig(rdfsConfig));
-	}
-
-	private void createRemoteSPINRepository(final String tdbId, final SailImplConfig cofig) throws RepositoryConfigException, RepositoryException {
-		SailImplConfig spinConfig = new SpinSailConfig(cofig);
-		addRepositoryConfig(tdbId, new SailRepositoryConfig(spinConfig));
-	}
-
-	private void createRemoteRDFSSPINRepository(final String tdbId, final SailImplConfig cofig) throws RepositoryConfigException, RepositoryException {
-		SailImplConfig spinSailConfig = new SpinSailConfig(
-						new SchemaCachingRDFSInferencerConfig(
-								new DedupingInferencerConfig(cofig)
-			)
-		);
-		addRepositoryConfig(tdbId, new SailRepositoryConfig(spinSailConfig));
 	}
 
 	private void addRepositoryConfig(final String tdbId, final SailRepositoryConfig repositoryTypeSpec) {

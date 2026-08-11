@@ -72,7 +72,7 @@ public class UnmarshalBehaviourTest {
 
 		@Override
 		public Repository getInitializedRepository() {
-			inMem.initialize();
+			inMem.init();
 			return inMem;
 		}
 	}

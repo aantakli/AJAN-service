@@ -39,7 +39,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import org.cyberborean.rdfbeans.RDFBeanManager;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
-import org.eclipse.rdf4j.RDF4JException;
+import org.eclipse.rdf4j.common.exception.RDF4JException;
 import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Models;
