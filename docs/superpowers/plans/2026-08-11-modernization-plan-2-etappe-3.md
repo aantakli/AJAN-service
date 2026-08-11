@@ -1226,11 +1226,12 @@ git push
 - Modify: `common/pom.xml` (`rdf4j-sail-spin` entfernen)
 - Modify: `common/src/main/java/de/dfki/asr/ajan/knowledge/ExecutionBeliefBase.java`
 - Modify: `common/src/main/java/de/dfki/asr/ajan/common/RDF4JTripleStoreManager.java` (SPIN-Zweige)
-- Modify: `executionservice/pom.xml` (Versions-Property-Overrides aus Task 1)
+- Modify: `executionservice/pom.xml` (nur ein erklärender Kommentar — **kein** Versions-Override, s. Step 5)
+- Create: `common/src/test/java/de/dfki/asr/ajan/common/SparqlJsonGuardTest.java` (Guard für die bewusste Auslassung, s. Step 5b)
 
 **Interfaces:**
-- Consumes: die in Task 1, Step 5 ermittelte minimale Override-Liste.
-- Produces: `org.eclipse.rdf4j.version=5.3.1` als einzige Quelle der Wahrheit für den Reaktor; `TripleStoreManager.Inferencing` bleibt vierwertig, die SPIN-Zweige werfen `UnsupportedOperationException`.
+- Consumes: das Gate-E-Ergebnis aus Task 1 (Auftraggeber-Entscheidung: **kein** Versions-Override, stattdessen Guard-Test).
+- Produces: `org.eclipse.rdf4j.version=5.3.1` als einzige Quelle der Wahrheit für den Reaktor; `TripleStoreManager.Inferencing` bleibt vierwertig, die SPIN-Zweige werfen `UnsupportedOperationException`; `SparqlJsonGuardTest` hält die Jackson-Auslassung build-sichtbar.
 
 - [ ] **Step 1: Zentrale Property umlegen**
 
@@ -1295,20 +1296,107 @@ Import `org.eclipse.rdf4j.sail.spin.config.SpinSailConfig` löschen. Die beiden 
 
 Anschließend prüfen, ob `SchemaCachingRDFSInferencerConfig` und `DedupingInferencerConfig` noch verwendet werden (der `RDFS`-Zweig braucht sie); nicht mehr benutzte Imports entfernen.
 
-- [ ] **Step 5: Boot-1.3-Versions-Overrides in `executionservice/pom.xml` setzen**
+- [ ] **Step 5: KEIN Jackson-Override — nur ein erklärender Kommentar**
 
-Genau die in Task 1, Step 5 als notwendig ermittelten Properties in den `<properties>`-Block von `executionservice/pom.xml` eintragen — **nicht mehr** als nötig. Beispielform (die konkreten Einträge kommen aus dem Gate-E-Ergebnis):
+**Gate-E-Ergebnis (Task 1, abgeschlossen):** Unter den Boot-1.3.5-Pins (jackson 2.6.6) laufen alle Pfade, die der Produktcode tatsächlich nimmt: Default-`SELECT` über HTTP (RDF4J verhandelt `SPARQL`/XML — empirisch belegt, nicht nur behauptet), `CONSTRUCT`/GraphQuery, JSON-LD (geht in RDF4J 5 über hasmac/JSON-P, **nicht** über Jackson) und `RemoteRepositoryManager`. Ausschließlich ein **explizit erzwungener** SPARQL-Results-JSON-Zugriff bricht: `NoClassDefFoundError: com/fasterxml/jackson/core/JsonFactoryBuilder` in `AbstractSPARQLJSONWriter.<clinit>` (die Typen `JsonFactoryBuilder`/`StreamReadFeature`/`StreamWriteFeature` gibt es erst ab Jackson 2.10). Der Produktcode fordert dieses Format nirgends an.
+
+**Auftraggeber-Entscheidung 2026-08-11: kein Override, dafür ein Guard.** In `executionservice/pom.xml` wird **kein** `<jackson.version>` gesetzt (und erst recht kein `httpclient.version`/`slf4j.version`). Boot 1.3.5 behält seinen erprobten Jackson-2.6.6-Stack, Spring 4.2.6 läuft weiter gegen die Jackson-Linie, gegen die es gebaut wurde, und Etappe 3 bleibt ein reiner RDF4J-Wechsel — genau die Isolierung, für die die Etappe existiert. Mit dem Boot-4-Sprung in Etappe 4 erledigt sich die Frage ohnehin.
+
+Nur diesen Kommentar in den `<properties>`-Block von `executionservice/pom.xml` setzen, damit die Frage in Etappe 4 nicht erneut aufgeworfen wird:
 
 ```xml
-    <!-- spring-boot-dependencies:1.3.5 verwaltet jackson 2.6.6 / httpclient
-         4.5.2 / slf4j 1.7.21 und wuerde die transitiven Versionen von RDF4J
-         5.3.1 herunterziehen. Belegt in Gate E (docs/superpowers/specs/
-         2026-07-11-spike-results.md); nur die dort als noetig nachgewiesenen
-         Overrides sind gesetzt. -->
-    <jackson.version>2.21.0</jackson.version>
+    <!-- BEWUSST KEIN <jackson.version>-Override, obwohl spring-boot-dependencies:1.3.5
+         jackson auf 2.6.6 pinnt und RDF4J 5.3.1 gegen die 2.21-Linie gebaut ist
+         (Gate E in docs/superpowers/specs/2026-07-11-spike-results.md,
+         Auftraggeber-Entscheidung 2026-08-11). Alle vom Produkt genutzten RDF4J-Pfade
+         tragen unter 2.6.6; nur SPARQL-Results-JSON braucht Jackson >= 2.10, und dieses
+         Format fordert der Produktcode nirgends an. Abgesichert durch SparqlJsonGuardTest
+         in common. Der Boot-4-Sprung in Etappe 4 erledigt die Frage ohnehin. -->
 ```
 
-War Gate E ohne Overrides grün, entfällt dieser Step vollständig — dann stattdessen einen Kommentar mit dem Verweis auf Gate E setzen, damit die Frage nicht in Etappe 4 erneut aufgeworfen wird.
+- [ ] **Step 5b: Guard-Test in `common` anlegen**
+
+Der Guard macht die Annahme aus Step 5 **build-sichtbar**: Fordert Produktcode künftig SPARQL-Results-JSON an, schlägt der Build fehl statt erst die Laufzeit. Neue Datei `common/src/test/java/de/dfki/asr/ajan/common/SparqlJsonGuardTest.java` (LGPL-Lizenzheader wie in `SPARQLUtil.java` voranstellen):
+
+```java
+package de.dfki.asr.ajan.common;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+import static org.testng.Assert.assertTrue;
+import org.testng.annotations.Test;
+
+/**
+ * Guard fuer eine bewusste Auslassung, kein Verhaltenstest.
+ *
+ * Etappe 3 setzt KEINEN jackson.version-Override in executionservice, obwohl
+ * spring-boot-dependencies:1.3.5 jackson auf 2.6.6 haelt. Das traegt nur, solange
+ * niemand SPARQL-Results-JSON anfordert: RDF4Js AbstractSPARQLJSONWriter/-Parser
+ * brauchen JsonFactoryBuilder/StreamReadFeature/StreamWriteFeature, die es erst ab
+ * Jackson 2.10 gibt (Gate E, docs/superpowers/specs/2026-07-11-spike-results.md).
+ * Der Default-Pfad ist nicht betroffen: RDF4J verhandelt fuer entfernte Tupel-Queries
+ * SPARQL/XML.
+ *
+ * Schlaegt dieser Test fehl, ist die Auslassung nicht mehr gedeckt - entweder den
+ * Verwender auf ein anderes Ergebnisformat umstellen oder den Override doch setzen.
+ */
+public class SparqlJsonGuardTest {
+
+	private static final List<String> FORBIDDEN = Arrays.asList(
+			"TupleQueryResultFormat.JSON",
+			"BooleanQueryResultFormat.JSON",
+			"SPARQLResultsJSONWriter",
+			"SPARQLResultsJSONParser",
+			"SPARQLBooleanJSONWriter",
+			"SPARQLBooleanJSONParser");
+
+	private static final List<String> MODULES = Arrays.asList(
+			"common", "behaviour", "functions", "executionservice", "pluginsystem");
+
+	@Test
+	public void noProductionCodeRequestsSparqlResultsJson() throws IOException {
+		Path root = Paths.get(System.getProperty("ajan.root", "..")).toAbsolutePath().normalize();
+		List<String> hits = new ArrayList<>();
+		for (String module: MODULES) {
+			Path moduleDir = root.resolve(module);
+			if (!Files.isDirectory(moduleDir)) {
+				continue;
+			}
+			collectHits(moduleDir, hits);
+		}
+		assertTrue(hits.isEmpty(),
+				"SPARQL-Results-JSON is unusable under the managed Jackson 2.6.6 (see Gate E). "
+				+ "Either switch to another result format or set <jackson.version> in "
+				+ "executionservice/pom.xml. Offending sites:\n" + String.join("\n", hits));
+	}
+
+	private void collectHits(final Path moduleDir, final List<String> hits) throws IOException {
+		try (Stream<Path> files = Files.walk(moduleDir)) {
+			for (Path file: (Iterable<Path>) files
+					.filter(p -> p.toString().endsWith(".java"))
+					.filter(p -> p.toString().replace('\\', '/').contains("/src/main/java/"))::iterator) {
+				String content = new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
+				for (String token: FORBIDDEN) {
+					if (content.contains(token)) {
+						hits.add(file + " uses " + token);
+					}
+				}
+			}
+		}
+	}
+}
+```
+
+Surefire setzt das Arbeitsverzeichnis auf das Modulverzeichnis, `..` ist also der Repo-Root — der Default für `ajan.root` trägt damit ohne POM-Änderung. Zeigt der Lauf, dass das in dieser Umgebung nicht stimmt, in `common/pom.xml` einen Surefire-Block mit `<systemPropertyVariables><ajan.root>${project.basedir}/..</ajan.root></systemPropertyVariables>` ergänzen und das im Report vermerken.
+
+Erwartetes Ergebnis beim ersten Lauf: **grün** — Gate E hat für genau diese Token null Treffer im Produktcode gefunden. Schlägt der Guard an, ist das ein echter Befund: melden, **nicht** die Tokenliste kürzen.
 
 - [ ] **Step 6: Kernmodule bauen und Kompilierfehler abarbeiten**
 
@@ -1447,6 +1535,7 @@ In `docs/superpowers/specs/2026-07-11-java-modernization-design.md`:
 3. **Etappe 3**: als **abgeschlossen** markieren, analog zur Formatierung von Etappe 2 („— **abgeschlossen**"), mit Verweis auf diesen Plan und die erreichten Nachweise (21/21 Module, 16/16 E2E).
 4. **Etappe 3, Punkt 4** (E2E-RDF4J-Pin): die offene Entscheidung durch die getroffene ersetzen (bleibt 3.6.3, Kommentar korrigiert).
 5. **Neu in Etappe 3 dokumentieren:** SPIN-Entscheidung (rdf4j-sail-spin ab RDF4J 4.0 nicht mehr verfügbar; Enum bleibt, SPIN-Zweige werfen; Laufzeitverhalten unverändert, weil beide Agent-Builder `Inferencing.NONE` hart setzen).
+5b. **Ebenfalls neu dokumentieren — die Jackson-Auslassung:** Etappe 3 setzt bewusst **keinen** `<jackson.version>`-Override, obwohl Boot 1.3.5 jackson auf 2.6.6 pinnt (Gate E, Auftraggeber-Entscheidung 2026-08-11). Begründung und Beleglage in die Spec: alle vom Produkt genutzten RDF4J-Pfade tragen unter 2.6.6 (Default-`SELECT` verhandelt SPARQL/XML), nur SPARQL-Results-JSON braucht Jackson ≥ 2.10 und wird nirgends angefordert; abgesichert durch `SparqlJsonGuardTest`. Als **benanntes Restrisiko** festhalten: fordert künftiger Code dieses Format an, bricht es zur Laufzeit — der Guard macht es beim Build sichtbar. Ebenfalls vermerken, dass sich die Frage mit dem Boot-4-Sprung in Etappe 4 erledigt.
 6. **Etappe 5**: den offenen Punkt ergänzen, dass `.github/workflows/docker-image.yml` (Zeilen 42/173/174) noch auf `triplestore-0.1-war-exec.jar` zeigt und auf `triplestore-0.1.jar` nachzuziehen ist.
 7. **Risiko 2** (RDF4J-API-Bruch): auf **eingetreten und abgearbeitet** setzen, mit der konkreten Bruchliste (SailQueryPreparer, queryrender.builder, CloseableIteration-Arität, sail-spin, `initialize()`).
 8. **Risiko 3**: als **erledigt** markieren (Etappe 3 grün abgeschlossen, Rückfallebene nicht gezogen — bzw. das tatsächliche Gate-E-Ergebnis).
