@@ -1,0 +1,160 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< de.dfki.asr.ajan.spikes:rdf4j5-boot13 >----------------
+[INFO] Building rdf4j5-boot13 0.1
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- dependency:2.10:tree (default-cli) @ rdf4j5-boot13 ---
+[INFO] de.dfki.asr.ajan.spikes:rdf4j5-boot13:jar:0.1
+[INFO] +- org.eclipse.rdf4j:rdf4j-runtime:pom:5.3.1:compile
+[INFO] |  +- org.eclipse.rdf4j:rdf4j-client:pom:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-http-client:jar:5.3.1:compile
+[INFO] |  |  |  +- org.apache.httpcomponents:httpclient:jar:4.5.2:compile
+[INFO] |  |  |  |  \- org.apache.httpcomponents:httpcore:jar:4.4.4:compile
+[INFO] |  |  |  +- commons-codec:commons-codec:jar:1.15:compile
+[INFO] |  |  |  +- org.slf4j:jcl-over-slf4j:jar:1.7.21:runtime
+[INFO] |  |  |  \- org.eclipse.rdf4j:rdf4j-sail-api:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-http-protocol:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-model-api:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-model-vocabulary:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-model:jar:5.3.1:compile
+[INFO] |  |  |  \- com.google.guava:guava:jar:32.1.3-jre:compile
+[INFO] |  |  |     +- com.google.guava:failureaccess:jar:1.0.1:compile
+[INFO] |  |  |     \- com.google.guava:listenablefuture:jar:9999.0-empty-to-avoid-conflict-with-guava:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-query:jar:5.3.1:compile
+[INFO] |  |  |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.6.6:compile
+[INFO] |  |  |  +- com.fasterxml.jackson.core:jackson-core:jar:2.6.6:compile
+[INFO] |  |  |  +- com.fasterxml.jackson.core:jackson-databind:jar:2.6.6:compile
+[INFO] |  |  |  \- org.apache.commons:commons-text:jar:1.10.0:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-queryalgebra-model:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-queryparser-api:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-queryparser-sparql:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-queryrender:jar:5.3.1:compile
+[INFO] |  |  |  \- com.google.code.gson:gson:jar:2.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-queryresultio-api:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-queryresultio-binary:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-queryresultio-sparqljson:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-queryresultio-sparqlxml:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-queryresultio-text:jar:5.3.1:compile
+[INFO] |  |  |  \- com.opencsv:opencsv:jar:5.3:compile
+[INFO] |  |  |     +- commons-beanutils:commons-beanutils:jar:1.9.2:compile
+[INFO] |  |  |     |  \- commons-collections:commons-collections:jar:3.2.2:compile
+[INFO] |  |  |     \- org.apache.commons:commons-collections4:jar:4.4:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-repository-api:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-repository-contextaware:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-repository-event:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-repository-http:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-repository-manager:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-repository-sparql:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-rio-api:jar:5.3.1:compile
+[INFO] |  |  |  +- no.hasmac:hasmac-json-ld:jar:0.10.2:compile
+[INFO] |  |  |  \- com.github.jsonld-java:jsonld-java:jar:0.13.4:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-rio-binary:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-rio-datatypes:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-rio-jsonld:jar:5.3.1:compile
+[INFO] |  |  |  +- jakarta.json:jakarta.json-api:jar:2.0.1:compile
+[INFO] |  |  |  +- org.glassfish:jakarta.json:jar:module:2.0.1:compile
+[INFO] |  |  |  +- org.apache.httpcomponents:httpclient-cache:jar:4.5.14:compile
+[INFO] |  |  |  \- commons-io:commons-io:jar:2.18.0:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-rio-languages:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-rio-n3:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-rio-nquads:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-rio-ntriples:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-rio-rdfjson:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-rio-rdfxml:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-rio-trig:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-rio-trix:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-rio-turtle:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-sparqlbuilder:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-common-annotation:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-common-exception:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-common-io:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-common-iterator:jar:5.3.1:compile
+[INFO] |  |  |  \- org.eclipse.rdf4j:rdf4j-common-order:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-common-text:jar:5.3.1:compile
+[INFO] |  |  +- org.eclipse.rdf4j:rdf4j-common-transaction:jar:5.3.1:compile
+[INFO] |  |  \- org.eclipse.rdf4j:rdf4j-common-xml:jar:5.3.1:compile
+[INFO] |  \- org.eclipse.rdf4j:rdf4j-storage:pom:5.3.1:compile
+[INFO] |     +- org.eclipse.rdf4j:rdf4j-queryalgebra-evaluation:jar:5.3.1:compile
+[INFO] |     |  +- org.eclipse.rdf4j:rdf4j-collection-factory-api:jar:5.3.1:compile
+[INFO] |     |  \- org.apache.commons:commons-math3:jar:3.6.1:compile
+[INFO] |     +- org.eclipse.rdf4j:rdf4j-queryalgebra-geosparql:jar:5.3.1:compile
+[INFO] |     |  +- org.locationtech.spatial4j:spatial4j:jar:0.8:compile
+[INFO] |     |  \- org.locationtech.jts:jts-core:jar:1.19.0:compile
+[INFO] |     +- org.eclipse.rdf4j:rdf4j-repository-dataset:jar:5.3.1:compile
+[INFO] |     +- org.eclipse.rdf4j:rdf4j-repository-sail:jar:5.3.1:compile
+[INFO] |     +- org.eclipse.rdf4j:rdf4j-sail-base:jar:5.3.1:compile
+[INFO] |     +- org.eclipse.rdf4j:rdf4j-sail-inferencer:jar:5.3.1:compile
+[INFO] |     |  \- org.eclipse.rdf4j:rdf4j-sail-model:jar:5.3.1:compile
+[INFO] |     +- org.eclipse.rdf4j:rdf4j-sail-elasticsearch:jar:5.3.1:compile
+[INFO] |     |  \- org.eclipse.rdf4j:rdf4j-sail-lucene-api:jar:5.3.1:compile
+[INFO] |     +- org.eclipse.rdf4j:rdf4j-sail-lucene:jar:5.3.1:compile
+[INFO] |     |  +- org.apache.lucene:lucene-core:jar:8.9.0:compile
+[INFO] |     |  +- org.apache.lucene:lucene-queries:jar:8.9.0:compile
+[INFO] |     |  +- org.apache.lucene:lucene-highlighter:jar:8.9.0:compile
+[INFO] |     |  |  \- org.apache.lucene:lucene-memory:jar:8.9.0:compile
+[INFO] |     |  +- org.apache.lucene:lucene-analyzers-common:jar:8.9.0:compile
+[INFO] |     |  +- org.apache.lucene:lucene-queryparser:jar:8.9.0:compile
+[INFO] |     |  |  \- org.apache.lucene:lucene-sandbox:jar:8.9.0:compile
+[INFO] |     |  +- org.apache.lucene:lucene-spatial-extras:jar:8.9.0:compile
+[INFO] |     |  |  +- org.apache.lucene:lucene-spatial3d:jar:8.9.0:compile
+[INFO] |     |  |  \- io.sgr:s2-geometry-library-java:jar:1.0.0:compile
+[INFO] |     |  \- org.apache.lucene:lucene-backward-codecs:jar:8.9.0:runtime
+[INFO] |     +- org.eclipse.rdf4j:rdf4j-sail-solr:jar:5.3.1:compile
+[INFO] |     |  +- org.apache.zookeeper:zookeeper:jar:3.7.2:compile
+[INFO] |     |  |  +- org.apache.yetus:audience-annotations:jar:0.12.0:compile
+[INFO] |     |  |  +- io.netty:netty-handler:jar:4.1.94.Final:compile
+[INFO] |     |  |  |  +- io.netty:netty-common:jar:4.1.94.Final:compile
+[INFO] |     |  |  |  +- io.netty:netty-resolver:jar:4.1.94.Final:compile
+[INFO] |     |  |  |  +- io.netty:netty-buffer:jar:4.1.94.Final:compile
+[INFO] |     |  |  |  +- io.netty:netty-transport:jar:4.1.94.Final:compile
+[INFO] |     |  |  |  +- io.netty:netty-transport-native-unix-common:jar:4.1.94.Final:compile
+[INFO] |     |  |  |  \- io.netty:netty-codec:jar:4.1.94.Final:compile
+[INFO] |     |  |  \- io.netty:netty-transport-native-epoll:jar:4.1.94.Final:compile
+[INFO] |     |  |     \- io.netty:netty-transport-classes-epoll:jar:4.1.94.Final:compile
+[INFO] |     |  +- org.apache.zookeeper:zookeeper-jute:jar:3.7.2:compile
+[INFO] |     |  +- org.xerial.snappy:snappy-java:jar:1.1.10.5:compile
+[INFO] |     |  \- org.apache.solr:solr-solrj:jar:4.10.4:compile
+[INFO] |     |     +- org.apache.httpcomponents:httpmime:jar:4.5.2:compile
+[INFO] |     |     +- org.codehaus.woodstox:wstx-asl:jar:3.2.7:compile
+[INFO] |     |     \- org.noggit:noggit:jar:0.5:compile
+[INFO] |     +- org.eclipse.rdf4j:rdf4j-sail-memory:jar:5.3.1:compile
+[INFO] |     +- org.eclipse.rdf4j:rdf4j-sail-lmdb:jar:5.3.1:compile
+[INFO] |     |  +- org.lwjgl:lwjgl-lmdb:jar:3.4.1:compile
+[INFO] |     |  |  \- org.lwjgl:lwjgl:jar:3.4.1:compile
+[INFO] |     |  +- org.lwjgl:lwjgl-lmdb:jar:natives-linux:3.4.1:runtime
+[INFO] |     |  +- org.lwjgl:lwjgl-lmdb:jar:natives-linux-arm64:3.4.1:runtime
+[INFO] |     |  +- org.lwjgl:lwjgl-lmdb:jar:natives-linux-ppc64le:3.4.1:runtime
+[INFO] |     |  +- org.lwjgl:lwjgl-lmdb:jar:natives-macos:3.4.1:runtime
+[INFO] |     |  +- org.lwjgl:lwjgl-lmdb:jar:natives-macos-arm64:3.4.1:runtime
+[INFO] |     |  +- org.lwjgl:lwjgl-lmdb:jar:natives-windows:3.4.1:runtime
+[INFO] |     |  +- org.lwjgl:lwjgl-lmdb:jar:natives-windows-arm64:3.4.1:runtime
+[INFO] |     |  +- org.lwjgl:lwjgl:jar:natives-linux:3.4.1:runtime
+[INFO] |     |  +- org.lwjgl:lwjgl:jar:natives-linux-arm64:3.4.1:runtime
+[INFO] |     |  +- org.lwjgl:lwjgl:jar:natives-linux-ppc64le:3.4.1:runtime
+[INFO] |     |  +- org.lwjgl:lwjgl:jar:natives-macos:3.4.1:runtime
+[INFO] |     |  +- org.lwjgl:lwjgl:jar:natives-macos-arm64:3.4.1:runtime
+[INFO] |     |  +- org.lwjgl:lwjgl:jar:natives-windows:3.4.1:runtime
+[INFO] |     |  +- org.lwjgl:lwjgl:jar:natives-windows-arm64:3.4.1:runtime
+[INFO] |     |  \- org.eclipse.rdf4j:rdf4j-collection-factory-mapdb3:jar:5.3.1:compile
+[INFO] |     |     +- org.mapdb:mapdb:jar:3.1.0:compile
+[INFO] |     |     |  +- org.jetbrains.kotlin:kotlin-stdlib:jar:1.9.25:compile (version selected from constraint [1.9.22,1.9.999))
+[INFO] |     |     |  |  \- org.jetbrains:annotations:jar:13.0:compile
+[INFO] |     |     |  +- org.eclipse.collections:eclipse-collections-api:jar:10.4.0:compile (version selected from constraint [7.0.0,10.10.90))
+[INFO] |     |     |  +- org.eclipse.collections:eclipse-collections:jar:10.4.0:compile (version selected from constraint [7.0.0,10.10.90))
+[INFO] |     |     |  +- org.eclipse.collections:eclipse-collections-forkjoin:jar:10.4.0:compile (version selected from constraint [7.0.0,10.10.90))
+[INFO] |     |     |  \- org.mapdb:elsa:jar:3.0.0-M5:compile
+[INFO] |     |     \- org.lz4:lz4-java:jar:1.8.0:compile
+[INFO] |     +- org.eclipse.rdf4j:rdf4j-sail-nativerdf:jar:5.3.1:compile
+[INFO] |     +- org.eclipse.rdf4j:rdf4j-spin:jar:5.3.1:compile
+[INFO] |     \- org.eclipse.rdf4j:rdf4j-shacl:jar:5.3.1:compile
+[INFO] |        \- org.apache.commons:commons-lang3:jar:3.18.0:compile
+[INFO] \- org.slf4j:slf4j-simple:jar:1.7.21:compile
+[INFO]    \- org.slf4j:slf4j-api:jar:1.7.21:compile
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  17.360 s
+[INFO] Finished at: 2026-08-11T11:01:31+02:00
+[INFO] ------------------------------------------------------------------------
