@@ -24,7 +24,7 @@ WORKDIR /app
 # Application JARs. The CI/CD workflow places these at the build context root
 # via the dist artifact download, *not* under */target/*.
 COPY executionservice-0.1.jar /app/executionservice.jar
-COPY triplestore-0.1-war-exec.jar  /app/triplestore.jar
+COPY triplestore-0.1.jar  /app/triplestore.jar
 
 # Initial RDF data and supervisor config.
 COPY executionservice/use-case ./executionservice/use-case

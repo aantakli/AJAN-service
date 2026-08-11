@@ -56,7 +56,7 @@ public final class AjanSystem implements AutoCloseable {
             // Isoliertes RDF4J-Datenverzeichnis: kalter Start wie im Docker-Image
             Path rdf4jData = root.resolve("e2e/target/rdf4j-data");
             deleteRecursively(rdf4jData);
-            Path triplestoreJar = resolveSingleArtifact(root.resolve("triplestore/target"), "triplestore-*-war-exec.jar");
+            Path triplestoreJar = resolveSingleArtifact(root.resolve("triplestore/target"), "triplestore-*.jar");
             List<String> cmd = new ArrayList<>(List.of(java,
                     "-Dorg.eclipse.rdf4j.appdata.basedir=" + rdf4jData,
                     "-jar", triplestoreJar.toString(),

@@ -10,160 +10,134 @@
         <version>0.1</version>
     </parent>
 
-    <repositories>
-        <repository>
-            <id>lib</id>
-            <url>file:///${project.basedir}/lib</url>
-        </repository>
-    </repositories>
-   
-    <pluginRepositories>
-        <pluginRepository>
-            <id>icm</id>
-            <url>http://maven.icm.edu.pl/artifactory/repo/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>alfresco</id>
-            <url>https://artifacts.alfresco.com/nexus/content/repositories/public/</url>
-        </pluginRepository>
-    </pluginRepositories>
-
+    <!-- Embedded-Tomcat-Launcher statt tomcat8-maven-plugin (retired).
+         Tomcat 9 und NICHT 10/11: die RDF4J-5-WARs sind javax.servlet
+         (web-app 2.4, spring-webmvc 5.3.x, jstl 1.2) - Jakarta wuerde nicht
+         deployen. Die WAR-Version ist hier bewusst hart gepinnt, weil die
+         Parent-Property zum Zeitpunkt dieses Moduls noch auf 3.6.3 steht;
+         sie wird mit dem zentralen Bump auf ${org.eclipse.rdf4j.version}
+         umgestellt. -->
     <properties>
-        <tomcat.version>8.0.42</tomcat.version>
+        <tomcat.version>9.0.109</tomcat.version>
+        <rdf4j.server.version>5.3.1</rdf4j.server.version>
+        <mainClass>de.dfki.asr.ajan.triplestore.TriplestoreLauncher</mainClass>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>${tomcat.version}</version>
+        </dependency>
+        <!-- Das RDF4J-Server-WAR enthaelt 23 JSPs; ohne Jasper bleibt die
+             Workbench-Navigation und Teile der Server-UI tot. -->
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
+            <version>${tomcat.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-el</artifactId>
+            <version>${tomcat.version}</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
+            <!-- Die beiden WARs werden NICHT als <dependency> deklariert (sie
+                 gehoeren nicht auf den Compile-Classpath), sondern als
+                 Ressourcen in das Fat-JAR kopiert und zur Laufzeit entpackt. -->
             <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat8-maven-plugin</artifactId>
-                <version>3.0-r1756463</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.tomcat.embed</groupId>
-                        <artifactId>tomcat-embed-core</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>tomcat-util</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>tomcat-coyote</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>tomcat-api</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>tomcat-jdbc</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>tomcat-dbcp</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>tomcat-servlet-api</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>tomcat-jsp-api</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>tomcat-jasper</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>tomcat-jasper-el</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>tomcat-el-api</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>tomcat-catalina</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>tomcat-tribes</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>tomcat-catalina-ha</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>tomcat-annotations-api</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat</groupId>
-                        <artifactId>tomcat-juli</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat.embed</groupId>
-                        <artifactId>tomcat-embed-logging-juli</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.tomcat.embed</groupId>
-                        <artifactId>tomcat-embed-logging-log4j</artifactId>
-                        <version>${tomcat.version}</version>
-                    </dependency>
-                    </dependencies>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.1</version>
                 <executions>
                     <execution>
-                        <id>tomcat-run</id>
+                        <id>copy-rdf4j-wars</id>
+                        <phase>prepare-package</phase>
                         <goals>
-                            <goal>exec-war-only</goal>
+                            <goal>copy</goal>
                         </goals>
-                        <phase>package</phase>
                         <configuration>
-                            <!-- optional only if you want to use a preconfigured server.xml file -->
-                            <!--
-                            <serverXml>src/main/tomcatconf/server.xml</serverXml>
-                            -->
-                            <warRunDependencies>
-                                <warRunDependency>
-                                    <dependency>
-                                        <groupId>rdf4j-server</groupId>
-                                        <artifactId>rdf4j-server</artifactId>
-                                        <version>4.0.0</version>
-                                        <type>war</type>
-                                    </dependency>
-                                    <contextPath>/rdf4j</contextPath>
-                                </warRunDependency>
-                                <warRunDependency>
-                                    <dependency>
-                                        <groupId>org.eclipse.rdf4j</groupId>
-                                        <artifactId>rdf4j-http-workbench</artifactId>
-                                        <version>${org.eclipse.rdf4j.version}</version>
-                                        <type>war</type>
-                                    </dependency>
-                                    <contextPath>/workbench</contextPath>
-                                </warRunDependency>
-                            </warRunDependencies>
-                            <!-- naming is disabled by default so use true to enable it -->
-                            <enableNaming>true</enableNaming>
+                            <outputDirectory>${project.build.outputDirectory}/webapps</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.eclipse.rdf4j</groupId>
+                                    <artifactId>rdf4j-http-server</artifactId>
+                                    <version>${rdf4j.server.version}</version>
+                                    <type>war</type>
+                                    <destFileName>rdf4j.war</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.eclipse.rdf4j</groupId>
+                                    <artifactId>rdf4j-http-workbench</artifactId>
+                                    <version>${rdf4j.server.version}</version>
+                                    <type>war</type>
+                                    <destFileName>workbench.war</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${mainClass}</mainClass>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- maven-shade-plugin replaces the plain jar with the shaded one by
+                 renaming files on disk. On Windows that rename occasionally fails
+                 (file lock/AV scan race) and the plugin silently falls back to a
+                 copy, leaving its working file ${finalName}-shaded.jar behind
+                 alongside the real artifact. Both end up identical in content and
+                 size, but the leftover breaks the "exactly one triplestore-*.jar"
+                 assumption the e2e harness (AjanSystem#resolveSingleArtifact)
+                 relies on. Delete it defensively after shading; a no-op when the
+                 rename already succeeded. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>cleanup-shade-rename-leftover</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <delete file="${project.build.directory}/${project.build.finalName}-shaded.jar" quiet="true"/>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

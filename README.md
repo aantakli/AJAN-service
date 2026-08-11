@@ -32,7 +32,7 @@ Start AJAN-Triplestore (see below), visit `http://localhost:8090/workbench/` and
 
 ## RUN
 
-* run `startTriplestore.bat` or cmd: `java -jar triplestore/target/triplestore-0.1-war-exec.jar --httpPort=8090`
+* run `startTriplestore.bat` or cmd: `java -jar triplestore/target/triplestore-0.1.jar --httpPort=8090`
 * run `startAJAN.bat` or cmd: `java -Dtriplestore.initialData.agentFolderPath=executionservice/use-case/agents 
 									-Dtriplestore.initialData.domainFolderPath=executionservice/use-case/domains 
 									-Dtriplestore.initialData.serviceFolderPath=executionservice/use-case/services 
