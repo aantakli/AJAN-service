@@ -24,6 +24,7 @@ import de.dfki.asr.ajan.common.CredentialsBuilder;
 import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.ajan.common.Token;
 import de.dfki.asr.ajan.exceptions.InitializationRDFValidationException;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
@@ -41,8 +42,6 @@ import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.XSD;
 import org.eclipse.rdf4j.query.parser.ParsedGraphQuery;
 import org.eclipse.rdf4j.query.parser.ParsedQuery;
-import org.eclipse.rdf4j.queryrender.builder.QueryBuilder;
-import org.eclipse.rdf4j.queryrender.builder.QueryBuilderFactory;
 import org.eclipse.rdf4j.repository.Repository;
 
 public class AgentModelManager {
@@ -58,8 +57,9 @@ public class AgentModelManager {
 	}
 
 	public Model getTemplateFromTDB(final Repository repo, final Resource resource) {
-		QueryBuilder builder = QueryBuilderFactory.describe(resource);
-		ParsedQuery query = builder.query();
+		// QueryBuilderFactory.describe(resource) gibt es in RDF4J 5 nicht mehr;
+		// SPARQLUtil.getDescribeQuery erzeugt exakt dieselbe CONSTRUCT-Query.
+		ParsedQuery query = SPARQLUtil.getDescribeQuery(Collections.singletonList(resource).iterator());
 		Model template = SPARQLUtil.queryRepository(repo, query);
 		if (template == null) {
 			throw new InitializationRDFValidationException("Template " + resource.stringValue() + " not found");

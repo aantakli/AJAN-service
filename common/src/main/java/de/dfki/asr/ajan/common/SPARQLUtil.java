@@ -38,29 +38,23 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.GraphQuery;
 import org.eclipse.rdf4j.query.GraphQueryResult;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.QueryResults;
+import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.query.algebra.Or;
-import org.eclipse.rdf4j.query.algebra.SameTerm;
 import org.eclipse.rdf4j.query.algebra.TupleExpr;
 import org.eclipse.rdf4j.query.algebra.UpdateExpr;
-import org.eclipse.rdf4j.query.algebra.ValueConstant;
-import org.eclipse.rdf4j.query.algebra.ValueExpr;
-import org.eclipse.rdf4j.query.algebra.Var;
 import org.eclipse.rdf4j.query.parser.ParsedGraphQuery;
 import org.eclipse.rdf4j.query.parser.ParsedQuery;
 import org.eclipse.rdf4j.query.parser.ParsedTupleQuery;
 import org.eclipse.rdf4j.query.parser.ParsedUpdate;
 import org.eclipse.rdf4j.query.parser.sparql.SPARQLParser;
 import org.eclipse.rdf4j.queryrender.QueryRenderer;
-import org.eclipse.rdf4j.queryrender.builder.QueryBuilder;
-import org.eclipse.rdf4j.queryrender.builder.QueryBuilderFactory;
 import org.eclipse.rdf4j.queryrender.sparql.SPARQLQueryRenderer;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.sail.SailQueryPreparer;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.repository.util.Repositories;
@@ -117,8 +111,11 @@ public final class SPARQLUtil {
 		Model resultModel;
 		try (SailRepositoryConnection conn = repo.getConnection()) {
 			conn.begin();
-			SailQueryPreparer preparer = new SailQueryPreparer(conn, false);
-			GraphQueryResult results = preparer.prepare(query).evaluate();
+			// RDF4J 5 hat den bisherigen Sail-Query-Preparer entfernt; die Query
+			// wird deshalb gerendert und ueber die Connection vorbereitet
+			// (derselbe Weg wie in queryRepository(Repository, ParsedQuery)).
+			GraphQuery graphQuery = conn.prepareGraphQuery(renderQuery(query));
+			GraphQueryResult results = graphQuery.evaluate();
 			resultModel = QueryResults.asModel(results);
 			conn.commit();
 		}
@@ -131,8 +128,8 @@ public final class SPARQLUtil {
 		List<BindingSet> resultModel;
 		try (SailRepositoryConnection conn = repo.getConnection()) {
 			conn.begin();
-			SailQueryPreparer preparer = new SailQueryPreparer(conn, false);
-			TupleQueryResult results = preparer.prepare(query).evaluate();
+			TupleQuery tupleQuery = conn.prepareTupleQuery(renderQuery(query));
+			TupleQueryResult results = tupleQuery.evaluate();
 			resultModel = getBindingSetList(results);
 			conn.commit();
 		}
@@ -155,7 +152,7 @@ public final class SPARQLUtil {
 
 	public static SailRepository createRepository(final Model model) {
 		SailRepository repo = new SailRepository(new MemoryStore());
-		repo.initialize();
+		repo.init();
 		Repositories.consume(repo, conn -> conn.add(model));
 		return repo;
 	}
@@ -247,41 +244,35 @@ public final class SPARQLUtil {
 		return getSelectQuery(tupleExpr, varNames);
 	}
 
+	@SuppressWarnings("PMD.UnusedFormalParameter")
 	public static ParsedTupleQuery getSelectQuery(final TupleExpr tupleExpr, final List<String> varNames) {
-		QueryBuilder<ParsedTupleQuery> builder = QueryBuilderFactory.select();
-		builder.addProjectionVar(varNames.toArray(new String[varNames.size()]));
-		builder.group();
-		ParsedTupleQuery parsedQuery = builder.query();
-		parsedQuery.setTupleExpr(tupleExpr);
-		return parsedQuery;
+		// Frueher ueber QueryBuilderFactory.select(): dessen Projektion wurde
+		// unmittelbar durch setTupleExpr(tupleExpr) ueberschrieben, varNames
+		// blieb also ohne Wirkung. Der Konstruktor bildet das 1:1 ab und
+		// existiert in RDF4J 3.6 wie 5.x.
+		return new ParsedTupleQuery(tupleExpr);
 	}
 
 	public static ParsedGraphQuery getDescribeQuery(final Iterator<Resource> resourceIterator) {
-		QueryBuilder<ParsedGraphQuery> builder = QueryBuilderFactory.construct();
-		setDescribeQueryParameters(builder, resourceIterator);
-		return builder.query();
-	}
-
-	private static void setDescribeQueryParameters(final QueryBuilder<ParsedGraphQuery> builder, final Iterator<Resource> resourceIterator) {
-		String subj = "descr_subj";
-		String pred = "descr_pred";
-		String obj = "descr_obj";
-		builder.addProjectionStatement(subj, pred, obj);
-		builder.group().atom(subj, pred, obj);
-		builder.group().filter(setDescribeFilter(resourceIterator, subj, obj));
-	}
-
-	private static ValueExpr setDescribeFilter(final Iterator<Resource> resourceIterator, final String subj, final String obj) {
-		Resource resource = resourceIterator.next();
-		if (resourceIterator.hasNext()) {
-			return new Or( setSameTerm(resource, subj), new Or( setSameTerm(resource, obj), setDescribeFilter(resourceIterator, subj, obj)));
-		} else {
-			return new Or( setSameTerm(resource, subj), setSameTerm(resource, obj));
+		// Frueher ueber QueryBuilderFactory.construct(); das Query-Builder-Paket
+		// existiert in RDF4J 5 nicht mehr. Erzeugt wird dieselbe CONSTRUCT-Query
+		// wie bisher.
+		StringBuilder query = new StringBuilder(256);
+		query.append("CONSTRUCT { ?descr_subj ?descr_pred ?descr_obj } "
+				+ "WHERE { ?descr_subj ?descr_pred ?descr_obj . FILTER ( ");
+		boolean first = true;
+		while (resourceIterator.hasNext()) {
+			Resource resource = resourceIterator.next();
+			if (!first) {
+				query.append(" || ");
+			}
+			first = false;
+			String value = "<" + resource.stringValue() + ">";
+			query.append("sameTerm(").append(value).append(", ?descr_subj) || sameTerm(")
+				.append(value).append(", ?descr_obj)");
 		}
-	}
-
-	private static ValueExpr setSameTerm(final Resource resource, final String var) {
-		return new SameTerm(new ValueConstant(resource), new Var(var));
+		query.append(" ) }");
+		return (ParsedGraphQuery) new SPARQLParser().parseQuery(query.toString(), null);
 	}
 
 	public static String queryNamedGraph(final String graphName) {

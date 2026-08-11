@@ -152,6 +152,21 @@ MA 02110-1301  USA
       <type>jar</type>
       <version>3.6.3</version>
     </dependency>
+    <dependency>
+      <artifactId>testng</artifactId>
+      <groupId>org.testng</groupId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <artifactId>hamcrest-core</artifactId>
+      <groupId>org.hamcrest</groupId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <artifactId>rdf4j-rio-turtle</artifactId>
+      <groupId>org.eclipse.rdf4j</groupId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>

@@ -222,7 +222,7 @@ public class RDF4JTripleStoreManager implements TripleStoreManager {
 		String id = db.getId();
 		LOG.info("Removing TDB with ID {}", id);
 		if (!repoManager.isInitialized()) {
-			repoManager.initialize();
+			repoManager.init();
 		}
 		repoManager.removeAgentSecurityConfiguration(id);
 		repoManager.removeRepository(id);
