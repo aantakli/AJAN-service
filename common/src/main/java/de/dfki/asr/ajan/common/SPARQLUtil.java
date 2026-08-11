@@ -30,19 +30,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.BooleanQuery;
-import org.eclipse.rdf4j.query.GraphQuery;
-import org.eclipse.rdf4j.query.GraphQueryResult;
+import org.eclipse.rdf4j.query.Dataset;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.QueryResults;
-import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.algebra.Filter;
 import org.eclipse.rdf4j.query.algebra.MultiProjection;
@@ -56,6 +57,7 @@ import org.eclipse.rdf4j.query.algebra.UpdateExpr;
 import org.eclipse.rdf4j.query.algebra.ValueConstant;
 import org.eclipse.rdf4j.query.algebra.ValueExpr;
 import org.eclipse.rdf4j.query.algebra.Var;
+import org.eclipse.rdf4j.query.impl.EmptyBindingSet;
 import org.eclipse.rdf4j.query.parser.ParsedGraphQuery;
 import org.eclipse.rdf4j.query.parser.ParsedQuery;
 import org.eclipse.rdf4j.query.parser.ParsedTupleQuery;
@@ -72,7 +74,7 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 
-@SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.ExcessiveImports"})
+@SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.ExcessiveImports", "PMD.GodClass"})
 public final class SPARQLUtil {
 
 	private final static String INSERT = "(INSERT((?:.*?\\r?\\n?)*)})|(insert((?:.*?\\r?\\n?)*)})";
@@ -118,54 +120,73 @@ public final class SPARQLUtil {
 
 	public static Model queryModel(final Model model, final ParsedGraphQuery query) throws QueryEvaluationException {
 		SailRepository repo = createRepository(model);
-		Model resultModel;
+		Model resultModel = new LinkedHashModel();
 		try (SailRepositoryConnection conn = repo.getConnection()) {
 			conn.begin();
-			// RDF4J 5 hat org.eclipse.rdf4j.repository.sail.SailQueryPreparer
-			// entfernt; die Query wird deshalb gerendert und ueber die
-			// Connection vorbereitet (derselbe Weg wie in
-			// queryRepository(Repository, ParsedQuery)). Diese Query stammt
-			// ausschliesslich aus getDescribeQuery(...), deren Rendering
-			// byte-identisch zur alten QueryBuilderFactory-Ausgabe ist (siehe
-			// SPARQLUtilQueryTest) -- anders als der ParsedTupleQuery-Zweig ist
-			// dieser Render-Weg daher unveraendert sicher.
-			GraphQuery graphQuery = conn.prepareGraphQuery(renderQuery(query));
-			GraphQueryResult results = graphQuery.evaluate();
-			resultModel = QueryResults.asModel(results);
+			// See evaluateAlgebra() for why this never renders to SPARQL text.
+			// Bindings -> Statement (subject/predicate/object/context, type-
+			// checked before use) replicates SailGraphQuery.evaluate() exactly
+			// (RDF4J 3.6.3 source, see fix report). Because this never renders,
+			// it is safe from SPARQL injection regardless of resource content
+			// and evaluates a BNode value as object identity, not as text.
+			evaluateAlgebra(conn, query.getTupleExpr(), query.getDataset(),
+					bindingSet -> addStatementIfWellTyped(resultModel, bindingSet));
 			conn.commit();
 		}
 		repo.shutDown();
 		return resultModel;
+	}
+
+	private static void addStatementIfWellTyped(final Model resultModel, final BindingSet bindingSet) {
+		Value subject = bindingSet.getValue("subject");
+		Value predicate = bindingSet.getValue("predicate");
+		Value object = bindingSet.getValue("object");
+		Value context = bindingSet.getValue("context");
+		boolean wellTyped = subject instanceof Resource && predicate instanceof IRI && object != null
+				&& (context == null || context instanceof Resource);
+		if (wellTyped) {
+			if (context == null) {
+				resultModel.add((Resource) subject, (IRI) predicate, object);
+			} else {
+				resultModel.add((Resource) subject, (IRI) predicate, object, (Resource) context);
+			}
+		}
 	}
 
 	public static List<BindingSet> queryModel(final Model model, final ParsedTupleQuery query) throws QueryEvaluationException {
 		SailRepository repo = createRepository(model);
-		List<BindingSet> resultModel;
+		List<BindingSet> resultModel = new ArrayList<>();
 		try (SailRepositoryConnection conn = repo.getConnection()) {
 			conn.begin();
-			// SPARQLQueryRenderer (used by renderQuery) does not round-trip the
-			// full SPARQL grammar (e.g. BIND, aggregates, FILTER (NOT) EXISTS
-			// are lost or fail to re-parse). Prefer the original query text
-			// (preserved via getSourceString() since getSelectQuery(String, ...)
-			// now keeps it) and only fall back to rendering the algebra when no
-			// source text is available, e.g. for a ParsedTupleQuery built
-			// directly from a TupleExpr.
-			String queryString = query.getSourceString() == null ? renderQuery(query) : query.getSourceString();
-			TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
-			TupleQueryResult results = tupleQuery.evaluate();
-			resultModel = getBindingSetList(results);
+			// See evaluateAlgebra() for why this never renders to SPARQL text.
+			// This is required, not just preferred: the only reachable ACTN
+			// precondition query is an ASK query (vocabularies/actn.ttl), and
+			// conn.prepareTupleQuery(text) rejects any text that does not start
+			// with SELECT -- an ASK's algebra has no such restriction, so
+			// evaluating it directly here works unchanged.
+			evaluateAlgebra(conn, query.getTupleExpr(), query.getDataset(), resultModel::add);
 			conn.commit();
 		}
 		repo.shutDown();
 		return resultModel;
 	}
 
-	private static List<BindingSet> getBindingSetList(final TupleQueryResult result) {
-		List<BindingSet> resultList = new ArrayList<>();
-		while (result.hasNext()) {
-			resultList.add(result.next());
+	// RDF4J 5 hat org.eclipse.rdf4j.repository.sail.SailQueryPreparer entfernt, das
+	// intern SailGraphQuery/SailTupleQuery.evaluate() genau so auswertete: TupleExpr
+	// direkt gegen die SailConnection auswerten, nie als Text rendern. `var` ist hier
+	// erforderlich, weil CloseableIteration in RDF4J 3.6.3 zwei Typparameter hat und in
+	// 5.3.1 nur noch einen -- ein ausgeschriebener Typ waere nicht mehr in beiden
+	// Versionen compilierbar.
+	private static void evaluateAlgebra(final SailRepositoryConnection conn, final TupleExpr tupleExpr,
+			final Dataset dataset, final Consumer<BindingSet> consumer) {
+		var bindingsIter = conn.getSailConnection().evaluate(tupleExpr, dataset, EmptyBindingSet.getInstance(), false);
+		try {
+			while (bindingsIter.hasNext()) {
+				consumer.accept(bindingsIter.next());
+			}
+		} finally {
+			bindingsIter.close();
 		}
-		return resultList;
 	}
 
 	public static Model createModel(final String statements, final RDFFormat format) throws IOException {
@@ -181,6 +202,21 @@ public final class SPARQLUtil {
 	}
 
 	public static Model queryRepository(final Repository repo, final ParsedQuery query) {
+		// `repo` is an arbitrary org.eclipse.rdf4j.repository.Repository, not
+		// necessarily a SailRepository -- it may be a remote HTTP-backed
+		// repository (e.g. an external TDB), for which the SPARQL protocol
+		// over HTTP is the only way to query it, so rendering to text here is
+		// unavoidable, not a choice. This already rendered before this etappe
+		// (queryModel(Model, ParsedGraphQuery/ParsedTupleQuery) below do not
+		// anymore, see there); it is therefore not a regression introduced by
+		// this refactor. It remains exposed to renderQuery()'s use of
+		// RenderUtils.toSPARQL(Value), which interpolates an IRI's string value
+		// between "<" and ">" with no escaping (RDF4J 3.6.3 source,
+		// org.eclipse.rdf4j.queryrender.RenderUtils) -- a resource value with
+		// unusual characters can still corrupt the rendered query text on this
+		// path. Not addressed here; the fix would require this method to stop
+		// talking to arbitrary (including remote) repositories via SPARQL text,
+		// which is out of this task's scope.
 		String renderedQuery = renderQuery(query);
 		return queryRepository(repo, renderedQuery);
 	}
@@ -262,15 +298,17 @@ public final class SPARQLUtil {
 		return new SPARQLQueryRenderer().render(query);
 	}
 
-	@SuppressWarnings("PMD.UnusedFormalParameter")
 	public static ParsedTupleQuery getSelectQuery(final String query, final List<String> varNames) {
+		// query may be a SELECT or (per the only reachable production caller,
+		// ACTNUtil.createSelectQuery <- vocabularies/actn.ttl) an ASK query;
+		// getTupleExpr parses either and returns the WHERE-clause algebra
+		// (for ASK, including the implicit LIMIT 1). No SPARQL-text
+		// preservation is needed here: queryModel(Model, ParsedTupleQuery)
+		// evaluates this algebra directly against the Sail connection and
+		// never renders it back to text, so the ASK/SELECT distinction -
+		// which only exists at the text/grammar level - never comes up.
 		TupleExpr tupleExpr = getTupleExpr(query);
-		// Source text is kept on the ParsedTupleQuery (both the (String, TupleExpr)
-		// constructor and getSourceString() exist under RDF4J 3.6.3 and 5.3.1) so
-		// queryModel(Model, ParsedTupleQuery) can reuse the original SPARQL instead
-		// of reconstructing it via SPARQLQueryRenderer, which is a lossy round-trip
-		// for constructs like BIND, aggregates and FILTER (NOT) EXISTS.
-		return new ParsedTupleQuery(query, tupleExpr);
+		return getSelectQuery(tupleExpr, varNames);
 	}
 
 	@SuppressWarnings("PMD.UnusedFormalParameter")
@@ -282,18 +320,19 @@ public final class SPARQLUtil {
 		return new ParsedTupleQuery(tupleExpr);
 	}
 
+	// Frueher ueber QueryBuilderFactory.construct(); org.eclipse.rdf4j.queryrender.
+	// builder existiert in RDF4J 5 nicht mehr, die Algebra-Klassen darunter (Filter,
+	// MultiProjection, Or, SameTerm, ValueConstant, Var, ...) aber schon. Der Baum wird
+	// deshalb direkt aus diesen Klassen gebaut, nicht als SPARQL-Text interpoliert.
+	// SICHERHEIT HAENGT VOM AUSFUEHRENDEN PFAD AB, nicht von dieser Methode allein:
+	// queryModel(Model, ParsedGraphQuery) wertet diese Algebra direkt gegen die
+	// SailConnection aus und rendert nie -- dort schliesst das Injection aus und
+	// erhaelt BNode-Semantik. queryRepository(Repository, ParsedQuery) rendert dieselbe
+	// Algebra weiterhin zu Text (siehe dortiger Kommentar) und bleibt daher exponiert.
+	// Byte-Identitaet zur alten QueryBuilderFactory-Ausgabe (ein/zwei Ressourcen, BNode)
+	// ist verifiziert vom committed Differential-Harness unter
+	// spikes/etappe3-query-equivalence -- nicht von SPARQLUtilQueryTest.
 	public static ParsedGraphQuery getDescribeQuery(final Iterator<Resource> resourceIterator) {
-		// Frueher ueber QueryBuilderFactory.construct(); org.eclipse.rdf4j.
-		// queryrender.builder existiert in RDF4J 5 nicht mehr, die Algebra-
-		// Klassen darunter (Filter, MultiProjection, Or, SameTerm,
-		// ValueConstant, Var, ...) aber schon. Der Baum wird deshalb direkt
-		// aus diesen Klassen gebaut statt als SPARQL-Text zu interpolieren:
-		// Ressourcen fliessen als ValueConstant in die Algebra und werden nie
-		// zu Text, was Injection ausschliesst und die BNode-Semantik erhaelt
-		// (SameTerm vergleicht den Wert selbst, nicht dessen stringValue()).
-		// Die erzeugte Struktur ist byte-identisch zur alten
-		// QueryBuilderFactory-Ausgabe fuer ein und zwei Ressourcen sowie fuer
-		// einen BNode (siehe SPARQLUtilQueryTest und Task-3-Fix-Report).
 		String subjVar = "descr_subj";
 		String predVar = "descr_pred";
 		String objVar = "descr_obj";

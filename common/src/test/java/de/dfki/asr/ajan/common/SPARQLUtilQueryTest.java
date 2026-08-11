@@ -39,17 +39,12 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.Test;
 
 /**
- * Charakterisierung der SPARQLUtil-Query-Pfade, die beim RDF4J-Umstieg
- * 3.6.3 -> 5.3.1 umgebaut werden muessen (org.eclipse.rdf4j.queryrender.builder.
- * QueryBuilderFactory und org.eclipse.rdf4j.repository.sail.SailQueryPreparer
- * existieren in RDF4J 5 nicht mehr). Die Tests sind vor dem Umbau gegen die
- * alte Implementierung geschrieben und muessen danach unveraendert gruen
- * bleiben. Fix-Runde 1 ergaenzt drei Tests, die die urspruengliche Sechser-
- * Suite nicht abdeckte: eine verlustfreie Rueckgabe von FILTER NOT EXISTS und
- * BIND(...AS...) (die alte Implementierung wertete die Algebra direkt aus,
- * der Render-Text-Umweg verliert beides) sowie ein Blank-Node-Describe (der
- * String-Interpolations-Zwischenstand haette hier eine ungueltige relative
- * IRI erzeugt).
+ * Charakterisierung der SPARQLUtil-Query-Pfade fuer den RDF4J-Umstieg
+ * 3.6.3 -> 5.3.1. Fix-Runde 2: queryModel wertet die Algebra jetzt direkt
+ * gegen die SailConnection aus statt sie zu Text zu rendern (siehe
+ * spikes/etappe3-query-equivalence fuer den vollen Old-vs-New-Vergleich).
+ * Neu: ASK-als-Quellquery (echter ACTN-Fall), eine feindliche IRI und ein
+ * jetzt korrekt matchendes Blank-Node-Describe.
  */
 public class SPARQLUtilQueryTest {
 
@@ -153,23 +148,20 @@ public class SPARQLUtilQueryTest {
 		assertEquals(bindings.get(0).getValue("x").stringValue(), "literal", "?x must carry the bound STR(?o) value");
 	}
 
-	// NOTE (fix round 1, finding 2 follow-up -- see fix report for the full
-	// analysis): getDescribeQuery no longer interpolates resource.stringValue()
-	// into query text, so this no longer embeds a bare BNode id as an invalid
-	// "<id>" relative IRI (the superseded string-based implementation did).
-	// But queryModel(Model, ParsedGraphQuery) still renders the algebra back to
-	// SPARQL text to evaluate it (SailQueryPreparer no longer exists), and
-	// SPARQL text has no syntax to address one specific pre-existing blank
-	// node from a FILTER -- "_:label" in query text is a fresh, query-scoped
-	// variable, never a reference to an existing blank node in the data. This
-	// is a structural consequence of SailQueryPreparer's removal, independent
-	// of getDescribeQuery's construction method (the pre-refactor
-	// QueryBuilderFactory-based algebra renders to the identical unparseable
-	// text). Net effect vs. the superseded implementation: a loud, correct
-	// MalformedQueryException instead of a silent bogus-IRI match -- an
-	// improvement, but not full parity with the pre-refactor behaviour.
-	@Test(expectedExceptions = org.eclipse.rdf4j.query.MalformedQueryException.class)
-	public void describeQueryForBlankNodeResourceFailsLoudRatherThanMatchingAnInvalidRelativeIri() throws IOException {
+	// Fix round 2, replaces the round-1 test of the same intent: with the
+	// algebra evaluated directly against the SailConnection (never rendered to
+	// SPARQL text), a blank node is matched by object identity via SameTerm,
+	// exactly as the pre-refactor SailQueryPreparer-based implementation did.
+	// The round-1 test asserted the opposite (a thrown MalformedQueryException)
+	// because at that point queryModel(Model, ParsedGraphQuery) still rendered
+	// the algebra back to text, and SPARQL text has no syntax for addressing a
+	// specific pre-existing blank node. That render step is gone now, so this
+	// works again. (The round-1 test was also methodologically unsound:
+	// TestNG's expectedExceptions is method-scoped, so it could not tell a
+	// throw during query construction from one during evaluation, and it did
+	// not discriminate between the two anyway.)
+	@Test
+	public void describeQueryForBlankNodeResourceMatchesTheBlankNodeItself() throws IOException {
 		String bnodeData =
 				"@prefix t: <http://ajan.test/> .\n"
 				+ "t:d t:s _:bn1 .\n"
@@ -181,6 +173,73 @@ public class SPARQLUtilQueryTest {
 		Resource bnode = (Resource) dToBnode.getObject();
 		assertTrue(bnode.isBNode(), "test data must contain a blank node object");
 		ParsedGraphQuery query = SPARQLUtil.getDescribeQuery(Arrays.<Resource>asList(bnode).iterator());
-		SPARQLUtil.queryModel(model, query);
+		Model result = SPARQLUtil.queryModel(model, query);
+		assertEquals(result.size(), 2, "describe(bnode) should yield both statements touching the blank node");
+	}
+
+	@Test
+	public void selectQueryFromAskQueryReturnsBindingSets() throws IOException {
+		// This is the real ACTN production case: vocabularies/actn.ttl defines
+		// preconditions as "a SPARQL ASK query" and ACTNUtil.createSelectQuery
+		// hands that text straight to SPARQLUtil.getSelectQuery(String, List).
+		// Round 1's render-based queryModel broke this outright
+		// (IllegalArgumentException: query is not a tuple query) because
+		// conn.prepareTupleQuery(text) requires the text to start with SELECT.
+		// Evaluating the algebra directly has no such restriction: an ASK's
+		// WHERE-clause algebra carries an implicit LIMIT 1 (from the parser),
+		// which is asserted here by using a pattern with more than one match.
+		Model model = data();
+		List<String> vars = new ArrayList<>(Arrays.asList("s", "o"));
+		ParsedTupleQuery query = SPARQLUtil.getSelectQuery("ASK WHERE { ?s ?p ?o }", vars);
+		List<BindingSet> bindings = SPARQLUtil.queryModel(model, query);
+		assertEquals(bindings.size(), 1, "ASK's implicit LIMIT 1 must still apply when evaluated as a tuple query");
+	}
+
+	@Test
+	public void describeQueryForHostileIriResourceIsUnaffectedByEmbeddedSyntax() throws IOException {
+		// Proves no text path remains reachable from getDescribeQuery + queryModel:
+		// a resource whose IRI string contains characters that would corrupt
+		// rendered SPARQL text (">" plus a bogus update clause) is matched purely
+		// by algebra-level value identity (ValueConstant/SameTerm), never
+		// embedded as text. Built directly (not via Rio/Turtle, which validates
+		// IRI syntax more strictly than ValueFactory.createIRI does) to mirror
+		// the reachable production path: AgentResourceManager.getResources only
+		// checks "instanceof Resource", not IRI well-formedness.
+		IRI evil = VF.createIRI("http://ajan.test/x> } ; DROP ALL ; # ");
+		IRI p = VF.createIRI("http://ajan.test/p");
+		IRI r = VF.createIRI("http://ajan.test/r");
+		Model model = new org.eclipse.rdf4j.model.impl.LinkedHashModel();
+		model.add(evil, p, B);
+		model.add(C, r, evil);
+		ParsedGraphQuery query = SPARQLUtil.getDescribeQuery(Arrays.<Resource>asList(evil).iterator());
+		Model result = SPARQLUtil.queryModel(model, query);
+		assertEquals(result.size(), 2, "describe(evil) must still yield exactly the two statements touching it");
+		assertTrue(result.contains(evil, p, B), "outgoing statement missing");
+		assertTrue(result.contains(C, r, evil), "incoming statement missing");
+	}
+
+	@Test
+	public void selectQueryWithFilterExistsIsNotLostOnTheQueryModelPath() throws IOException {
+		Model model = data();
+		List<String> vars = new ArrayList<>(Arrays.asList("s"));
+		ParsedTupleQuery query = SPARQLUtil.getSelectQuery(
+				"SELECT ?s WHERE { ?s ?p ?o . FILTER EXISTS { ?s <http://ajan.test/q> ?any } }", vars);
+		List<BindingSet> bindings = SPARQLUtil.queryModel(model, query);
+		assertEquals(bindings.size(), 1, "only t:b has the t:q predicate that FILTER EXISTS requires");
+		assertEquals(bindings.get(0).getValue("s"), B, "subject binding must be t:b");
+	}
+
+	@Test
+	public void selectQueryWithCountGroupByKeepsTheAggregateBound() throws IOException {
+		Model model = data();
+		List<String> vars = new ArrayList<>(Arrays.asList("s", "n"));
+		ParsedTupleQuery query = SPARQLUtil.getSelectQuery(
+				"SELECT ?s (COUNT(?o) AS ?n) WHERE { ?s ?p ?o } GROUP BY ?s", vars);
+		List<BindingSet> bindings = SPARQLUtil.queryModel(model, query);
+		assertEquals(bindings.size(), 3, "one group per distinct subject expected");
+		for (BindingSet bindingSet : bindings) {
+			assertTrue(bindingSet.hasBinding("n"), "aggregate variable n must be bound for every group");
+			assertEquals(bindingSet.getValue("n").stringValue(), "1", "each subject has exactly one statement");
+		}
 	}
 }

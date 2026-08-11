@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>spike</groupId>
+  <artifactId>etappe3-query-equivalence</artifactId>
+  <version>0.1</version>
+  <packaging>jar</packaging>
+
+  <!--
+    Fix round 2 (Task 3, Etappe 3): committed, re-runnable differential harness.
+
+    Compares three implementations of SPARQLUtil's query-construction and
+    -evaluation paths, all against real RDF4J 3.6.3 (the version this whole
+    task must stay dual-compilable with, never bumped here):
+
+      OLD      - reconstructed verbatim from the pre-Task-3 SPARQLUtil.java
+                 (git commit 5e90754c): QueryBuilderFactory for construction,
+                 SailQueryPreparer for evaluation (never renders to text).
+      ROUND1   - the fix-round-1 SPARQLUtil.java (git commit 79096bb7):
+                 hand-built algebra for getDescribeQuery, but evaluation via
+                 SPARQLQueryRenderer + conn.prepare*Query(text) (renders).
+                 Kept only to make the regression it caused concrete and
+                 re-runnable, not because it needs re-verifying on its own.
+      NEW      - the REAL, shipped de.dfki.asr.ajan.common.SPARQLUtil, loaded
+                 as an actual dependency below (not reimplemented) so this
+                 harness tests the exact code that ships, not a copy that
+                 could drift from it.
+
+    Run: mvn -f spikes/etappe3-query-equivalence/pom.xml -q compile exec:java
+    (run `mvn install` on the main reactor first so common-0.1.jar exists in
+    the local repository for this dependency to resolve.)
+  -->
+
+  <properties>
+    <maven.compiler.release>11</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <rdf4j.version>3.6.3</rdf4j.version>
+  </properties>
+
+  <dependencies>
+    <!-- The real, shipped implementation under test (NEW column). -->
+    <dependency>
+      <groupId>de.dfki.asr.ajan</groupId>
+      <artifactId>common</artifactId>
+      <version>0.1</version>
+    </dependency>
+
+    <!-- OLD/ROUND1 reimplementation needs the removed APIs directly: still
+         resolvable from Maven Central under RDF4J 3.6.3, only removed from
+         the product's own dependency tree, not from the world. -->
+    <dependency>
+      <groupId>org.eclipse.rdf4j</groupId>
+      <artifactId>rdf4j-queryrender</artifactId>
+      <version>${rdf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.rdf4j</groupId>
+      <artifactId>rdf4j-repository-sail</artifactId>
+      <version>${rdf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.rdf4j</groupId>
+      <artifactId>rdf4j-sail-memory</artifactId>
+      <version>${rdf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.rdf4j</groupId>
+      <artifactId>rdf4j-queryparser-sparql</artifactId>
+      <version>${rdf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.rdf4j</groupId>
+      <artifactId>rdf4j-rio-turtle</artifactId>
+      <version>${rdf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.36</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+          <mainClass>spike.QueryEquivalenceHarness</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
