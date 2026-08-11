@@ -27,10 +27,14 @@
       <version>5.10.2</version>
       <scope>test</scope>
     </dependency>
-    <!-- Same RDF4J line as the current project (3.6.3) so RDF-body
-         characterization in RdfResponseIT/AgentLifecycleIT parses with a
-         real Rio parser instead of substring matching. Test-scope only:
-         the E2E suite still ships no production dependency on RDF4J. -->
+    <!-- BEWUSST auf RDF4J 3.6.3 belassen, obwohl das Projekt seit Etappe 3
+         auf 5.3.1 steht (Auftraggeber-Entscheidung 2026-08-11): die Suite
+         testet ausschliesslich von aussen ueber HTTP und soll alle
+         Migrationsetappen unveraendert ueberleben. Ein vom Produktcode
+         entkoppelter Rio-Parser ist dafuer das robustere Werkzeug; er
+         parst die Antworten des Service, nicht dessen Interna.
+         Test-scope only: die E2E-Suite hat keine Produktionsabhaengigkeit
+         auf RDF4J. -->
     <dependency>
       <groupId>org.eclipse.rdf4j</groupId>
       <artifactId>rdf4j-rio-turtle</artifactId>

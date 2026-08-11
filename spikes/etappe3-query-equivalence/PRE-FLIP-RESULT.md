@@ -26,8 +26,8 @@ evaluation, not a regression.
 - Branch: `modernization/java21`
 - Commit (pre-flip HEAD, the last commit before the RDF4J-5.3.1 property flip):
   `ad6ea035` — "docs: defer the rdfbeans exception-type refinement to etappe 4"
-- The commit that performs the flip on top of this one: `build: bump rdf4j to 5.3.1
-  reactor-wide and drop removed spin sail`
+- The commit that performs the flip on top of this one: `c6bf1cae` — "build: bump
+  rdf4j to 5.3.1 reactor-wide and drop removed spin sail"
 
 ## Toolchain
 
