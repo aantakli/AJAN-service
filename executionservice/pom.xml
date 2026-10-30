@@ -93,6 +93,13 @@ MA 02110-1301  USA
         <version>3.13.0</version>
         <configuration>
           <release>11</release>
+          <annotationProcessorPaths>
+            <path>
+              <artifactId>lombok</artifactId>
+              <groupId>org.projectlombok</groupId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
         </configuration>
         <groupId>org.apache.maven.plugins</groupId>
       </plugin>
@@ -237,6 +244,9 @@ MA 02110-1301  USA
   </parent>
 
   <properties>
+    <!-- Insel (Boot-1.3.5-Parent): erbt nicht vom ajan-parent, daher eigene Property;
+         ueberschreibt zugleich Boots verwaltete Lombok-Version. -->
+    <lombok.version>1.18.48</lombok.version>
     <netbeans.hint.license>licenseheader</netbeans.hint.license>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- BEWUSST KEIN <jackson.version>-Override, obwohl spring-boot-dependencies:1.3.5

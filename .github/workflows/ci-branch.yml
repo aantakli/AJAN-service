@@ -26,11 +26,17 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Set up JDK 11
+      - name: Set up JDK 11 (service runtime; temporary crutch until Task 6)
+        id: jdk11
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '11'
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
       - name: Set up Maven
         uses: stCarolas/setup-maven@v4.3
         with:
@@ -38,7 +44,7 @@ jobs:
       - name: Build project
         run: mvn -B -ntp -DskipTests install
       - name: Run E2E smoke suite
-        run: mvn -f e2e/pom.xml verify
+        run: mvn -f e2e/pom.xml verify -Dajan.e2e.serviceJavaHome=${{ steps.jdk11.outputs.path }}
       - name: Upload E2E logs on failure
         if: failure()
         uses: actions/upload-artifact@v4

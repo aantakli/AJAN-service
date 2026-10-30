@@ -42,6 +42,9 @@ public final class AjanSystem implements AutoCloseable {
         Path logDir = root.resolve("e2e/target/logs");
         Files.createDirectories(logDir);
         String java = Paths.get(System.getProperty("java.home"), "bin", "java").toString();
+        // Boot-1.3.5-Service laeuft nicht auf JDK 17+ (cglib/Spring 4.2); bis zum Framework-Sprung
+        // kann sein JDK separat gewaehlt werden. Default: das JDK, auf dem Maven laeuft.
+        String serviceJava = Paths.get(System.getProperty("ajan.e2e.serviceJavaHome", System.getProperty("java.home")), "bin", "java").toString();
 
         failIfPortInUse(SERVICE_PORT);
 
@@ -77,7 +80,7 @@ public final class AjanSystem implements AutoCloseable {
 
         Path serviceLog = logDir.resolve("service.log");
         Path serviceJar = resolveSingleArtifact(root.resolve("executionservice/target"), "executionservice-*.jar");
-        List<String> cmd = new ArrayList<>(List.of(java,
+        List<String> cmd = new ArrayList<>(List.of(serviceJava,
                 "-Dtriplestore.initialData.agentFolderPath=executionservice/use-case/agents",
                 "-Dtriplestore.initialData.domainFolderPath=executionservice/use-case/domains",
                 "-Dtriplestore.initialData.serviceFolderPath=executionservice/use-case/services",
