@@ -191,3 +191,82 @@ def execute_leaf_script(script: str, input_turtle: str) -> tuple:
       except BaseException:  # SystemExit too: a script must not end the embedded interpreter
          status, label, output = Status.FAILED.value, traceback.format_exc(), ""
    return status, label, output, out[0]
+
+
+# --- script files -------------------------------------------------------------------------------
+# sys.path is process-global and shared by all concurrent scripts. A script's directory is put in
+# front of sys.path while at least one script from that directory runs (reference counted), so
+# concurrent scripts never remove each other's entries. sys.argv is process-global too: the Java
+# side serializes the calls that pass argv (see PythonExecutionServiceImpl.executeScriptFile).
+
+_path_lock = threading.Lock()
+_path_refs = {}  # directory -> number of running scripts from it
+_NO_ARGV = object()  # run_script_file did not touch sys.argv
+
+
+def _acquire_script_dir(directory: str):
+   with _path_lock:
+      count = _path_refs.get(directory, 0)
+      if count == 0:
+         sys.path.insert(0, directory)
+      _path_refs[directory] = count + 1
+
+
+def _release_script_dir(directory: str):
+   with _path_lock:
+      count = _path_refs.get(directory, 0) - 1
+      if count > 0:
+         _path_refs[directory] = count
+         return
+      _path_refs.pop(directory, None)
+      try:
+         sys.path.remove(directory)
+      except ValueError:
+         pass  # the script removed it itself
+
+
+def _exit_failure(code):
+   """None for a successful SystemExit code (None/0), otherwise the failure message."""
+   if code is None or code == 0:
+      return None
+   if isinstance(code, int):
+      return "script exited with code %d" % code
+   return "script exited: %s" % (code,)
+
+
+def run_script_file(namespace: dict, path: str, argv=None) -> tuple:
+   """Runs the script file at path as __main__ in namespace; never raises.
+
+   The script directory is in front of sys.path while it runs (sibling imports). With argv
+   (a sequence, possibly a Java list), sys.argv is [path] + argv during the run and restored
+   afterwards. Returns (ok, message): SystemExit with code None/0 is ok, any other code or
+   exception is not (message: exit code or traceback).
+   """
+   import os
+   path = os.path.abspath(str(path))
+   directory = os.path.dirname(path)
+   namespace["__name__"] = "__main__"
+   namespace["__file__"] = path
+   namespace.setdefault("__builtins__", __builtins__)
+   saved_argv = _NO_ARGV
+   if argv is not None:
+      saved_argv = getattr(sys, "argv", None)
+      sys.argv = [path] + [str(a) for a in argv]
+   _acquire_script_dir(directory)
+   try:
+      with open(path, "rb") as f:
+         source = f.read()
+      exec(compile(source, path, "exec"), namespace)
+      return True, ""
+   except SystemExit as e:
+      failure = _exit_failure(e.code)
+      return failure is None, failure or ""
+   except BaseException:  # a script must not end the embedded interpreter
+      return False, traceback.format_exc()
+   finally:
+      _release_script_dir(directory)
+      if saved_argv is not _NO_ARGV:
+         if saved_argv is None:
+            del sys.argv
+         else:
+            sys.argv = saved_argv
