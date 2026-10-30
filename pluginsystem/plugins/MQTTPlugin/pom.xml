@@ -114,11 +114,6 @@ MA 02110-1301  USA
       <version>3.8</version>
     </dependency>
     <dependency>
-      <artifactId>javax.inject</artifactId>
-      <groupId>javax.inject</groupId>
-      <version>1</version>
-    </dependency>
-    <dependency>
       <artifactId>Saxon-HE</artifactId>
       <groupId>net.sf.saxon</groupId>
       <version>9.8.0-12</version>
