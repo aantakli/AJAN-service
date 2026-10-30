@@ -100,9 +100,10 @@ Pre-modelled agent templates, behaviors, service definitions and domain knowledg
 The PythonPlugin runs Python scripts in-process via JEP. The plugin JAR embeds a generated CPython environment (`nix_env.zip` for Linux, `win_env.zip` for Windows) which is extracted on first use; no system Python is required.
 
 * **Local setup:** the zips are not in Git. Put them into `pluginsystem/plugins/PythonPlugin/python-env/dist/` before `mvn install`, either with `python-env/fetch-ci.sh` (downloads both from the last green `ci-branch` run of the current branch, needs an authenticated `gh`) or `python-env/build-linux.sh` (builds the Linux env with Docker). Without them the plugin builds but reports "Python not available"; `-Dajan.python.requireEnv=true` makes the JEP tests fail instead of skip.
-* **External CPython:** set `-Dajan.python.home=<dir>` or `AJAN_PYTHON_HOME` to use an existing CPython that has `jep` installed instead of the embedded env.
+* **External CPython:** set `-Dajan.python.home=<dir>` or `AJAN_PYTHON_HOME` to use an existing CPython that has `jep` installed instead of the embedded env (PythonLeafNode scripts also need `rdflib`; script files such as the OPCUA scripts need only their own packages).
 * **Cache location:** the embedded env is extracted to `~/.cache/ajan-python` (Linux) or `%LOCALAPPDATA%\ajan-python` (Windows); override with `-Dajan.python.cacheDir=<dir>`.
 * **Adding packages:** add them to `python-env/requirements.in`, run `uv pip compile requirements.in --universal --generate-hashes --python-version 3.13 -o requirements.lock` in `python-env/`, commit both files and rebuild the envs (CI does this automatically).
+* **OPCUA logs:** the OPCUA scripts write `logs/` and `result_logs/` under `AJAN_OPCUA_LOG_DIR`, by default `~/.cache/ajan-opcua` (Linux) or `%LOCALAPPDATA%jan-opcua` (Windows).
 * **Known limits:** scripts have no timeout; a native crash in a Python extension takes down the whole service; Python is initialised once per JVM.
 
 ## Regenerating third-party license files

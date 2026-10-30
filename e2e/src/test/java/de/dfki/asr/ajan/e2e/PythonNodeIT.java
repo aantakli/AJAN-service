@@ -9,6 +9,8 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
@@ -16,6 +18,7 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -47,6 +50,7 @@ class PythonNodeIT extends AjanSystemBase {
     private static final IRI AGENT_HAS_ID = VF.createIRI("http://www.ajan.de/ajan-ns#agentId");
     private static final IRI PYTHON_LABEL = VF.createIRI("http://www.ajan.de/python-ns#label");
     private static final String EXPECTED_LABEL = "is an Python Agent";
+    private static final Pattern ASK_BOOLEAN = Pattern.compile("\"boolean\"\\s*:\\s*(true|false)");
 
     @Test
     @Order(1)
@@ -55,7 +59,7 @@ class PythonNodeIT extends AjanSystemBase {
                 + URLEncoder.encode("ASK { <" + TEMPLATE + "> ?p ?o }", StandardCharsets.UTF_8);
         var ask = Http.getWithAccept(askUrl, "application/sparql-results+json");
         assertEquals(200, ask.statusCode(), "ASK on agents repo failed: " + ask.body());
-        if (ask.body().contains("true")) {
+        if (askResult(ask.body())) {
             return; // already present (e.g. a reused container)
         }
         Path example = Paths.get(System.getProperty("ajan.root", "..")).toAbsolutePath().normalize()
@@ -111,6 +115,30 @@ class PythonNodeIT extends AjanSystemBase {
         var del = Http.send("DELETE", system.serviceBase() + "/agents/" + AGENT_ID, null, null);
         assertEquals(200, del.statusCode(),
                 "delete should succeed, was " + del.statusCode() + ": " + del.body());
+    }
+
+    /**
+     * Safety net: the agent is gone even if a test before deleteAgent() failed (a reused container
+     * would otherwise keep it and the next run's create would fail). Errors are ignored; this runs
+     * before AjanSystemBase stops the system.
+     */
+    @AfterAll
+    static void deleteAgentBestEffort() {
+        if (system == null) {
+            return;
+        }
+        try {
+            Http.send("DELETE", system.serviceBase() + "/agents/" + AGENT_ID, null, null);
+        } catch (Exception ignored) {
+            // best effort (already deleted by deleteAgent() or the service is down)
+        }
+    }
+
+    /** The {@code boolean} field of a SPARQL ASK result in JSON. */
+    private static boolean askResult(String json) {
+        Matcher m = ASK_BOOLEAN.matcher(json);
+        assertTrue(m.find(), "ASK result has no boolean field: " + json);
+        return Boolean.parseBoolean(m.group(1));
     }
 
     /** The agent resource (subject carrying our agentId) must carry the label the script adds. */
