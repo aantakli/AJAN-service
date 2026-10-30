@@ -48,11 +48,14 @@ class RdfResponseIT extends AjanSystemBase {
 
     // OBSERVED (2026-07-13, executionservice on RESTEasy/JAX-RS, RDF4J 3.6.3):
     // GET /ajan/agents/{id} with Accept: text/turtle -> 200,
-    // Content-Type "text/turtle; charset=UTF-8" (note the space after the
-    // semicolon - RESTEasy's default charset-append convention). Body parses
+    // Content-Type text/turtle with charset=UTF-8. Body parses
     // as valid Turtle with the agent's own URI as subject, rdf:type
     // ajan:Agent present, and more than one triple (id/template/knowledge/
     // behavior/action statements from ModelProducer.addAgentStatements).
+    // Ruling R3 (Etappe 4, Task 6): compared as parsed media type + charset.
+    // Old stack (Boot 1.3/Undertow) sent "text/turtle; charset=UTF-8", the
+    // Tomcat-11 stack sends "text/turtle;charset=UTF-8" - the same HTTP value
+    // (RFC 9110: whitespace around ';' is optional); Tomcat cannot emit the space.
     @Test
     @Order(2)
     void turtleRepresentationHasPinnedContentTypeAndParsesAsRdf() throws Exception {
@@ -61,9 +64,7 @@ class RdfResponseIT extends AjanSystemBase {
         assertEquals(200, r.statusCode(), "GET agent with Accept: text/turtle should succeed, was "
                 + r.statusCode() + ": " + r.body());
 
-        String contentType = r.headers().firstValue("Content-Type").orElse(null);
-        assertEquals("text/turtle; charset=UTF-8", contentType,
-                "OBSERVED Content-Type for Accept: text/turtle was: " + contentType);
+        Http.assertContentType(r, "text/turtle", "UTF-8");
 
         Model model = Rio.parse(new StringReader(r.body()), agentUrl, RDFFormat.TURTLE);
         assertFalse(model.isEmpty(), "turtle body should parse into a non-empty RDF model, was:\n" + r.body());
@@ -74,11 +75,15 @@ class RdfResponseIT extends AjanSystemBase {
     }
 
     // OBSERVED (2026-07-13): GET /ajan/agents/{id} with Accept:
-    // application/ld+json -> 200, Content-Type
-    // "application/ld+json; charset=UTF-8". Pinning the header only (Step 4
-    // does not require parsing the JSON-LD body); both negotiated formats get
-    // the same "; charset=UTF-8" suffix appended by RESTEasy, which is itself
-    // worth pinning as a migration trip wire.
+    // application/ld+json -> 200, Content-Type application/ld+json with
+    // charset=UTF-8. Pinning the header only (Step 4 does not require parsing
+    // the JSON-LD body); both negotiated formats carry charset=UTF-8, which is
+    // itself worth pinning as a migration trip wire (Boot 4 only keeps it via
+    // spring.servlet.encoding.force=true).
+    // Ruling R3 (Etappe 4, Task 6): compared as parsed media type + charset.
+    // Old stack (Boot 1.3/Undertow) sent "application/ld+json; charset=UTF-8", the
+    // Tomcat-11 stack sends "application/ld+json;charset=UTF-8" - the same HTTP value
+    // (RFC 9110: whitespace around ';' is optional); Tomcat cannot emit the space.
     @Test
     @Order(3)
     void jsonLdRepresentationHasPinnedContentType() throws Exception {
@@ -87,9 +92,7 @@ class RdfResponseIT extends AjanSystemBase {
         assertEquals(200, r.statusCode(), "GET agent with Accept: application/ld+json should succeed, was "
                 + r.statusCode() + ": " + r.body());
 
-        String contentType = r.headers().firstValue("Content-Type").orElse(null);
-        assertEquals("application/ld+json; charset=UTF-8", contentType,
-                "OBSERVED Content-Type for Accept: application/ld+json was: " + contentType);
+        Http.assertContentType(r, "application/ld+json", "UTF-8");
         assertFalse(r.body().isBlank(), "json-ld body should not be blank");
     }
 

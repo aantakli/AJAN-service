@@ -20,9 +20,13 @@ class ErrorPathIT extends AjanSystemBase {
     // #getAgent wirft AgentNotFoundException (extends AgentValidationException
     // extends WebApplicationException, Status NOT_FOUND) -> WebExceptionMapper
     // greift -> 404 mit RDF-Fehlerbeschreibung als Turtle.
-    // OBSERVED (2026-07-13): 404, Content-Type "text/turtle; charset=UTF-8"
-    // (Leerzeichen nach dem Semikolon - RESTEasy haengt den Charset selbst an
-    // WebExceptionMapper#createRDFExceptionResponse's "text/turtle" an).
+    // OBSERVED (2026-07-13): 404, Content-Type text/turtle mit charset=UTF-8
+    // (der Charset kommt nicht aus WebExceptionMapper#createRDFExceptionResponse,
+    // das nur "text/turtle" setzt, sondern aus der erzwungenen Antwort-Kodierung).
+    // Ruling R3 (Etappe 4, Task 6): compared as parsed media type + charset.
+    // Old stack (Boot 1.3/Undertow) sent "text/turtle; charset=UTF-8", the
+    // Tomcat-11 stack sends "text/turtle;charset=UTF-8" - the same HTTP value
+    // (RFC 9110: whitespace around ';' is optional); Tomcat cannot emit the space.
     // Body enthaelt RDF-Statements ueber die geworfene Exception (u.a.
     // rdfs:label mit der Exception-Message und rdf:type mit dem
     // Java-Klassennamen als urn:java-class:-IRI).
@@ -32,9 +36,7 @@ class ErrorPathIT extends AjanSystemBase {
         var r = Http.send("GET", system.serviceBase() + "/agents/" + unknownId, null, null);
         assertEquals(404, r.statusCode(),
                 "GET of an unknown agent should be 404, was " + r.statusCode() + ": " + r.body());
-        String contentType = r.headers().firstValue("Content-Type").orElse(null);
-        assertEquals("text/turtle; charset=UTF-8", contentType,
-                "OBSERVED error Content-Type was: " + contentType);
+        Http.assertContentType(r, "text/turtle", "UTF-8");
         assertTrue(r.body().contains("AgentNotFoundException"),
                 "error body should describe the AgentNotFoundException, was:\n" + r.body());
     }
@@ -46,9 +48,16 @@ class ErrorPathIT extends AjanSystemBase {
     // OBSERVED (2026-07-13): trotzdem 400 (nicht 500) - RESTEasy faengt
     // Exceptions aus MessageBodyReader#readFrom offenbar selbst als
     // Bad-Request ab, unabhaengig vom projekteigenen Mapper. Content-Type
-    // "text/html; charset=UTF-8" - RESTEasy's generischer HTML-Fehlerpfad,
+    // text/html mit charset=UTF-8 - RESTEasy's generischer HTML-Fehlerpfad,
     // NICHT das RDF-Turtle-Format des WebExceptionMapper. Body ist der rohe
     // Exception.toString() der RDFParseException.
+    // Etappe 4 (RESTEasy 6): derselbe 400-Pfad nur mit
+    // dev.resteasy.exception.mapper=false (Application#main); der Body ist dort
+    // zusaetzlich HTML-escaped (MessageSanitizerContainerResponseFilter).
+    // Ruling R3 (Etappe 4, Task 6): compared as parsed media type + charset.
+    // Old stack (Boot 1.3/Undertow) sent "text/html; charset=UTF-8", the
+    // Tomcat-11 stack sends "text/html;charset=UTF-8" - the same HTTP value
+    // (RFC 9110: whitespace around ';' is optional); Tomcat cannot emit the space.
     @Test
     void postMalformedTurtleIsRejected() throws Exception {
         var r = Http.send("POST", system.serviceBase() + "/agents/", "text/turtle", "@@@ not turtle");
@@ -57,9 +66,7 @@ class ErrorPathIT extends AjanSystemBase {
         assertTrue(r.body().contains("RDFParseException"),
                 "error body should mention the RDFParseException that RDFConsumer#readFrom let escape, was:\n"
                         + r.body());
-        String contentType = r.headers().firstValue("Content-Type").orElse(null);
-        assertEquals("text/html; charset=UTF-8", contentType,
-                "OBSERVED Content-Type for the malformed-turtle error path was: " + contentType);
+        Http.assertContentType(r, "text/html", "UTF-8");
     }
 
     // (c) DELETE eines unbekannten Agenten: gleicher Sub-Resource-Locator wie

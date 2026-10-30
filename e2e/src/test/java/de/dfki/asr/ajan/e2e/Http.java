@@ -5,6 +5,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Locale;
 
 public final class Http {
     private static final HttpClient CLIENT = HttpClient.newBuilder()
@@ -12,6 +13,42 @@ public final class Http {
             .build();
 
     private Http() {}
+
+    /**
+     * Asserts the Content-Type as a parsed HTTP value (Ruling R3, Etappe 4 Task 6):
+     * media type and charset parameter compared case-insensitively, whitespace around ';'
+     * ignored (optional per RFC 9110). Strict otherwise: the header must exist, the media
+     * type must match, a charset parameter must be present and equal, and there must be no
+     * other parameter. Needed because Tomcat 11 always emits "type;charset=X" (no space),
+     * while the Boot-1.3/Undertow stack emitted "type; charset=X".
+     */
+    public static void assertContentType(HttpResponse<String> r, String expectedMediaType,
+            String expectedCharset) {
+        String raw = r.headers().firstValue("Content-Type").orElse(null);
+        if (raw == null) {
+            throw new AssertionError("response has no Content-Type, expected "
+                    + expectedMediaType + "; charset=" + expectedCharset);
+        }
+        String[] parts = raw.split(";", -1);
+        String mediaType = parts[0].trim();
+        if (!mediaType.equalsIgnoreCase(expectedMediaType)) {
+            throw new AssertionError("Content-Type media type: expected <" + expectedMediaType
+                    + "> but was <" + mediaType + "> (raw: " + raw + ")");
+        }
+        if (parts.length != 2) {
+            throw new AssertionError("Content-Type must carry exactly one parameter (charset="
+                    + expectedCharset + "), raw: " + raw);
+        }
+        String param = parts[1].trim();
+        int eq = param.indexOf('=');
+        String name = eq < 0 ? param : param.substring(0, eq).trim();
+        String value = eq < 0 ? "" : param.substring(eq + 1).trim();
+        if (!"charset".equals(name.toLowerCase(Locale.ROOT))
+                || !value.equalsIgnoreCase(expectedCharset)) {
+            throw new AssertionError("Content-Type charset: expected <" + expectedCharset
+                    + "> but parameter was <" + param + "> (raw: " + raw + ")");
+        }
+    }
 
     public static HttpResponse<String> send(String method, String url, String contentType, String body)
             throws java.io.IOException, InterruptedException {
