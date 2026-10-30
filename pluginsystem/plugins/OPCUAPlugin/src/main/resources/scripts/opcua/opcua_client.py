@@ -2,12 +2,11 @@ import asyncio
 import traceback
 import socket
 import time
-from pathlib import Path
 from asyncua.ua.uaerrors import UaError
 from asyncua import Client
 from result_event_handler import ResultEventHandler
 from event_handler import EventHandler
-from ijt_logger import ijt_log
+from ijt_logger import ijt_log, log_subdir
 from event_types import get_event_types
 from method_caller import OPCUAMethodCaller
 
@@ -163,9 +162,5 @@ class OPCUAClient:
             ijt_log.error(traceback.format_exc())
 
     async def clear_old_logs(self):
-        log_dir = Path("result_logs")
-        if log_dir.exists():
-            for file in log_dir.glob("*.json"):
-                file.unlink()
-        else:
-            log_dir.mkdir()
+        for file in log_subdir("result_logs").glob("*.json"):
+            file.unlink()

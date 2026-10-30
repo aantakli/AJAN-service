@@ -43,8 +43,10 @@
         <configuration>
           <!-- JEP loads libjep/libpython via JNI (JEP 472). -->
           <argLine>--enable-native-access=ALL-UNNAMED</argLine>
-          <!-- main.py writes logs/ and result_logs/ relative to the working directory -->
-          <workingDirectory>${project.build.directory}</workingDirectory>
+          <environmentVariables>
+            <!-- main.py writes logs/ and result_logs/ there (default: <user cache>/ajan-opcua) -->
+            <AJAN_OPCUA_LOG_DIR>${project.build.directory}/ajan-opcua</AJAN_OPCUA_LOG_DIR>
+          </environmentVariables>
           <systemPropertyVariables>
             <ajan.python.cacheDir>${project.build.directory}/ajan-python-cache</ajan.python.cacheDir>
             <ajan.python.requireEnv>${ajan.python.requireEnv}</ajan.python.requireEnv>

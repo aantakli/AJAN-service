@@ -32,7 +32,7 @@ except Exception:
 
 # ---- END: robust JSON import ----
 
-from ijt_logger import ijt_log
+from ijt_logger import ijt_log, log_subdir
 from serialize_data import serialize_full_event
 from client_config import ENABLE_RESULT_FILE_LOGGING
 
@@ -311,8 +311,7 @@ async def log_result_to_file(event):
             json_data = serialize_full_event(event.Result)
             json_str = orjson.dumps(json_data).decode("utf-8")
 
-            log_dir = Path("result_logs")
-            log_dir.mkdir(exist_ok=True)
+            log_dir = log_subdir("result_logs")
 
             safe_message = re.sub(
                 r"[^\w\-_\. ]", "_", str(event.Message).replace(":", "_")

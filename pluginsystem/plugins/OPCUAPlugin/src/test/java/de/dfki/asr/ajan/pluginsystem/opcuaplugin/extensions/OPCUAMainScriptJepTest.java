@@ -65,7 +65,83 @@ public class OPCUAMainScriptJepTest {
     PythonExecutionResult r =
         OPCUAMainScript.callMethod(service, script(OPCUAMainScript.CALL), argv);
     assertEquals(OPCUAMainScript.statusOf(r), Status.FAILED, String.valueOf(r.getOutput()));
-    assertTrue(r.getError().contains("code 1"), r.getError());
+    // the reason reaches the node status / agent log, not only an exit code
+    assertTrue(
+        r.getError().contains("OPC UA method enable_asset failed against " + UNREACHABLE + ": "),
+        r.getError());
+  }
+
+  /**
+   * A method call runs main.main on the calling (pooled) thread: afterwards that thread has no
+   * closed event loop set, and a failing method status reaches the result as the reason.
+   */
+  @Test(timeOut = 60_000)
+  public void methodCallLeavesNoClosedEventLoopAndReportsTheReason() throws Exception {
+    String opcuaDir = script(OPCUAMainScript.MAIN).getParent().toString();
+    Path dir = Files.createTempDirectory("ajan-opcua-loop");
+    Path fakeCall = dir.resolve("fake_call.py");
+    Files.writeString(
+        fakeCall,
+        String.join(
+            "\n",
+            "import asyncio, sys",
+            "sys.path.insert(0, " + pyString(opcuaDir) + ")",
+            "try:",
+            "    import main",
+            "finally:",
+            "    sys.path.remove(" + pyString(opcuaDir) + ")",
+            "",
+            "class FakeMethods:",
+            "    async def enable_asset(self, object_nodeid, method_nodeid, enable):",
+            "        return {'status': method_status, 'status_message': 'boom'}",
+            "",
+            "class FakeClient:",
+            "    def __init__(self, url):",
+            "        self.methods = FakeMethods()",
+            "    async def connect(self): pass",
+            "    async def cleanup(self): pass",
+            "",
+            "real_client = main.OPCUAClient",
+            "main.OPCUAClient = FakeClient",
+            "try:",
+            "    try:",
+            "        main.main(['--url', 'opc.tcp://fake:4840', '--call', 'enable_asset',"
+                + " '--enable', 'true'])",
+            "        outcome = 'ok'",
+            "    except SystemExit as e:",
+            "        outcome = str(e.code)",
+            "finally:",
+            "    main.OPCUAClient = real_client",
+            "try:",
+            "    loop_state = 'closed' if asyncio.get_event_loop().is_closed() else 'open'",
+            "except RuntimeError:",
+            "    loop_state = 'unset'",
+            "async def ping():",
+            "    return 42",
+            "fresh = asyncio.new_event_loop()",
+            "try:",
+            "    value = fresh.run_until_complete(ping())",
+            "finally:",
+            "    fresh.close()",
+            "result = '|'.join([outcome, loop_state, str(value)])",
+            ""),
+        StandardCharsets.UTF_8);
+
+    PythonExecutionResult ok = service.executeScriptFile(fakeCall, Map.of("method_status", 0));
+    assertTrue(ok.isSuccess(), ok.getError());
+    String[] parts = ok.getResults().get("result").toString().split("\\|");
+    assertEquals(parts[0], "ok");
+    assertTrue(!parts[1].equals("closed"), "closed event loop left on the thread");
+    assertEquals(parts[2], "42");
+
+    PythonExecutionResult failed = service.executeScriptFile(fakeCall, Map.of("method_status", 3));
+    assertTrue(failed.isSuccess(), failed.getError());
+    parts = failed.getResults().get("result").toString().split("\\|");
+    assertTrue(
+        parts[0].contains("enable_asset returned status 3: boom")
+            && parts[0].contains("opc.tcp://fake:4840"),
+        parts[0]);
+    assertTrue(!parts[1].equals("closed"), "closed event loop left on the thread");
   }
 
   @Test
@@ -129,7 +205,7 @@ public class OPCUAMainScriptJepTest {
       PythonExecutionResult exit = exits.poll(30, TimeUnit.SECONDS);
       assertNotNull(exit, "round " + round + ": event client did not end");
       assertFalse(exit.isSuccess());
-      assertTrue(exit.getError().contains("code 1"), exit.getError());
+      assertTrue(exit.getError().contains("connection lost (simulated)"), exit.getError());
       while (OPCUAMainScript.isEventClientRunning(endpoint)) {
         Thread.sleep(10);
       }
@@ -149,7 +225,9 @@ public class OPCUAMainScriptJepTest {
     PythonExecutionResult exit = exits.poll(100, TimeUnit.SECONDS);
     assertNotNull(exit, "event client did not end");
     assertFalse(exit.isSuccess());
-    assertTrue(exit.getError().contains("code 1"), exit.getError());
+    assertTrue(
+        exit.getError().contains("OPC UA event client failed against " + UNREACHABLE),
+        exit.getError());
     while (OPCUAMainScript.isEventClientRunning(UNREACHABLE)) {
       Thread.sleep(10);
     }
