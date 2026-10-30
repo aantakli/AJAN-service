@@ -1,7 +1,7 @@
 
 Lists of 5 third-party dependencies.
      (Eclipse Public License - v 2.0) Eclipse Compiler for Java(TM) (org.eclipse.jdt:ecj:3.26.0 - http://www.eclipse.org/jdt)
-     (Apache License, Version 2.0) tomcat-annotations-api (org.apache.tomcat:tomcat-annotations-api:9.0.109 - https://tomcat.apache.org/)
-     (Apache License, Version 2.0) tomcat-embed-core (org.apache.tomcat.embed:tomcat-embed-core:9.0.109 - https://tomcat.apache.org/)
-     (Apache License, Version 2.0) tomcat-embed-el (org.apache.tomcat.embed:tomcat-embed-el:9.0.109 - https://tomcat.apache.org/)
-     (Apache License, Version 2.0) tomcat-embed-jasper (org.apache.tomcat.embed:tomcat-embed-jasper:9.0.109 - https://tomcat.apache.org/)
+     (Apache License, Version 2.0) tomcat-annotations-api (org.apache.tomcat:tomcat-annotations-api:9.0.123 - https://tomcat.apache.org/)
+     (Apache License, Version 2.0) tomcat-embed-core (org.apache.tomcat.embed:tomcat-embed-core:9.0.123 - https://tomcat.apache.org/)
+     (Apache License, Version 2.0) tomcat-embed-el (org.apache.tomcat.embed:tomcat-embed-el:9.0.123 - https://tomcat.apache.org/)
+     (Apache License, Version 2.0) tomcat-embed-jasper (org.apache.tomcat.embed:tomcat-embed-jasper:9.0.123 - https://tomcat.apache.org/)

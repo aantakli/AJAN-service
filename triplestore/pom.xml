@@ -15,7 +15,7 @@
          (web-app 2.4, spring-webmvc 5.3.x, jstl 1.2) - Jakarta wuerde nicht
          deployen. -->
     <properties>
-        <tomcat.version>9.0.109</tomcat.version>
+        <tomcat.version>9.0.123</tomcat.version>
         <mainClass>de.dfki.asr.ajan.triplestore.TriplestoreLauncher</mainClass>
     </properties>
 
