@@ -9,9 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PluginLoadIT extends AjanSystemBase {
 
-    // Entwicklungsmodus (pf4j.mode=development): alle 10 muessen laden.
-    // Achtung: das CI-dist/Docker-Image enthaelt heute nur 8 (ohne OPCUA,
-    // ScriptExecutor) — dieser Test laeuft bewusst gegen den Dev-Modus.
+    // Alle 10 muessen laden: im Standardmodus (lokaler Prozess,
+    // pf4j.mode=development) und im Container-Modus gegen das Docker-Image
+    // (pf4j.mode=deployment, Fat-JARs aus /app/pluginsystem/plugins).
     private static final List<String> PLUGIN_IDS = List.of(
             "ASPPlugin", "MappingPlugin", "MOSIMPlugin", "MQTTPlugin", "OPCUAPlugin",
             "PythonPlugin", "RMLMappingPlugin", "ScriptExecutorPlugin", "STRIPSPlugin",

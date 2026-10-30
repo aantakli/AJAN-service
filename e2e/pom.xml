@@ -71,6 +71,9 @@
                  bleibt, weil sie harmlos und robust gegen kuenftige
                  Surefire-Versionen ist, nicht weil sie eine Luecke schliesst. -->
             <ajan.e2e.triplestoreUrl>${ajan.e2e.triplestoreUrl}</ajan.e2e.triplestoreUrl>
+            <!-- Container-Modus (AjanSystem): gegen laufenden Service testen -->
+            <ajan.e2e.serviceUrl>${ajan.e2e.serviceUrl}</ajan.e2e.serviceUrl>
+            <ajan.e2e.serviceLogFile>${ajan.e2e.serviceLogFile}</ajan.e2e.serviceLogFile>
           </systemPropertyVariables>
           <!-- ITs starten echte Prozesse auf festen Ports: strikt sequenziell -->
           <forkCount>1</forkCount>

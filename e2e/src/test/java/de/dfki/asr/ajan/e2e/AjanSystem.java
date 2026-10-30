@@ -20,6 +20,12 @@ import java.util.List;
  * Prozesse (analog startAll-Skripte / supervisord im Docker-Image) und
  * raeumt sie wieder ab. Charakterisiert den IST-Zustand — bei Migrations-
  * etappen darf sich am Verhalten dieser Klasse nichts aendern muessen.
+ *
+ * <p>Container-Modus: ist {@code ajan.e2e.serviceUrl} gesetzt (z.B.
+ * {@code http://localhost:8080/ajan}), wird kein Service gestartet/gestoppt,
+ * sondern gegen diese URL getestet; der Triplestore kommt dann aus
+ * {@code ajan.e2e.triplestoreUrl}, das Startlog fuer {@code PluginLoadIT} aus
+ * {@code ajan.e2e.serviceLogFile} (z.B. {@code docker logs} in eine Datei).
  */
 public final class AjanSystem implements AutoCloseable {
 
@@ -28,7 +34,7 @@ public final class AjanSystem implements AutoCloseable {
     private static final Duration PORT_RELEASE_TIMEOUT = Duration.ofSeconds(30);
 
     private final Process triplestore; // null, wenn extern (Spike A)
-    private final Process service;
+    private final Process service; // null im Container-Modus (ajan.e2e.serviceUrl)
     private final Path serviceLog;
 
     private AjanSystem(Process triplestore, Process service, Path serviceLog) {
@@ -38,6 +44,10 @@ public final class AjanSystem implements AutoCloseable {
     }
 
     public static AjanSystem start() throws IOException, InterruptedException {
+        String externalService = externalServiceUrl();
+        if (externalService != null) {
+            return attachExternal(externalService);
+        }
         Path root = Paths.get(System.getProperty("ajan.root", "..")).toAbsolutePath().normalize();
         Path logDir = root.resolve("e2e/target/logs");
         Files.createDirectories(logDir);
@@ -118,6 +128,32 @@ public final class AjanSystem implements AutoCloseable {
     }
 
     /**
+     * Container-Modus: nichts starten, nur auf den laufenden Service und die
+     * geladenen Use-Case-Daten warten. {@link #close()} stoppt dann nichts.
+     */
+    private static AjanSystem attachExternal(final String serviceUrl) throws InterruptedException {
+        String triplestoreUrl = System.getProperty("ajan.e2e.triplestoreUrl");
+        if (triplestoreUrl == null || triplestoreUrl.isEmpty()) {
+            throw new IllegalStateException("ajan.e2e.serviceUrl requires ajan.e2e.triplestoreUrl as well");
+        }
+        String logFile = System.getProperty("ajan.e2e.serviceLogFile");
+        if (logFile == null || logFile.isEmpty()) {
+            throw new IllegalStateException("ajan.e2e.serviceUrl requires ajan.e2e.serviceLogFile as well");
+        }
+        Http.awaitOk(serviceUrl + "/agents", Duration.ofSeconds(180));
+        awaitTtlDataLoaded(triplestoreUrl);
+        return new AjanSystem(null, null, Paths.get(logFile).toAbsolutePath());
+    }
+
+    private static String externalServiceUrl() {
+        String url = System.getProperty("ajan.e2e.serviceUrl");
+        if (url == null || url.isEmpty()) {
+            return null;
+        }
+        return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
+    }
+
+    /**
      * Wartet zusaetzlich zum blossen HTTP-200 auf /ajan/agents darauf, dass
      * die "agents"-Repository im Triplestore existiert UND das
      * HelloWorld-Template dort tatsaechlich Daten hat. Ein einfaches GET auf
@@ -171,24 +207,11 @@ public final class AjanSystem implements AutoCloseable {
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, glob)) {
             stream.forEach(matches::add);
         }
-        // Transitional (delete in Etappe 5): working trees built before Etappe 3
-        // may still carry the legacy tomcat8-maven-plugin exec-war artifact
-        // (triplestore-0.1-war-exec.jar), which also matches "triplestore-*.jar".
-        // Skip it by name here rather than narrowing the glob itself - Etappe 0
-        // deliberately replaced hard-pinned "-0.1.jar" paths with globs so a
-        // version bump wouldn't break this suite, and a legacy-file check keeps
-        // that property.
-        List<Path> eligible = new ArrayList<>();
-        for (Path match : matches) {
-            if (!match.getFileName().toString().contains("-war-exec")) {
-                eligible.add(match);
-            }
-        }
-        if (eligible.size() != 1) {
+        if (matches.size() != 1) {
             throw new IllegalStateException("Expected exactly one artifact matching '" + glob + "' in " + dir
-                    + " but found " + eligible.size() + ": " + eligible);
+                    + " but found " + matches.size() + ": " + matches);
         }
-        return eligible.get(0);
+        return matches.get(0);
     }
 
     public String triplestoreUrl() {
@@ -197,7 +220,8 @@ public final class AjanSystem implements AutoCloseable {
     }
 
     public String serviceBase() {
-        return "http://localhost:" + SERVICE_PORT + "/ajan";
+        String ext = externalServiceUrl();
+        return ext != null ? ext : "http://localhost:" + SERVICE_PORT + "/ajan";
     }
 
     public Path serviceLog() {
@@ -206,6 +230,9 @@ public final class AjanSystem implements AutoCloseable {
 
     @Override
     public void close() {
+        if (service == null) {
+            return; // Container-Modus: externer Service bleibt laufen
+        }
         destroy(service);
         destroy(triplestore);
         // Windows: Nach dem Toeten eines Prozesses bleibt dessen Listen-Socket
