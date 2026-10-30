@@ -14,6 +14,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.nio.file.attribute.UserPrincipal;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -40,9 +42,15 @@ import org.slf4j.LoggerFactory;
  * <p>Resolution order: system property {@value #HOME_PROPERTY}, then environment variable
  * {@value #HOME_ENV} (an external CPython with jep installed), then the environment zip embedded in
  * the plugin JAR for the current OS ({@code /nix_env.zip} or {@code /win_env.zip}). The zip is
- * extracted into {@code ${ajan.python.cacheDir:-${java.io.tmpdir}/ajan-python}/<sha256-12>/}; the
- * marker {@value #COMPLETE_MARKER} is written last, so an interrupted extraction is detected and
- * redone. Other {@code <sha256-12>} directories in the cache are removed. {@code AJANlib.py} (a
+ * extracted into {@code <cache>/<sha256-12>/}, where {@code <cache>} is {@value
+ * #CACHE_DIR_PROPERTY} or a per-user directory ({@code ~/.cache/ajan-python}, Windows {@code
+ * %LOCALAPPDATA%\ajan-python}) — never a shared temp dir, because native libraries are loaded
+ * from it. On POSIX the cache directories are created 0700 and refused (Python unavailable) when
+ * they are symlinks, owned by another user or group/other-writable. Extraction happens in a
+ * private {@code .extract-*} temp dir that receives the marker {@value #COMPLETE_MARKER} and is
+ * then renamed atomically, so {@code <sha256-12>/} is either absent or complete; an unmarked one
+ * (older versions) is redone. Other {@code <sha256-12>} directories are removed without following
+ * symlinks. {@code AJANlib.py} (a
  * resource of the plugin JAR) is written to an {@code ajan-lib/} directory that goes on {@code
  * sys.path}.
  */
@@ -140,12 +148,171 @@ public final class PythonEnvironment {
         PythonEnvironment.class::getResourceAsStream);
   }
 
+  /**
+   * Per-user cache base (never a shared temp dir: extracted native libraries are loaded into the
+   * JVM). {@value #CACHE_DIR_PROPERTY} overrides; otherwise {@code ~/.cache/ajan-python} on
+   * POSIX and {@code %LOCALAPPDATA%\ajan-python} (fallback {@code ~\.ajan-python}) on Windows.
+   */
   static Path defaultCacheBase() {
     String configured = System.getProperty(CACHE_DIR_PROPERTY);
     if (configured != null && !configured.isBlank()) {
       return Paths.get(configured).toAbsolutePath();
     }
-    return Paths.get(System.getProperty("java.io.tmpdir"), "ajan-python").toAbsolutePath();
+    String userHome = System.getProperty("user.home");
+    if (isWindows()) {
+      String localAppData = System.getenv("LOCALAPPDATA");
+      return (notBlank(localAppData)
+              ? Paths.get(localAppData, "ajan-python")
+              : Paths.get(userHome, ".ajan-python"))
+          .toAbsolutePath();
+    }
+    return Paths.get(userHome, ".cache", "ajan-python").toAbsolutePath();
+  }
+
+  /** A cache directory that is not safe to load native code from. */
+  static final class InsecureCacheDirException extends IOException {
+    private static final long serialVersionUID = 1L;
+
+    InsecureCacheDirException(String message) {
+      super(message);
+    }
+  }
+
+  private static final Set<PosixFilePermission> OWNER_ONLY =
+      EnumSet.of(
+          PosixFilePermission.OWNER_READ,
+          PosixFilePermission.OWNER_WRITE,
+          PosixFilePermission.OWNER_EXECUTE);
+
+  private static boolean posix() {
+    return FileSystems.getDefault().supportedFileAttributeViews().contains("posix");
+  }
+
+  /**
+   * Creates {@code dir} (POSIX: mode 0700) if missing, then verifies it: a real directory (not a
+   * symlink) and, on POSIX, owned by the current user and not group/other-writable.
+   */
+  static Path secureDir(Path dir) throws IOException {
+    if (!Files.exists(dir, LinkOption.NOFOLLOW_LINKS)) {
+      Path parent = dir.toAbsolutePath().getParent();
+      if (parent != null) {
+        Files.createDirectories(parent);
+      }
+      try {
+        if (posix()) {
+          Files.createDirectory(dir, PosixFilePermissions.asFileAttribute(OWNER_ONLY));
+        } else {
+          Files.createDirectory(dir);
+        }
+      } catch (java.nio.file.FileAlreadyExistsException raced) {
+        // created concurrently; verified below
+      }
+    }
+    verifySecureDir(dir);
+    return dir;
+  }
+
+  static void verifySecureDir(Path dir) throws InsecureCacheDirException, IOException {
+    boolean symlink = Files.isSymbolicLink(dir);
+    boolean directory = Files.isDirectory(dir, LinkOption.NOFOLLOW_LINKS);
+    String reason;
+    if (symlink || !directory || !posix()) {
+      // Windows: per-user profile directory, protected by its ACLs
+      reason = insecurityReason(symlink, directory, null, null, null);
+    } else {
+      reason =
+          insecurityReason(
+              false,
+              true,
+              Files.getOwner(dir, LinkOption.NOFOLLOW_LINKS),
+              currentUser(dir),
+              Files.getPosixFilePermissions(dir, LinkOption.NOFOLLOW_LINKS));
+    }
+    if (reason != null) {
+      throw insecure(dir, reason);
+    }
+  }
+
+  /**
+   * Why a cache directory must not be used, or {@code null} if it is fine. Owner and permission
+   * checks are skipped when {@code owner}/{@code perms} are {@code null} (non-POSIX).
+   */
+  static String insecurityReason(
+      boolean symlink,
+      boolean directory,
+      UserPrincipal owner,
+      UserPrincipal me,
+      Set<PosixFilePermission> perms) {
+    if (symlink) {
+      return "is a symbolic link";
+    }
+    if (!directory) {
+      return "is not a directory";
+    }
+    if (owner != null && me != null && !owner.equals(me)) {
+      return "is owned by " + owner.getName() + ", not by " + me.getName();
+    }
+    if (perms != null
+        && (perms.contains(PosixFilePermission.GROUP_WRITE)
+            || perms.contains(PosixFilePermission.OTHERS_WRITE))) {
+      return "is group/other-writable (" + PosixFilePermissions.toString(perms) + ")";
+    }
+    return null;
+  }
+
+  private static boolean isComplete(Path envDir) {
+    return Files.isRegularFile(envDir.resolve(COMPLETE_MARKER), LinkOption.NOFOLLOW_LINKS);
+  }
+
+  /**
+   * Extracts into a private temp dir, writes the marker, then renames it atomically to {@code
+   * envDir}, so {@code envDir} is either absent or complete.
+   */
+  private static void extractAtomically(Path zip, String zipName, Path cacheBase, Path envDir)
+      throws IOException {
+    LOG.info("Extracting {} to {}", zipName, envDir);
+    Path tmpDir = Files.createTempDirectory(cacheBase, ".extract-"); // 0700 on POSIX
+    try {
+      extract(zip, tmpDir);
+      Files.writeString(tmpDir.resolve(COMPLETE_MARKER), zipName + System.lineSeparator());
+      try {
+        Files.move(tmpDir, envDir, StandardCopyOption.ATOMIC_MOVE);
+      } catch (java.nio.file.FileAlreadyExistsException
+          | java.nio.file.DirectoryNotEmptyException e) {
+        verifySecureDir(envDir);
+        if (!isComplete(envDir)) {
+          throw e;
+        }
+        LOG.info("Python environment {} was extracted concurrently; reusing it", envDir);
+      }
+    } finally {
+      deleteRecursively(tmpDir); // no-op after a successful move
+    }
+  }
+
+  private static UserPrincipal currentUser(Path dir) throws IOException {
+    try {
+      return dir.getFileSystem()
+          .getUserPrincipalLookupService()
+          .lookupPrincipalByName(System.getProperty("user.name"));
+    } catch (IOException | UnsupportedOperationException e) {
+      // e.g. container uid without passwd entry: a file we create is owned by us
+      Path probe = Files.createTempFile(".owner-", ".probe");
+      try {
+        return Files.getOwner(probe);
+      } finally {
+        Files.deleteIfExists(probe);
+      }
+    }
+  }
+
+  private static InsecureCacheDirException insecure(Path dir, String why) {
+    String msg =
+        "refusing to use Python cache directory " + dir + ": it " + why
+            + " (native libraries are loaded from it; set " + CACHE_DIR_PROPERTY
+            + " to a private directory)";
+    LOG.error(msg);
+    return new InsecureCacheDirException(msg);
   }
 
   static boolean isWindows() {
@@ -201,7 +368,7 @@ public final class PythonEnvironment {
           "Python home from " + origin + " does not exist: " + absHome);
     }
     try {
-      Files.createDirectories(cacheBase);
+      secureDir(cacheBase);
       Path ajanLib;
       try (CacheLock lock = new CacheLock(cacheBase)) {
         ajanLib = writeAjanLib(cacheBase.resolve(AJAN_LIB_DIR), resources);
@@ -216,24 +383,24 @@ public final class PythonEnvironment {
   private static PythonEnvironment embedded(
       InputStream zipStream, String zipName, Path cacheBase, boolean windows,
       ResourceLoader resources) throws IOException, PythonUnavailableException {
-    Files.createDirectories(cacheBase);
+    secureDir(cacheBase);
     Path tmpZip = Files.createTempFile(cacheBase, ".download-", ".zip");
     try {
       String hash = copyAndHash(zipStream, tmpZip).substring(0, 12);
       Path envDir = cacheBase.resolve(hash);
       Path ajanLib;
       try (CacheLock lock = new CacheLock(cacheBase)) {
-        if (Files.isRegularFile(envDir.resolve(COMPLETE_MARKER))) {
+        if (Files.exists(envDir, LinkOption.NOFOLLOW_LINKS)) {
+          verifySecureDir(envDir); // refuses symlinks and foreign/writable dirs
+        }
+        if (isComplete(envDir)) {
           LOG.info("Reusing extracted Python environment {}", envDir);
         } else {
           if (Files.exists(envDir, LinkOption.NOFOLLOW_LINKS)) {
             LOG.info("Removing incomplete Python environment {}", envDir);
             deleteRecursively(envDir);
           }
-          LOG.info("Extracting {} to {}", zipName, envDir);
-          Files.createDirectories(envDir);
-          extract(tmpZip, envDir);
-          Files.writeString(envDir.resolve(COMPLETE_MARKER), zipName + "\n");
+          extractAtomically(tmpZip, zipName, cacheBase, envDir);
         }
         removeStaleSiblings(cacheBase, hash);
         ajanLib = writeAjanLib(envDir.resolve(AJAN_LIB_DIR), resources);
@@ -298,10 +465,11 @@ public final class PythonEnvironment {
     try (DirectoryStream<Path> entries = Files.newDirectoryStream(cacheBase)) {
       for (Path p : entries) {
         String name = p.getFileName().toString();
-        if (!name.equals(current) && CACHE_ENTRY.matcher(name).matches() && Files.isDirectory(p)) {
+        boolean managed = CACHE_ENTRY.matcher(name).matches() || name.startsWith(".extract-");
+        if (!name.equals(current) && managed) {
           try {
             deleteRecursively(p);
-            LOG.info("Removed stale Python environment {}", p);
+            LOG.info("Removed stale Python cache entry {}", p);
           } catch (IOException e) {
             // e.g. still in use by another JVM on Windows; retried on the next start
             LOG.warn("Could not remove stale Python environment {}: {}", p, e.toString());
@@ -317,7 +485,11 @@ public final class PythonEnvironment {
     if (!Files.exists(root, LinkOption.NOFOLLOW_LINKS)) {
       return;
     }
-    List<Path> all;
+    if (Files.isSymbolicLink(root)) {
+      Files.delete(root); // the link only, never its target
+      return;
+    }
+    List<Path> all; // Files.walk does not follow symlinks
     try (Stream<Path> walk = Files.walk(root)) {
       all = walk.sorted(Comparator.reverseOrder()).toList();
     }
@@ -463,7 +635,7 @@ public final class PythonEnvironment {
       }
       content = in.readAllBytes();
     }
-    Files.createDirectories(dir);
+    secureDir(dir);
     Path file = dir.resolve("AJANlib.py");
     if (!Files.isRegularFile(file) || !Arrays.equals(Files.readAllBytes(file), content)) {
       Path tmp = Files.createTempFile(dir, ".AJANlib", ".tmp");

@@ -70,7 +70,7 @@
 
 **Interfaces — Produces:**
 - `final class PythonEnvironment { static PythonEnvironment resolve(); Path home(); Path sitePackages(); Path jepLibrary(); Path ajanLib(); }` — `resolve()` order: `ajan.python.home` (system property, then env var `AJAN_PYTHON_HOME`) → embedded `/nix_env.zip` or `/win_env.zip`; throws `PythonUnavailableException` (checked, message names what is missing).
-- Cache dir: `${ajan.python.cacheDir:-${java.io.tmpdir}/ajan-python}/<first 12 hex of sha256(zip)>/`, marker `.complete` written last; incomplete dir is deleted and re-extracted; sibling cache dirs other than the current one are deleted.
+- Cache dir: `${ajan.python.cacheDir:-~/.cache/ajan-python (Windows %LOCALAPPDATA%\ajan-python)}/<first 12 hex of sha256(zip)>/` (per-user, POSIX 0700, insecure dirs refused, atomic rename from `.extract-*`), marker `.complete` written last; incomplete dir is deleted and re-extracted; sibling cache dirs other than the current one are deleted.
 - `PythonPlugin.isAvailable()`; `PythonExecutionServiceImpl.isPythonAvailable()` delegates; when unavailable every execute returns `failed("Python not available: <reason>")`.
 - JEP init: `MainInterpreter.setJepLibraryPath(jepLibrary)`, `PyConfig.setPythonHome(home)`, `JepConfig.addIncludePaths(ajanLib, sitePackages)`; on Linux preload `libpython3.13.so.1.0` so C extensions resolve symbols (prove with orjson import).
 - `executeScript` no longer `synchronized`.

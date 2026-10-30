@@ -56,7 +56,7 @@ einer reproduzierbar gebauten Umgebung — weiterhin **in-process via JEP, Ausli
 ### D3 — Laufzeit (PythonPlugin)
 - Umgebungsauswahl: System-Property/Env `ajan.python.home` (externes CPython mit installiertem jep) hat Vorrang;
   sonst eingebettetes Zip für das aktuelle OS.
-- Entpacken in einen Cache `${ajan.python.cacheDir:-${java.io.tmpdir}/ajan-python}/<sha256-12>/` mit Marker-Datei
+- Entpacken in einen Cache `${ajan.python.cacheDir:-<Benutzer-Cache>/ajan-python}/<sha256-12>/` (`~/.cache/ajan-python`, Windows `%LOCALAPPDATA%\ajan-python`; nie ein geteiltes Temp-Verzeichnis, POSIX 0700, fremde/symlinkte/gruppenschreibbare Verzeichnisse werden abgelehnt) mit Marker-Datei
   `.complete`; vorhandener vollständiger Cache wird wiederverwendet, ältere Cache-Verzeichnisse werden gelöscht.
 - JEP-Init explizit: `MainInterpreter.setJepLibraryPath(<abs. libjep.so|jep.dll>)`, `PyConfig.setPythonHome`; Reflection-Hacks entfallen.
 - `AJANlib.py` ist Ressource des PythonPlugin-JARs und wird beim Start in `<cache>/ajan-lib/` gelegt, das auf den `sys.path` kommt.

@@ -12,15 +12,23 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.nio.file.attribute.UserPrincipal;
 import java.security.MessageDigest;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import org.testng.SkipException;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -286,8 +294,171 @@ public class PythonEnvironmentTest {
         expectThrows(PythonUnavailableException.class, () -> resolveNix(zip));
     assertTrue(e.getMessage().contains("escapes"), e.getMessage());
     assertFalse(Files.exists(tmp.resolve("evil.txt")));
+    assertNoPartialExtraction(zip);
+  }
+
+  // --- cache directory security -----------------------------------------------------------
+
+  private void assertNoPartialExtraction(byte[] zip) throws Exception {
     assertFalse(
-        Files.exists(cache.resolve(hash12(zip)).resolve(PythonEnvironment.COMPLETE_MARKER)));
+        Files.exists(cache.resolve(hash12(zip)), LinkOption.NOFOLLOW_LINKS),
+        "a failed extraction must not leave a <hash> dir");
+    if (Files.isDirectory(cache)) {
+      try (Stream<Path> s = Files.list(cache)) {
+        assertEquals(
+            s.map(p -> p.getFileName().toString()).filter(n -> n.startsWith(".extract-")).toList(),
+            List.of(),
+            "temp extraction dirs must be cleaned up");
+      }
+    }
+  }
+
+  private static void requirePosix() {
+    if (!FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
+      throw new SkipException("POSIX file system required");
+    }
+  }
+
+  @Test
+  public void successfulExtractionLeavesNoTempDirAndUsesPrivateDirs() throws Exception {
+    byte[] zip = zip(nixEnv());
+    PythonEnvironment env = resolveNix(zip);
+    try (Stream<Path> s = Files.list(cache)) {
+      assertTrue(s.noneMatch(p -> p.getFileName().toString().startsWith(".extract-")));
+    }
+    if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
+      Set<PosixFilePermission> priv = PosixFilePermissions.fromString("rwx------");
+      assertEquals(Files.getPosixFilePermissions(cache), priv, "cache base 0700");
+      assertEquals(Files.getPosixFilePermissions(cache.resolve(hash12(zip))), priv, "<hash> 0700");
+      assertEquals(Files.getPosixFilePermissions(env.ajanLib()), priv, "ajan-lib 0700");
+    }
+  }
+
+  @Test
+  public void defaultCacheBaseIsPerUserNotTempDir() {
+    String saved = System.getProperty(PythonEnvironment.CACHE_DIR_PROPERTY);
+    System.clearProperty(PythonEnvironment.CACHE_DIR_PROPERTY);
+    try {
+      Path base = PythonEnvironment.defaultCacheBase();
+      assertFalse(
+          base.startsWith(Path.of(System.getProperty("java.io.tmpdir")).toAbsolutePath())
+              && !PythonEnvironment.isWindows(),
+          "must not default to the shared temp dir: " + base);
+      assertTrue(base.toString().endsWith("ajan-python"), base.toString());
+      if (!PythonEnvironment.isWindows()) {
+        assertEquals(base, Path.of(System.getProperty("user.home"), ".cache", "ajan-python"));
+      }
+    } finally {
+      if (saved != null) {
+        System.setProperty(PythonEnvironment.CACHE_DIR_PROPERTY, saved);
+      }
+    }
+  }
+
+  @Test
+  public void groupWritableCacheBaseIsRefused() throws Exception {
+    requirePosix();
+    Files.createDirectories(cache);
+    Files.setPosixFilePermissions(cache, PosixFilePermissions.fromString("rwxrwx---"));
+    byte[] zip = zip(nixEnv());
+    PythonUnavailableException e =
+        expectThrows(PythonUnavailableException.class, () -> resolveNix(zip));
+    assertTrue(e.getMessage().contains("group/other-writable"), e.getMessage());
+    assertNoPartialExtraction(zip);
+  }
+
+  @Test
+  public void symlinkedCacheBaseIsRefused() throws Exception {
+    requirePosix();
+    Path real = Files.createDirectories(tmp.resolve("real-cache"));
+    Files.createSymbolicLink(cache, real);
+    PythonUnavailableException e =
+        expectThrows(PythonUnavailableException.class, () -> resolveNix(zip(nixEnv())));
+    assertTrue(e.getMessage().contains("symbolic link"), e.getMessage());
+  }
+
+  @Test
+  public void symlinkedHashDirIsRefused() throws Exception {
+    requirePosix();
+    byte[] zip = zip(nixEnv());
+    // attacker-prepared "complete" environment elsewhere, linked in as <hash>
+    Path planted = Files.createDirectories(tmp.resolve("planted/python-portable"));
+    Files.writeString(planted.getParent().resolve(PythonEnvironment.COMPLETE_MARKER), "x");
+    Files.createDirectories(cache);
+    Files.createSymbolicLink(cache.resolve(hash12(zip)), planted.getParent());
+
+    PythonUnavailableException e =
+        expectThrows(PythonUnavailableException.class, () -> resolveNix(zip));
+    assertTrue(e.getMessage().contains("symbolic link"), e.getMessage());
+    assertTrue(Files.isSymbolicLink(cache.resolve(hash12(zip))), "must not be touched");
+  }
+
+  @Test
+  public void groupWritableAjanLibDirIsRefused() throws Exception {
+    requirePosix();
+    byte[] zip = zip(nixEnv());
+    PythonEnvironment env = resolveNix(zip);
+    Files.setPosixFilePermissions(env.ajanLib(), PosixFilePermissions.fromString("rwxrwxrwx"));
+    PythonUnavailableException e =
+        expectThrows(PythonUnavailableException.class, () -> resolveNix(zip));
+    assertTrue(e.getMessage().contains("ajan-lib"), e.getMessage());
+  }
+
+  @Test
+  public void foreignOwnedCacheDirIsRefused() throws Exception {
+    requirePosix();
+    UserPrincipal nobody;
+    try {
+      nobody = FileSystems.getDefault().getUserPrincipalLookupService()
+          .lookupPrincipalByName("nobody");
+      Files.createDirectories(cache);
+      Files.setOwner(cache, nobody); // needs root (the Docker build runs as root)
+    } catch (IOException | SecurityException e) {
+      throw new SkipException("cannot chown as this user: " + e);
+    }
+    PythonUnavailableException e =
+        expectThrows(PythonUnavailableException.class, () -> resolveNix(zip(nixEnv())));
+    assertTrue(e.getMessage().contains("is owned by nobody"), e.getMessage());
+  }
+
+  @Test
+  public void insecurityPredicate() {
+    UserPrincipal me = () -> "me";
+    UserPrincipal other = () -> "other";
+    Set<PosixFilePermission> priv = PosixFilePermissions.fromString("rwx------");
+    assertEquals(PythonEnvironment.insecurityReason(false, true, me, me, priv), null);
+    assertEquals(
+        PythonEnvironment.insecurityReason(false, true, me, me,
+            PosixFilePermissions.fromString("rwxr-xr-x")),
+        null);
+    assertEquals(
+        PythonEnvironment.insecurityReason(false, true, other, me, priv),
+        "is owned by other, not by me");
+    assertTrue(
+        PythonEnvironment.insecurityReason(false, true, me, me,
+                PosixFilePermissions.fromString("rwx---rwx"))
+            .contains("group/other-writable"));
+    assertEquals(
+        PythonEnvironment.insecurityReason(true, true, me, me, priv), "is a symbolic link");
+    assertEquals(
+        PythonEnvironment.insecurityReason(false, false, me, me, priv), "is not a directory");
+    assertEquals(PythonEnvironment.insecurityReason(false, true, null, null, null), null);
+  }
+
+  @Test
+  public void staleCleanupDoesNotFollowSymlinks() throws Exception {
+    requirePosix();
+    Path outside = Files.createDirectories(tmp.resolve("outside"));
+    Files.writeString(outside.resolve("precious"), "keep");
+    Files.createDirectories(cache);
+    Files.createSymbolicLink(cache.resolve("0123456789ab"), outside);
+    Files.createDirectories(cache.resolve(".extract-stale/python-portable"));
+
+    resolveNix(zip(nixEnv()));
+
+    assertFalse(Files.exists(cache.resolve("0123456789ab"), LinkOption.NOFOLLOW_LINKS));
+    assertFalse(Files.exists(cache.resolve(".extract-stale")), "stale temp dir removed");
+    assertEquals(Files.readString(outside.resolve("precious")), "keep");
   }
 
   @Test
