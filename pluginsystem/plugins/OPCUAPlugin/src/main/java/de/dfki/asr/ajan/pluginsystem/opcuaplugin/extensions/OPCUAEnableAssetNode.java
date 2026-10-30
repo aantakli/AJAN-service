@@ -23,16 +23,13 @@ import de.dfki.asr.ajan.behaviour.AJANLogger;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
-import de.dfki.asr.ajan.pluginsystem.AJANPluginLoader;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
+import de.dfki.asr.ajan.pluginsystem.extensionpoints.PythonExecutionResult;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.PythonExecutionService;
-import de.dfki.asr.ajan.pluginsystem.opcuaplugin.OPCUAPlugin;
 import de.dfki.asr.ajan.pluginsystem.pythonplugin.exception.PythonException;
-import de.dfki.asr.ajan.pluginsystem.utils.ScriptExtractor;
 import java.net.URI;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -94,30 +91,19 @@ public class OPCUAEnableAssetNode extends AbstractTDBLeafTask implements NodeExt
   private NodeStatus runPythonScript() throws PythonException {
     LOG.info(this.getClass(), "Executing Python script for assetEnabled: " + isEnabled());
 
-    PythonExecutionService pythonService =
-        AJANPluginLoader.getInstance().getPythonExecutionService();
-    if (pythonService == null) {
-      throw new PythonException("PythonExecutionService not available");
-    }
+    PythonExecutionService pythonService = OPCUAMainScript.service();
+    Path scriptPath = OPCUAMainScript.script(OPCUAMainScript.MAIN);
+    List<String> argv =
+        OPCUAMainScript.methodArgv(
+            getEndpointUrl(), "enable_asset", "--enable", isEnabled() ? "true" : "false");
 
-    OPCUAPlugin plugin =
-        (OPCUAPlugin)
-            AJANPluginLoader.getInstance().getPluginManager().getPlugin("OPCUAPlugin").getPlugin();
-    Path scriptPath = ScriptExtractor.getScriptPath(plugin, "opcua/main.py");
-
-    if (scriptPath == null || !scriptPath.toFile().exists()) {
-      throw new PythonException("Could not find opcua/main.py script in extracted resources");
-    }
-
-    Map<String, Object> inputs = new HashMap<>();
-    inputs.put("url", getEndpointUrl());
-    inputs.put("call", "enable_asset");
-    inputs.put("enable", isEnabled() ? "true" : "false");
-
-    pythonService.executeScriptFile(scriptPath, inputs);
-
+    PythonExecutionResult result = OPCUAMainScript.callMethod(pythonService, scriptPath, argv);
+    Status status = OPCUAMainScript.statusOf(result);
     return new NodeStatus(
-        Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), this + " SUCCEEDED");
+        status,
+        this.getObject().getLogger(),
+        this.getClass(),
+        this + " " + status + " (" + OPCUAMainScript.describe(result) + ")");
   }
 
   @Override

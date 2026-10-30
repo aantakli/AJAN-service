@@ -23,16 +23,11 @@ import de.dfki.asr.ajan.behaviour.AJANLogger;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
 import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
-import de.dfki.asr.ajan.pluginsystem.AJANPluginLoader;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.PythonExecutionService;
-import de.dfki.asr.ajan.pluginsystem.opcuaplugin.OPCUAPlugin;
 import de.dfki.asr.ajan.pluginsystem.pythonplugin.exception.PythonException;
-import de.dfki.asr.ajan.pluginsystem.utils.ScriptExtractor;
 import java.net.URI;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -94,27 +89,29 @@ public class OPCUASetupNode extends AbstractTDBLeafTask implements NodeExtension
   private NodeStatus runPythonScript() throws PythonException {
     LOG.info(this.getClass(), "Executing Python script for OPCUASetupNode: " + getEndpointUrl());
 
-    PythonExecutionService pythonService =
-        AJANPluginLoader.getInstance().getPythonExecutionService();
-    if (pythonService == null) {
-      throw new PythonException("PythonExecutionService not available");
-    }
+    PythonExecutionService pythonService = OPCUAMainScript.service();
+    Path scriptPath = OPCUAMainScript.script(OPCUAMainScript.EVENTS);
+    // venvPath is not used any more (embedded Python environment); kept for old behavior trees.
 
-    OPCUAPlugin plugin =
-        (OPCUAPlugin)
-            AJANPluginLoader.getInstance().getPluginManager().getPlugin("OPCUAPlugin").getPlugin();
-    Path scriptPath = ScriptExtractor.getScriptPath(plugin, "opcua/main.py");
-
-    if (scriptPath == null || !scriptPath.toFile().exists()) {
-      throw new PythonException("Could not find opcua/main.py script in extracted resources");
-    }
-
-    Map<String, Object> inputs = new HashMap<>();
-    inputs.put("url", getEndpointUrl());
-    // Note: venvPath is not directly used by main.py but kept for compatibility/future use
-    inputs.put("venv_path", getVenvPath());
-
-    pythonService.executeScriptFile(scriptPath, inputs);
+    // The event client loops until the process ends: run it on its own daemon thread (at most one
+    // per endpoint) so the behavior tree is not blocked.
+    AJANLogger logger = LOG;
+    String endpoint = getEndpointUrl();
+    boolean started =
+        OPCUAMainScript.startEventClient(
+            pythonService,
+            scriptPath,
+            endpoint,
+            result ->
+                logger.info(
+                    OPCUASetupNode.class,
+                    "OPC UA event client for " + endpoint + " ended: "
+                        + OPCUAMainScript.describe(result)));
+    LOG.info(
+        this.getClass(),
+        started
+            ? "Started OPC UA event client for " + endpoint
+            : "OPC UA event client for " + endpoint + " is already running");
 
     return new NodeStatus(
         Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), this + " SUCCEEDED");

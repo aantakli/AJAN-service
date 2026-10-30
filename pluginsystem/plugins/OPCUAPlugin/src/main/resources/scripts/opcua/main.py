@@ -1,6 +1,7 @@
 import asyncio
 import argparse
 import re
+import sys
 import traceback
 import os
 
@@ -23,10 +24,17 @@ def validate_url(url: str) -> str:
     return DEFAULT_SERVER_URL
 
 
+# Exit codes (AJAN's OPCUA nodes map any non-zero code to FAILED)
+EXIT_OK = 0
+EXIT_FAILED = 1
+EXIT_USAGE = 2
+
+
 # NEW: method-call runner for handling method calls
-async def run_method_call(server_url: str, args):
+async def run_method_call(server_url: str, args) -> int:
     """
-    Connects, calls a single method (if --call is supplied), logs result, and exits.
+    Connects, calls a single method (if --call is supplied), logs result, and returns the exit
+    code: EXIT_OK only if the method returned a result with status 0 (or no status).
     """
     client = OPCUAClient(server_url)
     await client.connect()
@@ -37,7 +45,7 @@ async def run_method_call(server_url: str, args):
         if args.call == "select_joint":
             if not args.joint_id:
                 ijt_log.error("--joint-id is required for select_joint")
-                return
+                return EXIT_USAGE
             origin = args.origin_id if args.origin_id else ""
             result = await methods.select_joint(
                 object_nodeid="ns=1;s=TighteningSystem/JointManagement",
@@ -49,7 +57,7 @@ async def run_method_call(server_url: str, args):
         elif args.call == "enable_asset":
             if args.enable not in ("true", "false"):
                 ijt_log.error("--enable must be true|false for enable_asset")
-                return
+                return EXIT_USAGE
             result = await methods.enable_asset(
                 object_nodeid="ns=1;s=TighteningSystem/AssetManagement/MethodSet",
                 method_nodeid="ns=1;s=TighteningSystem/AssetManagement/MethodSet/EnableAsset",
@@ -61,7 +69,7 @@ async def run_method_call(server_url: str, args):
                 ijt_log.error(
                     "--deselect must be true|false for start_selected_joining"
                 )
-                return
+                return EXIT_USAGE
             result = await methods.start_selected_joining(
                 object_nodeid="ns=1;s=TighteningSystem/JoiningProcessManagement",
                 method_nodeid="ns=1;s=TighteningSystem/JoiningProcessManagement/StartSelectedJoining",
@@ -70,9 +78,19 @@ async def run_method_call(server_url: str, args):
 
         else:
             ijt_log.error(f"Unknown method: {args.call}")
-            return
+            return EXIT_USAGE
 
         ijt_log.info(f"[METHOD RESULT] {result}")
+        if result is None:
+            ijt_log.error(f"Method {args.call} failed (no result).")
+            return EXIT_FAILED
+        status = result.get("status")
+        if status not in (None, 0):
+            ijt_log.error(
+                f"Method {args.call} returned status {status}: {result.get('status_message')}"
+            )
+            return EXIT_FAILED
+        return EXIT_OK
 
     finally:
         await client.cleanup()
@@ -100,7 +118,11 @@ async def run_client(server_url: str):
     )
 
 
-def main():
+def main(argv=None) -> int:
+    """Runs one method call (--call) or the event client; returns the process exit code.
+
+    argv defaults to sys.argv[1:]; AJAN's event mode passes it explicitly (see events.py).
+    """
     parser = argparse.ArgumentParser(description="Run OPC UA Event Client")
 
     # Normal Scenario without methods
@@ -131,7 +153,7 @@ def main():
         "--no-events", action="store_true", help="(ignored in method mode)"
     )
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     server_url = validate_url(args.url)
     ijt_log.info(f"Using OPC UA server URL: {server_url}")
 
@@ -144,8 +166,10 @@ def main():
     else:
         task = loop.create_task(run_client(server_url))
 
+    exit_code = EXIT_FAILED
     try:
-        loop.run_until_complete(task)
+        outcome = loop.run_until_complete(task)
+        exit_code = outcome if isinstance(outcome, int) else EXIT_OK
     except KeyboardInterrupt:
         ijt_log.info("KeyboardInterrupt received. Cancelling tasks...")
         ijt_log.info(
@@ -156,13 +180,19 @@ def main():
             loop.run_until_complete(task)
         except asyncio.CancelledError:
             ijt_log.info("Client task cancelled.")
+        except Exception:
+            pass
+        exit_code = EXIT_OK
     except Exception as e:
+        # connection or method errors: report them through the exit code
         ijt_log.error(f"Unhandled exception: {e}")
         ijt_log.error(traceback.format_exc())
+        exit_code = EXIT_FAILED
     finally:
         loop.close()
         ijt_log.info("Event loop closed.")
+    return exit_code
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
