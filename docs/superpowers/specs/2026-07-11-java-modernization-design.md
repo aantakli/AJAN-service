@@ -177,6 +177,7 @@ Kleinigkeiten offen: `--enable-native-access` auch im E2E-`AjanSystem`-Servicest
 - **Release erst nach Image (P4-R7):** In `docker-image.yml` hängt der `release`-Job jetzt an `[build, docker]` — kein GitHub-Release ohne gepushtes Image. Login/Push/Secrets unverändert.
 - **Java-Release-Drift (P4-R8):** `ci-branch.yml` prüft, dass `maven.compiler.release` (Root-POM) und `java.version` (executionservice-Insel) gleich sind (gelesen aus dem POM-XML; `help:evaluate` liefert für `java.version` die JVM-System-Property). Die doppelte Plugin-Konfiguration der Insel bleibt (Insel-Constraint).
 - **Aufräumen:** `AgentManager.createAgent(id, template, …)`/`ParameterAgentBuilder` bleiben (MOSIM-Thrift-Aufrufer, s. Etappe 5); Hilfsklassen aus den PMD-Refactorings (`ModelQueries`, `DescribeQueries`, `NamedGraphs`, `MessageInformation`, `MessageParser`, `ActionMatcher`, `ActionSimulation`, `BTReporter`, `AgentCredentialsReader`, `AgentBehaviorLoader`, `AgentEventLoader`) sind package-private und nennen ihre öffentliche Fassade; veraltete Kommentare (E2E `Http`, `WebSurfaceIT`, `AjanSystem`, Root-POM) bereinigt; `AjanSystem` mit `prop(name)`-Helfer und `URLEncoder.encode(String, Charset)`; `assemble-dist.sh` mit `nullglob`.
+- CI-Lauf auf dem Code-Stand der Abschlussrunde (`bf920444`): [41057489418](https://github.com/aantakli/AJAN-service/actions/runs/41057489418) — success (build-and-e2e 4m32s inkl. Drift-Check, E2E 27/27; publish-dryrun 4m25s: `mvn install` mit Tests, `assemble-dist` 10 Plugins, Docker-Build ohne Push).
 
 ## 5. Branching- und Release-Sicherheit
 
