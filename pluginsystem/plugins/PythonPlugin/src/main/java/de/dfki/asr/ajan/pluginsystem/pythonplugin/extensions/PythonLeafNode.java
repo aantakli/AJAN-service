@@ -45,9 +45,11 @@ import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
 import org.pf4j.Extension;
 
@@ -158,49 +160,91 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
   }
 
   private NodeStatus runPythonScript() throws PythonException {
-    try (SharedInterpreter jep = new SharedInterpreter()) {
-      String script = getScript();
-      String inputRDF = readInputRDF();
-      LOG.info(this.getClass(), "Python script: " + script);
-      LOG.info(this.getClass(), "Input RDF: " + inputRDF);
-
-      // Redirect Python stdout to a StringIO buffer
-      jep.eval("import sys");
-      jep.eval("from io import StringIO");
-      jep.eval("sys._stdout = sys.stdout"); // Save original stdout
-      jep.eval("sys.stdout = StringIO()");
-      jep.eval("import AJANlib"); // Ensure AJANlib is loaded
-      jep.eval("status = 'SUCCEEDED'");
-      jep.eval("rdf_output = ''");
-
-      jep.set("input_rdf", inputRDF);
-      jep.exec(script);
-
-      // Get the output from the StringIO buffer
-      String pyStdout = (String) jep.getValue("sys.stdout.getvalue()");
-      // Optionally, restore original stdout
-      jep.eval("sys.stdout = sys._stdout");
-
-      String status = (String) jep.getValue("status");
-      String rdfOutput = (String) jep.getValue("rdf_output");
-
-      // Log or process pyStdout as needed
-      LOG.info(this.getClass(), "Python stdout: " + pyStdout);
-
-      Status pyStatus = Status.FAILED;
-      if ("SUCCEEDED".equals(status)) {
-        pyStatus = Status.SUCCEEDED;
-      } else if ("RUNNING".equals(status)) {
-        pyStatus = Status.RUNNING;
-      }
-
-      writeSolution(rdfOutput);
-      return new NodeStatus(
-          pyStatus, this.getObject().getLogger(), this.getClass(), this + " " + status);
-    } catch (JepException | IOException ex) {
-      System.err.println(ex);
+    String inputRDF = readInputRDF();
+    LOG.info(this.getClass(), "Python script: " + getScript());
+    LOG.info(this.getClass(), "Input RDF: " + inputRDF);
+    LeafResult result;
+    try {
+      result = runLeaf(getScript(), inputRDF);
+    } catch (JepException ex) {
       throw new PythonException("JEP execution failed!", ex);
     }
+    if (!result.stdout().isEmpty()) {
+      LOG.info(this.getClass(), "Python stdout: " + result.stdout());
+    }
+    if (result.status() == Status.FAILED) {
+      return new NodeStatus(
+          Status.FAILED,
+          this.getObject().getLogger(),
+          this.getClass(),
+          this + " " + result.statusName() + ": " + result.label());
+    }
+    try {
+      writeSolution(result.turtle());
+    } catch (IOException | RDFParseException ex) {
+      throw new PythonException("Python output is not valid Turtle!", ex);
+    }
+    return new NodeStatus(
+        result.status(),
+        this.getObject().getLogger(),
+        this.getClass(),
+        this + " " + result.statusName() + (result.label().isEmpty() ? "" : ": " + result.label()));
+  }
+
+  /**
+   * Outcome of {@code AJANlib.execute_leaf_script}.
+   *
+   * @param status mapped node status (unknown names map to FAILED)
+   * @param statusName status name as returned by Python
+   * @param label NodeResult label, or the traceback on a Python exception
+   * @param turtle output graph as Turtle ("" for none)
+   * @param stdout what the script printed on this thread
+   */
+  public record LeafResult(
+      Status status, String statusName, String label, String turtle, String stdout) {}
+
+  /**
+   * Runs a leaf script (LeafNode class contract, or legacy globals) in a fresh interpreter on the
+   * calling thread. Python exceptions are reported as FAILED results, not thrown.
+   */
+  public static LeafResult runLeaf(String script, String inputTurtle) throws JepException {
+    try (SharedInterpreter jep = new SharedInterpreter()) {
+      jep.set("_ajan_script", script == null ? "" : script);
+      jep.set("_ajan_input", inputTurtle == null ? "" : inputTurtle);
+      jep.exec(
+          "import AJANlib\n"
+              + "_ajan_result = [str(v) for v in"
+              + " AJANlib.execute_leaf_script(_ajan_script, _ajan_input)]");
+      String statusName = jep.getValue("_ajan_result[0]", String.class);
+      return new LeafResult(
+          toStatus(statusName),
+          statusName,
+          jep.getValue("_ajan_result[1]", String.class),
+          jep.getValue("_ajan_result[2]", String.class),
+          jep.getValue("_ajan_result[3]", String.class));
+    }
+  }
+
+  /** Maps a Python status name; anything but SUCCEEDED/RUNNING is FAILED. */
+  public static Status toStatus(String name) {
+    if ("SUCCEEDED".equals(name)) {
+      return Status.SUCCEEDED;
+    }
+    if ("RUNNING".equals(name)) {
+      return Status.RUNNING;
+    }
+    return Status.FAILED;
+  }
+
+  /** Parses the Turtle a script returned; empty input gives an empty model. */
+  public static Model parseTurtle(String turtle) throws IOException {
+    if (turtle == null || turtle.isEmpty()) {
+      return new LinkedHashModel();
+    }
+    return Rio.parse(
+        new ByteArrayInputStream(turtle.getBytes(StandardCharsets.UTF_8)),
+        "http://www.ajan.de",
+        RDFFormat.TURTLE);
   }
 
   private String readInputRDF() throws PythonException {
@@ -229,14 +273,11 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
   }
 
   private void writeSolution(final String input) throws IOException {
-    Model model;
     if (input.isEmpty()) {
       LOG.info(this.getClass(), "Empty PythonNode solution!\n");
       return;
     }
-    model =
-        Rio.parse(
-            new ByteArrayInputStream(input.getBytes()), "http://www.ajan.de", RDFFormat.TURTLE);
+    Model model = parseTurtle(input);
     if (getTargetBase().toString().equals(AJANVocabulary.EXECUTION_KNOWLEDGE.toString())) {
       this.getObject().getExecutionBeliefs().update(model);
     } else if (getTargetBase().toString().equals(AJANVocabulary.AGENT_KNOWLEDGE.toString())) {
