@@ -92,8 +92,8 @@ public class IntValue {
 		}
 		// Literals without explicit datatype (bt:intValue 1) are mapped to xsd:integer, i.e. BigInteger,
 		// regardless of the declared List<Integer>; normalize here for all callers.
-		for (Number number : (List<? extends Number>) value) {
-			values.add(number.intValue());
+		for (Object element : value) {
+			values.add(((Number) element).intValue());
 		}
 		return values;
 	}
