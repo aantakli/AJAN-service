@@ -4,21 +4,28 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.nio.file.attribute.UserPrincipal;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -28,7 +35,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import net.lingala.zip4j.ZipFile;
@@ -69,6 +78,7 @@ public final class PythonEnvironment {
   private static final Pattern CACHE_ENTRY = Pattern.compile("[0-9a-f]{12}");
   private static final Pattern WIN_PYTHON_DLL = Pattern.compile("python3\\d*\\.dll");
   private static final Pattern NIX_LIBPYTHON = Pattern.compile("libpython3\\.\\d+\\.so\\.1\\.0");
+  private static final Pattern NIX_LIBPYTHON_DEV = Pattern.compile("libpython3\\.\\d+\\.so");
   private static final int S_IFMT = 0170000;
   private static final int S_IFLNK = 0120000;
 
@@ -129,6 +139,19 @@ public final class PythonEnvironment {
     return nativePreloads;
   }
 
+  /**
+   * Soname of libpython derived from the {@code lib/python3.X} layout, e.g. {@code
+   * libpython3.13.so.1.0}: a distro Python keeps libpython outside its home, so it is dlopened by
+   * name. Empty for the Windows layout.
+   */
+  public Optional<String> libpythonSoname() {
+    Path parent = sitePackages.getParent();
+    String name = parent == null ? "" : parent.getFileName().toString();
+    return name.matches("python3\\.\\d+")
+        ? Optional.of("lib" + name + ".so.1.0")
+        : Optional.empty();
+  }
+
   /** Human-readable origin (property, env var or embedded zip). */
   public String source() {
     return source;
@@ -152,10 +175,16 @@ public final class PythonEnvironment {
    * Per-user cache base (never a shared temp dir: extracted native libraries are loaded into the
    * JVM). {@value #CACHE_DIR_PROPERTY} overrides; otherwise {@code ~/.cache/ajan-python} on
    * POSIX and {@code %LOCALAPPDATA%\ajan-python} (fallback {@code ~\.ajan-python}) on Windows.
+   * A configured directory's ancestors must not be writable by other users (unless sticky, like
+   * /tmp): only the directory itself and its children are verified.
    */
   static Path defaultCacheBase() {
     String configured = System.getProperty(CACHE_DIR_PROPERTY);
     if (configured != null && !configured.isBlank()) {
+      if (isWindows()) {
+        LOG.warn("{}={}: ACLs are not verified on Windows; make sure only the current user can"
+            + " write to this directory", CACHE_DIR_PROPERTY, configured);
+      }
       return Paths.get(configured).toAbsolutePath();
     }
     String userHome = System.getProperty("user.home");
@@ -213,8 +242,13 @@ public final class PythonEnvironment {
   }
 
   static void verifySecureDir(Path dir) throws InsecureCacheDirException, IOException {
-    boolean symlink = Files.isSymbolicLink(dir);
-    boolean directory = Files.isDirectory(dir, LinkOption.NOFOLLOW_LINKS);
+    BasicFileAttributes attrs =
+        Files.readAttributes(dir, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+    if (attrs.isOther()) {
+      throw insecure(dir, "is a junction or other reparse point");
+    }
+    boolean symlink = attrs.isSymbolicLink();
+    boolean directory = attrs.isDirectory();
     String reason;
     if (symlink || !directory || !posix()) {
       // Windows: per-user profile directory, protected by its ACLs
@@ -271,12 +305,12 @@ public final class PythonEnvironment {
   private static void extractAtomically(Path zip, String zipName, Path cacheBase, Path envDir)
       throws IOException {
     LOG.info("Extracting {} to {}", zipName, envDir);
-    Path tmpDir = Files.createTempDirectory(cacheBase, ".extract-"); // 0700 on POSIX
+    Path tmpDir = Files.createTempDirectory(cacheBase, EXTRACT_PREFIX); // 0700 on POSIX
     try {
       extract(zip, tmpDir);
       Files.writeString(tmpDir.resolve(COMPLETE_MARKER), zipName + System.lineSeparator());
       try {
-        Files.move(tmpDir, envDir, StandardCopyOption.ATOMIC_MOVE);
+        moveWithRetry(tmpDir, envDir);
       } catch (java.nio.file.FileAlreadyExistsException
           | java.nio.file.DirectoryNotEmptyException e) {
         verifySecureDir(envDir);
@@ -287,6 +321,26 @@ public final class PythonEnvironment {
       }
     } finally {
       deleteRecursively(tmpDir); // no-op after a successful move
+    }
+  }
+
+  /** Windows: antivirus scanners briefly lock fresh files and fail a dir rename; retry. */
+  private static void moveWithRetry(Path from, Path to) throws IOException {
+    for (int attempt = 0; ; attempt++) {
+      try {
+        Files.move(from, to, StandardCopyOption.ATOMIC_MOVE);
+        return;
+      } catch (AccessDeniedException e) {
+        if (attempt >= 5) {
+          throw e;
+        }
+        try {
+          Thread.sleep(100L << attempt);
+        } catch (InterruptedException ie) {
+          Thread.currentThread().interrupt();
+          throw e;
+        }
+      }
     }
   }
 
@@ -384,7 +438,7 @@ public final class PythonEnvironment {
       InputStream zipStream, String zipName, Path cacheBase, boolean windows,
       ResourceLoader resources) throws IOException, PythonUnavailableException {
     secureDir(cacheBase);
-    Path tmpZip = Files.createTempFile(cacheBase, ".download-", ".zip");
+    Path tmpZip = Files.createTempFile(cacheBase, DOWNLOAD_PREFIX, ".zip");
     try {
       String hash = copyAndHash(zipStream, tmpZip).substring(0, 12);
       Path envDir = cacheBase.resolve(hash);
@@ -393,12 +447,13 @@ public final class PythonEnvironment {
         if (Files.exists(envDir, LinkOption.NOFOLLOW_LINKS)) {
           verifySecureDir(envDir); // refuses symlinks and foreign/writable dirs
         }
+        markInUse(cacheBase, hash);
         if (isComplete(envDir)) {
           LOG.info("Reusing extracted Python environment {}", envDir);
         } else {
           if (Files.exists(envDir, LinkOption.NOFOLLOW_LINKS)) {
             LOG.info("Removing incomplete Python environment {}", envDir);
-            deleteRecursively(envDir);
+            discard(cacheBase, envDir);
           }
           extractAtomically(tmpZip, zipName, cacheBase, envDir);
         }
@@ -461,41 +516,189 @@ public final class PythonEnvironment {
     return HexFormat.of().formatHex(sha.digest());
   }
 
-  private static void removeStaleSiblings(Path cacheBase, String current) {
-    try (DirectoryStream<Path> entries = Files.newDirectoryStream(cacheBase)) {
-      for (Path p : entries) {
-        String name = p.getFileName().toString();
-        boolean managed = CACHE_ENTRY.matcher(name).matches() || name.startsWith(".extract-");
-        if (!name.equals(current) && managed) {
-          try {
-            deleteRecursively(p);
-            LOG.info("Removed stale Python cache entry {}", p);
-          } catch (IOException e) {
-            // e.g. still in use by another JVM on Windows; retried on the next start
-            LOG.warn("Could not remove stale Python environment {}: {}", p, e.toString());
-          }
-        }
+  // --- in-use tracking and stale cleanup -------------------------------------------------
+
+  static final String IN_USE_SUFFIX = ".inuse";
+  static final String TRASH_PREFIX = ".trash-";
+  static final String EXTRACT_PREFIX = ".extract-";
+  static final String DOWNLOAD_PREFIX = ".download-";
+  private static final Duration DOWNLOAD_MAX_AGE = Duration.ofHours(1);
+
+  /**
+   * Shared locks on {@code <hash>.inuse}, held for the JVM's lifetime: they tell other JVMs (and
+   * this one) that the environment is loaded and must not be deleted.
+   */
+  private static final Map<Path, FileChannel> IN_USE = new ConcurrentHashMap<>();
+
+  static Path inUseFile(Path cacheBase, String hash) {
+    return cacheBase.resolve(hash + IN_USE_SUFFIX).toAbsolutePath().normalize();
+  }
+
+  /** Takes (once per JVM) a shared lock on {@code <hash>.inuse}. Call under {@link CacheLock}. */
+  private static void markInUse(Path cacheBase, String hash) throws IOException {
+    Path file = inUseFile(cacheBase, hash);
+    if (IN_USE.containsKey(file)) {
+      return;
+    }
+    FileChannel ch =
+        FileChannel.open(
+            file, StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
+    try {
+      ch.lock(0, Long.MAX_VALUE, true);
+    } catch (IOException | RuntimeException e) {
+      ch.close();
+      throw e;
+    }
+    IN_USE.put(file, ch);
+  }
+
+  /** Test hook: drops this JVM's in-use locks (otherwise held until the JVM exits). */
+  static void releaseInUseLocks() {
+    for (FileChannel ch : IN_USE.values()) {
+      try {
+        ch.close();
+      } catch (IOException ignored) {
+        // closing releases the lock
       }
+    }
+    IN_USE.clear();
+  }
+
+  /** Deletes a directory tree; replaceable in tests to simulate a failing delete. */
+  @FunctionalInterface
+  interface TreeDeleter {
+    void delete(Path root) throws IOException;
+  }
+
+  static volatile TreeDeleter treeDeleter = PythonEnvironment::deleteRecursively;
+
+  /**
+   * Removes other environments and leftovers; must run under {@link CacheLock}. An environment
+   * dir is removed only when no JVM holds its {@code .inuse} lock. It is first renamed to {@code
+   * .trash-*} (or, if renaming fails, loses its marker), so an interrupted delete never leaves a
+   * "complete" but broken environment. Symlinks are deleted, never followed.
+   */
+  static void removeStaleSiblings(Path cacheBase, String current) {
+    List<Path> entries;
+    try (Stream<Path> s = Files.list(cacheBase)) {
+      entries = s.toList();
     } catch (IOException e) {
       LOG.warn("Could not list Python cache {}: {}", cacheBase, e.toString());
+      return;
+    }
+    for (Path p : entries) {
+      String name = p.getFileName().toString();
+      try {
+        if (name.equals(current) || name.equals(current + IN_USE_SUFFIX)) {
+          continue;
+        }
+        String lockedHash =
+            name.endsWith(IN_USE_SUFFIX)
+                ? name.substring(0, name.length() - IN_USE_SUFFIX.length())
+                : null;
+        if (CACHE_ENTRY.matcher(name).matches()) {
+          removeIfUnused(cacheBase, name);
+        } else if (lockedHash != null
+            && CACHE_ENTRY.matcher(lockedHash).matches()
+            && !Files.exists(cacheBase.resolve(lockedHash), LinkOption.NOFOLLOW_LINKS)) {
+          removeIfUnused(cacheBase, lockedHash); // orphaned lock file
+        } else if (name.startsWith(EXTRACT_PREFIX) || name.startsWith(TRASH_PREFIX)) {
+          // only used under the cache lock, which we hold: leftovers of a crash or failed delete
+          treeDeleter.delete(p);
+          LOG.info("Removed leftover {}", p);
+        } else if (name.startsWith(DOWNLOAD_PREFIX)
+            && Files.isRegularFile(p, LinkOption.NOFOLLOW_LINKS)
+            && Files.getLastModifiedTime(p, LinkOption.NOFOLLOW_LINKS)
+                .toInstant()
+                .isBefore(Instant.now().minus(DOWNLOAD_MAX_AGE))) {
+          // written outside the lock by JVMs copying the zip: only old ones are orphans
+          Files.deleteIfExists(p);
+          LOG.info("Removed stale download {}", p);
+        }
+      } catch (IOException e) {
+        // e.g. files still mapped by another process on Windows; retried on the next start
+        LOG.warn("Could not remove stale Python cache entry {}: {}", p, e.toString());
+      }
     }
   }
 
+  private static void removeIfUnused(Path cacheBase, String hash) throws IOException {
+    Path lockFile = inUseFile(cacheBase, hash);
+    Path dir = cacheBase.resolve(hash);
+    if (IN_USE.containsKey(lockFile)) {
+      return; // used by this JVM
+    }
+    try (FileChannel ch =
+        FileChannel.open(
+            lockFile,
+            StandardOpenOption.CREATE,
+            StandardOpenOption.READ,
+            StandardOpenOption.WRITE)) {
+      FileLock lock;
+      try {
+        lock = ch.tryLock();
+      } catch (OverlappingFileLockException e) {
+        lock = null; // held by another channel of this JVM
+      }
+      if (lock == null) {
+        LOG.info("Keeping Python environment {}: in use by another JVM", dir);
+        return;
+      }
+      try {
+        discard(cacheBase, dir);
+      } finally {
+        lock.release();
+      }
+    }
+    Files.deleteIfExists(lockFile);
+  }
+
+  /**
+   * Makes {@code dir} unusable atomically (rename to {@code .trash-*}; fallback: delete its marker
+   * first), then deletes it. A failing delete only leaves an unusable leftover, retried later.
+   */
+  static void discard(Path cacheBase, Path dir) throws IOException {
+    if (!Files.exists(dir, LinkOption.NOFOLLOW_LINKS)) {
+      return;
+    }
+    if (Files.isSymbolicLink(dir)) {
+      Files.delete(dir); // the link only, never its target
+      return;
+    }
+    Path victim = Files.createTempDirectory(cacheBase, TRASH_PREFIX);
+    try {
+      Files.delete(victim); // reserve a unique name, then move into it
+      Files.move(dir, victim, StandardCopyOption.ATOMIC_MOVE);
+    } catch (IOException e) {
+      // cannot rename (e.g. Windows with open files): at least make it incomplete first
+      Files.deleteIfExists(dir.resolve(COMPLETE_MARKER));
+      victim = dir;
+    }
+    treeDeleter.delete(victim);
+    LOG.info("Removed Python environment {}", dir);
+  }
+
+  /**
+   * Deletes a tree bottom-up without following symlinks or Windows junctions: links and reparse
+   * points are deleted as entries, never descended into.
+   */
   static void deleteRecursively(Path root) throws IOException {
-    if (!Files.exists(root, LinkOption.NOFOLLOW_LINKS)) {
+    BasicFileAttributes attrs;
+    try {
+      attrs = Files.readAttributes(root, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+    } catch (NoSuchFileException e) {
       return;
     }
-    if (Files.isSymbolicLink(root)) {
-      Files.delete(root); // the link only, never its target
-      return;
+    if (attrs.isDirectory() && !attrs.isSymbolicLink() && !attrs.isOther()) {
+      List<Path> children;
+      try (Stream<Path> s = Files.list(root)) {
+        children = s.toList();
+      }
+      for (Path child : children) {
+        deleteRecursively(child);
+      }
     }
-    List<Path> all; // Files.walk does not follow symlinks
-    try (Stream<Path> walk = Files.walk(root)) {
-      all = walk.sorted(Comparator.reverseOrder()).toList();
-    }
-    for (Path p : all) {
-      Files.deleteIfExists(p);
-    }
+    Files.deleteIfExists(root);
   }
 
   /**
@@ -530,6 +733,14 @@ public final class PythonEnvironment {
       }
     }
     createLinks(root, links);
+    // The lexical check in createLinks can be bypassed through other links: check real targets.
+    Path realRoot = root.toRealPath();
+    for (Path link : links.keySet()) {
+      if (Files.exists(link) && !link.toRealPath().startsWith(realRoot)) {
+        throw new IOException(
+            "zip symlink escapes the extraction directory: " + link + " -> " + link.toRealPath());
+      }
+    }
   }
 
   private static void createLinks(Path root, Map<Path, String> links) throws IOException {
@@ -707,7 +918,9 @@ public final class PythonEnvironment {
                   .reversed())
               .toList());
     } else {
-      result.addAll(listMatching(home.resolve("lib"), NIX_LIBPYTHON));
+      List<Path> versioned = listMatching(home.resolve("lib"), NIX_LIBPYTHON);
+      result.addAll(
+          versioned.isEmpty() ? listMatching(home.resolve("lib"), NIX_LIBPYTHON_DEV) : versioned);
     }
     return result;
   }

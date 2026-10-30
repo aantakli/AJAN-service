@@ -105,32 +105,64 @@ public class PythonPlugin extends Plugin {
       if (!windows) {
         // C extension modules (e.g. orjson) are not linked against libpython and resolve Py*
         // symbols from the global namespace; System.load uses RTLD_LOCAL.
-        dlopenGlobal(lib);
+        dlopenGlobal(lib.toString());
       }
       LOG.debug("Preloaded {}", lib);
+    }
+    if (!windows && env.nativePreloads().isEmpty()) {
+      // External (e.g. distro) Python whose libpython lives outside <home>/lib: load by soname.
+      String soname = env.libpythonSoname().orElse(null);
+      try {
+        if (soname == null) {
+          throw new IllegalStateException("libpython soname unknown for " + env.home());
+        }
+        dlopenGlobal(soname);
+        LOG.info("Preloaded {} by soname", soname);
+      } catch (IllegalStateException e) {
+        LOG.warn("No libpython preloaded ({}); jep or native extension modules may fail to load",
+            e.getMessage());
+      }
     }
     MainInterpreter.setJepLibraryPath(env.jepLibrary().toString());
   }
 
-  private static void dlopenGlobal(Path lib) throws Throwable {
+  /** {@code dlopen(lib, RTLD_NOW | RTLD_GLOBAL)} via FFM; failures carry dlerror()'s text. */
+  static void dlopenGlobal(String lib) throws Throwable {
     Linker linker = Linker.nativeLinker();
-    MemorySegment dlopenAddr =
-        linker
-            .defaultLookup()
-            .find("dlopen")
-            .orElseThrow(() -> new IllegalStateException("dlopen not found"));
     MethodHandle dlopen =
         linker.downcallHandle(
-            dlopenAddr,
+            symbol(linker, "dlopen"),
             FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
+    // Resolved before dlopen: a later symbol lookup (dlsym) would reset the dlerror state.
+    MethodHandle dlerror =
+        linker.downcallHandle(
+            symbol(linker, "dlerror"), FunctionDescriptor.of(ValueLayout.ADDRESS));
     try (Arena arena = Arena.ofConfined()) {
       MemorySegment handle =
-          (MemorySegment) dlopen.invokeExact(arena.allocateFrom(lib.toString()),
-              RTLD_NOW | RTLD_GLOBAL);
+          (MemorySegment) dlopen.invokeExact(arena.allocateFrom(lib), RTLD_NOW | RTLD_GLOBAL);
       if (handle.equals(MemorySegment.NULL)) {
-        throw new IllegalStateException("dlopen(RTLD_GLOBAL) failed for " + lib);
+        throw new IllegalStateException(
+            "dlopen(RTLD_GLOBAL) failed for " + lib + ": " + dlerror(dlerror));
       }
     }
+  }
+
+  private static String dlerror(MethodHandle dlerror) {
+    try {
+      MemorySegment msg = (MemorySegment) dlerror.invokeExact();
+      return msg.equals(MemorySegment.NULL)
+          ? "(no dlerror)"
+          : msg.reinterpret(Long.MAX_VALUE).getString(0);
+    } catch (Throwable t) {
+      return "(dlerror unavailable: " + t + ")";
+    }
+  }
+
+  private static MemorySegment symbol(Linker linker, String name) {
+    return linker
+        .defaultLookup()
+        .find(name)
+        .orElseThrow(() -> new IllegalStateException(name + " not found"));
   }
 
   private static void configureJep(PythonEnvironment env) throws Exception {

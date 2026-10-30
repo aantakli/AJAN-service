@@ -77,6 +77,26 @@ public class PythonJepTest {
   }
 
   @Test
+  public void failedDlopenReportsDlerror() {
+    if (PythonEnvironment.isWindows()) {
+      throw new SkipException("dlopen is POSIX only");
+    }
+    IllegalStateException e =
+        org.testng.Assert.expectThrows(
+            IllegalStateException.class,
+            () -> {
+              try {
+                PythonPlugin.dlopenGlobal("/nonexistent/libajan-missing.so");
+              } catch (IllegalStateException ise) {
+                throw ise;
+              } catch (Throwable t) {
+                throw new AssertionError(t);
+              }
+            });
+    assertTrue(e.getMessage().contains("cannot open shared object file"), e.getMessage());
+  }
+
+  @Test
   public void pythonErrorsBecomeFailedResults() {
     PythonExecutionResult r = service.executeScript("raise ValueError('boom')", null);
     assertFalse(r.isSuccess());

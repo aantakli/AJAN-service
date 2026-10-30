@@ -6,25 +6,33 @@ import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.expectThrows;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
+import java.nio.channels.OverlappingFileLockException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileTime;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.nio.file.attribute.UserPrincipal;
 import java.security.MessageDigest;
+import java.time.Instant;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -51,6 +59,8 @@ public class PythonEnvironmentTest {
 
   @AfterMethod(alwaysRun = true)
   public void tearDown() throws IOException {
+    PythonEnvironment.treeDeleter = PythonEnvironment::deleteRecursively;
+    PythonEnvironment.releaseInUseLocks();
     PythonEnvironment.deleteRecursively(tmp);
   }
 
@@ -469,5 +479,137 @@ public class PythonEnvironmentTest {
     PythonUnavailableException e =
         expectThrows(PythonUnavailableException.class, () -> resolveNix(zip));
     assertTrue(e.getMessage().contains("symlink escapes"), e.getMessage());
+  }
+
+  // --- cleanup across concurrent JVMs (review I1/I2) ----------------------------------------
+
+  private static final String SIBLING = "0123456789ab";
+
+  private Path completeSibling() throws IOException {
+    Path sib = cache.resolve(SIBLING);
+    Files.createDirectories(sib.resolve("python-portable/lib"));
+    Files.writeString(sib.resolve("python-portable/lib/libpython3.13.so.1.0"), "old");
+    Files.writeString(sib.resolve(PythonEnvironment.COMPLETE_MARKER), "old");
+    return sib;
+  }
+
+  private List<String> cacheNames() throws IOException {
+    try (Stream<Path> s = Files.list(cache)) {
+      return s.map(p -> p.getFileName().toString()).sorted().toList();
+    }
+  }
+
+  @Test
+  public void currentEnvironmentIsMarkedInUse() throws Exception {
+    byte[] zip = zip(nixEnv());
+    resolveNix(zip);
+    Path inUse = PythonEnvironment.inUseFile(cache, hash12(zip));
+    assertTrue(Files.isRegularFile(inUse));
+    try (FileChannel ch = FileChannel.open(inUse, StandardOpenOption.WRITE)) {
+      expectThrows(OverlappingFileLockException.class, ch::tryLock); // held by this JVM
+    }
+  }
+
+  @Test
+  public void siblingLockedInThisJvmIsNotDeleted() throws Exception {
+    Path sib = completeSibling();
+    try (FileChannel ch =
+        FileChannel.open(
+            PythonEnvironment.inUseFile(cache, SIBLING),
+            StandardOpenOption.CREATE,
+            StandardOpenOption.READ,
+            StandardOpenOption.WRITE)) {
+      ch.lock(0, Long.MAX_VALUE, true);
+      resolveNix(zip(nixEnv()));
+      assertTrue(Files.isRegularFile(sib.resolve(PythonEnvironment.COMPLETE_MARKER)));
+    }
+  }
+
+  /** A second JVM holds the shared .inuse lock: its environment survives our cleanup. */
+  @Test
+  public void siblingInUseByAnotherJvmIsNotDeleted() throws Exception {
+    Path sib = completeSibling();
+    Path holderSrc = tmp.resolve("Holder.java");
+    Files.writeString(
+        holderSrc,
+        "import java.nio.channels.FileChannel; import java.nio.file.*;\n"
+            + "public class Holder { public static void main(String[] a) throws Exception {\n"
+            + "  try (FileChannel ch = FileChannel.open(Path.of(a[0]), StandardOpenOption.CREATE,"
+            + " StandardOpenOption.READ, StandardOpenOption.WRITE)) {\n"
+            + "    ch.lock(0, Long.MAX_VALUE, true);\n"
+            + "    System.out.println(\"locked\"); System.out.flush(); System.in.read(); } } }\n");
+    String java = ProcessHandle.current().info().command().orElse("java");
+    Process holder =
+        new ProcessBuilder(
+                java, holderSrc.toString(), PythonEnvironment.inUseFile(cache, SIBLING).toString())
+            .redirectErrorStream(true)
+            .start();
+    try {
+      BufferedReader out =
+          new BufferedReader(
+              new InputStreamReader(holder.getInputStream(), StandardCharsets.UTF_8));
+      assertEquals(out.readLine(), "locked");
+
+      byte[] zip = zip(nixEnv());
+      resolveNix(zip);
+      assertTrue(
+          Files.isRegularFile(sib.resolve(PythonEnvironment.COMPLETE_MARKER)),
+          "environment locked by another JVM must be kept");
+
+      holder.getOutputStream().close(); // holder exits, lock released
+      assertTrue(holder.waitFor(30, TimeUnit.SECONDS));
+      resolveNix(zip);
+      assertFalse(Files.exists(sib), "unlocked stale environment is removed");
+      assertFalse(Files.exists(PythonEnvironment.inUseFile(cache, SIBLING)));
+    } finally {
+      holder.destroyForcibly();
+    }
+  }
+
+  @Test
+  public void failedDeleteNeverLeavesAReusableMarker() throws Exception {
+    Path sib = completeSibling();
+    PythonEnvironment.treeDeleter =
+        root -> {
+          throw new IOException("simulated: file locked by another process");
+        };
+    byte[] zip = zip(nixEnv());
+    resolveNix(zip);
+
+    assertFalse(Files.exists(sib, LinkOption.NOFOLLOW_LINKS), "<hash> must be gone first");
+    assertTrue(
+        cacheNames().stream().anyMatch(n -> n.startsWith(PythonEnvironment.TRASH_PREFIX)),
+        "undeletable remains are parked as .trash-*: " + cacheNames());
+
+    PythonEnvironment.treeDeleter = PythonEnvironment::deleteRecursively;
+    resolveNix(zip);
+    assertTrue(
+        cacheNames().stream().noneMatch(n -> n.startsWith(PythonEnvironment.TRASH_PREFIX)),
+        "leftover .trash-* is removed on the next start: " + cacheNames());
+  }
+
+  @Test
+  public void staleDownloadsAreRemovedButFreshOnesKept() throws Exception {
+    Files.createDirectories(cache);
+    Path old = Files.writeString(cache.resolve(".download-old.zip"), "x");
+    Files.setLastModifiedTime(
+        old, FileTime.from(Instant.now().minus(2, java.time.temporal.ChronoUnit.HOURS)));
+    Path fresh = Files.writeString(cache.resolve(".download-fresh.zip"), "x");
+    resolveNix(zip(nixEnv()));
+    assertFalse(Files.exists(old));
+    assertTrue(Files.exists(fresh), "may be another JVM's download in progress");
+  }
+
+  @Test
+  public void externalLinuxHomeExposesLibpythonSoname() throws Exception {
+    Path home = externalHome(tmp.resolve("distro"));
+    PythonEnvironment env =
+        PythonEnvironment.resolve(home.toString(), null, cache, false, resources("x", null));
+    assertEquals(env.nativePreloads(), List.of(), "distro libpython is not under <home>/lib");
+    assertEquals(env.libpythonSoname().orElseThrow(), "libpython3.13.so.1.0");
+
+    Files.writeString(home.resolve("lib/libpython3.13.so"), "dev symlink target");
+    env = PythonEnvironment.resolve(home.toString(), null, cache, false, resources("x", null));
+    assertEquals(env.nativePreloads(), List.of(home.resolve("lib/libpython3.13.so")));
   }
 }

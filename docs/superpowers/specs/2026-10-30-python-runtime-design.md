@@ -57,9 +57,9 @@ einer reproduzierbar gebauten Umgebung — weiterhin **in-process via JEP, Ausli
 - Umgebungsauswahl: System-Property/Env `ajan.python.home` (externes CPython mit installiertem jep) hat Vorrang;
   sonst eingebettetes Zip für das aktuelle OS.
 - Entpacken in einen Cache `${ajan.python.cacheDir:-<Benutzer-Cache>/ajan-python}/<sha256-12>/` (`~/.cache/ajan-python`, Windows `%LOCALAPPDATA%\ajan-python`; nie ein geteiltes Temp-Verzeichnis, POSIX 0700, fremde/symlinkte/gruppenschreibbare Verzeichnisse werden abgelehnt) mit Marker-Datei
-  `.complete`; vorhandener vollständiger Cache wird wiederverwendet, ältere Cache-Verzeichnisse werden gelöscht.
+  `.complete`; vorhandener vollständiger Cache wird wiederverwendet, ältere Cache-Verzeichnisse werden gelöscht, sofern keine andere JVM sie nutzt (geteilter Lock auf `<sha256-12>.inuse`; vor dem Löschen Umbenennen nach `.trash-*`).
 - JEP-Init explizit: `MainInterpreter.setJepLibraryPath(<abs. libjep.so|jep.dll>)`, `PyConfig.setPythonHome`; Reflection-Hacks entfallen.
-- `AJANlib.py` ist Ressource des PythonPlugin-JARs und wird beim Start in `<cache>/ajan-lib/` gelegt, das auf den `sys.path` kommt.
+- `AJANlib.py` ist Ressource des PythonPlugin-JARs und wird beim Start in `<cache>/<sha256-12>/ajan-lib/` gelegt (eingebettete Umgebung; mit `ajan.python.home` in `<cache>/ajan-lib/`), das auf den `sys.path` kommt.
 - Fehlt jede Umgebung oder schlägt die Init fehl: Plugin startet trotzdem (pf4j STARTED), `isPythonAvailable()=false`,
   Python-Knoten enden FAILED mit klarer Meldung. Kein Absturz des Service.
 - Globales `synchronized` entfällt (jeder Aufruf eigener `SharedInterpreter` auf dem aufrufenden Thread; GIL sorgt für Sicherheit).
