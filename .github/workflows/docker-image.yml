@@ -114,7 +114,7 @@ jobs:
 
   release:
     name: Create Release
-    needs: [build]
+    needs: [build, docker]
     runs-on: ubuntu-latest
     steps:
       - name: Download distribution artifact
