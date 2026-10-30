@@ -197,7 +197,7 @@ public class Parallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTaskInfo
 	@Override
 	public void simulate(final SimulationResult result) {
 		SimulationResult.Direction direction = result.getDirection();
-		if (direction.equals(SimulationResult.Direction.Up)) {
+		if (direction.equals(SimulationResult.Direction.UP)) {
 			currentEvaluatingChild = currentChildIndex;
 			currentEvaluatingChild++;
 		} else if (currentChildIndex < children.size) {
@@ -206,14 +206,14 @@ public class Parallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTaskInfo
 			currentEvaluatingChild = 0;
 		}
 		simulateChilds(result);
-		if (direction.equals(SimulationResult.Direction.Up)) {
-			((TreeNode)control).simulate(result.setDirection(SimulationResult.Direction.Up));
+		if (direction.equals(SimulationResult.Direction.UP)) {
+			((TreeNode)control).simulate(result.setDirection(SimulationResult.Direction.UP));
 		}
 	}
 
 	protected void simulateChilds(final SimulationResult result) {
 		while (currentEvaluatingChild < children.size) {
-			((TreeNode)children.get(currentEvaluatingChild)).simulate(result.setDirection(SimulationResult.Direction.Down));
+			((TreeNode)children.get(currentEvaluatingChild)).simulate(result.setDirection(SimulationResult.Direction.DOWN));
 			if (nodeLogic(result)) {
 				break;
 			}

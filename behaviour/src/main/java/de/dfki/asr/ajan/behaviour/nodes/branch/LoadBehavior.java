@@ -153,12 +153,12 @@ public class LoadBehavior extends AbstractTDBBranchTask {
 	@Override
 	public void simulate(final SimulationResult result) {
 		SimulationResult.Direction direction = result.getDirection();
-		if (direction.equals(SimulationResult.Direction.Down)) {
+		if (direction.equals(SimulationResult.Direction.DOWN)) {
 			BTRoot behavior;
 			try {
 				behavior = generateBehavior();
 				if (behavior.getChildCount() > 0) {
-					behavior.simulate(result.setDirection(SimulationResult.Direction.Down));
+					behavior.simulate(result.setDirection(SimulationResult.Direction.DOWN));
 				} else {
 					result.setChildResult(SimulationResult.Result.FAIL);
 				}
@@ -167,7 +167,7 @@ public class LoadBehavior extends AbstractTDBBranchTask {
 				result.setChildResult(SimulationResult.Result.FAIL);
 			}
 		} else {
-			((TreeNode)control).simulate(result.setDirection(SimulationResult.Direction.Up));
+			((TreeNode)control).simulate(result.setDirection(SimulationResult.Direction.UP));
 		}
 	}
 

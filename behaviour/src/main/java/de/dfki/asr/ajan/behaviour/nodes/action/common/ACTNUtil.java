@@ -77,7 +77,7 @@ public final class ACTNUtil {
 				repo = BTUtil.getInitializedRepository(info, input.getOriginBase());
 			} catch (URISyntaxException | QueryEvaluationException ex) {
 				LOG.error("Failed to get repository for input {}", input, ex);
-				return null;
+				throw new TripleStoreException("Failed to get repository for input " + input, ex);
 			}
 			inputModel = getInputModel(inputs, repo);
 		}
@@ -87,7 +87,7 @@ public final class ACTNUtil {
 	public static InputModel getInputModel(final List<BehaviorQuery> inputs, final Repository repo) throws TripleStoreException {
 		InputModel inputModel = new InputModel();
 		for (BehaviorQuery input: inputs) {
-			inputModel = ACTNUtil.addInputToModel(repo, input, inputModel);
+			inputModel = addInputToModel(repo, input, inputModel);
 		}
 		return inputModel;
 	}
@@ -103,14 +103,14 @@ public final class ACTNUtil {
 
 	public static Model getAddModel(final AbstractActionDefinition service, final InputModel inputModel) {
 		String producibleQuery = service.getProducible().getSparql();
-		ParsedTupleQuery selectQuery = ACTNUtil.createSelectQuery(service.getVariables(), service.getConsumable().getSparql());
-		return ACTNUtil.getExistsModel(producibleQuery, selectQuery, inputModel);
+		ParsedTupleQuery selectQuery = createSelectQuery(service.getVariables(), service.getConsumable().getSparql());
+		return getExistsModel(producibleQuery, selectQuery, inputModel);
 	}
 
 	public static Model getRemoveModel(final AbstractActionDefinition service, final InputModel inputModel) {
 		String producibleQuery = service.getProducible().getSparql();
-		ParsedTupleQuery selectQuery = ACTNUtil.createSelectQuery(service.getVariables(), service.getConsumable().getSparql());
-		return ACTNUtil.getNotExistsModel(producibleQuery, selectQuery, inputModel);
+		ParsedTupleQuery selectQuery = createSelectQuery(service.getVariables(), service.getConsumable().getSparql());
+		return getNotExistsModel(producibleQuery, selectQuery, inputModel);
 	}
 
 	public static ParsedTupleQuery createSelectQuery(final List<ActionVariable> vars, final String askQuery) {

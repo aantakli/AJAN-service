@@ -48,9 +48,6 @@ public class LoadInputModel extends AbstractChainStep {
 		Action action = context.get(Action.class);
 		try {
 			InputModel inputModel = ACTNUtil.getInputModel(action);
-			if (inputModel == null) {
-				return Task.Status.FAILED;
-			}
 			Resource node = vf.createBNode();
 			if (validateURI(action.getUrl(), "http")) {
 				inputModel.add(node, BTVocabulary.BT_NODE, vf.createIRI(action.getUrl()));

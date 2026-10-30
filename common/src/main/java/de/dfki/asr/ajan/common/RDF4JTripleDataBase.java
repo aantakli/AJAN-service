@@ -68,7 +68,7 @@ public class RDF4JTripleDataBase extends AbstractSparqlTripleDataBase {
 				.build();
 	}
 
-	private static class RetryHandlerStale implements HttpRequestRetryHandler {
+	private static final class RetryHandlerStale implements HttpRequestRetryHandler {
 		private final Logger logger = LoggerFactory.getLogger(RetryHandlerStale.class);
 
 		@Override
@@ -96,7 +96,7 @@ public class RDF4JTripleDataBase extends AbstractSparqlTripleDataBase {
 		}
 	}
 
-	private class ServiceUnavailableRetryHandler implements ServiceUnavailableRetryStrategy {
+	private final class ServiceUnavailableRetryHandler implements ServiceUnavailableRetryStrategy {
 		private final Logger logger = LoggerFactory.getLogger(ServiceUnavailableRetryHandler.class);
 
 		@Override

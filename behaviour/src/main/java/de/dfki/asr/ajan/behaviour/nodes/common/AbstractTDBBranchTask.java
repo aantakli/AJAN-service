@@ -56,21 +56,21 @@ public abstract class AbstractTDBBranchTask extends SingleRunningChildBranch<Age
 	@Override
 	public void simulate(final SimulationResult result) {
 		Direction direction = result.getDirection();
-		if (direction.equals(Direction.Up)) {
+		if (direction.equals(Direction.UP)) {
 			currentEvaluatingChild = currentChildIndex;
 			currentEvaluatingChild++;
 		} else {
 			currentEvaluatingChild = 0;
 		}
 		simulateChilds(result);
-		if (direction.equals(Direction.Up)) {
-			((TreeNode)control).simulate(result.setDirection(Direction.Up));
+		if (direction.equals(Direction.UP)) {
+			((TreeNode)control).simulate(result.setDirection(Direction.UP));
 		}
 	}
 
 	protected void simulateChilds(final SimulationResult result) {
 		while (currentEvaluatingChild < children.size) {
-			((TreeNode)children.get(currentEvaluatingChild)).simulate(result.setDirection(Direction.Down));
+			((TreeNode)children.get(currentEvaluatingChild)).simulate(result.setDirection(Direction.DOWN));
 			if (nodeLogic(result)) {
 				break;
 			}

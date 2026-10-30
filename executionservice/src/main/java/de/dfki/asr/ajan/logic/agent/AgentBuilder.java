@@ -99,7 +99,7 @@ public class AgentBuilder {
     }
 
     public Agent build() throws UnauthorizedException, URISyntaxException {
-        LOG.info("Creating agent with ID: " + id);
+        LOG.info("Creating agent with ID: {}", id);
         url = getAgentURI();
         AgentBeliefBase beliefs = new AgentBeliefBase(tdbManager.createAgentTDB(id,managedTDB,inferencing,null));
         addAgentInformationToKnowledge(beliefs);
@@ -112,14 +112,16 @@ public class AgentBuilder {
             overwrite = true;
         }
         Agent agent = new Agent(url, id, template, initialBehavior, finalBehavior, behaviors, overwrite, beliefs, events, endpoints, connections, reportURI);
-        LOG.info("Agent with ID " + id + " is created: " + agent.getUrl());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Agent with ID {} is created: {}", id, agent.getUrl());
+        }
         return agent;
     }
     protected String getAgentURI() {
         String ajanURI = baseURI.toString();
         StringBuilder builder = new StringBuilder();
         builder.append(ajanURI);
-        if (!ajanURI.substring(ajanURI.length() - 1).equals("/")) {
+        if (!"/".equals(ajanURI.substring(ajanURI.length() - 1))) {
             builder.append('/');
         }
         builder.append(id);

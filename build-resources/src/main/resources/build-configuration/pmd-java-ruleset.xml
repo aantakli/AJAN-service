@@ -2,165 +2,376 @@
 <ruleset name="Custom ruleset"
 		 xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
 		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+		 xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.github.io/ruleset_2_0_0.xsd">
 
 	<description>
-		Ruleset used in sda/rsp
-		<!-- See the FAQ here: http://maven.apache.org/maven-1.x/plugins/pmd/faq.html -->
-		<!-- See the rule sets here: http://pmd.sourceforge.net/ (menu on the left has a Rule Sets section -->
-		<!-- For further details of how to configure things, look here: http://pmd.sourceforge.net/pmd-5.1.0/howtomakearuleset.html -->
+		Ruleset used in sda/rsp, ported 1:1 from the PMD 5 rulesets (rulesets/java/*.xml) to PMD 7 categories.
+		Every rule of every previously referenced PMD 5 ruleset is listed below under its PMD 7 name, grouped by
+		the PMD 5 ruleset it came from. Rules removed in PMD 7 are replaced by the replacement documented in the
+		PMD 7 release notes ("Removed Rules"); rules without replacement are listed as comments.
+		Rules excluded in the PMD 5 ruleset stay excluded (they are simply not referenced).
 	</description>
 
 	<!-- As long as we are not using Android there is no need to switch this on -->
-	<!-- <rule ref="rulesets/java/android.xml"/> -->
 
-	<rule ref="rulesets/java/basic.xml"/>
-	<rule ref="rulesets/java/braces.xml"/>
-	<rule ref="rulesets/java/clone.xml"/>
+	<!-- ===== PMD 5: rulesets/java/basic.xml ===== -->
+	<rule ref="category/java/errorprone.xml/JumbledIncrementer"/>
+	<rule ref="category/java/codestyle.xml/ForLoopShouldBeWhileLoop"/>
+	<rule ref="category/java/errorprone.xml/OverrideBothEqualsAndHashcode"/>
+	<rule ref="category/java/multithreading.xml/DoubleCheckedLocking"/>
+	<rule ref="category/java/errorprone.xml/ReturnFromFinallyBlock"/>
+	<rule ref="category/java/errorprone.xml/UnconditionalIfStatement"/>
+	<!-- BooleanInstantiation: removed in PMD 7 -> PrimitiveWrapperInstantiation + UnnecessaryBoxing -->
+	<rule ref="category/java/bestpractices.xml/PrimitiveWrapperInstantiation"/>
+	<rule ref="category/java/codestyle.xml/UnnecessaryBoxing"/>
+	<rule ref="category/java/design.xml/CollapsibleIfStatements"/>
+	<rule ref="category/java/errorprone.xml/ClassCastExceptionWithToArray"/>
+	<rule ref="category/java/errorprone.xml/AvoidDecimalLiteralsInBigDecimalConstructor"/>
+	<rule ref="category/java/errorprone.xml/MisplacedNullCheck"/>
+	<rule ref="category/java/multithreading.xml/AvoidThreadGroup"/>
+	<rule ref="category/java/errorprone.xml/BrokenNullCheck"/>
+	<rule ref="category/java/performance.xml/BigIntegerInstantiation"/>
+	<rule ref="category/java/errorprone.xml/AvoidUsingOctalValues"/>
+	<rule ref="category/java/bestpractices.xml/AvoidUsingHardCodedIP"/>
+	<rule ref="category/java/bestpractices.xml/CheckResultSet"/>
+	<rule ref="category/java/errorprone.xml/AvoidMultipleUnaryOperators"/>
+	<rule ref="category/java/codestyle.xml/ExtendsObject"/>
+	<rule ref="category/java/errorprone.xml/CheckSkipResult"/>
+	<rule ref="category/java/errorprone.xml/AvoidBranchingStatementAsLastInLoop"/>
+	<rule ref="category/java/multithreading.xml/DontCallThreadRun"/>
+	<rule ref="category/java/errorprone.xml/DontUseFloatTypeForLoopIndices"/>
+	<!-- (basic.xml also re-exported the empty.xml/unnecessary.xml rules; see there) -->
 
-	<rule ref="rulesets/java/codesize.xml/CyclomaticComplexity">
+	<!-- ===== PMD 5: rulesets/java/braces.xml ===== -->
+	<!-- If/IfElse/While/ForLoopsMustUseBraces: removed in PMD 7 -> ControlStatementBraces -->
+	<rule ref="category/java/codestyle.xml/ControlStatementBraces"/>
+
+	<!-- ===== PMD 5: rulesets/java/clone.xml ===== -->
+	<rule ref="category/java/errorprone.xml/ProperCloneImplementation"/>
+	<rule ref="category/java/errorprone.xml/CloneMethodMustImplementCloneable"/>
+	<!-- CloneThrowsCloneNotSupportedException: removed in PMD 7 without replacement -->
+
+	<!-- ===== PMD 5: rulesets/java/codesize.xml (selected rules) ===== -->
+	<rule ref="category/java/design.xml/CyclomaticComplexity">
 		<properties>
-			<property name="reportLevel" value="8"/>
+			<!-- PMD 5 "reportLevel" (per method) -->
+			<property name="methodReportLevel" value="8"/>
 		</properties>
 	</rule>
-	<rule ref="rulesets/java/codesize.xml/ExcessiveClassLength">
+	<!--
+		ExcessiveClassLength (450), ExcessiveMethodLength (32), NcssConstructorCount (7), NcssMethodCount (23) and
+		NcssTypeCount (400): removed in PMD 7 -> NcssCount. The NCSS limits are carried over (method 23, type 400);
+		PMD 7 applies the operation limit to constructors as well, a separate constructor limit no longer exists.
+	-->
+	<rule ref="category/java/design.xml/NcssCount">
 		<properties>
-			<!-- = NcssTypeCount + commentary -->
-			<property name="minimum" value="450"/>
+			<property name="methodReportLevel" value="23"/>
+			<property name="classReportLevel" value="400"/>
 		</properties>
 	</rule>
-	<rule ref="rulesets/java/codesize.xml/ExcessiveMethodLength">
-		<properties>
-			<!-- = NcssMethodCount + commentary -->
-			<property name="minimum" value="32"/>
-		</properties>
-	</rule>
-	<rule ref="rulesets/java/codesize.xml/ExcessiveParameterList">
+	<rule ref="category/java/design.xml/ExcessiveParameterList">
 		<properties>
 			<!-- Clean Code -->
 			<property name="minimum" value="5"/>
 		</properties>
 	</rule>
-	<rule ref="rulesets/java/codesize.xml/ExcessivePublicCount">
+	<rule ref="category/java/design.xml/ExcessivePublicCount">
 		<properties>
 			<!-- 5 member with getter and setter +  10 semantic functions + buffer -->
 			<property name="minimum" value="25"/>
 		</properties>
 	</rule>
-	<rule ref="rulesets/java/codesize.xml/NcssConstructorCount">
+	<rule ref="category/java/design.xml/NPathComplexity">
 		<properties>
-			<!-- Weld proxy always ctor, keep things small -->
-			<property name="minimum" value="7"/>
+			<!-- PMD 5 "minimum" -->
+			<property name="reportLevel" value="200"/>
 		</properties>
 	</rule>
-	<rule ref="rulesets/java/codesize.xml/NcssMethodCount">
-		<properties>
-			<property name="minimum" value="23"/>
-		</properties>
-	</rule>
-	<rule ref="rulesets/java/codesize.xml/NcssTypeCount">
-		<properties>
-			<property name="minimum" value="400"/>
-		</properties>
-	</rule>
-	<rule ref="rulesets/java/codesize.xml/NPathComplexity">
-		<properties>
-			<property name="minimum" value="200"/>
-		</properties>
-	</rule>
-	<rule ref="rulesets/java/codesize.xml/TooManyFields">
+	<rule ref="category/java/design.xml/TooManyFields">
 		<properties>
 			<property name="maxfields" value="12"/>
 		</properties>
 	</rule>
-	<rule ref="rulesets/java/codesize.xml/TooManyMethods">
+	<rule ref="category/java/design.xml/TooManyMethods">
 		<properties>
 			<property name="maxmethods" value="42"/>
 		</properties>
 	</rule>
 
-	<rule ref="rulesets/java/comments.xml">
-		<exclude name="CommentRequired"/>
-	</rule>
-	<rule ref="rulesets/java/comments.xml/CommentSize">
+	<!-- ===== PMD 5: rulesets/java/comments.xml (without CommentRequired) ===== -->
+	<rule ref="category/java/documentation.xml/CommentSize">
 		<properties>
 			<property name="maxLineLength" value="160" />
 			<property name="maxLines" value="16" />
 		</properties>
 	</rule>
+	<rule ref="category/java/documentation.xml/CommentContent"/>
 
-	<rule ref="rulesets/java/controversial.xml">
-		<exclude name="AtLeastOneConstructor" />
-		<exclude name="AvoidLiteralsInIfCondition" />
-		<exclude name="CallSuperInConstructor" />
-		<exclude name="DataflowAnomalyAnalysis" />
-		<exclude name="OnlyOneReturn" />
-	</rule>
+	<!-- ===== PMD 5: rulesets/java/controversial.xml ===== -->
+	<!-- excluded as before: AtLeastOneConstructor, AvoidLiteralsInIfCondition, CallSuperInConstructor,
+	     DataflowAnomalyAnalysis (PMD 7: UnusedAssignment), OnlyOneReturn -->
+	<rule ref="category/java/codestyle.xml/UnnecessaryConstructor"/>
+	<rule ref="category/java/errorprone.xml/NullAssignment"/>
+	<rule ref="category/java/errorprone.xml/AssignmentInOperand"/>
+	<rule ref="category/java/errorprone.xml/DontImportSun"/>
+	<rule ref="category/java/errorprone.xml/SuspiciousOctalEscape"/>
+	<!-- UnnecessaryParentheses: merged into UselessParentheses (see unnecessary.xml) -->
+	<!-- DefaultPackage: removed in PMD 7 -> CommentDefaultAccessModifier -->
+	<rule ref="category/java/codestyle.xml/CommentDefaultAccessModifier"/>
+	<!-- BooleanInversion: already deprecated in PMD 5.3, removed without replacement -->
+	<!-- AvoidFinalLocalVariable: removed in PMD 7 without replacement -->
+	<!-- AvoidUsingShortType: removed in PMD 7 without replacement -->
+	<rule ref="category/java/multithreading.xml/AvoidUsingVolatile"/>
+	<rule ref="category/java/codestyle.xml/AvoidUsingNativeCode"/>
+	<rule ref="category/java/errorprone.xml/AvoidAccessibilityAlteration"/>
+	<rule ref="category/java/errorprone.xml/DoNotCallGarbageCollectionExplicitly"/>
+	<rule ref="category/java/bestpractices.xml/OneDeclarationPerLine"/>
+	<!-- AvoidPrefixingMethodParameters: removed in PMD 7 -> FormalParameterNamingConventions (see naming.xml) -->
+	<rule ref="category/java/design.xml/UseObjectForClearerAPI"/>
+	<rule ref="category/java/multithreading.xml/UseConcurrentHashMap"/>
 
-	<rule ref="rulesets/java/coupling.xml">
-		<exclude name="LawOfDemeter" />
-		<!-- LoosePackageCoupling rule is broken ... -->
-		<exclude name="LoosePackageCoupling" />
-	</rule>
-
-	<rule ref="rulesets/java/design.xml">
-		<exclude name="UseLocaleWithCaseConversions" />
-		<exclude name="SingularField" />
-		<!-- causes false positives with Jena: -->
-		<exclude name="CloseResource" />
-	</rule>
-
-	<rule ref="rulesets/java/design.xml/SingularField">
+	<!-- ===== PMD 5: rulesets/java/coupling.xml ===== -->
+	<!-- excluded as before: LawOfDemeter, LoosePackageCoupling (LoosePackageCoupling rule is broken ...) -->
+	<rule ref="category/java/design.xml/CouplingBetweenObjects"/>
+	<rule ref="category/java/design.xml/ExcessiveImports"/>
+	<!--
+		PMD 7 resolves types, so LooseCoupling now also reports subclasses of JDK/RDF4J collection implementations.
+		InputModel/ResultModel (extends LinkedHashModel) are the typed contract of the plugin SPI
+		(ActionPluginBinding#run/abort, implemented by the plugins), not incidental implementation choices; replacing
+		them by Model would change the plugin API. All 35 such findings concern these two types.
+	-->
+	<rule ref="category/java/bestpractices.xml/LooseCoupling">
 		<properties>
-			<!-- ignore lombok-generated -->
-			<property name="violationSuppressXPath"
-					  value="//FieldDeclaration[ancestor::*/Annotation/MarkerAnnotation[(Name/@Image='Data') or (Name/@Image='Getter') or (Name/@Image='Setter')]]" />
+			<property name="allowedTypes"
+					  value="java.util.Properties,de.dfki.asr.ajan.behaviour.nodes.action.definition.InputModel,de.dfki.asr.ajan.behaviour.nodes.action.definition.ResultModel" />
 		</properties>
 	</rule>
 
-	<rule ref="rulesets/java/empty.xml"/>
-	<rule ref="rulesets/java/finalizers.xml"/>
-	<rule ref="rulesets/java/imports.xml"/>
+	<!-- ===== PMD 5: rulesets/java/design.xml ===== -->
+	<!-- excluded as before: UseLocaleWithCaseConversions, CloseResource (causes false positives with Jena) -->
+	<rule ref="category/java/design.xml/UseUtilityClass"/>
+	<rule ref="category/java/design.xml/SimplifyBooleanReturns"/>
+	<rule ref="category/java/design.xml/SimplifyBooleanExpressions"/>
+	<!-- SwitchStmtsShouldHaveDefault: renamed in PMD 7 -->
+	<rule ref="category/java/bestpractices.xml/NonExhaustiveSwitch"/>
+	<rule ref="category/java/design.xml/AvoidDeeplyNestedIfStmts"/>
+	<rule ref="category/java/bestpractices.xml/AvoidReassigningParameters"/>
+	<rule ref="category/java/design.xml/SwitchDensity"/>
+	<rule ref="category/java/errorprone.xml/ConstructorCallsOverridableMethod"/>
+	<rule ref="category/java/bestpractices.xml/AccessorClassGeneration"/>
+	<rule ref="category/java/design.xml/FinalFieldCouldBeStatic"/>
+	<rule ref="category/java/errorprone.xml/NonStaticInitializer"/>
+	<!-- DefaultLabelNotLastInSwitchStmt: renamed in PMD 7 -->
+	<rule ref="category/java/bestpractices.xml/DefaultLabelNotLastInSwitch"/>
+	<!-- NonCaseLabelInSwitchStatement: renamed in PMD 7 -->
+	<rule ref="category/java/errorprone.xml/NonCaseLabelInSwitch"/>
+	<rule ref="category/java/performance.xml/OptimizableToArrayCall"/>
+	<!-- BadComparison: removed in PMD 7 -> ComparisonWithNaN -->
+	<rule ref="category/java/errorprone.xml/ComparisonWithNaN"/>
+	<rule ref="category/java/errorprone.xml/EqualsNull"/>
+	<rule ref="category/java/codestyle.xml/ConfusingTernary"/>
+	<rule ref="category/java/errorprone.xml/InstantiationToGetClass"/>
+	<rule ref="category/java/errorprone.xml/IdempotentOperations"/>
+	<rule ref="category/java/errorprone.xml/SimpleDateFormatNeedsLocale"/>
+	<rule ref="category/java/design.xml/ImmutableField"/>
+	<rule ref="category/java/codestyle.xml/AvoidProtectedFieldInFinalClass"/>
+	<rule ref="category/java/errorprone.xml/AssignmentToNonFinalStatic"/>
+	<rule ref="category/java/errorprone.xml/MissingStaticMethodInNonInstantiatableClass"/>
+	<rule ref="category/java/multithreading.xml/AvoidSynchronizedAtMethodLevel"/>
+	<!-- MissingBreakInSwitch: removed in PMD 7 -> ImplicitSwitchFallThrough -->
+	<rule ref="category/java/errorprone.xml/ImplicitSwitchFallThrough"/>
+	<rule ref="category/java/multithreading.xml/UseNotifyAllInsteadOfNotify"/>
+	<rule ref="category/java/errorprone.xml/AvoidInstanceofChecksInCatchClause"/>
+	<rule ref="category/java/bestpractices.xml/AbstractClassWithoutAbstractMethod"/>
+	<rule ref="category/java/design.xml/SimplifyConditional"/>
+	<rule ref="category/java/errorprone.xml/CompareObjectsWithEquals"/>
+	<!-- PositionLiteralsFirstIn(CaseInsensitive)Comparisons: removed in PMD 7 -> LiteralsFirstInComparisons -->
+	<rule ref="category/java/bestpractices.xml/LiteralsFirstInComparisons"/>
+	<!-- UnnecessaryLocalBeforeReturn: deprecated in PMD 7.17 -> VariableCanBeInlined -->
+	<rule ref="category/java/codestyle.xml/VariableCanBeInlined"/>
+	<rule ref="category/java/multithreading.xml/NonThreadSafeSingleton"/>
+	<!-- UncommentedEmptyMethod / UseSingleton were PMD 5 aliases of UncommentedEmptyMethodBody / UseUtilityClass -->
+	<rule ref="category/java/documentation.xml/UncommentedEmptyMethodBody"/>
+	<rule ref="category/java/documentation.xml/UncommentedEmptyConstructor"/>
+	<!-- AvoidConstantsInterface: PMD 5 name of ConstantsInInterface -->
+	<rule ref="category/java/bestpractices.xml/ConstantsInInterface"/>
+	<!-- UnsynchronizedStaticDateFormatter: removed in PMD 7 -> UnsynchronizedStaticFormatter -->
+	<rule ref="category/java/multithreading.xml/UnsynchronizedStaticFormatter"/>
+	<rule ref="category/java/bestpractices.xml/PreserveStackTrace"/>
+	<rule ref="category/java/bestpractices.xml/UseCollectionIsEmpty"/>
+	<rule ref="category/java/design.xml/ClassWithOnlyPrivateConstructorsShouldBeFinal"/>
+	<rule ref="category/java/codestyle.xml/EmptyMethodInAbstractClassShouldBeAbstract"/>
+	<rule ref="category/java/design.xml/SingularField">
+		<properties>
+			<!-- ignore lombok-generated -->
+			<property name="violationSuppressXPath"
+					  value="./ancestor-or-self::FieldDeclaration[ancestor-or-self::*/ModifierList/Annotation[@SimpleName='Data' or @SimpleName='Getter' or @SimpleName='Setter']]" />
+		</properties>
+	</rule>
+	<!-- ReturnEmptyArrayRatherThanNull: removed in PMD 7 -> ReturnEmptyCollectionRatherThanNull -->
+	<rule ref="category/java/errorprone.xml/ReturnEmptyCollectionRatherThanNull"/>
+	<rule ref="category/java/design.xml/AbstractClassWithoutAnyMethod"/>
+	<!-- TooFewBranchesForASwitchStatement: renamed in PMD 7 -->
+	<rule ref="category/java/performance.xml/TooFewBranchesForSwitch"/>
+	<rule ref="category/java/design.xml/LogicInversion"/>
+	<rule ref="category/java/bestpractices.xml/UseVarargs"/>
+	<rule ref="category/java/codestyle.xml/FieldDeclarationsShouldBeAtStartOfClass"/>
+	<rule ref="category/java/design.xml/GodClass"/>
+	<rule ref="category/java/codestyle.xml/AvoidProtectedMethodInFinalClassNotExtending"/>
+
+	<!-- ===== PMD 5: rulesets/java/empty.xml ===== -->
+	<rule ref="category/java/errorprone.xml/EmptyCatchBlock"/>
+	<!-- EmptyIf/While/Try/Finally/Switch/Synchronized/StatementBlock/(Static)Initializer: removed in PMD 7 -> EmptyControlStatement -->
+	<rule ref="category/java/codestyle.xml/EmptyControlStatement"/>
+	<!-- EmptyStatementNotInLoop: removed in PMD 7 -> UnnecessarySemicolon -->
+	<rule ref="category/java/codestyle.xml/UnnecessarySemicolon"/>
+
+	<!-- ===== PMD 5: rulesets/java/finalizers.xml ===== -->
+	<rule ref="category/java/errorprone.xml/EmptyFinalizer"/>
+	<rule ref="category/java/errorprone.xml/FinalizeOnlyCallsSuperFinalize"/>
+	<rule ref="category/java/errorprone.xml/FinalizeOverloaded"/>
+	<rule ref="category/java/errorprone.xml/FinalizeDoesNotCallSuperFinalize"/>
+	<rule ref="category/java/errorprone.xml/FinalizeShouldBeProtected"/>
+	<rule ref="category/java/errorprone.xml/AvoidCallingFinalize"/>
+
+	<!-- ===== PMD 5: rulesets/java/imports.xml ===== -->
+	<!-- DuplicateImports, DontImportJavaLang, UnusedImports, ImportFromSamePackage: removed in PMD 7 -> UnnecessaryImport -->
+	<rule ref="category/java/codestyle.xml/UnnecessaryImport"/>
+	<rule ref="category/java/codestyle.xml/TooManyStaticImports"/>
+	<rule ref="category/java/codestyle.xml/UnnecessaryFullyQualifiedName"/>
 
 	<!-- As long as we are not using JUnit there is no need to switch this on -->
 	<!-- <rule ref="rulesets/java/junit.xml"/> -->
 
-	<rule ref="rulesets/java/logging-java.xml">
-		<!-- Will throw errors if the logger gets injected. Injected loggers must not be static final... -->
-		<exclude name="LoggerIsNotStaticFinal"/>
+	<!-- ===== PMD 5: rulesets/java/logging-java.xml ===== -->
+	<!-- excluded as before: LoggerIsNotStaticFinal (PMD 7: ProperLogger). Will throw errors if the logger gets
+	     injected. Injected loggers must not be static final... -->
+	<rule ref="category/java/errorprone.xml/MoreThanOneLogger"/>
+	<rule ref="category/java/bestpractices.xml/SystemPrintln"/>
+	<rule ref="category/java/bestpractices.xml/AvoidPrintStackTrace"/>
+	<!--
+		GuardLogStatementJavaUtil: removed in PMD 6 -> GuardLogStatement.
+		PMD 5's GuardLogStatementJavaUtil only inspected compilation units importing java.util.logging; PMD 7's
+		GuardLogStatement additionally covers SLF4J/Log4j/Commons Logging at every level (72 new findings, all SLF4J or
+		the project's AJANLogger). Restricted to java.util.logging users to keep the PMD 5 scope of the ported rule.
+	-->
+	<rule ref="category/java/bestpractices.xml/GuardLogStatement">
+		<properties>
+			<property name="violationSuppressXPath"
+					  value="./ancestor::CompilationUnit[not(ImportDeclaration[starts-with(@ImportedName, 'java.util.logging')])]" />
+		</properties>
 	</rule>
 
-	<rule ref="rulesets/java/migrating.xml"/>
+	<!-- ===== PMD 5: rulesets/java/migrating.xml ===== -->
+	<rule ref="category/java/bestpractices.xml/ReplaceVectorWithList"/>
+	<rule ref="category/java/bestpractices.xml/ReplaceHashtableWithMap"/>
+	<rule ref="category/java/bestpractices.xml/ReplaceEnumerationWithIterator"/>
+	<rule ref="category/java/errorprone.xml/AvoidEnumAsIdentifier"/>
+	<rule ref="category/java/errorprone.xml/AvoidAssertAsIdentifier"/>
+	<!-- Integer/Byte/Short/LongInstantiation: removed in PMD 7 -> PrimitiveWrapperInstantiation + UnnecessaryBoxing (see basic.xml) -->
+	<!-- JUnit4TestShouldUse(Before|After|Test)Annotation: renamed in PMD 7 -->
+	<rule ref="category/java/bestpractices.xml/UnitTestShouldUseBeforeAnnotation"/>
+	<rule ref="category/java/bestpractices.xml/UnitTestShouldUseAfterAnnotation"/>
+	<rule ref="category/java/bestpractices.xml/UnitTestShouldUseTestAnnotation"/>
+	<rule ref="category/java/bestpractices.xml/JUnit4SuitesShouldUseSuiteAnnotation"/>
+	<rule ref="category/java/bestpractices.xml/JUnitUseExpected"/>
 
-	<rule ref="rulesets/java/naming.xml">
-		<exclude name="GenericsNaming"/>
-		<exclude name="LongVariable"/>
-		<exclude name="ShortVariable"/>
-	</rule>
+	<!-- ===== PMD 5: rulesets/java/naming.xml ===== -->
+	<!-- excluded as before: GenericsNaming (PMD 7.17: TypeParameterNamingConventions), LongVariable, ShortVariable -->
+	<rule ref="category/java/codestyle.xml/ShortMethodName"/>
+	<rule ref="category/java/codestyle.xml/MethodNamingConventions"/>
+	<!-- AbstractNaming: removed in PMD 7 -> ClassNamingConventions -->
+	<rule ref="category/java/codestyle.xml/ClassNamingConventions"/>
+	<!-- VariableNamingConventions, MisleadingVariableName, SuspiciousConstantFieldName (and controversial.xml
+	     AvoidPrefixingMethodParameters): removed in PMD 7 -> Field/FormalParameter/LocalVariableNamingConventions -->
+	<rule ref="category/java/codestyle.xml/FieldNamingConventions"/>
+	<rule ref="category/java/codestyle.xml/FormalParameterNamingConventions"/>
+	<rule ref="category/java/codestyle.xml/LocalVariableNamingConventions"/>
+	<rule ref="category/java/codestyle.xml/AvoidDollarSigns"/>
+	<rule ref="category/java/errorprone.xml/MethodWithSameNameAsEnclosingClass"/>
+	<rule ref="category/java/errorprone.xml/SuspiciousHashcodeMethodName"/>
+	<rule ref="category/java/errorprone.xml/SuspiciousEqualsMethodName"/>
+	<rule ref="category/java/errorprone.xml/AvoidFieldNameMatchingTypeName"/>
+	<rule ref="category/java/errorprone.xml/AvoidFieldNameMatchingMethodName"/>
+	<rule ref="category/java/codestyle.xml/NoPackage"/>
+	<rule ref="category/java/codestyle.xml/PackageCase"/>
+	<rule ref="category/java/codestyle.xml/BooleanGetMethodName"/>
+	<rule ref="category/java/codestyle.xml/ShortClassName"/>
 
-	<rule ref="rulesets/java/optimizations.xml">
-		<exclude name="LocalVariableCouldBeFinal"/>
-	</rule>
+	<!-- ===== PMD 5: rulesets/java/optimizations.xml ===== -->
+	<!-- excluded as before: LocalVariableCouldBeFinal -->
+	<rule ref="category/java/codestyle.xml/MethodArgumentCouldBeFinal"/>
+	<rule ref="category/java/performance.xml/AvoidInstantiatingObjectsInLoops"/>
+	<rule ref="category/java/performance.xml/UseArrayListInsteadOfVector"/>
+	<!-- SimplifyStartsWith: removed in PMD 7 without replacement -->
+	<rule ref="category/java/performance.xml/UseStringBufferForStringAppends"/>
+	<rule ref="category/java/performance.xml/UseArraysAsList"/>
+	<rule ref="category/java/performance.xml/AvoidArrayLoops"/>
+	<!-- UnnecessaryWrapperObjectCreation: removed in PMD 7 -> UnnecessaryBoxing (see basic.xml) -->
+	<rule ref="category/java/performance.xml/AddEmptyString"/>
+	<rule ref="category/java/performance.xml/RedundantFieldInitializer"/>
+	<rule ref="category/java/codestyle.xml/PrematureDeclaration"/>
 
-	<rule ref="rulesets/java/strictexception.xml"/>
+	<!-- ===== PMD 5: rulesets/java/strictexception.xml ===== -->
+	<rule ref="category/java/errorprone.xml/AvoidCatchingThrowable"/>
+	<rule ref="category/java/design.xml/SignatureDeclareThrowsException"/>
+	<rule ref="category/java/design.xml/ExceptionAsFlowControl"/>
+	<rule ref="category/java/errorprone.xml/AvoidCatchingNPE"/>
+	<rule ref="category/java/design.xml/AvoidThrowingRawExceptionTypes"/>
+	<rule ref="category/java/design.xml/AvoidThrowingNullPointerException"/>
+	<rule ref="category/java/design.xml/AvoidRethrowingException"/>
+	<rule ref="category/java/design.xml/DoNotExtendJavaLangError"/>
+	<rule ref="category/java/errorprone.xml/DoNotThrowExceptionInFinally"/>
+	<rule ref="category/java/design.xml/AvoidThrowingNewInstanceOfSameException"/>
+	<rule ref="category/java/design.xml/AvoidCatchingGenericException"/>
+	<!-- AvoidLosingExceptionInformation: deprecated in PMD 7.17 -> UselessPureMethodCall (see unnecessary.xml) -->
 
-	<rule ref="rulesets/java/strings.xml">
-		<!-- results in unreadable code ... -->
-		<exclude name="ConsecutiveAppendsShouldReuse"/>
-	</rule>
+	<!-- ===== PMD 5: rulesets/java/strings.xml ===== -->
+	<!-- excluded as before: ConsecutiveAppendsShouldReuse (results in unreadable code ...) -->
+	<rule ref="category/java/errorprone.xml/AvoidDuplicateLiterals"/>
+	<rule ref="category/java/performance.xml/StringInstantiation"/>
+	<rule ref="category/java/performance.xml/StringToString"/>
+	<rule ref="category/java/performance.xml/InefficientStringBuffering"/>
+	<rule ref="category/java/errorprone.xml/UnnecessaryCaseChange"/>
+	<rule ref="category/java/performance.xml/UseStringBufferLength"/>
+	<rule ref="category/java/performance.xml/AppendCharacterWithChar"/>
+	<rule ref="category/java/performance.xml/ConsecutiveLiteralAppends"/>
+	<rule ref="category/java/performance.xml/UseIndexOfChar"/>
+	<rule ref="category/java/performance.xml/InefficientEmptyStringCheck"/>
+	<rule ref="category/java/performance.xml/InsufficientStringBufferDeclaration"/>
+	<rule ref="category/java/performance.xml/UselessStringValueOf"/>
+	<rule ref="category/java/errorprone.xml/StringBufferInstantiationWithChar"/>
+	<rule ref="category/java/errorprone.xml/UseEqualsToCompareStrings"/>
+	<rule ref="category/java/bestpractices.xml/AvoidStringBufferField"/>
 
-	<rule ref="rulesets/java/sunsecure.xml"/>
-	<rule ref="rulesets/java/typeresolution.xml"/>
-	<rule ref="rulesets/java/unnecessary.xml"/>
+	<!-- ===== PMD 5: rulesets/java/sunsecure.xml ===== -->
+	<rule ref="category/java/bestpractices.xml/MethodReturnsInternalArray"/>
+	<rule ref="category/java/bestpractices.xml/ArrayIsStoredDirectly"/>
 
-	<rule ref="rulesets/java/unusedcode.xml">
-		<exclude name="UnusedPrivateField" />
-	</rule>
-	<rule ref="rulesets/java/unusedcode.xml/UnusedPrivateField">
+	<!-- ===== PMD 5: rulesets/java/typeresolution.xml ===== -->
+	<!-- LooseCoupling, CloneMethodMustImplementCloneable, UnusedImports, SignatureDeclareThrowsException:
+	     type-resolution variants of rules listed above; PMD 7 always uses type resolution -->
+
+	<!-- ===== PMD 5: rulesets/java/unnecessary.xml ===== -->
+	<rule ref="category/java/errorprone.xml/UnnecessaryConversionTemporary"/>
+	<rule ref="category/java/codestyle.xml/UnnecessaryReturn"/>
+	<!-- UnnecessaryFinalModifier (and unusedcode.xml UnusedModifier): PMD 6+ UnnecessaryModifier -->
+	<rule ref="category/java/codestyle.xml/UnnecessaryModifier"/>
+	<rule ref="category/java/design.xml/UselessOverridingMethod"/>
+	<!-- UselessOperationOnImmutable: deprecated in PMD 7.17 -> UselessPureMethodCall -->
+	<rule ref="category/java/errorprone.xml/UselessPureMethodCall"/>
+	<rule ref="category/java/errorprone.xml/UnusedNullCheckInEquals"/>
+	<rule ref="category/java/codestyle.xml/UselessParentheses"/>
+
+	<!-- ===== PMD 5: rulesets/java/unusedcode.xml ===== -->
+	<rule ref="category/java/bestpractices.xml/UnusedPrivateField">
 		<properties>
 			<!-- ignore lombok-generated -->
 			<property name="violationSuppressXPath"
-					  value="//FieldDeclaration[ancestor::*/Annotation/MarkerAnnotation[(Name/@Image='Data') or (Name/@Image='Getter') or (Name/@Image='Setter')]]" />
+					  value="./ancestor-or-self::FieldDeclaration[ancestor-or-self::*/ModifierList/Annotation[@SimpleName='Data' or @SimpleName='Getter' or @SimpleName='Setter']]" />
 		</properties>
 	</rule>
+	<rule ref="category/java/bestpractices.xml/UnusedLocalVariable"/>
+	<rule ref="category/java/bestpractices.xml/UnusedPrivateMethod"/>
+	<rule ref="category/java/bestpractices.xml/UnusedFormalParameter"/>
 </ruleset>

@@ -26,7 +26,6 @@ import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
 import org.cyberborean.rdfbeans.annotations.RDFBean;
 import org.cyberborean.rdfbeans.annotations.RDFSubject;
-import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 @RDFBean("bt:Breakpoint")
@@ -53,11 +52,6 @@ public class Breakpoint extends AbstractTDBLeafTask {
 		String report = BTUtil.createReport(getUrl(), bt, leafStatus, debug, new LinkedHashModel());
 		BTUtil.sendReport(this.getObject(),report);
 		return Status.SUCCEEDED;
-	}
-
-	@Override
-	public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
-		return super.getModel(model, root, mode);
 	}
 
 	@Override

@@ -49,8 +49,8 @@ MA 02110-1301  USA
           <rulesets>
             <ruleset>build-configuration/pmd-java-ruleset.xml</ruleset>
           </rulesets>
-          <sourceEncoding>utf-8</sourceEncoding>
-          <targetJdk>1.8</targetJdk>
+          <!-- PMD language level = compiler release; the plugin default ${maven.compiler.source} is unset here, PMD would fall back to its newest Java version -->
+          <targetJdk>${maven.compiler.release}</targetJdk>
           <verbose>true</verbose>
         </configuration>
         <dependencies>
@@ -66,18 +66,19 @@ MA 02110-1301  USA
               <goal>check</goal>
             </goals>
             <id>validate-pmd</id>
-            <phase>validate</phase>
+            <!-- PMD 7 resolves types from the compiled main and test classes: checking before compilation (validate) gives false positives in clean builds -->
+            <phase>process-test-classes</phase>
           </execution>
           <execution>
             <goals>
               <goal>cpd-check</goal>
             </goals>
             <id>validate-cpd</id>
-            <phase>validate</phase>
+            <phase>process-test-classes</phase>
           </execution>
         </executions>
         <groupId>org.apache.maven.plugins</groupId>
-        <version>3.6</version>
+        <version>3.28.0</version>
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>

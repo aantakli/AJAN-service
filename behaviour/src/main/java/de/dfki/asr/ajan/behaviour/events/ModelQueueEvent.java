@@ -34,7 +34,7 @@ public class ModelQueueEvent extends DefaultQueueEvent {
 	private ModelEventInformation getEventInfo(final Object information) {
 		ModelEventInformation info = new ModelEventInformation();
 		info.setEvent(getUrl());
-		info.setModel(((Model)information));
+		info.setModel((Model) information);
 		return info;
 	}
 }

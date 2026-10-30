@@ -71,7 +71,7 @@ public class RegisterHttpConnection extends AbstractChainStep {
 			return connection;
 		}
 		return createConnection(action, uri, inputModel);
-	};
+	}
 
 	private IConnection createConnection(final Action action, final URI uri, final InputModel inputModel) throws URISyntaxException, MessageSimulationException {
 		HttpBinding binding = ((ServiceActionDefinition)service).getRun();

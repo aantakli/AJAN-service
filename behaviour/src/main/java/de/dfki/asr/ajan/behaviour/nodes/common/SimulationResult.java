@@ -43,8 +43,8 @@ public class SimulationResult {
 	}
 
 	public enum Direction {
-		Up,
-		Down
+		UP,
+		DOWN
 	}
 
 	public SimulationResult(final Model model, final AgentTaskInformation object) {

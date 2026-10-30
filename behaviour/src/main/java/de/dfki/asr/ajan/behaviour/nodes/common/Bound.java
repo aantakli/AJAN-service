@@ -67,7 +67,7 @@ public class Bound {
 		Resource subject = AgentUtil.getSubject(url);
 		model.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, AJANVocabulary.BOUND);
 		model.add(subject, ACTNVocabulary.SPIN_VAR_NAME, vf.createLiteral(varName));
-		if (dataType.toString().equals("http://www.w3.org/2000/01/rdf-schema#Resource")) {
+		if ("http://www.w3.org/2000/01/rdf-schema#Resource".equals(dataType.toString())) {
 			model.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.VALUE, vf.createIRI(stringValue));
 		} else {
 			model.add(subject, org.eclipse.rdf4j.model.vocabulary.RDF.VALUE, vf.createLiteral(stringValue, vf.createIRI(dataType.toString())));

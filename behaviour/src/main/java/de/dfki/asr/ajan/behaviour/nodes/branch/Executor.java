@@ -154,13 +154,13 @@ public class Executor extends AbstractTDBBranchTask {
 	@Override
 	public void simulate(final SimulationResult result) {
 		SimulationResult.Direction direction = result.getDirection();
-		if (direction.equals(SimulationResult.Direction.Up)) {
+		if (direction.equals(SimulationResult.Direction.UP)) {
 			((TreeNode)control).simulate(result);
 		} else {
 			try {
 				Repository evalRepo = result.getRepo().initialize();
 				int child = selectedChild.getIntValue(evalRepo).get(0);
-				((TreeNode)this.getChild(child)).simulate(result.setDirection(Direction.Down));
+				((TreeNode)this.getChild(child)).simulate(result.setDirection(Direction.DOWN));
 			} catch (SelectSimulationException ex) {
 				LOG.error("Problems with the Select Query", ex);
 				result.setChildResult(SimulationResult.Result.FAIL);

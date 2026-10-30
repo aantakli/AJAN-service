@@ -31,17 +31,12 @@ import de.dfki.asr.ajan.behaviour.nodes.action.common.*;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.*;
 import de.dfki.asr.ajan.behaviour.nodes.common.*;
 import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Result;
-import de.dfki.asr.ajan.common.AJANVocabulary;
-import de.dfki.asr.ajan.common.SPARQLUtil;
 import de.dfki.asr.rdfbeans.BehaviorBeanManager;
 import java.util.UUID;
 import org.cyberborean.rdfbeans.RDFBeanManager;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.query.Binding;
-import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.parser.ParsedTupleQuery;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 
@@ -186,57 +181,7 @@ public class Action extends AbstractTDBLeafTask {
 		if (!loadDescription(result.getObject().getServiceTDB().getInitializedRepository())) {
 			return Result.FAIL;
 		}
-		SimulationBase repo = result.getRepo();
-		InputModel inputModel = getSimulatedInputModel(repo);
-		if (inputModel == null) {
-			return Result.FAIL;
-		} else {
-			Model stmts = result.getResultModel();
-			setActionInputs(inputModel,root,stmts);
-			return updateSimulationBase(repo,inputModel,root,stmts);
-		}
-	}
-
-	private InputModel getSimulatedInputModel(final SimulationBase repo) {
-		InputModel inputModel = ACTNUtil.getInputModel(this.getInputs(), repo.initialize());
-		inputModel.add(ACTNVocabulary.DUMMY, AJANVocabulary.ASYNC_REQUEST_URI, ACTNVocabulary.DUMMY);
-		if (!SPARQLUtil.askModel(inputModel, actionDefinition.getConsumable().getSparql())) {
-			this.getObject().getLogger().info(this.getClass(), "Input model failed to conform to Action specification.");
-			return null;
-		}
-		return inputModel;
-	}
-
-	private void setActionInputs(final InputModel inputModel, final Resource root, final Model stmts) {
-		ParsedTupleQuery selectQuery = ACTNUtil.createSelectQuery(actionDefinition.getVariables(), actionDefinition.getConsumable().getSparql());
-		List<BindingSet> bindings = SPARQLUtil.queryModel(inputModel, selectQuery);
-		actionDefinition.getVariables().forEach((var) -> {
-			bindings.forEach((bindingSet) -> {
-				for (Binding binding: bindingSet) {
-					if (var.getVarName().equals(binding.getName())) {
-						Resource bindRsc = vf.createBNode();
-						stmts.add(root, BTVocabulary.HAS_BINDING, bindRsc);
-						stmts.add(bindRsc, ACTNVocabulary.SPIN_VAR_NAME, vf.createLiteral(binding.getName()));
-						stmts.add(bindRsc, BTVocabulary.HAS_VALUE, binding.getValue());
-					}
-				}
-			});
-		});
-	}
-
-	@SuppressWarnings("PMD.ExcessiveParameterList")
-	private Result updateSimulationBase(final SimulationBase repo, final InputModel inputModel,
-					final Resource root, final Model stmts) {
-		Model addModel = ACTNUtil.getAddModel(actionDefinition, inputModel);
-		Model removeModel = ACTNUtil.getRemoveModel(actionDefinition, inputModel);
-		repo.update(addModel, removeModel, false);
-		if (ACTNUtil.dummyStatementsInModel(addModel)) {
-			stmts.add(root, BTVocabulary.HAS_STATE, BTVocabulary.ST_UNCLEAR);
-			return Result.UNCLEAR;
-		} else {
-			stmts.add(root, BTVocabulary.HAS_STATE, BTVocabulary.ST_SUCCESS);
-			return Result.SUCCESS;
-		}
+		return new ActionSimulation(this).simulate(result, root);
 	}
 
 	@Override

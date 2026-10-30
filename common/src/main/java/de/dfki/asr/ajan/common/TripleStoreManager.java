@@ -24,7 +24,7 @@ import java.util.Set;
 
 public interface TripleStoreManager {
 
-	public enum Inferencing {
+	enum Inferencing {
 		NONE,
 		RDFS,
 		SPIN,

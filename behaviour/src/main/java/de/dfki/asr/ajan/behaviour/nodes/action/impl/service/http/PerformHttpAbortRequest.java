@@ -40,7 +40,7 @@ public class PerformHttpAbortRequest extends AbstractPerformRequest {
 	@Override
 	public HttpConnection getConnection(final TaskContext context) {
 		return new HttpConnection(((ServiceActionDefinition)service).getAbort());
-	};
+	}
 
 	@Override
 	public String getInput(final Model inputModel) {

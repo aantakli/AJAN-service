@@ -28,36 +28,13 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Consumer;
-import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.BooleanQuery;
-import org.eclipse.rdf4j.query.Dataset;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.QueryResults;
-import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.query.algebra.Filter;
-import org.eclipse.rdf4j.query.algebra.MultiProjection;
-import org.eclipse.rdf4j.query.algebra.Or;
-import org.eclipse.rdf4j.query.algebra.ProjectionElem;
-import org.eclipse.rdf4j.query.algebra.ProjectionElemList;
-import org.eclipse.rdf4j.query.algebra.SameTerm;
-import org.eclipse.rdf4j.query.algebra.StatementPattern;
 import org.eclipse.rdf4j.query.algebra.TupleExpr;
 import org.eclipse.rdf4j.query.algebra.UpdateExpr;
-import org.eclipse.rdf4j.query.algebra.ValueConstant;
-import org.eclipse.rdf4j.query.algebra.ValueExpr;
-import org.eclipse.rdf4j.query.algebra.Var;
-import org.eclipse.rdf4j.query.impl.EmptyBindingSet;
 import org.eclipse.rdf4j.query.parser.ParsedGraphQuery;
 import org.eclipse.rdf4j.query.parser.ParsedQuery;
 import org.eclipse.rdf4j.query.parser.ParsedTupleQuery;
@@ -66,20 +43,16 @@ import org.eclipse.rdf4j.query.parser.sparql.SPARQLParser;
 import org.eclipse.rdf4j.queryrender.QueryRenderer;
 import org.eclipse.rdf4j.queryrender.sparql.SPARQLQueryRenderer;
 import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
-import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.repository.util.Repositories;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
-import org.eclipse.rdf4j.sail.memory.MemoryStore;
 
 @SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.ExcessiveImports", "PMD.GodClass"})
 public final class SPARQLUtil {
 
 	private final static String INSERT = "(INSERT((?:.*?\\r?\\n?)*)})|(insert((?:.*?\\r?\\n?)*)})";
 	private final static String DELETE = "(DELETE((?:.*?\\r?\\n?)*)})|(delete((?:.*?\\r?\\n?)*)})";
-	private static final ValueFactory VF = SimpleValueFactory.getInstance();
 	//private final static String WHERE = "(WHERE((?:.*?\\r?\\n?)*)})";
 
 	private SPARQLUtil() {
@@ -87,106 +60,23 @@ public final class SPARQLUtil {
 	}
 
 	public static boolean askModel(final Model model, final String query) {
-		SailRepository repo = createRepository(model);
-		boolean result;
-		try (RepositoryConnection conn = repo.getConnection()) {
-			BooleanQuery parsedQuery = conn.prepareBooleanQuery(query);
-			result = parsedQuery.evaluate();
-		}
-		repo.shutDown();
-		return result;
+		return ModelQueries.askModel(model, query);
 	}
 
 	public static List<BindingSet> assignVariables(final Model model, final String askString, final List<String> variables) {
-		SailRepository repo = createRepository(model);
-		List<BindingSet> bindings = new ArrayList();
-		try (RepositoryConnection conn = repo.getConnection()) {
-			String selectString = SPARQLUtil.getSelectQueryFromAsk(askString, variables);
-			TupleQueryResult list = conn.prepareTupleQuery(selectString).evaluate();
-			while (list.hasNext()) {
-				bindings.add(list.next());
-			}
-		}
-		repo.shutDown();
-		return bindings;
+		return ModelQueries.assignVariables(model, askString, variables);
 	}
 
 	public static Model queryModel(final Model model, final String query) throws QueryEvaluationException {
-		SailRepository repo = createRepository(model);
-		Model resultModel = queryRepository(repo, query);
-		repo.shutDown();
-		return resultModel;
+		return ModelQueries.queryModel(model, query);
 	}
 
 	public static Model queryModel(final Model model, final ParsedGraphQuery query) throws QueryEvaluationException {
-		SailRepository repo = createRepository(model);
-		Model resultModel = new LinkedHashModel();
-		try (SailRepositoryConnection conn = repo.getConnection()) {
-			conn.begin();
-			// See evaluateAlgebra() for why this never renders to SPARQL text.
-			// Bindings -> Statement (subject/predicate/object/context, type-
-			// checked before use) replicates SailGraphQuery.evaluate() exactly
-			// (RDF4J 3.6.3 source, see fix report). Because this never renders,
-			// it is safe from SPARQL injection regardless of resource content
-			// and evaluates a BNode value as object identity, not as text.
-			evaluateAlgebra(conn, query.getTupleExpr(), query.getDataset(),
-					bindingSet -> addStatementIfWellTyped(resultModel, bindingSet));
-			conn.commit();
-		}
-		repo.shutDown();
-		return resultModel;
-	}
-
-	private static void addStatementIfWellTyped(final Model resultModel, final BindingSet bindingSet) {
-		Value subject = bindingSet.getValue("subject");
-		Value predicate = bindingSet.getValue("predicate");
-		Value object = bindingSet.getValue("object");
-		Value context = bindingSet.getValue("context");
-		boolean wellTyped = subject instanceof Resource && predicate instanceof IRI && object != null
-				&& (context == null || context instanceof Resource);
-		if (wellTyped) {
-			if (context == null) {
-				resultModel.add((Resource) subject, (IRI) predicate, object);
-			} else {
-				resultModel.add((Resource) subject, (IRI) predicate, object, (Resource) context);
-			}
-		}
+		return ModelQueries.queryModel(model, query);
 	}
 
 	public static List<BindingSet> queryModel(final Model model, final ParsedTupleQuery query) throws QueryEvaluationException {
-		SailRepository repo = createRepository(model);
-		List<BindingSet> resultModel = new ArrayList<>();
-		try (SailRepositoryConnection conn = repo.getConnection()) {
-			conn.begin();
-			// See evaluateAlgebra() for why this never renders to SPARQL text.
-			// This is required, not just preferred: the only reachable ACTN
-			// precondition query is an ASK query (vocabularies/actn.ttl), and
-			// conn.prepareTupleQuery(text) rejects any text that does not start
-			// with SELECT -- an ASK's algebra has no such restriction, so
-			// evaluating it directly here works unchanged.
-			evaluateAlgebra(conn, query.getTupleExpr(), query.getDataset(), resultModel::add);
-			conn.commit();
-		}
-		repo.shutDown();
-		return resultModel;
-	}
-
-	// RDF4J 5 hat org.eclipse.rdf4j.repository.sail.SailQueryPreparer entfernt, das
-	// intern SailGraphQuery/SailTupleQuery.evaluate() genau so auswertete: TupleExpr
-	// direkt gegen die SailConnection auswerten, nie als Text rendern. `var` ist hier
-	// erforderlich, weil CloseableIteration in RDF4J 3.6.3 zwei Typparameter hat und in
-	// 5.3.1 nur noch einen -- ein ausgeschriebener Typ waere nicht mehr in beiden
-	// Versionen compilierbar.
-	private static void evaluateAlgebra(final SailRepositoryConnection conn, final TupleExpr tupleExpr,
-			final Dataset dataset, final Consumer<BindingSet> consumer) {
-		var bindingsIter = conn.getSailConnection().evaluate(tupleExpr, dataset, EmptyBindingSet.getInstance(), false);
-		try {
-			while (bindingsIter.hasNext()) {
-				consumer.accept(bindingsIter.next());
-			}
-		} finally {
-			bindingsIter.close();
-		}
+		return ModelQueries.queryModel(model, query);
 	}
 
 	public static Model createModel(final String statements, final RDFFormat format) throws IOException {
@@ -195,10 +85,7 @@ public final class SPARQLUtil {
 	}
 
 	public static SailRepository createRepository(final Model model) {
-		SailRepository repo = new SailRepository(new MemoryStore());
-		repo.init();
-		Repositories.consume(repo, conn -> conn.add(model));
-		return repo;
+		return ModelQueries.createRepository(model);
 	}
 
 	public static Model queryRepository(final Repository repo, final ParsedQuery query) {
@@ -276,7 +163,7 @@ public final class SPARQLUtil {
 	public static String getSelectQueryFromAsk(final String query, final List<String> variables) throws AdaptSPARQLQueryException {
 		String upper = query.toUpperCase();
 		if (upper.contains("ASK")) {
-			StringBuilder select = new StringBuilder();
+			StringBuilder select = new StringBuilder(64);
 			select.append("SELECT DISTINCT ");
 			for (String variableName: variables) {
 				select.append('?').append(variableName).append(' ');
@@ -291,7 +178,7 @@ public final class SPARQLUtil {
 	@SuppressWarnings("PMD.SignatureDeclareThrowsException")
 	public static String getSelectQuery(final TupleExpr tupleExpr) throws Exception {
 		List<String> list = new ArrayList(tupleExpr.getBindingNames());
-		ParsedTupleQuery query = SPARQLUtil.getSelectQuery(tupleExpr, list);
+		ParsedTupleQuery query = getSelectQuery(tupleExpr, list);
 		SPARQLTextGuard.requireRenderableIris(query);
 		return new SPARQLQueryRenderer().render(query);
 	}
@@ -332,33 +219,7 @@ public final class SPARQLUtil {
 	// ist verifiziert vom committed Differential-Harness unter
 	// spikes/etappe3-query-equivalence -- nicht von SPARQLUtilQueryTest.
 	public static ParsedGraphQuery getDescribeQuery(final Iterator<Resource> resourceIterator) {
-		String subjVar = "descr_subj";
-		String predVar = "descr_pred";
-		String objVar = "descr_obj";
-		StatementPattern pattern = new StatementPattern(new Var(subjVar), new Var(predVar), new Var(objVar));
-		Filter filter = new Filter(pattern, getDescribeFilter(resourceIterator, subjVar, objVar));
-		ProjectionElemList projectionElems = new ProjectionElemList();
-		projectionElems.addElement(new ProjectionElem(subjVar, "subject"));
-		projectionElems.addElement(new ProjectionElem(predVar, "predicate"));
-		projectionElems.addElement(new ProjectionElem(objVar, "object"));
-		MultiProjection projection = new MultiProjection();
-		projection.addProjection(projectionElems);
-		projection.setArg(filter);
-		return new ParsedGraphQuery(projection);
-	}
-
-	private static ValueExpr getDescribeFilter(final Iterator<Resource> resourceIterator, final String subjVar, final String objVar) {
-		Resource resource = resourceIterator.next();
-		if (resourceIterator.hasNext()) {
-			return new Or(getSameTerm(resource, subjVar),
-					new Or(getSameTerm(resource, objVar), getDescribeFilter(resourceIterator, subjVar, objVar)));
-		} else {
-			return new Or(getSameTerm(resource, subjVar), getSameTerm(resource, objVar));
-		}
-	}
-
-	private static ValueExpr getSameTerm(final Resource resource, final String var) {
-		return new SameTerm(new ValueConstant(resource), new Var(var));
+		return DescribeQueries.getDescribeQuery(resourceIterator);
 	}
 
 	public static String queryNamedGraph(final String graphName) {
@@ -370,43 +231,6 @@ public final class SPARQLUtil {
 	}
 
 	public static Model getNamedGraph(final Model resultModel) {
-		Model model = resultModel;
-		if (model.contains(null, AJANVocabulary.HAS_RDF_UUID_CONTEXT, null)) {
-			Optional<IRI> contextIRI = Models.objectIRI(model.filter(null, AJANVocabulary.HAS_RDF_UUID_CONTEXT, null));
-			if (contextIRI.isPresent()) {
-				IRI context = contextIRI.get();
-				model = addUniqueNamedGraph(model, context);
-			}
-			model.remove(null, AJANVocabulary.HAS_RDF_UUID_CONTEXT, null);
-		}
-		if (model.contains(null, AJANVocabulary.HAS_RDF_CONTEXT, null)) {
-			Optional<IRI> contextIRI = Models.objectIRI(model.filter(null, AJANVocabulary.HAS_RDF_CONTEXT, null));
-			if (contextIRI.isPresent()) {
-				IRI context = contextIRI.get();
-				model = addNamedGraph(model, context);
-			}
-			model.remove(null, AJANVocabulary.HAS_RDF_CONTEXT, null);
-		}
-		return model;
-	}
-
-	private static Model addNamedGraph(final Model model, final IRI context) {
-		if (context != null) {
-			String ctx = context.toString();
-			model.add(VF.createIRI(ctx), org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, AJANVocabulary.CONTEXT);
-			return AgentUtil.setNamedGraph(model.iterator(), ctx);
-		}
-		return model;
-	}
-
-	private static Model addUniqueNamedGraph(final Model model, final IRI context) {
-		if (context != null) {
-			String ctx = context.toString();
-			String graphName = ctx + "_" + UUID.randomUUID().toString();
-			model.add(VF.createIRI(ctx), org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, AJANVocabulary.UUID_CONTEXT);
-			model.add(VF.createIRI(graphName), org.eclipse.rdf4j.model.vocabulary.RDF.TYPE, VF.createIRI(ctx));
-			return AgentUtil.setNamedGraph(model.iterator(), graphName);
-		}
-		return model;
+		return NamedGraphs.getNamedGraph(resultModel);
 	}
 }

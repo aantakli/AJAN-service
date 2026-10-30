@@ -23,27 +23,13 @@ import com.badlogic.gdx.ai.btree.BranchTask;
 import com.badlogic.gdx.ai.btree.Decorator;
 import com.badlogic.gdx.ai.btree.Task;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
-import de.dfki.asr.ajan.behaviour.nodes.Action;
 import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
-import de.dfki.asr.ajan.behaviour.nodes.action.common.ACTNUtil;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.common.AgentUtil;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
-import java.util.logging.Level;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.ValueFactory;
@@ -57,8 +43,6 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"PMD.ExcessiveParameterList","PMD.ExcessiveImports"})
 public final class BTUtil {
@@ -76,7 +60,6 @@ public final class BTUtil {
 	}
 
 	private static final ValueFactory VF = SimpleValueFactory.getInstance();
-	private static final Logger LOG = LoggerFactory.getLogger(BTRoot.class);
 
 	private BTUtil() {
 
@@ -125,7 +108,7 @@ public final class BTUtil {
 			TreeNode chNode = (TreeNode) task.getChild(i);
 			Resource instance = chNode.getInstance(btRoot.getInstance());
 			if (instance == null) {
-				instance = BTUtil.getInstanceResource(chNode.getUrl(), btRoot.getInstance());
+				instance = getInstanceResource(chNode.getUrl(), btRoot.getInstance());
 			}
 			list.add(instance);
 			chNode.getModel(model, btRoot, mode);
@@ -143,11 +126,9 @@ public final class BTUtil {
 	public static void setQueryBindingModel(final List<BindingSet> result, final Resource resource, final Model model) {
 		if (!result.isEmpty()) {
 			for (BindingSet set: result) {
-				Iterator<Binding> itr = set.iterator();
 				Resource bindingNode = VF.createBNode();
 				model.add(resource, BTVocabulary.HAS_QUERY_BINDING, bindingNode);
-				while (itr.hasNext()) {
-					Binding bind = itr.next();
+				for (Binding bind: set) {
 					model.add(bindingNode, RDF.TYPE, BTVocabulary.QUERY_BINDING);
 					model.add(bindingNode, BTVocabulary.HAS_NAME, VF.createLiteral(bind.getName()));
 					model.add(bindingNode, BTVocabulary.HAS_VALUE, VF.createLiteral(bind.getValue().stringValue()));
@@ -193,54 +174,23 @@ public final class BTUtil {
 	}
 
 	public static void reportState(final String url, final Model debugModel, final AgentTaskInformation info, final NodeStatus leafStatus) {
-		if (!info.getReportURI().equals("")) {
+		if (!info.getReportURI().isEmpty()) {
 			Debug debug = info.getDebug();
 			BTRoot bt = info.getBt();
 			Model detail = new LinkedHashModel();
 			if (debug.isDebugging()) {
 				detail = debugModel;
 			}
-			String report = BTUtil.createReport(url, bt, leafStatus, debug, detail);
-			BTUtil.sendReport(info, report);
+			String report = createReport(url, bt, leafStatus, debug, detail);
+			sendReport(info, report);
 		}
 	}
 
 	public static void sendReport(final AgentTaskInformation info, final String report) {
-		if (info != null && !info.getReportURI().equals("")) {
-			CloseableHttpClient httpClient = HttpClients.createDefault();
-			HttpPost httpPost = new HttpPost(info.getReportURI());
-			HttpEntity postParams = new StringEntity(report, ContentType.DEFAULT_TEXT);
-			httpPost.setEntity(postParams);
-			CloseableHttpResponse httpResponse;
-			try {
-				httpResponse = httpClient.execute(httpPost);
-				LOG.info("POST Response Status: " + httpResponse.getStatusLine().getStatusCode());
-			} catch (IOException ex) {
-				java.util.logging.Logger.getLogger(Action.class.getName()).log(Level.SEVERE, null, ex);
-			}
-		}
+		BTReporter.sendReport(info, report);
 	}
 
 	public static String createReport(final String url, final BTRoot bt, final NodeStatus state, final Debug debug, final Model detail) {
-		Model reportModel = new LinkedHashModel();
-		Resource report = VF.createIRI(debug.getAgentURI() + "/report/" + UUID.randomUUID());
-		reportModel.add(report, RDF.TYPE, BTVocabulary.REPORT);
-		reportModel.add(report, AJANVocabulary.HAS_AGENT, VF.createIRI(debug.getAgentURI()));
-		reportModel.add(report, AJANVocabulary.BEHAVIOR_HAS_BT, VF.createIRI(bt.getInstance().stringValue()));
-		reportModel.add(report, BTVocabulary.HAS_DEFINITION, VF.createIRI(bt.getDefinition().stringValue()));
-		reportModel.add(report, BTVocabulary.BT_NODE, VF.createIRI(url));
-		if (state.getStatus() != null) {
-			reportModel.add(report, BTVocabulary.HAS_STATE, VF.createLiteral(state.getStatus().name()));
-		}
-		reportModel.add(report, RDFS.LABEL, VF.createLiteral(state.getLabel()));
-		if (debug.isDebugging()) {
-			reportModel.add(report, BTVocabulary.HAS_DEBUGGING, VF.createLiteral(true));
-			reportModel = AgentUtil.mergeModels(reportModel, detail, null);
-		}
-		try {
-			return ACTNUtil.getModelPayload(reportModel, "application/ld+json");
-		} catch (UnsupportedEncodingException ex) {
-			return "";
-		}
+		return BTReporter.createReport(url, bt, state, debug, detail);
 	}
 }

@@ -48,9 +48,9 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 
 @SuppressWarnings("PMD.CouplingBetweenObjects")
-public class BehaviorBeanManager extends RDFBeanManager {
+public final class BehaviorBeanManager extends RDFBeanManager {
 
-	protected static final Map<IRI, Class<?>> TYPE_MAP = new ConcurrentHashMap<>();
+	private static final Map<IRI, Class<?>> TYPE_MAP = new ConcurrentHashMap<>();
 
 	static {
 		try {
@@ -137,7 +137,7 @@ public class BehaviorBeanManager extends RDFBeanManager {
 		registerType(AJANGoal.class);
 	}
 
-	protected static void registerType(final Class<?> aClass) throws RDFBeanValidationException {
+	private static void registerType(final Class<?> aClass) throws RDFBeanValidationException {
 		try {
 			TYPE_MAP.put(RDFBeanInfo.get(aClass).getRDFType(), aClass);
 		} catch (RDFBeanValidationException ex) {

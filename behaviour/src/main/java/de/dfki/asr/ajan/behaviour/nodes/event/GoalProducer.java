@@ -23,7 +23,6 @@ import de.dfki.asr.ajan.behaviour.events.*;
 import de.dfki.asr.ajan.behaviour.exception.AJANBindingsException;
 import de.dfki.asr.ajan.behaviour.exception.ConditionSimulationException;
 import de.dfki.asr.ajan.behaviour.exception.EventSimulationException;
-import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.behaviour.nodes.action.definition.ActionVariable;
 import de.dfki.asr.ajan.behaviour.nodes.common.*;
 import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult.Result;
@@ -216,11 +215,6 @@ public class GoalProducer extends AbstractTDBLeafTask implements Producer {
 	@Override
 	public String toString() {
 		return "GoalProducer (" + label + ")";
-	}
-
-	@Override
-	public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
-		return super.getModel(model, root, mode);
 	}
 
 	@Override

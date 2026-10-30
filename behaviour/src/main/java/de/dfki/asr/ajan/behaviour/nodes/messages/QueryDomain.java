@@ -93,10 +93,7 @@ public class QueryDomain extends SyncMessage {
 	protected boolean checkResponse(final Object response) {
 		if (response instanceof Model) {
 			domainResponse = (Model) response;
-			if (domainResponse.isEmpty()) {
-				return true;
-			}
-			return updateBeliefs(modifyResponse(domainResponse), targetBase);
+			return domainResponse.isEmpty() || updateBeliefs(modifyResponse(domainResponse), targetBase);
 		}
 		return true;
 	}

@@ -190,7 +190,7 @@ public class PrioParallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTask
 	@Override
 	public void simulate(final SimulationResult result) {
 		SimulationResult.Direction direction = result.getDirection();
-		if (direction.equals(SimulationResult.Direction.Up)) {
+		if (direction.equals(SimulationResult.Direction.UP)) {
 			currentEvaluatingChild = currentChildIndex;
 			currentEvaluatingChild++;
 		} else if (currentChildIndex < children.size) {
@@ -199,14 +199,14 @@ public class PrioParallel extends com.badlogic.gdx.ai.btree.BranchTask<AgentTask
 			currentEvaluatingChild = 0;
 		}
 		evaluateChilds(result);
-		if (direction.equals(SimulationResult.Direction.Up)) {
-			((TreeNode)control).simulate(result.setDirection(SimulationResult.Direction.Up));
+		if (direction.equals(SimulationResult.Direction.UP)) {
+			((TreeNode)control).simulate(result.setDirection(SimulationResult.Direction.UP));
 		}
 	}
 
 	protected void evaluateChilds(final SimulationResult result) {
 		while (currentEvaluatingChild < children.size) {
-			((TreeNode)children.get(currentEvaluatingChild)).simulate(result.setDirection(SimulationResult.Direction.Down));
+			((TreeNode)children.get(currentEvaluatingChild)).simulate(result.setDirection(SimulationResult.Direction.DOWN));
 			if (nodeLogic(result)) {
 				break;
 			}

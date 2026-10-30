@@ -49,16 +49,13 @@ import org.springframework.stereotype.Component;
 				"application/rdf+json",
 				"application/xhtml+xml"
 				})
-@SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.AvoidPrefixingMethodParameters"})
+@SuppressWarnings("PMD.ExcessiveParameterList")
 @Component
 public class RDFProducer extends ModelProducer implements MessageBodyWriter<Model> {
 
 	@Override
 	public boolean isWriteable(final Class<?> type, final Type type1, final Annotation[] antns, final MediaType mt) {
-		if (!Model.class.isAssignableFrom(type)) {
-			return false;
-		}
-		return getFormatForMediaType(mt).isPresent();
+		return Model.class.isAssignableFrom(type) && getFormatForMediaType(mt).isPresent();
 	}
 
 	@Override

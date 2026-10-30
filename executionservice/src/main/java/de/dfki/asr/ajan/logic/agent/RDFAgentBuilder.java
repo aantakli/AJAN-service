@@ -19,34 +19,23 @@
 
 package de.dfki.asr.ajan.logic.agent;
 
-import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.common.*;
-import de.dfki.asr.ajan.exceptions.InitializationRDFValidationException;
 import de.dfki.asr.ajan.behaviour.events.*;
 import de.dfki.asr.ajan.common.TripleStoreManager.Inferencing;
 import de.dfki.asr.ajan.data.*;
 import de.dfki.asr.ajan.knowledge.AgentBeliefBase;
 import de.dfki.asr.ajan.model.*;
 import de.dfki.asr.ajan.pluginsystem.AJANPluginLoader;
-import de.dfki.asr.rdfbeans.BehaviorBeanManager;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import org.cyberborean.rdfbeans.RDFBeanManager;
-import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
-import org.eclipse.rdf4j.common.exception.RDF4JException;
 import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Models;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
-import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,15 +172,15 @@ public class RDFAgentBuilder extends AgentBuilder {
         initialBehavior = null;
         finalBehavior = null;
         if (initialBhv != null) {
-            initialBehavior = getSingleRunBehavior(initialBhv, modelManager.getTemplateFromTDB(agentRepo, initialBhv));
+            initialBehavior = behaviorLoader().getSingleRunBehavior(initialBhv, modelManager.getTemplateFromTDB(agentRepo, initialBhv), id);
             LOG.info("--> Initial Behavior {}", getAgentSet());
         }
         if (finalBhv != null) {
-            finalBehavior = getSingleRunBehavior(finalBhv, modelManager.getTemplateFromTDB(agentRepo, finalBhv));
+            finalBehavior = behaviorLoader().getSingleRunBehavior(finalBhv, modelManager.getTemplateFromTDB(agentRepo, finalBhv), id);
             LOG.info("--> Final Behavior {}", getAgentSet());
         }
         Iterator<Resource> behaviorResources = resourceManager.getBehaviorResources(agentTemplateRsc, agentTemplateModel);
-        behaviors = getBehaviorTrees(behaviorResources);
+        behaviors = behaviorLoader().getBehaviorTrees(behaviorResources, agentRepo, id);
     }
 
     private Resource setTemplateFromResource() {
@@ -208,116 +197,12 @@ public class RDFAgentBuilder extends AgentBuilder {
         return agentID;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     protected Map<URI, Event> getAgentEvents(final Resource agentTemplate) throws URISyntaxException {
-        Map<URI, Event> agentEvents = new ConcurrentHashMap<>();
-        Iterator<Resource> resources = resourceManager.getResources(agentTemplate, agentTemplateModel, AJANVocabulary.AGENT_HAS_EVENT);
-        while (resources.hasNext()) {
-            Resource resource = resources.next();
-            if (!(resource instanceof IRI)) {
-                throw new InitializationRDFValidationException("No named Event is used");
-            }
-            Model resModel = modelManager.getTemplateFromTDB(agentRepo, resource);
-            String eventName = modelManager.getLabel(resModel.filter(resource, RDFS.LABEL, null), "No Event-literal for " + RDFS.LABEL + " present");
-            Event event = getEvent((IRI) resource, resModel, eventName);
-            agentEvents.put(new URI(((IRI) resource).toString()), event);
-        }
-        return agentEvents;
+        return new AgentEventLoader(modelManager, resourceManager, agentRepo, pluginLoader)
+                .getAgentEvents(agentTemplate, agentTemplateModel, id);
     }
 
-    @SuppressWarnings("PMD.NcssMethodCount")
-    private Event getEvent(final IRI resource, final Model model, final String name) {
-        Event event;
-        Optional<IRI> type = modelManager.getTypeIRI(model.filter(resource, RDF.TYPE, null), "Event");
-        if (type.get().equals(AJANVocabulary.MODEL_EVENT_TYPE)) {
-            event = new ModelEvent();
-        } else if (type.get().equals(AJANVocabulary.MODEL_QUEUE_EVENT_TYPE)) {
-            event = new ModelQueueEvent();
-        } else if (type.get().equals(AJANVocabulary.GOAL_TYPE)) {
-            event = createGoal(resource);
-        } else if (type.get().equals(AJANVocabulary.STRING_EVENT_TYPE)) {
-            event = new StringEvent();
-        } else if (type.get().equals(AJANVocabulary.MAPPING_EVENT_TYPE)) {
-            event = new MappingEvent();
-        } else if (type.get().equals(AJANVocabulary.DEFAULT_EVENT_TYPE)) {
-            event = new DefaultEvent();
-        } else {
-            throw new InitializationRDFValidationException("Event type unknown");
-        }
-        event.setName(name);
-        event.setUrl(resource.toString());
-        return event;
-    }
-
-    private Event createGoal(final IRI resource) {
-        AJANGoal goal;
-        try (RepositoryConnection conn = agentRepo.getConnection()) {
-            RDFBeanManager manager = new BehaviorBeanManager(conn, pluginLoader.getNodeExtensions());
-            goal = manager.get(resource, AJANGoal.class);
-        } catch (RDF4JException ex) {
-            LOG.error("--> Could not load AJANGoal {} for {} agent, due to an RDF4JException", resource.stringValue(), id);
-            LOG.error(ex.getMessage(), ex);
-            throw new InitializationRDFValidationException("Could not load AJANGoal " + resource.stringValue(), ex);
-        } catch (RDFBeanException ex) {
-            LOG.error("--> Could not load AJANGoal {} for {} agent, due to an RDFBeanException", resource.stringValue(), id);
-            LOG.error(ex.getMessage(), ex);
-            throw new InitializationRDFValidationException("Could not load AJANGoal " + resource.stringValue(), ex);
-        }
-        return goal;
-    }
-
-    @SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.PrematureDeclaration"})
-    private Map<Resource, Behavior> getBehaviorTrees(final Iterator<Resource> behaviorRes) {
-        Map<Resource, Behavior> bhvs = new ConcurrentHashMap<>();
-        while (behaviorRes.hasNext()) {
-            List<Resource> eventResc = new ArrayList<>();
-            Resource resource = behaviorRes.next();
-            if (!(resource instanceof IRI)) {
-                throw new InitializationRDFValidationException("No BNodes allowed as Behavior Subject " + resource.stringValue());
-            }
-            Model model = modelManager.getTemplateFromTDB(agentRepo, resource);
-            SingleRunBehavior sglBehavior = getSingleRunBehavior(resource, model);
-            LOG.info("--> Behavior Tree for " + id + " agent added: " + resource.stringValue());
-            boolean clearEKB = getClearEKB(model, resource, AJANVocabulary.BEHAVIOR_HAS_CLEAREKB);
-            resourceManager.getResources(resource, model, AJANVocabulary.BEHAVIOR_HAS_TRIGGER).forEachRemaining(eventResc::add);
-            bhvs.put((IRI) resource, new Behavior(sglBehavior.getName(), sglBehavior.getResource(), sglBehavior.getBehaviorTree(), clearEKB, eventResc));
-        }
-        return bhvs;
-    }
-
-    private boolean getClearEKB(final Model model, final Resource resource, final IRI predicate) {
-        if (!model.filter(resource, predicate, null).objects().isEmpty()) {
-            Value clearEKB = model.filter(resource, predicate, null).objects().stream().findFirst().get();
-            if(clearEKB.isLiteral()) {
-                return Boolean.parseBoolean(clearEKB.stringValue());
-            }
-        }
-        return false;
-    }
-
-    private SingleRunBehavior getSingleRunBehavior(final Resource resource, final Model model) {
-        String behaviorName = modelManager.getLabel(model.filter(resource, RDFS.LABEL, null), "No Behavior-literal for " + RDFS.LABEL + " present");
-        Resource btResc = resourceManager.getResource(model, resource, AJANVocabulary.BEHAVIOR_HAS_BT);
-        return new SingleRunBehavior(behaviorName, (IRI) resource, getBT(btResc));
-    }
-
-    private BTRoot getBT(final Resource behaviorResource) {
-        BTRoot tree;
-        try (RepositoryConnection conn = tdbManager.getBehaviorTDB().getInitializedRepository().getConnection()) {
-            RDFBeanManager manager = new BehaviorBeanManager(conn, pluginLoader.getNodeExtensions());
-            tree = manager.get(behaviorResource, BTRoot.class);
-            LOG.info("--> Created Behavior Tree: {} for {} agent", behaviorResource.stringValue(), id);
-        } catch (RDF4JException ex){
-            LOG.error("--> Could not load BehaviorTree {} for {} agent. A possible reason is a reference to a non-existent resource! The issue stems from an issue with RDF4J", behaviorResource.stringValue(), id);
-            LOG.error(ex.getMessage(), ex);
-            //LOG.error("Undone agent creation of agent with ID: " + id);
-            throw new InitializationRDFValidationException("Could not load BehaviorTree: ", ex);
-        } catch (RDFBeanException ex) {
-            LOG.error("--> Could not load BehaviorTree {} for {} agent. A possible reason is a reference to a non-existent resource! The issue stems from an issue with RDFBean", behaviorResource.stringValue(), id);
-            LOG.error(ex.getMessage(), ex);
-            //LOG.error("Undone agent creation of agent with ID: " + id);
-            throw new InitializationRDFValidationException("Could not load BehaviorTree: ", ex);
-        }
-        return tree;
+    private AgentBehaviorLoader behaviorLoader() {
+        return new AgentBehaviorLoader(modelManager, resourceManager, tdbManager, pluginLoader);
     }
 }

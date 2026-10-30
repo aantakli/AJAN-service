@@ -52,7 +52,7 @@ public class ModelEvent extends DefaultEvent {
 	private ModelEventInformation getEventInfo(final Object information) {
 		ModelEventInformation info = new ModelEventInformation();
 		info.setEvent(url);
-		info.setModel(((Model)information));
+		info.setModel((Model) information);
 		return info;
 	}
 }

@@ -51,7 +51,7 @@ import org.springframework.stereotype.Component;
 				"application/rdf+json",
 				"application/xhtml+xml"
 				})
-@SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.AvoidPrefixingMethodParameters", "PMD.ExcessiveImports"})
+@SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.ExcessiveImports"})
 @Component
 public class AgentProducer extends ModelProducer implements MessageBodyWriter<Agent> {
 

@@ -56,14 +56,14 @@ public final class MimeUtil {
   private MimeUtil() {}
 
   public static Object encodeContent(
-      final String BASE_URI,
+      final String baseUri,
       final boolean forceRDF,
       final MultivaluedMap mm,
       final InputStream content,
       final String mimeType)
       throws HttpResponseException, IOException, SAXException {
     if (forceRDF || mimeType == null) {
-      return createModelFromResponse(BASE_URI, forceRDF, mm, content, mimeType);
+      return createModelFromResponse(baseUri, forceRDF, mm, content, mimeType);
     } else if (mimeType.contains("application/json")) {
       return createJsonFromResponse(mm, content);
     } else if (mimeType.contains("application/xml") || mimeType.contains("text/xml")) {
@@ -73,7 +73,7 @@ public final class MimeUtil {
     } else if (mimeType.contains("text/csv")) {
       return createCSVFromResponse(mm, content);
     }
-    return createModelFromResponse(BASE_URI, forceRDF, mm, content, mimeType);
+    return createModelFromResponse(baseUri, forceRDF, mm, content, mimeType);
   }
 
   public static JsonNode createJsonFromResponse(final MultivaluedMap mm, final InputStream response)
@@ -104,7 +104,7 @@ public final class MimeUtil {
   }
 
   private static Model createModelFromResponse(
-      final String BASE_URI,
+      final String baseUri,
       final boolean forceRDF,
       final MultivaluedMap mm,
       final InputStream response,
@@ -122,7 +122,7 @@ public final class MimeUtil {
       }
     } else {
       try {
-        Model model = Rio.parse(response, BASE_URI, formatForMimeType(mime));
+        Model model = Rio.parse(response, baseUri, formatForMimeType(mime));
         return AgentUtil.setResponseMessageInformation(model, mm);
       } catch (IllegalArgumentException | RDFParseException | IOException ex) {
         throw new HttpResponseException(

@@ -29,6 +29,10 @@ public class AJANLogger {
 		this.agentInfo = "agent(" + id + ") -> ";
 	}
 
+	public boolean isInfoEnabled(final Class<?> clazz) {
+		return LoggerFactory.getLogger(clazz).isInfoEnabled();
+	}
+
 	public void info(final Class<?> clazz, final String message) {
 		Logger log = LoggerFactory.getLogger(clazz);
 		log.info(agentInfo + message);

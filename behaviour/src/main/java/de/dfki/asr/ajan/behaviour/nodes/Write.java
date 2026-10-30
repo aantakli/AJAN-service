@@ -76,9 +76,7 @@ public class Write extends AbstractTDBLeafTask {
 
 	private void performWrite() throws ConditionSimulationException {
 		try {
-			if (query.getTargetBase().toString().equals(AJANVocabulary.DOMAIN_KNOWLEDGE.toString())
-							|| query.getTargetBase().toString().equals(AJANVocabulary.SERVICE_KNOWLEDGE.toString())
-							|| query.getTargetBase().toString().equals(AJANVocabulary.BEHAVIOR_KNOWLEDGE.toString())) {
+			if (isReadOnlyTarget(query.getTargetBase().toString())) {
 				return;
 			}
 			Model model = getInputModel();
@@ -92,6 +90,12 @@ public class Write extends AbstractTDBLeafTask {
 		} catch (URISyntaxException | QueryEvaluationException ex) {
 			throw new ConditionSimulationException(ex);
 		}
+	}
+
+	private static boolean isReadOnlyTarget(final String targetBase) {
+		return targetBase.equals(AJANVocabulary.DOMAIN_KNOWLEDGE.toString())
+						|| targetBase.equals(AJANVocabulary.SERVICE_KNOWLEDGE.toString())
+						|| targetBase.equals(AJANVocabulary.BEHAVIOR_KNOWLEDGE.toString());
 	}
 
 	private void updateExternalRepo(final Repository repo, final Model model) {

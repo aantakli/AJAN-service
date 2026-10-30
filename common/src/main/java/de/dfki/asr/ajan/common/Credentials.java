@@ -68,7 +68,7 @@ public class Credentials {
 	private int timeout;
 	private long created;
 
-	@SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.NcssConstructorCount"})
+	@SuppressWarnings("PMD.ExcessiveParameterList")
 	public Credentials(final String usersURL, final String constraintURL,
 					final String login, final String user, final String role,
 					final String password, final Token accessToken, final Token refreshToken) {
