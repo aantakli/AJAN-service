@@ -87,6 +87,8 @@ public final class AjanSystem implements AutoCloseable {
         Path serviceLog = logDir.resolve("service.log");
         Path serviceJar = resolveSingleArtifact(root.resolve("executionservice/target"), "executionservice-*.jar");
         List<String> cmd = new ArrayList<>(List.of(javaBin,
+                // JEP (PythonPlugin) loads native code; same flag as supervisord.conf
+                "--enable-native-access=ALL-UNNAMED",
                 "-Dtriplestore.initialData.agentFolderPath=executionservice/use-case/agents",
                 "-Dtriplestore.initialData.domainFolderPath=executionservice/use-case/domains",
                 "-Dtriplestore.initialData.serviceFolderPath=executionservice/use-case/services",
