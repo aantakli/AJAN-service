@@ -10,12 +10,23 @@ THIRD-PARTY PROJECT FILES
 (path in the installation)                   
 ---------------------------------------------
 behaviour/THIRDPARTYLICENSE_behaviour.txt
-rdfbeans/THIRDPARTYLICENSE_rdfbeans.txt
+build-resources/THIRDPARTYLICENSE_build-resources.txt
 common/THIRDPARTYLICENSE_common.txt
 executionservice/THIRDPARTYLICENSE_executionservice.txt
+functions/THIRDPARTYLICENSE_functions.txt
+pluginsystem/loadcheck/THIRDPARTYLICENSE_pluginsystem_loadcheck.txt
 pluginsystem/loader/THIRDPARTYLICENSE_pluginsystem_loader.txt
-pluginsystem/plugins/StandardBTNodes/THIRDPARTYLICENSE_pluginsystem_StandardBTNodes.txt
-pluginsystem/plugins/MappingPlugin/THIRDPARTYLICENSE_pluginsystem_MappingPlugin.txt
-pluginsystem/plugins/MOSIMPlugin/THIRDPARTYLICENSE_pluginsystem_MOSIMPlugin.txt
 pluginsystem/plugins/ASPPlugin/THIRDPARTYLICENSE_pluginsystem_ASPPlugin.txt
+pluginsystem/plugins/MOSIMPlugin/THIRDPARTYLICENSE_pluginsystem_MOSIMPlugin.txt
+pluginsystem/plugins/MQTTPlugin/THIRDPARTYLICENSE_pluginsystem_MQTTPlugin.txt
+pluginsystem/plugins/MappingPlugin/THIRDPARTYLICENSE_pluginsystem_MappingPlugin.txt
+pluginsystem/plugins/OPCUAPlugin/THIRDPARTYLICENSE_pluginsystem_OPCUAPlugin.txt
+pluginsystem/plugins/PythonPlugin/THIRDPARTYLICENSE_pluginsystem_PythonPlugin.txt
+pluginsystem/plugins/RMLMappingPlugin/THIRDPARTYLICENSE_pluginsystem_RMLMappingPlugin.txt
 pluginsystem/plugins/STRIPSPlugin/THIRDPARTYLICENSE_pluginsystem_STRIPSPlugin.txt
+pluginsystem/plugins/ScriptExecutorPlugin/THIRDPARTYLICENSE_pluginsystem_ScriptExecutorPlugin.txt
+pluginsystem/plugins/StandardBTNodes/THIRDPARTYLICENSE_pluginsystem_StandardBTNodes.txt
+rdfbeans/THIRDPARTYLICENSE_rdfbeans.txt
+triplestore/THIRDPARTYLICENSE_triplestore.txt
+
+Generated with: mvn org.codehaus.mojo:license-maven-plugin:2.7.1:add-third-party (see README).

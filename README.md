@@ -67,6 +67,16 @@ Pre-modelled agent templates, behaviors, service definitions and domain knowledg
 * `-Dtriplestore.initialData.nodeDefinitionsFolderPath=executionservice/use-case/editor/nodeDefinitions` <br>-> Folder to predefined node definitions (RDF/Turtle)
 * `-Dtriplestore.initialData.editorDataFolderPath=executionservice/use-case/editor/editorData` <br>-> Folder to predefined editor data (RDF/Turtle)
    
+## Regenerating third-party license files
+
+The `THIRDPARTYLICENSE_<module>.txt` files (one per Maven module, next to the module's `pom.xml`) and the index file `THIRDPARTYLICENSE` are generated with the `license-maven-plugin` (`add-third-party`). The plugin is configured in the root `pom.xml` (pluginManagement) but is intentionally **not** bound to the default build. Regenerate after dependency changes with a single command from the repository root:
+
+```
+mvn org.codehaus.mojo:license-maven-plugin:2.7.1:add-third-party
+```
+
+The reports list all compile, runtime and test dependencies (scope `provided` is excluded) with their licenses.
+
 ## Examples
 
 For examples, we refere to the [AJAN-service Wiki](https://github.com/aantakli/AJAN-service/wiki/1-AJAN-Overview).
