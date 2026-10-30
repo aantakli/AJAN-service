@@ -1,11 +1,13 @@
 import io
+import os
 import sys
 import threading
 import traceback
 from contextlib import contextmanager
 from enum import Enum
 
-import rdflib
+# rdflib is imported lazily (only by the LeafNode contract): script files (OPCUA, CustomScriptNode)
+# import this module too and must work in a Python environment without rdflib.
 
 class Status(Enum):
    FRESH = "FRESH"
@@ -16,16 +18,16 @@ class Status(Enum):
 class NodeResult:
    status = Status.FRESH
    label = "My NodeStatus is fresh"
-   rdf_output = rdflib.Graph()
+   rdf_output = None  # an rdflib.Graph (or Turtle text); None: no output
 
-   def __init__(self, status: Status, label: str, rdf_output: rdflib.Graph):
+   def __init__(self, status: Status, label: str, rdf_output: "rdflib.Graph" = None):
       self.status = status
       self.label = label
       self.rdf_output = rdf_output
 
 
 class LeafNode:
-   def executeLeafNode(self, input: rdflib.Graph) -> NodeResult:
+   def executeLeafNode(self, input: "rdflib.Graph") -> NodeResult:
       """This Method is executed by AJAN itself to get python based NodeResult"""
       pass
 
@@ -40,6 +42,8 @@ class LeafNode:
 # real stdout, which is never replaced again (so an exception cannot lose it).
 
 class _ThreadLocalStdout(io.TextIOBase):
+   _ajan_stdout_proxy = True  # marker: install_stdout_proxy is idempotent even across reloads
+
    def __init__(self, real):
       self._real = real
       self._buffers = {}  # thread ident -> StringIO
@@ -87,6 +91,23 @@ class _ThreadLocalStdout(io.TextIOBase):
          raise io.UnsupportedOperation("fileno")
       return self._real.fileno()
 
+   @property
+   def buffer(self):
+      """The real stdout's binary buffer (bytes written there are never captured)."""
+      if self._real is None or not hasattr(self._real, "buffer"):
+         raise AttributeError("buffer")
+      return self._real.buffer
+
+   def __getattr__(self, name):
+      # Rest of the TextIO API (reconfigure, line_buffering, write_through, ...): the capture
+      # buffer of this thread if it has the attribute, otherwise the real stdout.
+      if name.startswith("_"):
+         raise AttributeError(name)
+      for target in (self._buffers.get(threading.get_ident()), self._real):
+         if target is not None and hasattr(target, name):
+            return getattr(target, name)
+      raise AttributeError(name)
+
 
 _install_lock = threading.Lock()
 
@@ -94,7 +115,7 @@ _install_lock = threading.Lock()
 def install_stdout_proxy() -> _ThreadLocalStdout:
    """Installs the thread-local stdout proxy once (idempotent) and returns it."""
    with _install_lock:
-      if not isinstance(sys.stdout, _ThreadLocalStdout):
+      if not getattr(sys.stdout, "_ajan_stdout_proxy", False):
          sys.stdout = _ThreadLocalStdout(sys.stdout)
       return sys.stdout
 
@@ -129,6 +150,9 @@ def _status_name(status) -> str:
 def _to_turtle(output) -> str:
    if output is None:
       return ""
+   if isinstance(output, str):
+      return output
+   import rdflib
    if isinstance(output, rdflib.Graph):
       return output.serialize(format="turtle") if len(output) > 0 else ""
    return str(output)
@@ -156,6 +180,7 @@ def run_leaf(namespace: dict, input_turtle: str) -> tuple:
    if not classes:
       status = namespace.get("status", Status.SUCCEEDED.value)
       return _status_name(status), "", _to_turtle(namespace.get("rdf_output", ""))
+   import rdflib
    graph = rdflib.Graph()
    if input_turtle and input_turtle.strip():
       graph.parse(data=input_turtle, format="turtle")
@@ -205,11 +230,16 @@ _NO_ARGV = object()  # run_script_file did not touch sys.argv
 
 
 def _acquire_script_dir(directory: str):
+   """References directory and moves it to the front of sys.path (also when another running
+   script already references it), so the starting script's sibling imports resolve there first."""
    with _path_lock:
-      count = _path_refs.get(directory, 0)
-      if count == 0:
-         sys.path.insert(0, directory)
-      _path_refs[directory] = count + 1
+      if _path_refs.get(directory, 0) > 0:
+         try:
+            sys.path.remove(directory)
+         except ValueError:
+            pass  # a script removed it itself
+      sys.path.insert(0, directory)
+      _path_refs[directory] = _path_refs.get(directory, 0) + 1
 
 
 def _release_script_dir(directory: str):
@@ -242,7 +272,6 @@ def run_script_file(namespace: dict, path: str, argv=None) -> tuple:
    afterwards. Returns (ok, message): SystemExit with code None/0 is ok, any other code or
    exception is not (message: exit code or traceback).
    """
-   import os
    path = os.path.abspath(str(path))
    directory = os.path.dirname(path)
    namespace["__name__"] = "__main__"
