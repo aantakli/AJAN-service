@@ -68,6 +68,12 @@ public class SparqlJsonGuardTest {
 	// stray directory.
 	private static final int MIN_SCANNED_FILES = 100;
 
+	// Per-module floor: the global sum alone stays green when one module's
+	// directory is renamed or moved, as long as the big ones (behaviour,
+	// pluginsystem) keep it above 100. Each module must contribute on its own.
+	// Smallest guarded module (common) holds ~22 files.
+	private static final int MIN_FILES_PER_MODULE = 10;
+
 	@Test
 	public void noProductionCodeRequestsSparqlResultsJson() throws IOException {
 		Path root = Paths.get(System.getProperty("ajan.root", "..")).toAbsolutePath().normalize();
@@ -75,10 +81,9 @@ public class SparqlJsonGuardTest {
 		int scanned = 0;
 		for (String module: MODULES) {
 			Path moduleDir = root.resolve(module);
-			if (!Files.isDirectory(moduleDir)) {
-				continue;
+			if (Files.isDirectory(moduleDir)) {
+				scanned += collectHits(moduleDir, hits);
 			}
-			scanned += collectHits(moduleDir, hits);
 		}
 		assertTrue(scanned >= MIN_SCANNED_FILES,
 				"Guard scanned only " + scanned + " .java file(s) under " + root
@@ -90,6 +95,20 @@ public class SparqlJsonGuardTest {
 				"SPARQL-Results-JSON is unusable under the managed Jackson 2.6.6 (see Gate E). "
 				+ "Either switch to another result format or set <jackson.version> in "
 				+ "executionservice/pom.xml. Offending sites:\n" + String.join("\n", hits));
+	}
+
+	@Test
+	public void eachScannedModuleContributesFiles() throws IOException {
+		Path root = Paths.get(System.getProperty("ajan.root", "..")).toAbsolutePath().normalize();
+		List<String> ignoredHits = new ArrayList<>();
+		for (String module: MODULES) {
+			Path moduleDir = root.resolve(module);
+			int count = Files.isDirectory(moduleDir) ? collectHits(moduleDir, ignoredHits) : 0;
+			assertTrue(count >= MIN_FILES_PER_MODULE,
+					"Module '" + module + "' contributed only " + count + " .java file(s) under "
+					+ moduleDir + " (expected at least " + MIN_FILES_PER_MODULE + "). The guard "
+					+ "no longer covers this module - fix the module path/list before trusting the guard.");
+		}
 	}
 
 	@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
