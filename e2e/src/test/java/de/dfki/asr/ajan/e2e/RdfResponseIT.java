@@ -52,10 +52,7 @@ class RdfResponseIT extends AjanSystemBase {
     // as valid Turtle with the agent's own URI as subject, rdf:type
     // ajan:Agent present, and more than one triple (id/template/knowledge/
     // behavior/action statements from ModelProducer.addAgentStatements).
-    // Ruling R3 (Etappe 4, Task 6): compared as parsed media type + charset.
-    // Old stack (Boot 1.3/Undertow) sent "text/turtle; charset=UTF-8", the
-    // Tomcat-11 stack sends "text/turtle;charset=UTF-8" - the same HTTP value
-    // (RFC 9110: whitespace around ';' is optional); Tomcat cannot emit the space.
+    // Ruling R3: Content-Type compared as parsed value, see Http#assertContentType.
     @Test
     @Order(2)
     void turtleRepresentationHasPinnedContentTypeAndParsesAsRdf() throws Exception {
@@ -80,10 +77,7 @@ class RdfResponseIT extends AjanSystemBase {
     // the JSON-LD body); both negotiated formats carry charset=UTF-8, which is
     // itself worth pinning as a migration trip wire (Boot 4 only keeps it via
     // spring.servlet.encoding.force=true).
-    // Ruling R3 (Etappe 4, Task 6): compared as parsed media type + charset.
-    // Old stack (Boot 1.3/Undertow) sent "application/ld+json; charset=UTF-8", the
-    // Tomcat-11 stack sends "application/ld+json;charset=UTF-8" - the same HTTP value
-    // (RFC 9110: whitespace around ';' is optional); Tomcat cannot emit the space.
+    // Ruling R3: Content-Type compared as parsed value, see Http#assertContentType.
     @Test
     @Order(3)
     void jsonLdRepresentationHasPinnedContentType() throws Exception {

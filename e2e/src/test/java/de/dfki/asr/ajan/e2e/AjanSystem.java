@@ -51,7 +51,7 @@ public final class AjanSystem implements AutoCloseable {
         Path root = Paths.get(System.getProperty("ajan.root", "..")).toAbsolutePath().normalize();
         Path logDir = root.resolve("e2e/target/logs");
         Files.createDirectories(logDir);
-        String java = Paths.get(System.getProperty("java.home"), "bin", "java").toString();
+        String javaBin = Paths.get(System.getProperty("java.home"), "bin", "java").toString();
 
         failIfPortInUse(SERVICE_PORT);
 
@@ -67,7 +67,7 @@ public final class AjanSystem implements AutoCloseable {
             Path rdf4jData = root.resolve("e2e/target/rdf4j-data");
             deleteRecursively(rdf4jData);
             Path triplestoreJar = resolveSingleArtifact(root.resolve("triplestore/target"), "triplestore-*.jar");
-            List<String> cmd = new ArrayList<>(List.of(java,
+            List<String> cmd = new ArrayList<>(List.of(javaBin,
                     "-Dorg.eclipse.rdf4j.appdata.basedir=" + rdf4jData,
                     "-jar", triplestoreJar.toString(),
                     "--httpPort=" + TRIPLESTORE_PORT));
@@ -87,7 +87,7 @@ public final class AjanSystem implements AutoCloseable {
 
         Path serviceLog = logDir.resolve("service.log");
         Path serviceJar = resolveSingleArtifact(root.resolve("executionservice/target"), "executionservice-*.jar");
-        List<String> cmd = new ArrayList<>(List.of(java,
+        List<String> cmd = new ArrayList<>(List.of(javaBin,
                 "-Dtriplestore.initialData.agentFolderPath=executionservice/use-case/agents",
                 "-Dtriplestore.initialData.domainFolderPath=executionservice/use-case/domains",
                 "-Dtriplestore.initialData.serviceFolderPath=executionservice/use-case/services",
@@ -109,7 +109,7 @@ public final class AjanSystem implements AutoCloseable {
             // OBSERVED (2026-07-13): InitialDataProvider loads the use-case TTL
             // files (agents.trig etc.) synchronously as part of Spring context
             // startup, strictly BEFORE the "Started Application" log line and
-            // therefore before Undertow ever answers /ajan/agents with 200 -
+            // therefore before Tomcat ever answers /ajan/agents with 200 -
             // so this check never actually has to wait. It stays as an
             // explicit, independently-verified belt-and-suspenders gate (the
             // plan's Step 6 requirement) in case a future Boot/RDF4J bump makes

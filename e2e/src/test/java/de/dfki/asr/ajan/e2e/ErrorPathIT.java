@@ -23,10 +23,7 @@ class ErrorPathIT extends AjanSystemBase {
     // OBSERVED (2026-07-13): 404, Content-Type text/turtle mit charset=UTF-8
     // (der Charset kommt nicht aus WebExceptionMapper#createRDFExceptionResponse,
     // das nur "text/turtle" setzt, sondern aus der erzwungenen Antwort-Kodierung).
-    // Ruling R3 (Etappe 4, Task 6): compared as parsed media type + charset.
-    // Old stack (Boot 1.3/Undertow) sent "text/turtle; charset=UTF-8", the
-    // Tomcat-11 stack sends "text/turtle;charset=UTF-8" - the same HTTP value
-    // (RFC 9110: whitespace around ';' is optional); Tomcat cannot emit the space.
+    // Ruling R3: Content-Type compared as parsed value, see Http#assertContentType.
     // Body enthaelt RDF-Statements ueber die geworfene Exception (u.a.
     // rdfs:label mit der Exception-Message und rdf:type mit dem
     // Java-Klassennamen als urn:java-class:-IRI).
@@ -52,12 +49,9 @@ class ErrorPathIT extends AjanSystemBase {
     // NICHT das RDF-Turtle-Format des WebExceptionMapper. Body ist der rohe
     // Exception.toString() der RDFParseException.
     // Etappe 4 (RESTEasy 6): derselbe 400-Pfad nur mit
-    // dev.resteasy.exception.mapper=false (Application#main); der Body ist dort
+    // dev.resteasy.exception.mapper=false (static initializer of Application); der Body ist dort
     // zusaetzlich HTML-escaped (MessageSanitizerContainerResponseFilter).
-    // Ruling R3 (Etappe 4, Task 6): compared as parsed media type + charset.
-    // Old stack (Boot 1.3/Undertow) sent "text/html; charset=UTF-8", the
-    // Tomcat-11 stack sends "text/html;charset=UTF-8" - the same HTTP value
-    // (RFC 9110: whitespace around ';' is optional); Tomcat cannot emit the space.
+    // Ruling R3: Content-Type compared as parsed value, see Http#assertContentType.
     @Test
     void postMalformedTurtleIsRejected() throws Exception {
         var r = Http.send("POST", system.serviceBase() + "/agents/", "text/turtle", "@@@ not turtle");

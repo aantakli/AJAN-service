@@ -78,7 +78,7 @@ public final class Http {
     /**
      * Request with freely chosen headers. Redirects are NOT followed (the shared
      * client uses the default Redirect.NEVER), so 3xx responses can be inspected.
-     * Origin and Access-Control-* are not restricted on the JDK 11 client.
+     * Origin and Access-Control-* are not restricted on the JDK HttpClient.
      */
     public static HttpResponse<String> sendWithHeaders(String method, String url,
             java.util.Map<String, String> headers, String body)

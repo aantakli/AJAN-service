@@ -46,12 +46,14 @@ class WebSurfaceIT extends AjanSystemBase {
 
     @AfterAll
     static void deleteAgent() throws Exception {
-        Http.send("DELETE", system.serviceBase() + "/agents/" + AGENT_ID, null, null);
+        var r = Http.send("DELETE", system.serviceBase() + "/agents/" + AGENT_ID, null, null);
+        assertTrue(r.statusCode() / 100 == 2, "teardown: agent deletion failed, was " + r.statusCode() + ": " + r.body());
     }
 
     private static String root() {
-        String base = system.serviceBase();
-        return base.substring(0, base.length() - "/ajan".length());
+        // scheme://authority of the service, independent of its base path (/ajan)
+        java.net.URI base = java.net.URI.create(system.serviceBase());
+        return base.getScheme() + "://" + base.getAuthority();
     }
 
     private static String header(HttpResponse<?> r, String name) {
@@ -140,6 +142,8 @@ class WebSurfaceIT extends AjanSystemBase {
         var r = Http.send("GET", root() + "/swagger-ui/index.html", null, null);
         assertEquals(200, r.statusCode());
         assertEquals("text/html", mediaType(r));
+        assertTrue(r.body().contains("swagger-ui"), "index.html should be the Swagger UI page, was: "
+                + r.body().substring(0, Math.min(200, r.body().length())));
     }
 
     // swagger-ui 5 ignores the ?url= query parameter, so the UI is configured by
@@ -169,6 +173,7 @@ class WebSurfaceIT extends AjanSystemBase {
         var r = Http.send("GET", system.serviceBase() + "/ping", null, null);
         assertEquals(200, r.statusCode());
         assertEquals("application/octet-stream", mediaType(r));
+        assertEquals("pong", r.body());
     }
 
     // OBSERVED (2026-10-30): POST ?capability=HelloWorld_BT with a JSON body is
