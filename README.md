@@ -6,7 +6,7 @@ This is the Maven based JAVA service to create and run AJAN agents.
 
 You will need the following things properly installed on your computer. So please make sure, that mvn and java (also JAVA_HOME) are correctly set in the environmental variables.
 
-* [Java OpenJDK (Version 11)](https://adoptium.net/temurin/releases/?version=11)
+* [Java OpenJDK (Version 21)](https://adoptium.net/temurin/releases/?version=21) (needed to build and to run; all modules target Java 21)
 * [Maven (Version 3.3.9)](https://archive.apache.org/dist/maven/maven-3/3.3.9/)
 * [Git](https://git-scm.com/)
 * (optional) [Netbeans (Version 11.3)](http://netbeans.apache.org/download/nb113/nb113.html)
@@ -45,6 +45,8 @@ Start AJAN-Triplestore (see below), visit `http://localhost:8090/workbench/` and
 									-Dpf4j.pluginsDir=pluginsystem/plugins 
 									-Dtriplestore.url=http://localhost:8090/rdf4j 
 									-jar executionservice/target/executionservice-0.1.jar`
+
+Once AJAN is running, the Swagger UI is available at `http://localhost:8080/` (the OpenAPI 3 description is served at `http://localhost:8080/ajan/swagger.json`).
 
 ### VM Variables
 
