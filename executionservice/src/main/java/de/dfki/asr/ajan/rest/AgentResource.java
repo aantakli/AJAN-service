@@ -27,7 +27,7 @@ import de.dfki.asr.ajan.knowledge.ExecutionBeliefBase;
 import de.dfki.asr.ajan.logic.agent.AgentManager;
 import de.dfki.asr.ajan.model.Agent;
 import de.dfki.asr.ajan.model.Behavior;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map.Entry;
@@ -76,14 +76,14 @@ public class AgentResource {
 
 	@GET
 	@Produces({TURTLE,JSONLD})
-	@ApiOperation("List a specific agent")
+	@Operation(summary = "List a specific agent")
 	public Agent getAgent() {
             return agent;
 	}
 
 	@POST
 	@Produces({TURTLE,JSONLD})
-	@ApiOperation("Receive Object")
+	@Operation(summary = "Receive Object")
 	public Agent postAgent(@QueryParam("capability") final String capability) {
             return setEvent(capability, new Object());
 	}
@@ -91,7 +91,7 @@ public class AgentResource {
 	@POST
 	@Consumes({TURTLE,TRIG,JSONLD})
 	@Produces({TURTLE,JSONLD})
-	@ApiOperation("Receive Turtle, TRIG or LD+JSON")
+	@Operation(summary = "Receive Turtle, TRIG or LD+JSON")
 	public Agent modelPostAgent(@QueryParam("capability") final String capability, final Model model) {
             return setEvent(capability, model);
 	}
@@ -99,7 +99,7 @@ public class AgentResource {
 	@POST
 	@Consumes(TEXT)
 	@Produces({TURTLE,JSONLD})
-	@ApiOperation("Receive Text")
+	@Operation(summary = "Receive Text")
 	public Agent stringPostAgent(@QueryParam("capability") final String capability, final String string) {
             return setEvent(capability, string);
 	}
@@ -107,7 +107,7 @@ public class AgentResource {
 	@POST
 	@Consumes(JSON)
 	@Produces({TURTLE,JSONLD})
-	@ApiOperation("Receive Json")
+	@Operation(summary = "Receive Json")
 	public Agent jsonPostAgent(@QueryParam("capability") final String capability, final JsonNode json) {
             return setEvent(capability, json);
 	}
@@ -115,7 +115,7 @@ public class AgentResource {
 	@POST
 	@Consumes({XML, XML_OLD})
 	@Produces({TURTLE,JSONLD})
-	@ApiOperation("Receive XML")
+	@Operation(summary = "Receive XML")
 	public Agent xmlPostAgent(@QueryParam("capability") final String capability, final Document xml) {
             return setEvent(capability, xml);
 	}
@@ -123,7 +123,7 @@ public class AgentResource {
 	@POST
 	@Consumes(CSV)
 	@Produces({TURTLE,JSONLD})
-	@ApiOperation("Receive CSV")
+	@Operation(summary = "Receive CSV")
 	public Agent csvPostAgent(@QueryParam("capability") final String capability, final CSVInput csv) {
             return setEvent(capability, csv);
 	}
@@ -150,7 +150,7 @@ public class AgentResource {
         @Path(BEHAVIOR_PATH)
 	@GET
 	@Produces({TURTLE,JSONLD})
-	@ApiOperation(value = "Get Behavior Information.")
+	@Operation(summary = "Get Behavior Information.")
         @SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.CyclomaticComplexity"})
 	public Model getBehavior(@PathParam(BEHAVIOR_ID) final String behaviorId, @QueryParam("method") final String method, @QueryParam("mode") final String mode) throws URISyntaxException {
             if (method != null) {
@@ -211,7 +211,7 @@ public class AgentResource {
 	@Path(COMPLETION_PATH)
 	@POST
 	@Consumes({TURTLE,JSONLD})
-	@ApiOperation(value = "Complete an asynchronous action.")
+	@Operation(summary = "Complete an asynchronous action.")
 	public void completeAction(@PathParam(CONNECTION_PARAMETER) final String conId, @PathParam(ACTION_PARAMETER) final String actId, final Model model) {
             LOG.info("Action with ID: " + actId + " finnished");
             agent.getConnections().entrySet().stream().map((entry) -> entry.getValue()).forEach((connection) -> {

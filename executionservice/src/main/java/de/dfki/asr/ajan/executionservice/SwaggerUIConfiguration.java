@@ -22,22 +22,23 @@ package de.dfki.asr.ajan.executionservice;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.View;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
-@EnableWebMvc
 // This hooks up the swagger WebJar
 public class SwaggerUIConfiguration implements WebMvcConfigurer {
 	@Override
 	public void addResourceHandlers(final ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/swagger-ui/**").addResourceLocations("classpath:/META-INF/resources/webjars/swagger-ui/2.1.4/");
+		// first location wins: our swagger-initializer.js shadows the webjar's petstore default
+		registry.addResourceHandler("/swagger-ui/**").addResourceLocations(
+				"classpath:/static/swagger-ui/",
+				"classpath:/META-INF/resources/webjars/swagger-ui/5.34.0/");
 	}
 
 	@RequestMapping("/")
 	public View redirectToSwagger() {
-		return new RedirectView("/swagger-ui/index.html?url=" + ExecutionServiceApplication.BASE_PATH + "/swagger.json", true);
+		return new RedirectView("/swagger-ui/index.html", true);
 	}
 }

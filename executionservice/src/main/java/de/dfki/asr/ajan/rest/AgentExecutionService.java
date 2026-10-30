@@ -19,22 +19,22 @@
 
 package de.dfki.asr.ajan.rest;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
 @Path("/")
-@Api("Root")
+@Tag(name = "Root")
 @Data
 @Component
 public class AgentExecutionService {
 
 	@GET
 	@Path("/ping")
-	@ApiOperation("Ping ...")
+	@Operation(summary = "Ping ...")
 	public String pingPong() {
 		return "pong";
 	}

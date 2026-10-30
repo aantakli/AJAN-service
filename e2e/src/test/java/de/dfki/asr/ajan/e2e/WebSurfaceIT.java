@@ -10,6 +10,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -131,6 +132,16 @@ class WebSurfaceIT extends AjanSystemBase {
         var r = Http.send("GET", root() + "/swagger-ui/index.html", null, null);
         assertEquals(200, r.statusCode());
         assertEquals("text/html", mediaType(r));
+    }
+
+    // swagger-ui 5 ignores the ?url= query parameter, so the UI is configured by
+    // swagger-initializer.js; it must point at the AJAN spec, not the petstore demo.
+    @Test
+    void swaggerUiPointsToAjanSpec() throws Exception {
+        var r = Http.send("GET", root() + "/swagger-ui/swagger-initializer.js", null, null);
+        assertEquals(200, r.statusCode());
+        assertTrue(r.body().contains("/ajan/swagger.json"), "initializer should point at the AJAN spec");
+        assertFalse(r.body().contains("petstore"), "initializer must not fall back to the petstore demo");
     }
 
     // OBSERVED (2026-10-30): 200, "Content-Type: application/json; charset=UTF-8",

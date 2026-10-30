@@ -21,9 +21,9 @@ package de.dfki.asr.ajan.rest;
 
 import de.dfki.asr.ajan.logic.agent.AgentManager;
 import de.dfki.asr.ajan.model.Agent;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.UUID;
@@ -41,7 +41,7 @@ import org.springframework.stereotype.Component;
 import de.dfki.asr.ajan.behaviour.nodes.action.UriGenerator;
 
 @Path("/agents")
-@Api("List Agents")
+@Tag(name = "List Agents")
 @Component
 public class AgentsService {
 	public static final String NAME = "agentName";
@@ -53,7 +53,7 @@ public class AgentsService {
 	@GET
 	@Path("/")
 	@Produces({"text/plain","text/turtle","application/ld+json"})
-	@ApiOperation("List all Agents")
+	@Operation(summary = "List all Agents")
 	public Collection<Agent> getAllAgents() {
 		return agentManager.getAllAgents();
 	}
@@ -61,14 +61,13 @@ public class AgentsService {
 	@POST
 	@Path("/")
 	@Produces("text/turtle")
-	@ApiOperation("Add new Agent")
+	@Operation(summary = "Add new Agent")
 	public Agent createAgent(final Model model) throws URISyntaxException {
             return agentManager.createAgent(model);
 	}
 
 	@Path(AGENT_PATH)
-	@ApiParam(name = NAME, value = "The name of the Agent.")
-	public AgentResource getAgent(@PathParam(NAME) final String agentName) {
+	public AgentResource getAgent(@Parameter(name = NAME, description = "The name of the Agent.") @PathParam(NAME) final String agentName) {
             Agent agent = agentManager.getAgent(agentName);
             return new AgentResource(agent, agentManager);
 	}

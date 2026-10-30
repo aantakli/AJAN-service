@@ -147,18 +147,15 @@ MA 02110-1301  USA
       <groupId>com.badlogicgames.gdx</groupId>
       <version>1.8.2</version>
     </dependency>
-    <!-- Uebergang bis Task 7: nur die Swagger-1.5-Annotationen (@Api/@ApiOperation an den
-         Resource-Klassen; reine Annotationen ohne Abhaengigkeiten). swagger-jaxrs ist raus;
-         Task 7 ersetzt sie durch io.swagger.v3.oas.annotations. -->
     <dependency>
-      <artifactId>swagger-annotations</artifactId>
-      <groupId>io.swagger</groupId>
-      <version>1.5.9</version>
+      <artifactId>swagger-jaxrs2-jakarta</artifactId>
+      <groupId>io.swagger.core.v3</groupId>
+      <version>2.2.55</version>
     </dependency>
     <dependency>
       <artifactId>swagger-ui</artifactId>
       <groupId>org.webjars</groupId>
-      <version>2.1.4</version>
+      <version>5.34.0</version>
     </dependency>
     <dependency>
       <artifactId>testng</artifactId>
