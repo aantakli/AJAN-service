@@ -92,7 +92,7 @@ public class OPCUAStartJoiningNode extends AbstractTDBLeafTask implements NodeEx
     LOG.info(this.getClass(), "Executing Python script for OPCUAStartJoiningNode: ");
 
     PythonExecutionService pythonService = OPCUAMainScript.service();
-    Path scriptPath = OPCUAMainScript.script(OPCUAMainScript.MAIN);
+    Path scriptPath = OPCUAMainScript.script(OPCUAMainScript.CALL);
     List<String> argv =
         OPCUAMainScript.methodArgv(
             getEndpointUrl(),

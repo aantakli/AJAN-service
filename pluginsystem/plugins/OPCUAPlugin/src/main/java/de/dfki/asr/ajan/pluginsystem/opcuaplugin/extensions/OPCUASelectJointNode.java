@@ -92,7 +92,7 @@ public class OPCUASelectJointNode extends AbstractTDBLeafTask implements NodeExt
     LOG.info(this.getClass(), "Executing Python script for target joint: " + getJointId());
 
     PythonExecutionService pythonService = OPCUAMainScript.service();
-    Path scriptPath = OPCUAMainScript.script(OPCUAMainScript.MAIN);
+    Path scriptPath = OPCUAMainScript.script(OPCUAMainScript.CALL);
     List<String> argv =
         OPCUAMainScript.methodArgv(
             getEndpointUrl(), "select_joint", "--joint-id", getJointId());

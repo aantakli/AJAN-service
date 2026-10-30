@@ -46,9 +46,60 @@ public class OPCUAMainScriptTest {
     FakeService service = new FakeService();
     service.next = PythonExecutionResult.failed("script exited with code 1", null, 1);
     List<String> argv = OPCUAMainScript.methodArgv("opc.tcp://h:1", "enable_asset", "--enable", "false");
-    PythonExecutionResult r = OPCUAMainScript.callMethod(service, Path.of("main.py"), argv);
-    assertEquals(service.lastInputs.get("argv"), argv);
+    PythonExecutionResult r = OPCUAMainScript.callMethod(service, Path.of("call.py"), argv);
+    assertEquals(service.lastInputs.get("call_argv"), argv);
+    assertFalse(service.lastInputs.containsKey("argv"), "no sys.argv (and no argv lock)");
     assertEquals(OPCUAMainScript.statusOf(r), Status.FAILED);
+  }
+
+  @Test
+  public void normalizeEndpoint() {
+    assertEquals(
+        OPCUAMainScript.normalizeEndpoint(" OPC.TCP://My-Host.Example:4840// "),
+        "opc.tcp://my-host.example:4840");
+    assertEquals(
+        OPCUAMainScript.normalizeEndpoint("opc.tcp://User:PW@HOST:4840/Path/X/"),
+        "opc.tcp://User:PW@host:4840/Path/X");
+    assertEquals(OPCUAMainScript.normalizeEndpoint(null), "");
+    assertEquals(OPCUAMainScript.normalizeEndpoint("  "), "");
+  }
+
+  @Test(timeOut = 30_000)
+  public void equivalentEndpointsShareOneEventClient() throws Exception {
+    CountDownLatch release = new CountDownLatch(1);
+    CountDownLatch running = new CountDownLatch(1);
+    BlockingQueue<String> seen = new ArrayBlockingQueue<>(4);
+    BlockingQueue<PythonExecutionResult> exits = new ArrayBlockingQueue<>(4);
+    FakeService service =
+        new FakeService() {
+          @Override
+          public PythonExecutionResult executeScriptFile(Path p, Map<String, Object> inputs) {
+            seen.add(Thread.currentThread().getName() + "|" + inputs.get("url"));
+            running.countDown();
+            try {
+              release.await();
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+            }
+            return PythonExecutionResult.success("ok", Map.of(), 0);
+          }
+        };
+    try {
+      assertTrue(
+          OPCUAMainScript.startEventClient(
+              service, Path.of("events.py"), "opc.tcp://Dedupe-Host:4840/", exits::add));
+      assertTrue(running.await(10, TimeUnit.SECONDS));
+      assertFalse(
+          OPCUAMainScript.startEventClient(
+              service, Path.of("events.py"), " opc.tcp://dedupe-host:4840", exits::add));
+      assertTrue(OPCUAMainScript.isEventClientRunning("OPC.TCP://DEDUPE-HOST:4840"));
+      assertEquals(
+          seen.poll(10, TimeUnit.SECONDS),
+          "opcua-events-opc.tcp://dedupe-host:4840|opc.tcp://dedupe-host:4840");
+    } finally {
+      release.countDown();
+    }
+    assertTrue(exits.poll(10, TimeUnit.SECONDS) != null);
   }
 
   @Test(timeOut = 30_000)

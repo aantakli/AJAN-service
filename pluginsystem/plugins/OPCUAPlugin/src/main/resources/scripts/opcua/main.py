@@ -100,14 +100,22 @@ async def run_method_call(server_url: str, args) -> int:
         )
 
 
+# Seconds between connection checks of the event client
+CHECK_INTERVAL = 1.0
+
+
 # This is normal event mode runner
 async def run_client(server_url: str):
+    """Runs until cancelled; raises (exit code 1) when the connection is lost, so AJAN's
+    OPCUASetupNode can start a new client."""
     client = OPCUAClient(server_url)
+    await client.clear_old_logs()
     await client.connect()
     await client.subscribe_to_events()
     try:
         while True:
-            await asyncio.sleep(1)
+            await asyncio.sleep(CHECK_INTERVAL)
+            await client.check_connection()
     except asyncio.CancelledError:
         ijt_log.info("Run loop cancelled.")
     finally:
@@ -121,7 +129,7 @@ async def run_client(server_url: str):
 def main(argv=None) -> int:
     """Runs one method call (--call) or the event client; returns the process exit code.
 
-    argv defaults to sys.argv[1:]; AJAN's event mode passes it explicitly (see events.py).
+    argv defaults to sys.argv[1:]; AJAN passes it explicitly (see call.py and events.py).
     """
     parser = argparse.ArgumentParser(description="Run OPC UA Event Client")
 

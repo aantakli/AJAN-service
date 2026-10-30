@@ -115,9 +115,14 @@ public class CustomScriptNode extends AbstractTDBLeafTask implements NodeExtensi
               .info(this.getClass(), "Trying classpath resource for script: " + scriptPath);
           try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(scriptPath)) {
             if (is != null) {
-              Path tmp = Files.createTempFile("ajan-script-", ".py");
+              // A private directory: executeScriptFile puts the script's directory on sys.path,
+              // and the shared temp dir may contain files that shadow modules (e.g. json.py).
+              Path tmpDir = Files.createTempDirectory("ajan-script-");
+              tmpDir.toFile().deleteOnExit();
+              Path name = Path.of(scriptPath).getFileName();
+              Path tmp = tmpDir.resolve(name == null ? "script.py" : name.toString());
               Files.copy(is, tmp, StandardCopyOption.REPLACE_EXISTING);
-              tmp.toFile().deleteOnExit();
+              tmp.toFile().deleteOnExit(); // runs before the directory's (reverse order)
               fullScriptPath = tmp;
               this.getObject()
                   .getLogger()

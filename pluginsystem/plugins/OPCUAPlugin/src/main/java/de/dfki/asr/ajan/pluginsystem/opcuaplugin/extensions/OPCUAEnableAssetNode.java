@@ -92,7 +92,7 @@ public class OPCUAEnableAssetNode extends AbstractTDBLeafTask implements NodeExt
     LOG.info(this.getClass(), "Executing Python script for assetEnabled: " + isEnabled());
 
     PythonExecutionService pythonService = OPCUAMainScript.service();
-    Path scriptPath = OPCUAMainScript.script(OPCUAMainScript.MAIN);
+    Path scriptPath = OPCUAMainScript.script(OPCUAMainScript.CALL);
     List<String> argv =
         OPCUAMainScript.methodArgv(
             getEndpointUrl(), "enable_asset", "--enable", isEnabled() ? "true" : "false");

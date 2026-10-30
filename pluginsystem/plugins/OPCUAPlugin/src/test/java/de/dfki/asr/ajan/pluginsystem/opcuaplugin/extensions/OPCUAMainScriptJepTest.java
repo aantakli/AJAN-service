@@ -12,8 +12,11 @@ import de.dfki.asr.ajan.pluginsystem.pythonplugin.PythonPlugin;
 import de.dfki.asr.ajan.pluginsystem.pythonplugin.extensions.PythonExecutionServiceImpl;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -60,9 +63,81 @@ public class OPCUAMainScriptJepTest {
     List<String> argv =
         OPCUAMainScript.methodArgv(UNREACHABLE, "enable_asset", "--enable", "true");
     PythonExecutionResult r =
-        OPCUAMainScript.callMethod(service, script(OPCUAMainScript.MAIN), argv);
+        OPCUAMainScript.callMethod(service, script(OPCUAMainScript.CALL), argv);
     assertEquals(OPCUAMainScript.statusOf(r), Status.FAILED, String.valueOf(r.getOutput()));
     assertTrue(r.getError().contains("code 1"), r.getError());
+  }
+
+  @Test
+  public void mainPyStillTakesSysArgv() throws Exception {
+    // standalone contract (python main.py ...): argparse --help exits 0
+    PythonExecutionResult r =
+        service.executeScriptFile(
+            script(OPCUAMainScript.MAIN), Map.of("argv", List.of("--help")));
+    assertTrue(r.isSuccess(), r.getError());
+  }
+
+  /**
+   * Lost connection: an event client whose connection check fails ends with exit code 1, its
+   * registry entry is cleared, and the next Setup call starts a new client. Runs main.main with a
+   * fake OPCUAClient (connect/subscribe succeed, the 2nd connection check raises).
+   */
+  @Test(timeOut = 60_000)
+  public void lostConnectionEndsEventClientAndAllowsRestart() throws Exception {
+    String opcuaDir = script(OPCUAMainScript.MAIN).getParent().toString();
+    Path dir = Files.createTempDirectory("ajan-opcua-lost");
+    Path fakeEvents = dir.resolve("fake_events.py");
+    Files.writeString(
+        fakeEvents,
+        String.join(
+            "\n",
+            "import sys",
+            "sys.path.insert(0, " + pyString(opcuaDir) + ")",
+            "try:",
+            "    import main",
+            "finally:",
+            "    sys.path.remove(" + pyString(opcuaDir) + ")",
+            "",
+            "class FakeClient:",
+            "    def __init__(self, url):",
+            "        self.checks = 0",
+            "    async def clear_old_logs(self): pass",
+            "    async def connect(self): pass",
+            "    async def subscribe_to_events(self): pass",
+            "    async def cleanup(self): pass",
+            "    async def check_connection(self):",
+            "        self.checks += 1",
+            "        if self.checks >= 2:",
+            "            raise ConnectionError('connection lost (simulated)')",
+            "",
+            "real_client, real_interval = main.OPCUAClient, main.CHECK_INTERVAL",
+            "main.OPCUAClient, main.CHECK_INTERVAL = FakeClient, 0.05",
+            "try:",
+            "    code = main.main(['--url', url])",
+            "finally:",
+            "    main.OPCUAClient, main.CHECK_INTERVAL = real_client, real_interval",
+            "sys.exit(code)",
+            ""),
+        StandardCharsets.UTF_8);
+
+    String endpoint = "opc.tcp://lost-connection:4840";
+    BlockingQueue<PythonExecutionResult> exits = new ArrayBlockingQueue<>(4);
+    for (int round = 1; round <= 2; round++) {
+      assertTrue(
+          OPCUAMainScript.startEventClient(service, fakeEvents, endpoint, exits::add),
+          "round " + round + ": a new client starts");
+      PythonExecutionResult exit = exits.poll(30, TimeUnit.SECONDS);
+      assertNotNull(exit, "round " + round + ": event client did not end");
+      assertFalse(exit.isSuccess());
+      assertTrue(exit.getError().contains("code 1"), exit.getError());
+      while (OPCUAMainScript.isEventClientRunning(endpoint)) {
+        Thread.sleep(10);
+      }
+    }
+  }
+
+  private static String pyString(String s) {
+    return "'" + s.replace("\\", "\\\\").replace("'", "\\'") + "'";
   }
 
   @Test(timeOut = 120_000)

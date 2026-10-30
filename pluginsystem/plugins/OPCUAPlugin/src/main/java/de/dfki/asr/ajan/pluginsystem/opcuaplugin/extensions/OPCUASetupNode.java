@@ -96,7 +96,7 @@ public class OPCUASetupNode extends AbstractTDBLeafTask implements NodeExtension
     // The event client loops until the process ends: run it on its own daemon thread (at most one
     // per endpoint) so the behavior tree is not blocked.
     AJANLogger logger = LOG;
-    String endpoint = getEndpointUrl();
+    String endpoint = OPCUAMainScript.normalizeEndpoint(getEndpointUrl());
     boolean started =
         OPCUAMainScript.startEventClient(
             pythonService,

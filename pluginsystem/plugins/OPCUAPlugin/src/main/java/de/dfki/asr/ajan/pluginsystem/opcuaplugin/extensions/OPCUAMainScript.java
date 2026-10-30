@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,17 +39,24 @@ import org.pf4j.PluginWrapper;
 /**
  * Runs {@code scripts/opcua/main.py} for the OPCUA nodes.
  *
- * <p>Method calls run {@code main.py} with {@code argv} ({@code --url <u> --call <c> ...}) and
- * block until it exits; a non-zero exit code (connection or method error) is FAILED. The event
- * client ({@code main.py --url <u>}, loops forever) runs through {@code events.py} on a daemon
- * thread {@code opcua-events-<endpoint>}, at most one per endpoint. It passes its arguments to
- * {@code main.main(argv)} directly, because {@code executeScriptFile} serializes calls with {@code
- * argv} (process-global {@code sys.argv}) for their whole run.
+ * <p>Both entry points pass the {@code main.py} arguments to {@code main.main(argv)} directly
+ * instead of through {@code sys.argv}, because {@code executeScriptFile} serializes calls with
+ * {@code argv} (process-global {@code sys.argv}) for their whole run:
+ *
+ * <ul>
+ *   <li>Method calls run {@code call.py} with {@code call_argv} ({@code --url <u> --call <c> ...})
+ *       and block until it exits; a non-zero exit code (connection or method error) is FAILED.
+ *   <li>The event client ({@code main.py --url <u>}) runs through {@code events.py} on a daemon
+ *       thread {@code opcua-events-<endpoint>}, at most one per (normalized) endpoint. It ends with
+ *       exit code 1 when the connection is lost; then a later Setup call starts a new one.
+ * </ul>
  */
 public final class OPCUAMainScript {
 
   public static final String MAIN = "opcua/main.py";
+  public static final String CALL = "opcua/call.py";
   public static final String EVENTS = "opcua/events.py";
+  public static final String CALL_ARGV_INPUT = "call_argv";
   public static final String THREAD_PREFIX = "opcua-events-";
 
   /** Running event clients by endpoint; an entry is removed when its thread ends. */
@@ -87,12 +95,43 @@ public final class OPCUAMainScript {
     return argv;
   }
 
-  /** Runs {@code main.py} with {@code argv} and waits for it to exit. */
+  /** Runs {@code call.py} (main.main(argv)) and waits for it to exit; no sys.argv lock. */
   public static PythonExecutionResult callMethod(
-      PythonExecutionService service, Path mainScript, List<String> argv) {
+      PythonExecutionService service, Path callScript, List<String> argv) {
     Map<String, Object> inputs = new HashMap<>();
-    inputs.put("argv", argv);
-    return service.executeScriptFile(mainScript, inputs);
+    inputs.put(CALL_ARGV_INPUT, argv);
+    return service.executeScriptFile(callScript, inputs);
+  }
+
+  /**
+   * Registry key and URL of an endpoint: trimmed, without trailing {@code /}, scheme and host in
+   * lower case (user info keeps its case). {@code null} becomes {@code ""}.
+   */
+  public static String normalizeEndpoint(String endpoint) {
+    if (endpoint == null) {
+      return "";
+    }
+    String url = endpoint.trim();
+    while (url.endsWith("/")) {
+      url = url.substring(0, url.length() - 1);
+    }
+    int schemeEnd = url.indexOf("://");
+    if (schemeEnd < 0) {
+      return url;
+    }
+    int authorityStart = schemeEnd + 3;
+    int authorityEnd = url.indexOf('/', authorityStart);
+    if (authorityEnd < 0) {
+      authorityEnd = url.length();
+    }
+    String authority = url.substring(authorityStart, authorityEnd);
+    int at = authority.lastIndexOf('@');
+    String hostPort =
+        authority.substring(0, at + 1) + authority.substring(at + 1).toLowerCase(Locale.ROOT);
+    return url.substring(0, schemeEnd).toLowerCase(Locale.ROOT)
+        + "://"
+        + hostPort
+        + url.substring(authorityEnd);
   }
 
   /** SUCCEEDED only for a successful result (exit code 0). */
@@ -118,7 +157,7 @@ public final class OPCUAMainScript {
       Path eventsScript,
       String endpoint,
       Consumer<PythonExecutionResult> onExit) {
-    String key = endpoint == null ? "" : endpoint;
+    String key = normalizeEndpoint(endpoint);
     AtomicBoolean started = new AtomicBoolean();
     EVENT_CLIENTS.compute(
         key,
@@ -137,7 +176,7 @@ public final class OPCUAMainScript {
   }
 
   public static boolean isEventClientRunning(String endpoint) {
-    Thread thread = EVENT_CLIENTS.get(endpoint == null ? "" : endpoint);
+    Thread thread = EVENT_CLIENTS.get(normalizeEndpoint(endpoint));
     return thread != null && thread.isAlive();
   }
 

@@ -30,7 +30,8 @@ class OPCUAClient:
         self.client.product_uri = "urn:IJT:ConsoleClient"
 
     async def connect(self):
-        await self.clear_old_logs()
+        # result_logs/ belongs to the event client: method calls must not wipe it, so only the
+        # event mode (main.run_client) calls clear_old_logs().
         self.setup_client_metadata()
 
         max_attempts = 3
@@ -96,6 +97,16 @@ class OPCUAClient:
             ijt_log.error(traceback.format_exc())
             await self.cleanup()
             raise
+
+    async def check_connection(self):
+        """Raises ConnectionError when the connection to the server is lost.
+
+        asyncua's supervisor (watchdog) marks the client disconnected on a loss (auto_reconnect is
+        off); check_connection() then raises instead of returning.
+        """
+        if self.client is None:
+            raise ConnectionError("client is not connected")
+        await self.client.check_connection()
 
     async def run_forever(self):
         try:
