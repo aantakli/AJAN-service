@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -307,6 +308,8 @@ public final class AgentUtil {
     try (CSVReader reader = new CSVReader(new InputStreamReader(is))) {
       input = new CSVInput();
       input.setContent(reader.readAll());
+    } catch (CsvException e) {
+      throw new IOException("Malformed CSV input", e);
     }
     return input;
   }

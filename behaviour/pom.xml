@@ -101,7 +101,7 @@ MA 02110-1301  USA
       <type>pom</type>
     </dependency>
     <dependency>
-      <artifactId>hamcrest-core</artifactId>
+      <artifactId>hamcrest</artifactId>
       <groupId>org.hamcrest</groupId>
       <scope>test</scope>
     </dependency>

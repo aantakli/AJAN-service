@@ -23,7 +23,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.opencsv.CSVWriter;
+import com.opencsv.CSVWriterBuilder;
+import com.opencsv.ICSVWriter;
 import com.taxonic.carml.engine.RmlMapper;
 import com.taxonic.carml.logical_source_resolver.CsvResolver;
 import com.taxonic.carml.logical_source_resolver.JsonPathResolver;
@@ -137,7 +138,7 @@ public final class MappingUtil {
     private static InputStream getCSVResourceStream(final Object eventInfo) throws JsonProcessingException, IOException {
 		CSVInput input = (CSVInput) eventInfo;
 		String out = "";
-		try (StringWriter sw = new StringWriter(); CSVWriter csvWriter = new CSVWriter(sw)) {
+		try (StringWriter sw = new StringWriter(); ICSVWriter csvWriter = new CSVWriterBuilder(sw).build()) {
 			for (String[] rowData: input.getContent()) {
 				csvWriter.writeNext(rowData);
 				out = sw.toString();

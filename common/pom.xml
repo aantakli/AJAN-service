@@ -128,8 +128,6 @@ MA 02110-1301  USA
     <dependency>
       <artifactId>opencsv</artifactId>
       <groupId>com.opencsv</groupId>
-      <type>jar</type>
-      <version>4.6</version>
     </dependency>
     <dependency>
       <artifactId>jaxrs-api</artifactId>
@@ -161,7 +159,7 @@ MA 02110-1301  USA
       <scope>test</scope>
     </dependency>
     <dependency>
-      <artifactId>hamcrest-core</artifactId>
+      <artifactId>hamcrest</artifactId>
       <groupId>org.hamcrest</groupId>
       <scope>test</scope>
     </dependency>
