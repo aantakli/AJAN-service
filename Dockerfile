@@ -5,7 +5,7 @@
 # (musl libc) would fail to load these even after pip/JEP paths resolve.
 # Noble (24.04, glibc 2.39) is required: the embedded libpython3.13.so links
 # against GLIBC_2.38, which jammy (22.04, glibc 2.35) does not provide.
-FROM eclipse-temurin:11-jre-noble
+FROM eclipse-temurin:21-jre-noble
 
 # supervisor for running triplestore + executionservice side by side,
 # curl for healthchecks/operator use, python3 because PythonPlugin needs an
@@ -21,24 +21,23 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# Application JARs. The CI/CD workflow places these at the build context root
-# via the dist artifact download, *not* under */target/*.
+# Build context = the distribution directory produced by
+# docker/assemble-dist.sh (locally and in CI):
+#   bash docker/assemble-dist.sh build/dist
+#   docker build -f Dockerfile -t ajan-service:dev build/dist
 COPY executionservice-0.1.jar /app/executionservice.jar
 COPY triplestore-0.1.jar  /app/triplestore.jar
 
 # Initial RDF data and supervisor config.
-COPY executionservice/use-case ./executionservice/use-case
+COPY use-case ./executionservice/use-case
 COPY docker/supervisord.conf /app/supervisord.conf
 COPY .env /app/.env
 
-# Self-contained plugin fat JARs (from pluginsystem/deployments, renamed to
-# <plugin>-0.1.jar under dist/pluginsystem/plugins/ by the CI workflow). pf4j's
-# JarPluginLoader only puts the loaded JAR on the plugin classpath, so each
-# plugin must already bundle its non-provided deps. The *.jar glob excludes the
-# checked-out source subdirectories that still sit alongside the JARs in the
-# build context; without it, COPY would flatten their contents (plugin.properties,
-# lib/, examples/, ...) into the plugins folder and pf4j in deployment mode
-# would refuse to load. Fails loudly if the dist overlay didn't produce JARs.
+# Self-contained plugin fat JARs (every pluginsystem/deployments/*-0.1-all.jar,
+# renamed to pluginsystem/plugins/<plugin>-0.1.jar by assemble-dist.sh) plus
+# loader-0.1.jar. pf4j's JarPluginLoader only puts the loaded JAR on the plugin
+# classpath, so each plugin must already bundle its non-provided deps. The dist
+# directory contains no plugin sources, so pf4j (deployment mode) sees JARs only.
 COPY pluginsystem/ /app/pluginsystem
 
 # Pre-create the folder NodeDefinitionsExtension copies into at startup so the
