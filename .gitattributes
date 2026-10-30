@@ -1,0 +1,2 @@
+# Run by bash on Windows checkouts too (core.autocrlf=true would break it)
+docker/assemble-dist.sh text eol=lf
