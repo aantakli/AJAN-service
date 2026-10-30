@@ -14,11 +14,17 @@ concurrency:
 
 jobs:
   build-and-e2e:
+    needs: [python-env]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Download Linux python env
+        uses: actions/download-artifact@v4
+        with:
+          name: python-env-linux
+          path: pluginsystem/plugins/PythonPlugin/python-env/dist
       - name: Cache local Maven repository
         uses: actions/cache@v4
         with:
@@ -53,7 +59,7 @@ jobs:
             exit 1
           fi
       - name: Build project
-        run: mvn -B -ntp -DskipTests install
+        run: mvn -B -ntp -DskipTests -Dajan.python.requireEnv=true install
       - name: Run E2E smoke suite
         run: mvn -f e2e/pom.xml verify
       - name: Upload E2E logs on failure
@@ -70,11 +76,18 @@ jobs:
   # same Docker build context. No registry login, no secrets, no push, no
   # release - only proves that the master pipeline would build.
   publish-dryrun:
+    needs: [python-env]
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Download python envs (linux + windows)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: python-env-*
+          merge-multiple: true
+          path: pluginsystem/plugins/PythonPlugin/python-env/dist
       - name: Cache local Maven repository
         uses: actions/cache@v4
         with:
@@ -94,10 +107,11 @@ jobs:
       - name: Test plugin module discovery
         run: bash docker/plugin-modules-test.sh
       - name: Build project with Maven (with tests, as on master)
-        run: mvn -B -ntp install
+        run: mvn -B -ntp -Dajan.python.requireEnv=true install
       - name: Assemble distribution directory
         env:
           VERSION: ${{ github.sha }}
+          REQUIRE_WIN_ENV: '1'
         run: bash docker/assemble-dist.sh dist
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

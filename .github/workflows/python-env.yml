@@ -32,7 +32,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: pluginsystem/plugins/PythonPlugin/python-env/dist/${{ matrix.file }}
-          key: python-env-${{ runner.os }}-${{ hashFiles('pluginsystem/plugins/PythonPlugin/python-env/python-env.properties', 'pluginsystem/plugins/PythonPlugin/python-env/requirements.lock', 'pluginsystem/plugins/PythonPlugin/python-env/build-linux.sh', 'pluginsystem/plugins/PythonPlugin/python-env/build-windows.ps1') }}
+          key: python-env-${{ runner.os }}-${{ hashFiles('pluginsystem/plugins/PythonPlugin/python-env/python-env.properties', 'pluginsystem/plugins/PythonPlugin/python-env/requirements.lock', 'pluginsystem/plugins/PythonPlugin/python-env/build-linux.sh', 'pluginsystem/plugins/PythonPlugin/python-env/build-windows.ps1', 'pluginsystem/plugins/PythonPlugin/python-env/requirements.in', '.github/workflows/python-env.yml') }}
       - name: Build Linux env
         if: matrix.os == 'linux' && steps.cache.outputs.cache-hit != 'true'
         run: bash ./build-linux.sh

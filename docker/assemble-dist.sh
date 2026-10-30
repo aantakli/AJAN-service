@@ -60,6 +60,28 @@ if [ -n "$missing" ] || [ -n "$unexpected" ]; then
     [ -n "$unexpected" ] && echo "ERROR: unexpected plugin JAR(s) in pluginsystem/deployments (no such module in pluginsystem/plugins/pom.xml; delete them): $(echo $unexpected)" >&2
     exit 1
 fi
+
+# The PythonPlugin fat JAR must carry the generated Python environments
+# (python-env/dist/nix_env.zip, win_env.zip -> JAR root). A JAR built without
+# them starts but has no Python at runtime, so fail here instead. win_env.zip
+# is only required with REQUIRE_WIN_ENV=1 (CI publish pipelines).
+py_jar="$root/pluginsystem/deployments/PythonPlugin-0.1-all.jar"
+if [ -f "$py_jar" ]; then
+    if command -v unzip >/dev/null 2>&1; then
+        py_entries=$(unzip -Z1 "$py_jar")
+    else
+        py_entries=$(jar tf "$py_jar")
+    fi
+    required_envs="nix_env.zip"
+    [ "${REQUIRE_WIN_ENV:-}" = "1" ] && required_envs="nix_env.zip win_env.zip"
+    for env_zip in $required_envs; do
+        if ! printf '%s\n' "$py_entries" | grep -qx "$env_zip"; then
+            echo "ERROR: $py_jar does not contain $env_zip. Put the generated envs into pluginsystem/plugins/PythonPlugin/python-env/dist/ (python-env/fetch-ci.sh or build-linux.sh) and re-run 'mvn install'." >&2
+            exit 1
+        fi
+    done
+fi
+
 count=0
 for name in $expected; do
     cp "$root/pluginsystem/deployments/${name}-0.1-all.jar" "$dist/pluginsystem/plugins/${name}-0.1.jar"

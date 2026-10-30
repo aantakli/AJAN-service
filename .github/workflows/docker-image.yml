@@ -6,7 +6,11 @@ on:
       - 'master'
 
 jobs:
+  python-env:
+    uses: ./.github/workflows/python-env.yml
+
   build:
+    needs: [python-env]
     runs-on: ubuntu-latest
     outputs:
       commit_hash: ${{ steps.commit.outputs.short }}
@@ -16,6 +20,12 @@ jobs:
         uses: pr-mpt/actions-commit-hash@v1
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Download python envs (linux + windows)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: python-env-*
+          merge-multiple: true
+          path: pluginsystem/plugins/PythonPlugin/python-env/dist
       - name: Cache local Maven repository
         uses: actions/cache@v4
         with:
@@ -33,7 +43,7 @@ jobs:
         with:
           maven-version: 3.9.9
       - name: Build project with Maven
-        run: mvn install
+        run: mvn -Dajan.python.requireEnv=true install
       - name: Assemble distribution directory
         # Same script as for local builds: both JARs, every plugin fat JAR
         # (glob over pluginsystem/deployments), loader, use-case data, start
@@ -41,6 +51,7 @@ jobs:
         # context (see the docker job).
         env:
           VERSION: ${{ steps.commit.outputs.short }}
+          REQUIRE_WIN_ENV: '1'
         run: bash docker/assemble-dist.sh dist
       - name: Zip release files
         uses: vimtor/action-zip@v1

@@ -95,6 +95,16 @@ Pre-modelled agent templates, behaviors, service definitions and domain knowledg
 * `-Dtriplestore.initialData.nodeDefinitionsFolderPath=executionservice/use-case/editor/nodeDefinitions` <br>-> Folder to predefined node definitions (RDF/Turtle)
 * `-Dtriplestore.initialData.editorDataFolderPath=executionservice/use-case/editor/editorData` <br>-> Folder to predefined editor data (RDF/Turtle)
    
+## Python runtime (PythonPlugin)
+
+The PythonPlugin runs Python scripts in-process via JEP. The plugin JAR embeds a generated CPython environment (`nix_env.zip` for Linux, `win_env.zip` for Windows) which is extracted on first use; no system Python is required.
+
+* **Local setup:** the zips are not in Git. Put them into `pluginsystem/plugins/PythonPlugin/python-env/dist/` before `mvn install`, either with `python-env/fetch-ci.sh` (downloads both from the last green `ci-branch` run of the current branch, needs an authenticated `gh`) or `python-env/build-linux.sh` (builds the Linux env with Docker). Without them the plugin builds but reports "Python not available"; `-Dajan.python.requireEnv=true` makes the JEP tests fail instead of skip.
+* **External CPython:** set `-Dajan.python.home=<dir>` or `AJAN_PYTHON_HOME` to use an existing CPython that has `jep` installed instead of the embedded env.
+* **Cache location:** the embedded env is extracted to `~/.cache/ajan-python` (Linux) or `%LOCALAPPDATA%\ajan-python` (Windows); override with `-Dajan.python.cacheDir=<dir>`.
+* **Adding packages:** add them to `python-env/requirements.in`, run `uv pip compile requirements.in --universal --generate-hashes --python-version 3.13 -o requirements.lock` in `python-env/`, commit both files and rebuild the envs (CI does this automatically).
+* **Known limits:** scripts have no timeout; a native crash in a Python extension takes down the whole service; Python is initialised once per JVM.
+
 ## Regenerating third-party license files
 
 The `THIRDPARTYLICENSE_<module>.txt` files (one per Maven module, next to the module's `pom.xml`) and the index file `THIRDPARTYLICENSE` are generated with the `license-maven-plugin` (`add-third-party`; `-Dlicense.force=true` makes it rewrite files it considers up to date). The plugin is configured in the root `pom.xml` (pluginManagement) but is intentionally **not** bound to the default build. Regenerate after dependency changes with a single command from the repository root:
