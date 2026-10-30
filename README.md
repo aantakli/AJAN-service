@@ -103,7 +103,7 @@ The PythonPlugin runs Python scripts in-process via JEP. The plugin JAR embeds a
 * **External CPython:** set `-Dajan.python.home=<dir>` or `AJAN_PYTHON_HOME` to use an existing CPython that has `jep` installed instead of the embedded env (PythonLeafNode scripts also need `rdflib`; script files such as the OPCUA scripts need only their own packages).
 * **Cache location:** the embedded env is extracted to `~/.cache/ajan-python` (Linux) or `%LOCALAPPDATA%\ajan-python` (Windows); override with `-Dajan.python.cacheDir=<dir>`.
 * **Adding packages:** add them to `python-env/requirements.in`, run `uv pip compile requirements.in --universal --generate-hashes --python-version 3.13 -o requirements.lock` in `python-env/`, commit both files and rebuild the envs (CI does this automatically).
-* **OPCUA logs:** the OPCUA scripts write `logs/` and `result_logs/` under `AJAN_OPCUA_LOG_DIR`, by default `~/.cache/ajan-opcua` (Linux) or `%LOCALAPPDATA%jan-opcua` (Windows).
+* **OPCUA logs:** the OPCUA scripts write `logs/` and `result_logs/` under `AJAN_OPCUA_LOG_DIR`, by default `~/.cache/ajan-opcua` (Linux) or `%LOCALAPPDATA%\ajan-opcua` (Windows).
 * **Known limits:** scripts have no timeout; a native crash in a Python extension takes down the whole service; Python is initialised once per JVM.
 
 ## Regenerating third-party license files
