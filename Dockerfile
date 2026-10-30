@@ -5,7 +5,7 @@
 # (musl libc) would fail to load these even after pip/JEP paths resolve.
 # Noble (24.04, glibc 2.39) is required: the embedded libpython3.13.so links
 # against GLIBC_2.38, which jammy (22.04, glibc 2.35) does not provide.
-FROM eclipse-temurin:21-jre-noble
+FROM eclipse-temurin:25-jre-noble
 
 # supervisor for running triplestore + executionservice side by side,
 # curl for healthchecks/operator use, python3 because PythonPlugin needs an
