@@ -16,11 +16,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Charakterisiert die Web-Oberflaeche, fuer die die uebrige Suite blind ist:
- * CORS, Swagger, Root-Redirect, JSON-Bodies. Pinnt das IST (alter Stack:
- * Spring Boot 1.3.5 / RESTEasy 3.0.16 / Swagger 1.5; Swagger-Spec heute OpenAPI 3) fest, damit der
- * Framework-Sprung nichts unbemerkt veraendert.
- * Quellen: ExecutionServiceApplication (CorsFilter), SwaggerUIConfiguration
- * (Redirect), JsonConsumer (exakter Media-Type-Vergleich).
+ * CORS, Swagger, Root-Redirect, JSON-Bodies, Fehler-Bodies, kodierte Slashes.
+ * Die OBSERVED-Werte wurden auf dem alten Stack (Spring Boot 1.3.5 / Undertow /
+ * RESTEasy 3.0.16 / Swagger 1.5) charakterisiert; die Suite laeuft jetzt gegen
+ * Spring Boot 4.1.2 / Tomcat 11 / RESTEasy 6.3 / OpenAPI 3. Bewusst akzeptierte
+ * Abweichungen sind an den Tests vermerkt (Rulings R3 Content-Type-Form,
+ * R9 Fehler-Body als JSON mit message/exception, R10 Tomcat-Defaults auf
+ * Undertow-Paritaet: %2F-Passthrough, 1MB-Header).
+ * Quellen: ExecutionServiceApplication (CorsFilter, Tomcat-Customizer),
+ * SwaggerUIConfiguration (Redirect), JsonConsumer (exakter Media-Type-Vergleich).
  */
 class WebSurfaceIT extends AjanSystemBase {
 
@@ -100,13 +104,16 @@ class WebSurfaceIT extends AjanSystemBase {
                 "Allow-Headers should contain content-type, was " + allowHeaders);
     }
 
-    // OBSERVED (2026-10-30): 200, "Content-Type: application/json; charset=UTF-8",
-    // body {"swagger":"2.0",...,"paths":{"/agents":{...
+    // OBSERVED (2026-10-30, Etappe 4 Task 7): 200, "Content-Type: application/json;charset=UTF-8",
+    // body {"openapi":"3.0.1",...,"paths":{"/agents":{... (OpenAPI 3 via swagger-core 2;
+    // the old stack served {"swagger":"2.0",...} at the same URL).
     @Test
     void swaggerSpecIsServed() throws Exception {
         var r = Http.send("GET", system.serviceBase() + "/swagger.json", null, null);
         assertEquals(200, r.statusCode());
         assertEquals("application/json", mediaType(r));
+        assertTrue(r.body().contains("\"openapi\":\"3."), "spec should be OpenAPI 3, was: "
+                + r.body().substring(0, Math.min(200, r.body().length())));
         assertTrue(r.body().contains("\"/agents\""), "spec should describe /agents");
         assertTrue(r.body().contains("\"/agents/{agentName}\""), "spec should describe the agent sub-resource");
     }
@@ -171,11 +178,15 @@ class WebSurfaceIT extends AjanSystemBase {
     // The 500 therefore pins "JSON was parsed and dispatched", not business
     // success. Charset variant and plain variant behave identically today
     // (no difference between the two at the HTTP level).
+    // Ruling R9: Boot 4 renders the 500 as a JSON error map (Boot 1.3 sent an XML map);
+    // server.error.include-message/-exception keep the cause in the body, pinned here.
     @Test
     void jsonBodyWithCharsetIsAccepted() throws Exception {
         var r = Http.send("POST", system.serviceBase() + "/agents/" + AGENT_ID + "?capability=HelloWorld_BT",
                 "application/json; charset=UTF-8", "{}");
         assertEquals(500, r.statusCode(), "OBSERVED status, body: " + r.body());
+        assertTrue(r.body().contains("ClassCastException"),
+                "500 body should name its cause (R9), was: " + r.body());
     }
 
     // OBSERVED (2026-10-30): see jsonBodyWithCharsetIsAccepted - 500, same cause.
@@ -184,5 +195,21 @@ class WebSurfaceIT extends AjanSystemBase {
         var r = Http.send("POST", system.serviceBase() + "/agents/" + AGENT_ID + "?capability=HelloWorld_BT",
                 "application/json", "{}");
         assertEquals(500, r.statusCode(), "OBSERVED status, body: " + r.body());
+        assertTrue(r.body().contains("ClassCastException"),
+                "500 body should name its cause (R9), was: " + r.body());
+    }
+
+    // Ruling R10: Undertow 1.3 let an encoded slash through to JAX-RS; Tomcat 11 rejects it
+    // by default (encodedSolidusHandling=reject -> 400). With passthrough, %2F stays encoded
+    // in the path, RESTEasy matches the raw segment and decodes @PathParam ("a/b"), so the
+    // request reaches AgentsService and ends as AgentNotFoundException -> 404 Turtle.
+    // URI.create keeps "%2F" verbatim and java.net.http sends the raw path unchanged.
+    @Test
+    void encodedSlashInAgentNameIsNotRejected() throws Exception {
+        var r = Http.send("GET", system.serviceBase() + "/agents/a%2Fb", null, null);
+        assertEquals(404, r.statusCode(), "encoded slash must not be rejected, body: " + r.body());
+        Http.assertContentType(r, "text/turtle", "UTF-8");
+        assertTrue(r.body().contains("AgentNotFoundException"),
+                "body should describe the AgentNotFoundException, was:\n" + r.body());
     }
 }
