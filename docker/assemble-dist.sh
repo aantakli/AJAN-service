@@ -41,18 +41,18 @@ cp "$root/pluginsystem/loader/target/loader-0.1.jar" "$dist/pluginsystem/"
 # puts the loaded JAR on the plugin classpath, so each plugin must carry its
 # non-provided runtime deps inside; the per-plugin target/<plugin>.jar is slim.
 # The expected set is the active <module> list of pluginsystem/plugins/pom.xml,
-# read by plugin-modules.sh (a new plugin needs no edit here). deployments/ is
-# not emptied by `mvn clean`, so a
-# missing JAR or a leftover from a removed plugin fails the build instead of
-# silently changing the image. The -all suffix is dropped so pf4j sees one
+# read by plugin-modules.sh (a new plugin needs no edit here). Because
+# deployments/ is not emptied by `mvn clean`, the actual set is compared with
+# it: a missing JAR or a leftover from a removed plugin fails the build instead
+# of silently changing the image. The -all suffix is dropped so pf4j sees one
 # canonical filename per plugin.
 expected=$("$root/docker/plugin-modules.sh" "$root/pluginsystem/plugins/pom.xml")
 if [ -z "$expected" ]; then
     echo "ERROR: no <module> entries found in pluginsystem/plugins/pom.xml" >&2
     exit 1
 fi
-actual=$(cd "$root/pluginsystem/deployments" && for f in *-0.1-all.jar; do
-    [ -e "$f" ] && echo "${f%-0.1-all.jar}"; done | sort)
+actual=$(cd "$root/pluginsystem/deployments" && shopt -s nullglob && for f in *-0.1-all.jar; do
+    echo "${f%-0.1-all.jar}"; done | sort)
 missing=$(comm -23 <(echo "$expected") <(echo "$actual"))
 unexpected=$(comm -13 <(echo "$expected") <(echo "$actual"))
 if [ -n "$missing" ] || [ -n "$unexpected" ]; then

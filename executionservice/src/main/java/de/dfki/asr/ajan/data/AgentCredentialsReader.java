@@ -28,7 +28,7 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.util.Models;
 
 /**
- * Reads the login credentials and tokens of a managed triple store from an agent model.
+ * Internal helper; the public facade is {@link AgentModelManager}. It reads the login credentials and tokens of a managed triple store from an agent model.
  */
 final class AgentCredentialsReader {
 

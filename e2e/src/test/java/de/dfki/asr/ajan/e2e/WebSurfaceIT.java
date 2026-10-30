@@ -17,12 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Charakterisiert die Web-Oberflaeche, fuer die die uebrige Suite blind ist:
  * CORS, Swagger, Root-Redirect, JSON-Bodies, Fehler-Bodies, kodierte Slashes.
- * Die OBSERVED-Werte wurden auf dem alten Stack (Spring Boot 1.3.5 / Undertow /
- * RESTEasy 3.0.16 / Swagger 1.5) charakterisiert; die Suite laeuft jetzt gegen
- * Spring Boot 4.1.2 / Tomcat 11 / RESTEasy 6.3 / OpenAPI 3. Bewusst akzeptierte
- * Abweichungen sind an den Tests vermerkt (Rulings R3 Content-Type-Form,
- * R9 Fehler-Body als JSON mit message/exception, R10 Tomcat-Defaults auf
- * Undertow-Paritaet: %2F-Passthrough, 1MB-Header).
+ * Die Suite laeuft gegen Spring Boot 4.1 / Tomcat 11 / RESTEasy 6.2 / OpenAPI 3
+ * auf Java 25. Wo sich ein Wert gegenueber dem Stand vor der Migration bewusst
+ * geaendert hat, ist das am Test vermerkt (Content-Type ohne Leerzeichen vor
+ * charset, Fehler-Body als JSON mit message/exception, Tomcat-Defaults auf den
+ * frueheren Stand gebracht: %2F-Passthrough, 1MB-Header).
  * Quellen: ExecutionServiceApplication (CorsFilter, Tomcat-Customizer),
  * SwaggerUIConfiguration (Redirect), JsonConsumer (exakter Media-Type-Vergleich).
  */

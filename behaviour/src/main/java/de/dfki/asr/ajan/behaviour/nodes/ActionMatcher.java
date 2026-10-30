@@ -48,7 +48,7 @@ import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 
 /**
- * Finds the action definitions that match the options of a {@link MatchingAction}.
+ * Internal helper; the public facade is {@link MatchingAction}. It finds the action definitions that match the options of a matching action.
  */
 final class ActionMatcher {
 

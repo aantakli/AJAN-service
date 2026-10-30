@@ -44,8 +44,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Adds HTTP message information (time stamp, headers) to incoming messages; backs the
- * {@code set*MessageInformation} methods of {@link AgentUtil}.
+ * Internal helper; the public facade is {@link AgentUtil}. It adds HTTP message information (time stamp, headers) to incoming messages.
  */
 final class MessageInformation {
 

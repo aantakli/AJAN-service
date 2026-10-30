@@ -34,7 +34,7 @@ import org.eclipse.rdf4j.query.algebra.Var;
 import org.eclipse.rdf4j.query.parser.ParsedGraphQuery;
 
 /**
- * Builds DESCRIBE-like CONSTRUCT algebra; backs {@link SPARQLUtil#getDescribeQuery(Iterator)}.
+ * Internal helper; the public facade is {@link SPARQLUtil}. It builds DESCRIBE-like CONSTRUCT algebra.
  */
 final class DescribeQueries {
 

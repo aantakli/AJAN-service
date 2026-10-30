@@ -43,7 +43,7 @@ import org.eclipse.rdf4j.repository.util.Repositories;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 
 /**
- * Evaluates queries against in-memory models; backs the model query methods of {@link SPARQLUtil}.
+ * Internal helper; the public facade is {@link SPARQLUtil}. It evaluates queries against in-memory models.
  */
 final class ModelQueries {
 

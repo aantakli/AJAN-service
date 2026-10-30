@@ -28,7 +28,7 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.Models;
 
 /**
- * Moves statements into the named graphs requested via ajan:rdfContext; backs {@link SPARQLUtil#getNamedGraph(Model)}.
+ * Internal helper; the public facade is {@link SPARQLUtil}. It moves statements into the named graphs requested via ajan:rdfContext.
  */
 final class NamedGraphs {
 

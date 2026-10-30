@@ -130,7 +130,7 @@
   </build>
   <dependencyManagement>
     <dependencies>
-      <!-- Mockito 5 (inline mock maker, JDK 21); = mockito.version von spring-boot-dependencies 4.1.2. -->
+      <!-- Mockito 5 (inline mock maker, JDK 25); = mockito.version von spring-boot-dependencies 4.1.2. -->
       <dependency>
         <artifactId>mockito-core</artifactId>
         <groupId>org.mockito</groupId>

@@ -15,12 +15,12 @@ public final class Http {
     private Http() {}
 
     /**
-     * Asserts the Content-Type as a parsed HTTP value (Ruling R3, Etappe 4 Task 6):
-     * media type and charset parameter compared case-insensitively, whitespace around ';'
-     * ignored (optional per RFC 9110). Strict otherwise: the header must exist, the media
-     * type must match, a charset parameter must be present and equal, and there must be no
-     * other parameter. Needed because Tomcat 11 always emits "type;charset=X" (no space),
-     * while the Boot-1.3/Undertow stack emitted "type; charset=X".
+     * Asserts the Content-Type as a parsed HTTP value: media type and charset parameter
+     * compared case-insensitively, whitespace around ';' ignored (optional per RFC 9110).
+     * Strict otherwise: the header must exist, the media type must match, a charset
+     * parameter must be present and equal, and there must be no other parameter. The
+     * service's embedded Tomcat 11 emits "type;charset=X" (no space); the pre-migration
+     * Undertow stack emitted "type; charset=X" - both forms are the same HTTP value.
      */
     public static void assertContentType(HttpResponse<String> r, String expectedMediaType,
             String expectedCharset) {

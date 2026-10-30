@@ -39,7 +39,7 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.parser.ParsedTupleQuery;
 
 /**
- * Simulates the effects of an {@link Action} on the simulation base.
+ * Internal helper; the public facade is {@link Action}. It simulates the effects of an action on the simulation base.
  */
 final class ActionSimulation {
 

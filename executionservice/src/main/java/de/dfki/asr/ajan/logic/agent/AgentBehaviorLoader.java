@@ -48,7 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Loads the behaviors (behavior trees) of an agent template (part of {@link RDFAgentBuilder}).
+ * Internal helper; the public facade is {@link RDFAgentBuilder}. It loads the behaviors (behavior trees) of an agent template.
  */
 final class AgentBehaviorLoader {
 

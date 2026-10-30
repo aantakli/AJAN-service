@@ -37,8 +37,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * Parses JSON, XML, HTML and CSV message bodies; backs the {@code get*FromStream} methods of
- * {@link AgentUtil}.
+ * Internal helper; the public facade is {@link AgentUtil}. It parses JSON, XML, HTML and CSV message bodies.
  */
 final class MessageParser {
 

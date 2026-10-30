@@ -60,6 +60,11 @@ public final class SPARQLTextGuard {
 	 * Through the public REST API the IllegalArgumentException is defence in depth: every RDF parser
 	 * RDFConsumer accepts (Turtle, N-Triples, RDF/XML, JSON-LD, binary RDF) already rejects these
 	 * IRI characters, so a request cannot reach it and no 4xx mapping is needed.
+	 * One entry point bypasses the RDF parsers: the MOSIMPlugin Thrift endpoint
+	 * (MAJANServiceHandler.CreateAgent -> AgentManager.createAgent(id, template, ...) ->
+	 * ParameterAgentBuilder.setAgentTemplate) turns an unparsed string into the template IRI. That
+	 * IRI reaches SPARQL text only via AgentModelManager.getTemplateFromTDB ->
+	 * SPARQLUtil.queryRepository, i.e. through this guard; the exception surfaces as a Thrift error.
 	 */
 	private static final String FORBIDDEN_IN_IRIREF = "<>\"{}|^`\\";
 	private static final int LAST_CONTROL_OR_SPACE = 0x20;

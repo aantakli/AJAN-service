@@ -47,7 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Reads the events of an agent template (part of {@link RDFAgentBuilder}).
+ * Internal helper; the public facade is {@link RDFAgentBuilder}. It reads the events of an agent template.
  */
 final class AgentEventLoader {
 

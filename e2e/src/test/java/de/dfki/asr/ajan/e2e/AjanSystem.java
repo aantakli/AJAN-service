@@ -1,7 +1,6 @@
 package de.dfki.asr.ajan.e2e;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -33,7 +32,7 @@ public final class AjanSystem implements AutoCloseable {
     private static final int SERVICE_PORT = 8080;
     private static final Duration PORT_RELEASE_TIMEOUT = Duration.ofSeconds(30);
 
-    private final Process triplestore; // null, wenn extern (Spike A)
+    private final Process triplestore; // null, wenn extern (ajan.e2e.triplestoreUrl)
     private final Process service; // null im Container-Modus (ajan.e2e.serviceUrl)
     private final Path serviceLog;
 
@@ -55,10 +54,10 @@ public final class AjanSystem implements AutoCloseable {
 
         failIfPortInUse(SERVICE_PORT);
 
-        String externalTriplestore = System.getProperty("ajan.e2e.triplestoreUrl");
+        String externalTriplestore = prop("ajan.e2e.triplestoreUrl");
         Process ts = null;
         String triplestoreUrl;
-        if (externalTriplestore != null && !externalTriplestore.isEmpty()) {
+        if (externalTriplestore != null) {
             triplestoreUrl = externalTriplestore;
         } else {
             triplestoreUrl = "http://localhost:" + TRIPLESTORE_PORT + "/rdf4j";
@@ -111,9 +110,8 @@ public final class AjanSystem implements AutoCloseable {
             // startup, strictly BEFORE the "Started Application" log line and
             // therefore before Tomcat ever answers /ajan/agents with 200 -
             // so this check never actually has to wait. It stays as an
-            // explicit, independently-verified belt-and-suspenders gate (the
-            // plan's Step 6 requirement) in case a future Boot/RDF4J bump makes
-            // the load asynchronous.
+            // explicit, independently-verified belt-and-suspenders gate in
+            // case a future Boot/RDF4J bump makes the load asynchronous.
             awaitTtlDataLoaded(triplestoreUrl);
         } catch (AssertionError e) {
             destroy(svc);
@@ -132,12 +130,12 @@ public final class AjanSystem implements AutoCloseable {
      * geladenen Use-Case-Daten warten. {@link #close()} stoppt dann nichts.
      */
     private static AjanSystem attachExternal(final String serviceUrl) throws InterruptedException {
-        String triplestoreUrl = System.getProperty("ajan.e2e.triplestoreUrl");
-        if (triplestoreUrl == null || triplestoreUrl.isEmpty()) {
+        String triplestoreUrl = prop("ajan.e2e.triplestoreUrl");
+        if (triplestoreUrl == null) {
             throw new IllegalStateException("ajan.e2e.serviceUrl requires ajan.e2e.triplestoreUrl as well");
         }
-        String logFile = System.getProperty("ajan.e2e.serviceLogFile");
-        if (logFile == null || logFile.isEmpty()) {
+        String logFile = prop("ajan.e2e.serviceLogFile");
+        if (logFile == null) {
             throw new IllegalStateException("ajan.e2e.serviceUrl requires ajan.e2e.serviceLogFile as well");
         }
         Http.awaitOk(serviceUrl + "/agents", Duration.ofSeconds(180));
@@ -146,11 +144,17 @@ public final class AjanSystem implements AutoCloseable {
     }
 
     private static String externalServiceUrl() {
-        String url = System.getProperty("ajan.e2e.serviceUrl");
-        if (url == null || url.isEmpty()) {
+        String url = prop("ajan.e2e.serviceUrl");
+        if (url == null) {
             return null;
         }
         return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
+    }
+
+    /** System property {@code name}, or {@code null} if it is unset or empty. */
+    private static String prop(final String name) {
+        String value = System.getProperty(name);
+        return value == null || value.isEmpty() ? null : value;
     }
 
     /**
@@ -168,13 +172,8 @@ public final class AjanSystem implements AutoCloseable {
     private static void awaitTtlDataLoaded(final String triplestoreUrl) throws InterruptedException {
         String templateIri = "http://localhost:8090/rdf4j/repositories/agents#AG_HelloWorld_BT_30275863-0113-4c7c-9ed9-b0502c643fa6";
         String askQuery = "ASK { <" + templateIri + "> ?p ?o }";
-        String askUrl;
-        try {
-            askUrl = triplestoreUrl + "/repositories/agents?query="
-                    + URLEncoder.encode(askQuery, StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e) {
-            throw new AssertionError("UTF-8 encoding should always be available", e);
-        }
+        String askUrl = triplestoreUrl + "/repositories/agents?query="
+                + URLEncoder.encode(askQuery, StandardCharsets.UTF_8);
         Duration timeout = Duration.ofSeconds(60);
         long deadline = System.nanoTime() + timeout.toNanos();
         String last = "no response";
@@ -215,8 +214,8 @@ public final class AjanSystem implements AutoCloseable {
     }
 
     public String triplestoreUrl() {
-        String ext = System.getProperty("ajan.e2e.triplestoreUrl");
-        return (ext != null && !ext.isEmpty()) ? ext : "http://localhost:" + TRIPLESTORE_PORT + "/rdf4j";
+        String ext = prop("ajan.e2e.triplestoreUrl");
+        return ext != null ? ext : "http://localhost:" + TRIPLESTORE_PORT + "/rdf4j";
     }
 
     public String serviceBase() {

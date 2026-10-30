@@ -47,7 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Creates and sends behavior tree state reports (backs the report methods of {@link BTUtil}).
+ * Internal helper; the public facade is {@link BTUtil}. It creates and sends behavior tree state reports.
  */
 final class BTReporter {
 
