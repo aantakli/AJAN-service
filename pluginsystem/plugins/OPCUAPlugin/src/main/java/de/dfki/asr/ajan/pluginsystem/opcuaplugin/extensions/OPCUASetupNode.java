@@ -20,9 +20,7 @@
 package de.dfki.asr.ajan.pluginsystem.opcuaplugin.extensions;
 
 import de.dfki.asr.ajan.behaviour.AJANLogger;
-import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
-import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.PythonExecutionService;
 import de.dfki.asr.ajan.pluginsystem.pythonplugin.exception.PythonException;
@@ -38,7 +36,7 @@ import org.pf4j.Extension;
 
 @Extension
 @RDFBean("http://www.ajan.de/behavior/opcua-ns#SetupNode")
-public class OPCUASetupNode extends AbstractTDBLeafTask implements NodeExtension {
+public class OPCUASetupNode extends OPCUANode implements NodeExtension {
   @RDFSubject @Getter @Setter private String url;
 
   @RDF("rdfs:label")
@@ -61,41 +59,19 @@ public class OPCUASetupNode extends AbstractTDBLeafTask implements NodeExtension
   @Setter
   private URI targetBase;
 
-  private AJANLogger LOG;
-
-  @Override
-  public String toString() {
-    return "OPCUASetupNode (" + label + ")";
-  }
-
   @Override
   public Resource getType() {
     return vf.createIRI("http://www.ajan.de/behavior/opcua-ns#SetupNode");
   }
 
   @Override
-  public NodeStatus executeLeaf() {
-    LOG = this.getObject().getLogger();
-    LOG.info(this.getClass(), "================= Test" + getEndpointUrl() + "=================");
-    try {
-      LOG.info(this.getClass(), "Executing OPCUASetupNode: " + this);
-      return runPythonScript();
-    } catch (PythonException ex) {
-      return new NodeStatus(
-          Status.FAILED, this.getObject().getLogger(), this.getClass(), this + " FAILED", ex);
-    }
-  }
-
-  private NodeStatus runPythonScript() throws PythonException {
-    LOG.info(this.getClass(), "Executing Python script for OPCUASetupNode: " + getEndpointUrl());
-
+  protected NodeStatus run(AJANLogger log) throws PythonException {
     PythonExecutionService pythonService = OPCUAMainScript.service();
     Path scriptPath = OPCUAMainScript.script(OPCUAMainScript.EVENTS);
     // venvPath is not used any more (embedded Python environment); kept for old behavior trees.
 
     // The event client loops until the process ends: run it on its own daemon thread (at most one
     // per endpoint) so the behavior tree is not blocked.
-    AJANLogger logger = LOG;
     String endpoint = OPCUAMainScript.normalizeEndpoint(getEndpointUrl());
     boolean started =
         OPCUAMainScript.startEventClient(
@@ -103,27 +79,15 @@ public class OPCUASetupNode extends AbstractTDBLeafTask implements NodeExtension
             scriptPath,
             endpoint,
             result ->
-                logger.info(
+                log.info(
                     OPCUASetupNode.class,
                     "OPC UA event client for " + endpoint + " ended: "
                         + OPCUAMainScript.describe(result)));
-    LOG.info(
+    log.info(
         this.getClass(),
         started
             ? "Started OPC UA event client for " + endpoint
             : "OPC UA event client for " + endpoint + " is already running");
-
-    return new NodeStatus(
-        Status.SUCCEEDED, this.getObject().getLogger(), this.getClass(), this + " SUCCEEDED");
-  }
-
-  @Override
-  public void end() {
-    this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
-  }
-
-  @Override
-  public SimulationResult.Result simulateNodeLogic(SimulationResult result, Resource root) {
-    return SimulationResult.Result.SUCCESS;
+    return new NodeStatus(Status.SUCCEEDED, log, this.getClass(), this + " SUCCEEDED");
   }
 }

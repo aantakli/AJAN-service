@@ -19,17 +19,8 @@
 
 package de.dfki.asr.ajan.pluginsystem.opcuaplugin.extensions;
 
-import de.dfki.asr.ajan.behaviour.AJANLogger;
-import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
-import de.dfki.asr.ajan.behaviour.nodes.common.NodeStatus;
-import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
-import de.dfki.asr.ajan.pluginsystem.extensionpoints.PythonExecutionResult;
-import de.dfki.asr.ajan.pluginsystem.extensionpoints.PythonExecutionService;
-import de.dfki.asr.ajan.pluginsystem.pythonplugin.exception.PythonException;
 import java.net.URI;
-import java.nio.file.Path;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.cyberborean.rdfbeans.annotations.RDF;
@@ -40,7 +31,7 @@ import org.pf4j.Extension;
 
 @Extension
 @RDFBean("http://www.ajan.de/behavior/opcua-ns#SelectJointNode")
-public class OPCUASelectJointNode extends AbstractTDBLeafTask implements NodeExtension {
+public class OPCUASelectJointNode extends OPCUAMethodCallNode implements NodeExtension {
   @RDFSubject @Getter @Setter private String url;
 
   @RDF("rdfs:label")
@@ -63,56 +54,18 @@ public class OPCUASelectJointNode extends AbstractTDBLeafTask implements NodeExt
   @Setter
   private URI targetBase;
 
-  private AJANLogger LOG;
-
-  @Override
-  public String toString() {
-    return "OPCUASelectJointNode (" + label + ")";
-  }
-
   @Override
   public Resource getType() {
     return vf.createIRI("http://www.ajan.de/behavior/opcua-ns#SelectJointNode");
   }
 
   @Override
-  public NodeStatus executeLeaf() {
-    LOG = this.getObject().getLogger();
-    LOG.info(this.getClass(), "================= Test" + getJointId() + "=================");
-    try {
-      LOG.info(this.getClass(), "Executing OPCUASelectJointNode: " + this);
-      return runPythonScript();
-    } catch (PythonException ex) {
-      return new NodeStatus(
-          Status.FAILED, this.getObject().getLogger(), this.getClass(), this + " FAILED", ex);
-    }
-  }
-
-  private NodeStatus runPythonScript() throws PythonException {
-    LOG.info(this.getClass(), "Executing Python script for target joint: " + getJointId());
-
-    PythonExecutionService pythonService = OPCUAMainScript.service();
-    Path scriptPath = OPCUAMainScript.script(OPCUAMainScript.CALL);
-    List<String> argv =
-        OPCUAMainScript.methodArgv(
-            getEndpointUrl(), "select_joint", "--joint-id", getJointId());
-
-    PythonExecutionResult result = OPCUAMainScript.callMethod(pythonService, scriptPath, argv);
-    Status status = OPCUAMainScript.statusOf(result);
-    return new NodeStatus(
-        status,
-        this.getObject().getLogger(),
-        this.getClass(),
-        this + " " + status + " (" + OPCUAMainScript.describe(result) + ")");
+  protected String method() {
+    return "select_joint";
   }
 
   @Override
-  public void end() {
-    this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
-  }
-
-  @Override
-  public SimulationResult.Result simulateNodeLogic(SimulationResult result, Resource root) {
-    return SimulationResult.Result.SUCCESS;
+  protected String[] options() {
+    return new String[] {"--joint-id", getJointId()};
   }
 }
