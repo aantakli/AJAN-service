@@ -30,6 +30,8 @@ import org.springframework.web.filter.CorsFilter;
 @Configuration
 @ApplicationPath(ExecutionServiceApplication.BASE_PATH)
 public class ExecutionServiceApplication extends Application {
+	// Also hard-coded in static/swagger-ui/swagger-initializer.js ("/ajan/swagger.json");
+	// Change both together; the e2e suite (AjanSystem#serviceBase, WebSurfaceIT) pins "/ajan".
 	public static final String BASE_PATH = "/ajan";
 
         @Bean

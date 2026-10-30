@@ -40,11 +40,17 @@ public class Application {
      */
     private static final String RESTEASY_DEFAULT_EXCEPTION_MAPPER = "dev.resteasy.exception.mapper";
 
-    public static void main(final String... args) {
-        printVersion();
+    static {
+        // Static initializer instead of main(): every launcher that loads this class (main(),
+        // @SpringBootTest, IDE runners) gets the same RESTEasy behaviour, and it runs before
+        // Spring builds the ProviderFactory.
         if (System.getProperty(RESTEASY_DEFAULT_EXCEPTION_MAPPER) == null) {
             System.setProperty(RESTEASY_DEFAULT_EXCEPTION_MAPPER, "false");
         }
+    }
+
+    public static void main(final String... args) {
+        printVersion();
         SpringApplication.run(Application.class, args);
     }
 
