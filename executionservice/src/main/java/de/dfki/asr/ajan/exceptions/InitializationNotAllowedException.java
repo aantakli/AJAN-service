@@ -19,7 +19,7 @@
 
 package de.dfki.asr.ajan.exceptions;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 public class InitializationNotAllowedException extends AgentValidationException {
 	public InitializationNotAllowedException(final String message) {

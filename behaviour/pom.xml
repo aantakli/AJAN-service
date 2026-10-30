@@ -133,10 +133,8 @@ MA 02110-1301  USA
       <version>2.12.1</version>
     </dependency>
     <dependency>
-      <artifactId>jaxrs-api</artifactId>
-      <groupId>org.jboss.resteasy</groupId>
-      <type>jar</type>
-      <version>3.0.9.Final</version>
+      <artifactId>jakarta.ws.rs-api</artifactId>
+      <groupId>jakarta.ws.rs</groupId>
     </dependency>
     <dependency>
       <artifactId>loader</artifactId>

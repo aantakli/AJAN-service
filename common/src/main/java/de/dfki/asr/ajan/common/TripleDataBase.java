@@ -19,6 +19,7 @@
 
 package de.dfki.asr.ajan.common;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -32,6 +33,9 @@ public interface TripleDataBase {
 
 	void add(final InputStream stream, final RDFFormat format) throws IOException;
 
+	// Keine REST-Repraesentation: GET /ajan/tripledatabases serialisiert TripleDataBase per Jackson;
+	// das Repository-Objekt ist nicht serialisierbar (Jackson 2.21: leere Beans, z. B. ValueFactory).
+	@JsonIgnore
 	Repository getInitializedRepository();
 
 	URL getSparqlEndpoint();

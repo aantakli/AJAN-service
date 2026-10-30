@@ -29,8 +29,22 @@ import java.util.Optional;
 @SuppressWarnings("PMD.UseUtilityClass")
 public class Application {
     protected static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Application.class);
+    /**
+     * RESTEasy 6 registriert per Default einen eingebauten ExceptionMapper&lt;Throwable&gt;
+     * (DefaultExceptionMapper). Er faengt die Ursache einer ReaderException (z. B. eine
+     * RDFParseException aus RDFConsumer#readFrom) und liefert 500 statt - wie RESTEasy 3 -
+     * 400 + text/html + Exception.toString(); unbehandelte Fehler landen dort statt auf der
+     * Boot-Fehlerseite. Abschalten stellt das RESTEasy-3-Verhalten wieder her. Muss eine
+     * System-Property sein: der Starter baut die ProviderFactory beim Spring-Start, ausserhalb
+     * eines Servlet-Kontexts, sodass Context-/Init-Parameter dort nicht gelesen werden.
+     */
+    private static final String RESTEASY_DEFAULT_EXCEPTION_MAPPER = "dev.resteasy.exception.mapper";
+
     public static void main(final String... args) {
         printVersion();
+        if (System.getProperty(RESTEASY_DEFAULT_EXCEPTION_MAPPER) == null) {
+            System.setProperty(RESTEASY_DEFAULT_EXCEPTION_MAPPER, "false");
+        }
         SpringApplication.run(Application.class, args);
     }
 

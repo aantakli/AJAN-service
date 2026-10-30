@@ -19,34 +19,19 @@
 
 package de.dfki.asr.ajan.executionservice;
 
-import io.swagger.jaxrs.config.BeanConfig;
-import io.swagger.jaxrs.listing.ApiListingResource;
-import io.swagger.jaxrs.listing.SwaggerSerializers;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 @Configuration
-@Import({ApiListingResource.class, SwaggerSerializers.class})
 @ApplicationPath(ExecutionServiceApplication.BASE_PATH)
 public class ExecutionServiceApplication extends Application {
 	public static final String BASE_PATH = "/ajan";
 
-	@Bean
-	public BeanConfig swaggerConfig() {
-		BeanConfig beanConfig = new BeanConfig();
-		beanConfig.setVersion("1.0");
-		beanConfig.setBasePath(BASE_PATH);
-		beanConfig.setResourcePackage("de.dfki.asr.ajan.rest");
-		beanConfig.setScan(true);
-		return beanConfig;
-	}
-        
         @Bean
         public CorsFilter corsFilter() {
                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

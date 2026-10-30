@@ -203,6 +203,9 @@ MA 02110-1301  USA
     <dependency>
       <artifactId>executionservice</artifactId>
       <groupId>de.dfki.asr.ajan</groupId>
+      <!-- provided: der Host stellt diese Klassen bereit (wie bei MOSIM); compile-Scope
+           packte executionservice samt Spring ins Plugin-Fat-JAR (W17). -->
+      <scope>provided</scope>
       <type>jar</type>
       <version>0.1</version>
     </dependency>
