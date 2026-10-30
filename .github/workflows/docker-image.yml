@@ -68,6 +68,8 @@ jobs:
           name: dist-artifact
           path: dist
       - name: Verify plugin JARs landed in build context
+        # assemble-dist.sh already enforced one JAR per pluginsystem/plugins
+        # <module>; this re-checks the downloaded artifact.
         run: |
           set -eu
           echo "=== dist/pluginsystem/plugins/ ==="
@@ -78,7 +80,7 @@ jobs:
           count=$(printf '%s\n' "$jars" | grep -c . || true)
           echo "Found $count plugin JAR(s)"
           if [ "$count" -eq 0 ]; then
-            echo "ERROR: no plugin JARs at pluginsystem/plugins/*.jar — Docker COPY would either fail or build an image with an empty plugins folder." >&2
+            echo "ERROR: no plugin JARs at dist/pluginsystem/plugins/*.jar — the image would have an empty plugins folder." >&2
             exit 1
           fi
       - name: Setup docker metadata
