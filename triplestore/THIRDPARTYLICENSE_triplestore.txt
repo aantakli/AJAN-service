@@ -1,10 +1,6 @@
 
-Lists of 9 third-party dependencies.
+Lists of 5 third-party dependencies.
      (Eclipse Public License - v 2.0) Eclipse Compiler for Java(TM) (org.eclipse.jdt:ecj:3.26.0 - http://www.eclipse.org/jdt)
-     (Apache License, Version 2.0) jcommander (com.beust:jcommander:1.82 - https://jcommander.org)
-     (MIT License) jquery (org.webjars:jquery:3.7.1 - http://webjars.org)
-     (MIT License) SLF4J API Module (org.slf4j:slf4j-api:1.7.36 - http://www.slf4j.org)
-     (Apache License, Version 2.0) testng (org.testng:testng:7.10.2 - https://testng.org)
      (Apache License, Version 2.0) tomcat-annotations-api (org.apache.tomcat:tomcat-annotations-api:9.0.109 - https://tomcat.apache.org/)
      (Apache License, Version 2.0) tomcat-embed-core (org.apache.tomcat.embed:tomcat-embed-core:9.0.109 - https://tomcat.apache.org/)
      (Apache License, Version 2.0) tomcat-embed-el (org.apache.tomcat.embed:tomcat-embed-el:9.0.109 - https://tomcat.apache.org/)

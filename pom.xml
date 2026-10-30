@@ -122,7 +122,7 @@
             <sortArtifactByName>true</sortArtifactByName>
             <useMissingFile>false</useMissingFile>
             <failOnMissing>false</failOnMissing>
-            <excludedScopes>provided</excludedScopes>
+            <excludedScopes>provided,test</excludedScopes>
           </configuration>
         </plugin>
       </plugins>
@@ -143,7 +143,9 @@
         <version>${lombok.version}</version>
       </dependency>
       <!-- Jackson 2 bleibt Produkt- und RESTEasy-Jackson-Linie (Etappe 4, Entscheidung 2);
-           2.21.7 = jackson-2-bom.version von spring-boot-dependencies 4.1.2. -->
+           2.21.7 = jackson-2-bom.version von spring-boot-dependencies 4.1.2. Drift: bei jedem
+           Boot-Bump mit dieser Zeile abgleichen; die Insel executionservice bezieht Jackson 2
+           ueber Boot, die uebrigen Module ueber diese BOM. -->
       <dependency>
         <artifactId>jackson-bom</artifactId>
         <groupId>com.fasterxml.jackson</groupId>
@@ -208,6 +210,8 @@
 
   <properties>
     <lombok.version>1.18.48</lombok.version>
+    <!-- Drift: executionservice (Boot parent, no ajan-parent) repeats this value as java.version;
+         bump both together. -->
     <maven.compiler.release>21</maven.compiler.release>
     <!-- prefix of generated THIRDPARTYLICENSE_<prefix><artifactId>.txt files (overridden in pluginsystem) -->
     <license.namePrefix></license.namePrefix>

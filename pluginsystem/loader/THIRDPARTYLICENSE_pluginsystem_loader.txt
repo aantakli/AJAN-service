@@ -5,7 +5,7 @@ Lists of 14 third-party dependencies.
      (The MIT License) Java SemVer (com.github.zafarkhaja:java-semver:0.10.2 - https://github.com/zafarkhaja/jsemver)
      (The Apache Software License, Version 2.0) libGDX AI (com.badlogicgames.gdx:gdx-ai:1.8.2 - https://github.com/libgdx/gdx-ai)
      (Apache Licence 2.0) libGDX Core (com.badlogicgames.gdx:gdx:1.9.8 - http://libgdx.badlogicgames.com/gdx)
-     (The Apache Software License, Version 2.0) PF4J (org.pf4j:pf4j:3.15.0 - https://pf4j.org/pf4j)
+     (The Apache Software License, Version 2.0) PF4J (org.pf4j:pf4j:3.16.0 - https://pf4j.org/pf4j)
      (Apache 2) RDFBeans (org.cyberborean:rdfbeans:2.2 - http://rdfbeans.cyberborean.org)
      (MIT License) SLF4J API Module (org.slf4j:slf4j-api:1.7.36 - http://www.slf4j.org)
      (The Apache Software License, Version 2.0) Spring AOP (org.springframework:spring-aop:4.3.4.RELEASE - https://github.com/spring-projects/spring-framework)

@@ -88,13 +88,13 @@ Pre-modelled agent templates, behaviors, service definitions and domain knowledg
    
 ## Regenerating third-party license files
 
-The `THIRDPARTYLICENSE_<module>.txt` files (one per Maven module, next to the module's `pom.xml`) and the index file `THIRDPARTYLICENSE` are generated with the `license-maven-plugin` (`add-third-party`). The plugin is configured in the root `pom.xml` (pluginManagement) but is intentionally **not** bound to the default build. Regenerate after dependency changes with a single command from the repository root:
+The `THIRDPARTYLICENSE_<module>.txt` files (one per Maven module, next to the module's `pom.xml`) and the index file `THIRDPARTYLICENSE` are generated with the `license-maven-plugin` (`add-third-party`; `-Dlicense.force=true` makes it rewrite files it considers up to date). The plugin is configured in the root `pom.xml` (pluginManagement) but is intentionally **not** bound to the default build. Regenerate after dependency changes with a single command from the repository root:
 
 ```
-mvn org.codehaus.mojo:license-maven-plugin:2.7.1:add-third-party
+mvn org.codehaus.mojo:license-maven-plugin:2.7.1:add-third-party -Dlicense.force=true
 ```
 
-The reports list all compile, runtime and test dependencies (scope `provided` is excluded) with their licenses.
+The reports list the compile and runtime dependencies with their licenses; scopes `provided` and `test` (compile-time-only and test-only libraries, which are not part of the distribution) are excluded.
 
 ## Examples
 
