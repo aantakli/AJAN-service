@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Builds dist/nix_env.zip (portable CPython + pinned packages incl. jep) for Linux x86_64.
-# Usage: ./build-linux.sh [outdir]   (default: ./dist). Run from the host (needs Docker);
+# Usage: ./build-linux.sh [outdir]   (relative to this directory, default: dist). Run from the host (needs Docker);
 # the build itself is re-run inside eclipse-temurin:25-jdk-noble.
 set -euo pipefail
 
@@ -9,13 +9,14 @@ IMAGE="eclipse-temurin:25-jdk-noble"
 
 if [ "${AJAN_PYENV_IN_CONTAINER:-}" != "1" ]; then
   OUT="${1:-dist}"
-  mkdir -p "$HERE/dist"
+  case "$OUT" in /*|*..*) echo "outdir must be a relative path below $HERE" >&2; exit 1;; esac
+  mkdir -p "$HERE/$OUT"
   # MSYS_NO_PATHCONV stops Git Bash on Windows from mangling the container paths.
   MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*' docker run --rm \
     -e AJAN_PYENV_IN_CONTAINER=1 \
     -e HOST_UID="$(id -u 2>/dev/null || echo 0)" -e HOST_GID="$(id -g 2>/dev/null || echo 0)" \
     -v "$(cd "$HERE" && (pwd -W 2>/dev/null || pwd)):/work" \
-    "$IMAGE" bash /work/build-linux.sh "/work/${OUT#/work/}"
+    "$IMAGE" bash /work/build-linux.sh "/work/$OUT"
   echo "Done: $HERE/${OUT}/nix_env.zip"
   exit 0
 fi
@@ -49,20 +50,34 @@ PY=python-portable/bin/python3
 # smoke test
 "$PY" -c "import rdflib, asyncua, orjson, aiofiles, pytz; print('imports ok')"
 SP="$(echo python-portable/lib/python3.*/site-packages)"
-test -f "$SP/jep/libjep.so" && echo "libjep.so present"
+[ -f "$SP/jep/libjep.so" ] || { echo "libjep.so missing" >&2; exit 1; }
+echo "libjep.so present"
 ls python-portable/lib/libpython3.13.so* >/dev/null
 
-# slim down (install_only is unstripped; drop debug info from shared objects)
-find python-portable -name '*.so*' -type f -exec strip --strip-unneeded {} + 2>/dev/null || true
+# slim down (install_only is unstripped; drop debug info from shared objects; executables are left alone, stripping them breaks symbol lookup). Regular files only, failures are fatal.
+while IFS= read -r -d '' f; do
+  if [ "$(head -c4 "$f" | od -An -tx1 | tr -d ' 
+')" = "7f454c46" ]; then
+    strip --strip-unneeded "$f"
+  fi
+done < <(find python-portable -type f \( -name '*.so' -o -name '*.so.*' \) -print0)
 find python-portable -name __pycache__ -type d -prune -exec rm -rf {} +
 find python-portable -name '*.a' -delete
-rm -rf python-portable/lib/python3.*/test python-portable/lib/python3.*/idlelib \
-\
-       python-portable/include python-portable/share
+rm -rf python-portable/lib/python3.*/test python-portable/lib/python3.*/idlelib        python-portable/include python-portable/share
 "$PY" -c "import rdflib, asyncua, orjson, aiofiles, pytz"
 find python-portable -name __pycache__ -type d -prune -exec rm -rf {} +
+echo "libjep.so dependencies:"; ldd "$SP/jep/libjep.so" || true
+
+# The zip stores symlinks as symlinks (zip -y); every symlink must be relative and stay inside the tree,
+# otherwise it would dangle after extraction.
+ROOT="$(readlink -f python-portable)"
+while IFS= read -r -d '' l; do
+  t="$(readlink -f "$l")"
+  case "$(readlink "$l")" in /*) echo "absolute symlink: $l" >&2; exit 1;; esac
+  case "$t" in "$ROOT"/*) ;; *) echo "symlink escapes tree or dangles: $l -> $t" >&2; exit 1;; esac
+done < <(find python-portable -type l -print0)
 
 mkdir -p "$OUTDIR"; rm -f "$OUTDIR/nix_env.zip"
-zip -r -X -q "$OUTDIR/nix_env.zip" python-portable
-chown "${HOST_UID:-0}:${HOST_GID:-0}" "$OUTDIR/nix_env.zip" 2>/dev/null || true
+zip -r -y -X -q "$OUTDIR/nix_env.zip" python-portable
+chown -R "${HOST_UID:-0}:${HOST_GID:-0}" "$OUTDIR" 2>/dev/null || true
 ls -l "$OUTDIR/nix_env.zip"
