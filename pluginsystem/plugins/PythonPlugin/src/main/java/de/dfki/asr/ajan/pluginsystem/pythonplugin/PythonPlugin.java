@@ -85,6 +85,13 @@ public class PythonPlugin extends Plugin {
         } catch (Exception e) {
           LOG.warn("AJANlib cannot be imported (scripts using it will fail): {}", e.toString());
         }
+        try {
+          probe.exec("import rdflib");
+        } catch (Exception e) {
+          // Script files (OPCUA, CustomScriptNode) do not need it: AJANlib imports it lazily.
+          LOG.warn("rdflib cannot be imported, PythonLeafNode scripts will fail ({}); install"
+              + " rdflib into the Python environment {}", e.toString(), env.home());
+        }
       }
       available = true;
     } catch (PythonUnavailableException e) {
@@ -105,25 +112,40 @@ public class PythonPlugin extends Plugin {
       if (!windows) {
         // C extension modules (e.g. orjson) are not linked against libpython and resolve Py*
         // symbols from the global namespace; System.load uses RTLD_LOCAL.
-        dlopenGlobal(lib.toString());
+        preloadGlobal(lib.toString());
       }
       LOG.debug("Preloaded {}", lib);
     }
     if (!windows && env.nativePreloads().isEmpty()) {
       // External (e.g. distro) Python whose libpython lives outside <home>/lib: load by soname.
-      String soname = env.libpythonSoname().orElse(null);
-      try {
-        if (soname == null) {
-          throw new IllegalStateException("libpython soname unknown for " + env.home());
-        }
-        dlopenGlobal(soname);
-        LOG.info("Preloaded {} by soname", soname);
-      } catch (IllegalStateException e) {
-        LOG.warn("No libpython preloaded ({}); jep or native extension modules may fail to load",
-            e.getMessage());
+      Optional<String> soname = env.libpythonSoname();
+      if (soname.isEmpty()) {
+        LOG.warn("No libpython preloaded (soname unknown for {}); jep or native extension"
+            + " modules may fail to load", env.home());
+      } else if (preloadGlobal(soname.get())) {
+        LOG.info("Preloaded {} by soname", soname.get());
       }
     }
     MainInterpreter.setJepLibraryPath(env.jepLibrary().toString());
+  }
+
+  /**
+   * {@link #dlopenGlobal}; a failing dlopen propagates, so Python becomes unavailable with the
+   * dlerror text as reason. Only denied native access (JVM started without {@code
+   * --enable-native-access}) is downgraded to a warning, because jep itself may still load.
+   *
+   * @return whether the library was loaded with RTLD_GLOBAL
+   */
+  private static boolean preloadGlobal(String lib) throws Throwable {
+    try {
+      dlopenGlobal(lib);
+      return true;
+    } catch (IllegalCallerException e) {
+      LOG.warn("Cannot preload {} with RTLD_GLOBAL ({}); start the JVM with"
+          + " --enable-native-access=ALL-UNNAMED, otherwise native extension modules may fail",
+          lib, e.getMessage());
+      return false;
+    }
   }
 
   /** {@code dlopen(lib, RTLD_NOW | RTLD_GLOBAL)} via FFM; failures carry dlerror()'s text. */

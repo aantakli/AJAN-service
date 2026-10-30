@@ -53,50 +53,6 @@ import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
 import org.pf4j.Extension;
 
-/*
-m JEP mit portablen Python-Umgebungen (nix_env.zip, win_env.zip) in deinem Java-Projekt korrekt zu nutzen, beachte Folgendes:
-
-
-Entpacken und Setzen der Umgebungsvariablen
-Stelle sicher, dass die jeweilige Umgebung beim Start entpackt und die Umgebungsvariablen korrekt gesetzt werden:
-
-
-PYTHONHOME auf das Root-Verzeichnis der entpackten Umgebung.
-PATH (Windows) bzw. LD_LIBRARY_PATH (Linux) so erweitern, dass die Python-Binaries und -Libraries gefunden werden.
-jep.python.home und jep.library.path als System-Properties setzen.
-JEP native Bibliotheken
-Die JEP-JAR benötigt die nativen Bibliotheken (jep.dll, libjep.so) im Library-Pfad. Diese sollten in deiner portablen Umgebung im richtigen Verzeichnis (Lib, DLLs, lib etc.) liegen.
-
-
-Java-Startparameter
-Falls nötig, gib beim Starten der JVM zusätzliche Parameter an, z. B.:
-
-
--Djep.python.home=<Pfad_zur_Python-Umgebung>
--Djep.library.path=<Pfad_zur_JEP-Bibliothek>
--Djava.library.path=<Pfad_zur_JEP-Bibliothek>
-Ressourcen laden
-Stelle sicher, dass das Entpacken der ZIP-Dateien und das Setzen der Variablen vor der ersten JEP-Nutzung erfolgt (wie in deiner setupEmbeddedPythonEnv()-Methode).
-
-
-Kompatibilität
-Die Python-Umgebung und JEP müssen zur verwendeten Java-Version und zum Betriebssystem passen (32/64 Bit, Versionen).
-
-
-Fehlerbehandlung
-Prüfe, ob beim Starten von JEP Exceptions auftreten, die auf fehlende oder falsch gesetzte Umgebungsvariablen hindeuten.
-
-
-Zusammengefasst:
-
-
-Portable Umgebung entpacken
-Umgebungsvariablen und System-Properties korrekt setzen
-JEP-Bibliotheken im Pfad
-Vor JEP-Nutzung alles initialisieren
-Damit sollte JEP mit deiner portablen Python-Umgebung funktionieren.
- */
-
 @Extension
 @RDFBean("http://www.ajan.de/behavior/python-ns#LeafNode")
 public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension {
@@ -142,7 +98,6 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
   @Override
   public NodeStatus executeLeaf() {
     LOG = this.getObject().getLogger();
-    LOG.info(this.getClass(), "================= Test" + getSubject() + "=================");
     if (!PythonPlugin.isAvailable()) {
       return new NodeStatus(
           Status.FAILED,
@@ -248,14 +203,12 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
   }
 
   private String readInputRDF() throws PythonException {
-    String input = loadBeliefs();
-    return handleQuotes(input);
+    return stripTabs(loadBeliefs());
   }
 
-  private String handleQuotes(String input) {
-    String utf8Input = new String(input.getBytes(), StandardCharsets.UTF_8);
-    utf8Input = utf8Input.replaceAll("\t", "");
-    return utf8Input;
+  /** Removes tab characters from the Turtle input (legacy behaviour; no charset conversion). */
+  static String stripTabs(String input) {
+    return input.replace("\t", "");
   }
 
   private String loadBeliefs() throws PythonException {
