@@ -3,6 +3,9 @@ package de.dfki.asr.ajan.pluginsystem.loadcheck;
 import de.dfki.asr.ajan.pluginsystem.AJANPluginLoader;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.EndpointExtension;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.TreeMap;
 import org.pf4j.PluginManager;
@@ -14,9 +17,8 @@ import org.testng.annotations.Test;
 
 /**
  * Characterizes plugin loading in pf4j deployment mode (fat JARs in pluginsystem/deployments).
- * Values are OBSERVED, not desired. Plugins whose extensions need host classes from the
- * executionservice (MOSIM, MQTT) may fail here because the test classpath lacks them; that is an
- * artifact of the test environment and is pinned as the observed value anyway.
+ * Values are OBSERVED, not desired. All ten plugins reach STARTED here, including MOSIM and
+ * MQTT; the per-plugin extension counts are pinned as measured with pf4j 3.16.
  */
 public class DeploymentModeLoadTest {
 
@@ -25,6 +27,10 @@ public class DeploymentModeLoadTest {
   @BeforeClass
   public void load() throws Exception {
     Assert.assertEquals(System.getProperty("pf4j.mode"), "deployment");
+    Path deployments = Paths.get(System.getProperty("pf4j.pluginsDir"));
+    Assert.assertTrue(
+        Files.isDirectory(deployments),
+        "plugin deployments directory missing (run 'mvn install' for the plugins first): " + deployments);
     AJANPluginLoader loader = new AJANPluginLoader();
     loader.init();
     pm = loader.getPLUGIN_MANAGER();
@@ -68,7 +74,6 @@ public class DeploymentModeLoadTest {
         }) {
       expected.put(id, PluginState.STARTED);
     }
-    System.out.println("MEASURED_STATES=" + measuredStates());
     Assert.assertEquals(measuredStates(), expected);
   }
 
@@ -86,7 +91,6 @@ public class DeploymentModeLoadTest {
     expected.put("STRIPSPlugin", "2,0");
     expected.put("ScriptExecutorPlugin", "1,0");
     expected.put("StandardBTNodes", "13,0");
-    System.out.println("MEASURED_COUNTS=" + measuredCounts());
     Assert.assertEquals(measuredCounts(), expected);
   }
 }
