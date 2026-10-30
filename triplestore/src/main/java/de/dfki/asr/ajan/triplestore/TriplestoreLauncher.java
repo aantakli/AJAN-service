@@ -169,7 +169,11 @@ public final class TriplestoreLauncher {
             if (stripped.startsWith(PORT_OPTION + "=")) {
                 return Integer.parseInt(stripped.substring(PORT_OPTION.length() + 1).trim());
             }
-            if (stripped.equals(PORT_OPTION) && i + 1 < args.length) {
+            if (stripped.equals(PORT_OPTION)) {
+                if (i + 1 >= args.length) {
+                    throw new IllegalArgumentException("Missing value for " + arg
+                            + ": expected --httpPort=N or --httpPort N");
+                }
                 return Integer.parseInt(args[i + 1].trim());
             }
         }

@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -22,6 +23,7 @@ import org.cyberborean.rdfbeans.annotations.RDFSubject;
 import org.cyberborean.rdfbeans.datatype.DatatypeMapper;
 import org.cyberborean.rdfbeans.datatype.DefaultDatatypeMapper;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanException;
+import org.cyberborean.rdfbeans.exceptions.RDFBeanRuntimeException;
 import org.cyberborean.rdfbeans.exceptions.RDFBeanValidationException;
 import org.cyberborean.rdfbeans.proxy.ProxyInstancesPool;
 import org.cyberborean.rdfbeans.proxy.ProxyListener;
@@ -325,7 +327,7 @@ public class RDFBeanManager {
 
 				@Override
 				public T next() {
-					return null;
+					throw new NoSuchElementException();
 				}
 
 				@Override
@@ -355,9 +357,8 @@ public class RDFBeanManager {
 				} catch (RDFBeanException ex) {
 					// java.util.Iterator#next() declares no checked exceptions (CloseableIteration
 					// extends Iterator as of RDF4J 5), so the checked RDFBeanException from _get()
-					// must be wrapped to cross this boundary. Forced by the RDF4J 5 API change,
-					// not present in the pre-migration code.
-					throw new RuntimeException(ex);
+					// must be wrapped to cross this boundary.
+					throw new RDFBeanRuntimeException(ex);
 				}
 			}
 

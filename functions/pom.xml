@@ -13,7 +13,7 @@
         <dependency>
             <groupId>org.eclipse.rdf4j</groupId>
             <artifactId>rdf4j-queryalgebra-evaluation</artifactId>
-            <version>3.6.3</version>
+            <version>${org.eclipse.rdf4j.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>

@@ -22,6 +22,14 @@ MA 02110-1301  USA
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<!-- Parent nur fuer die zentralen Versionen (RDF4J u.a.); die eigenen
+	     Koordinaten org.cyberborean:rdfbeans:2.2 bleiben explizit gesetzt. -->
+	<parent>
+		<groupId>de.dfki.asr.ajan</groupId>
+		<artifactId>ajan-parent</artifactId>
+		<version>0.1</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
 	<groupId>org.cyberborean</groupId>
 	<artifactId>rdfbeans</artifactId>
 	<packaging>jar</packaging>
@@ -72,11 +80,6 @@ MA 02110-1301  USA
 	</issueManagement>
 
 	<properties>
-		<rdf4j.version>5.3.1</rdf4j.version>
-		<!-- Eigene Property, weil rdfbeans (gevendort) keinen Parent hat.
-		     Muss mit ${org.eclipse.rdf4j.version} im Reaktor-Parent
-		     uebereinstimmen; die Zusammenfuehrung beider Quellen ist als
-		     Aufraeumarbeit fuer Etappe 4 vorgemerkt. -->
 		<slf4j.version>1.7.9</slf4j.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.release>11</maven.compiler.release>
@@ -109,7 +112,7 @@ MA 02110-1301  USA
 			<dependency>
 				<groupId>org.eclipse.rdf4j</groupId>
 				<artifactId>rdf4j-bom</artifactId>
-				<version>${rdf4j.version}</version>
+				<version>${org.eclipse.rdf4j.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
