@@ -51,13 +51,13 @@ public class DeploymentModeLoadTest {
   @Test
   public void everyDeploymentJarReachesObservedState() {
     Map<String, PluginState> expected = new TreeMap<>();
-    // OBSERVED: all nine loadable plugins reach STARTED.
-    // OBSERVED: MQTTPlugin-0.1-all.jar has an empty Plugin-Id/Plugin-Class manifest (W17); pf4j
-    // does not register any plugin for it, so it is absent here (not repaired in this task).
+    // All ten plugins reach STARTED. MQTTPlugin used to be absent (empty Plugin-Id in its
+    // manifest, because its POM never set the plugin.* properties); fixed in its POM.
     for (String id :
         new String[] {
           "ASPPlugin",
           "MOSIMPlugin",
+          "MQTTPlugin",
           "MappingPlugin",
           "OPCUAPlugin",
           "PythonPlugin",
@@ -75,9 +75,10 @@ public class DeploymentModeLoadTest {
   @Test
   public void extensionCountsPerPluginMatchObserved() {
     Map<String, String> expected = new TreeMap<>();
-    // OBSERVED, format "nodeExt,endpointExt" (MQTTPlugin absent, see above)
+    // OBSERVED, format "nodeExt,endpointExt"
     expected.put("ASPPlugin", "15,0");
     expected.put("MOSIMPlugin", "14,1");
+    expected.put("MQTTPlugin", "8,0");
     expected.put("MappingPlugin", "5,0");
     expected.put("OPCUAPlugin", "4,0");
     expected.put("PythonPlugin", "1,0");

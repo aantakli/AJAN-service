@@ -113,11 +113,6 @@ MA 02110-1301  USA
       <version>3.8</version>
     </dependency>
     <dependency>
-      <artifactId>javax.inject</artifactId>
-      <groupId>javax.inject</groupId>
-      <version>1</version>
-    </dependency>
-    <dependency>
       <artifactId>Saxon-HE</artifactId>
       <groupId>net.sf.saxon</groupId>
       <version>9.8.0-12</version>
@@ -228,6 +223,11 @@ MA 02110-1301  USA
   </parent>
   <properties>
     <carml.version>0.3.2</carml.version>
+    <plugin.id>MQTTPlugin</plugin.id>
+    <plugin.class>de.dfki.asr.ajan.pluginsystem.mqttplugin.MQTTPlugin</plugin.class>
+    <plugin.version>0.0.1</plugin.version>
+    <plugin.provider>Bhuvaneshwaran Ilanthirayan</plugin.provider>
+    <plugin.dependencies />
   </properties>
 
 </project>
