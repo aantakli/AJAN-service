@@ -212,7 +212,7 @@
     <lombok.version>1.18.48</lombok.version>
     <!-- Drift: executionservice (Boot parent, no ajan-parent) repeats this value as java.version;
          bump both together. -->
-    <maven.compiler.release>21</maven.compiler.release>
+    <maven.compiler.release>25</maven.compiler.release>
     <!-- prefix of generated THIRDPARTYLICENSE_<prefix><artifactId>.txt files (overridden in pluginsystem) -->
     <license.namePrefix></license.namePrefix>
     <org.eclipse.rdf4j.version>5.3.1</org.eclipse.rdf4j.version>
