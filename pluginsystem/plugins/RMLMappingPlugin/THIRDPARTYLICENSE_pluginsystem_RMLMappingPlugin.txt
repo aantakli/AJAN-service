@@ -1,0 +1,5 @@
+
+Lists of 3 third-party dependencies.
+     (The zlib/libpng License) Java Embedded Python (black.ninia:jep:4.2.2 - https://github.com/ninia/jep)
+     (Public Domain) JSON in Java (org.json:json:20250517 - https://github.com/douglascrockford/JSON-java)
+     (Apache License, Version 2.0) Zip4j (net.lingala.zip4j:zip4j:2.11.5 - https://github.com/srikanth-lingala/zip4j)

@@ -38,6 +38,21 @@ MA 02110-1301  USA
         </configuration>
         <groupId>org.springframework.boot</groupId>
       </plugin>
+      <!-- Third-party license report; not bound to the build (this module has the Spring Boot parent and
+           does not inherit the root pluginManagement). Same settings as root pom, see README. -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>2.7.1</version>
+        <configuration>
+          <outputDirectory>${project.basedir}</outputDirectory>
+          <thirdPartyFilename>THIRDPARTYLICENSE_${project.artifactId}.txt</thirdPartyFilename>
+          <sortArtifactByName>true</sortArtifactByName>
+          <useMissingFile>false</useMissingFile>
+          <failOnMissing>false</failOnMissing>
+          <excludedScopes>provided</excludedScopes>
+        </configuration>
+      </plugin>
       <plugin>
         <artifactId>maven-pmd-plugin</artifactId>
         <configuration>
