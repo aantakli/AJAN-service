@@ -48,3 +48,4 @@ mars.toml
 mars.lock
 .mars/
 .claude/
+/build/

@@ -23,51 +23,25 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Set up JDK 11
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '21'
       - name: Set up Maven
         uses: stCarolas/setup-maven@v4.3
         with:
           maven-version: 3.9.9
       - name: Build project with Maven
         run: mvn install
-      - name: Create distribution directory
-        run: mkdir -p dist/pluginsystem/plugins
-      - name: Copy artifacts to distribution directory
-        run: |
-          set -eu
-          cp ./triplestore/target/triplestore-0.1-war-exec.jar dist/
-          cp ./executionservice/target/executionservice-0.1.jar dist/
-          cp ./pluginsystem/loader/target/loader-0.1.jar dist/pluginsystem/
-          # Use the assembly fat JARs (jar-with-dependencies) from
-          # pluginsystem/deployments/. pf4j's JarPluginLoader only puts the
-          # loaded JAR on the plugin classpath, so each plugin must carry its
-          # non-provided runtime deps inside. The per-plugin target/<plugin>.jar
-          # is slim and would miss them. Drop the -all suffix so pf4j sees a
-          # single canonical filename per plugin.
-          for plugin in ASPPlugin MappingPlugin MOSIMPlugin StandardBTNodes STRIPSPlugin MQTTPlugin PythonPlugin RMLMappingPlugin; do
-            cp "./pluginsystem/deployments/${plugin}-0.1-all.jar" "dist/pluginsystem/plugins/${plugin}-0.1.jar"
-          done
-          cp ./.github/*.sh dist/
-          cp ./.github/*.bat dist/
-          # Initial RDF data the startup scripts load via relative use-case/* paths.
-          # Without this the release-zip start scripts fail with
-          # NoSuchFileException: use-case\agents (etc.). The Docker image gets this
-          # data via the Dockerfile's COPY executionservice/use-case step instead.
-          cp -r ./executionservice/use-case dist/use-case
-          # nodeDefinitions is populated at runtime by NodeDefinitionsExtension;
-          # pre-create it so the initial RDF graph walk finds a real directory.
-          mkdir -p dist/use-case/editor/nodeDefinitions
-      - name: Create .env file
-        uses: "DamianReeves/write-file-action@master"
-        with:
-          path: ./dist/.env
-          write-mode: overwrite
-          contents: |
-            VERSION="${{ steps.commit.outputs.short }}"
+      - name: Assemble distribution directory
+        # Same script as for local builds: both JARs, every plugin fat JAR
+        # (glob over pluginsystem/deployments), loader, use-case data, start
+        # scripts, supervisord.conf and .env. dist/ is also the Docker build
+        # context (see the docker job).
+        env:
+          VERSION: ${{ steps.commit.outputs.short }}
+        run: bash docker/assemble-dist.sh dist
       - name: Zip release files
         uses: vimtor/action-zip@v1
         with:
@@ -79,6 +53,8 @@ jobs:
         with:
           name: dist-artifact
           path: dist/
+          # upload-artifact >= 4.4 drops dotfiles by default; the image needs .env
+          include-hidden-files: true
 
   docker:
     runs-on: ubuntu-latest
@@ -90,14 +66,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: dist-artifact
-          path: .
+          path: dist
       - name: Verify plugin JARs landed in build context
         run: |
           set -eu
-          echo "=== pluginsystem/plugins/ (top level) ==="
-          ls -la pluginsystem/plugins/
-          echo "=== Top-level *.jar files (Dockerfile's COPY source) ==="
-          jars=$(find pluginsystem/plugins/ -maxdepth 1 -name '*.jar' -type f | sort)
+          echo "=== dist/pluginsystem/plugins/ ==="
+          ls -la dist/pluginsystem/plugins/
+          echo "=== *.jar files (Dockerfile's COPY source) ==="
+          jars=$(find dist/pluginsystem/plugins/ -maxdepth 1 -name '*.jar' -type f | sort)
           printf '%s\n' "$jars"
           count=$(printf '%s\n' "$jars" | grep -c . || true)
           echo "Found $count plugin JAR(s)"
@@ -125,7 +101,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: dist
+          file: ./Dockerfile
           build-args: |
             AVERSION=${{ needs.build.outputs.commit_hash }}
           push: true
@@ -170,8 +147,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/triplestore-0.1-war-exec.jar
-          asset_name: triplestore-0.1-war-exec.jar
+          asset_path: ./dist/triplestore-0.1.jar
+          asset_name: triplestore-0.1.jar
           asset_content_type: application/java-archive
       - name: Upload executionservice artifact
         uses: actions/upload-release-asset@v1
