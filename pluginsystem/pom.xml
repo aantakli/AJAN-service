@@ -14,7 +14,7 @@
     </parent>
 
     <properties>
-<pf4j.version>3.16.0</pf4j.version>
+        <pf4j.version>3.16.0</pf4j.version>
         <license.namePrefix>pluginsystem_</license.namePrefix>
     </properties>
 
