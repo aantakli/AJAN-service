@@ -1,2 +1,4 @@
 # Run by bash on Windows checkouts too (core.autocrlf=true would break it)
 docker/assemble-dist.sh text eol=lf
+docker/plugin-modules.sh text eol=lf
+docker/plugin-modules-test.sh text eol=lf

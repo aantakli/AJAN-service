@@ -40,13 +40,13 @@ cp "$root/pluginsystem/loader/target/loader-0.1.jar" "$dist/pluginsystem/"
 # the plugin builds in pluginsystem/deployments/. pf4j's JarPluginLoader only
 # puts the loaded JAR on the plugin classpath, so each plugin must carry its
 # non-provided runtime deps inside; the per-plugin target/<plugin>.jar is slim.
-# The expected set is the <module> list of pluginsystem/plugins/pom.xml (a new
-# plugin needs no edit here). deployments/ is not emptied by `mvn clean`, so a
+# The expected set is the active <module> list of pluginsystem/plugins/pom.xml,
+# read by plugin-modules.sh (a new plugin needs no edit here). deployments/ is
+# not emptied by `mvn clean`, so a
 # missing JAR or a leftover from a removed plugin fails the build instead of
 # silently changing the image. The -all suffix is dropped so pf4j sees one
 # canonical filename per plugin.
-expected=$(sed 's/<!--.*-->//g' "$root/pluginsystem/plugins/pom.xml" \
-    | sed -n 's|.*<module>[[:space:]]*\([^<[:space:]]*\)[[:space:]]*</module>.*|\1|p' | sort)
+expected=$("$root/docker/plugin-modules.sh" "$root/pluginsystem/plugins/pom.xml")
 if [ -z "$expected" ]; then
     echo "ERROR: no <module> entries found in pluginsystem/plugins/pom.xml" >&2
     exit 1
