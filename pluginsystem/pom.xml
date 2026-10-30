@@ -13,9 +13,14 @@
         <version>0.1</version>
     </parent>
 
+    <properties>
+        <pf4j.version>3.15.0</pf4j.version>
+    </properties>
+
     <modules>
         <module>loader</module>
         <module>plugins</module>
+        <module>loadcheck</module>
     </modules>
 
     <dependencies>

@@ -51,7 +51,7 @@
       <artifactId>pf4j</artifactId>
       <groupId>org.pf4j</groupId>
       <scope>provided</scope>
-      <version>3.6.0</version>
+      <version>${pf4j.version}</version>
     </dependency>
   </dependencies>
 

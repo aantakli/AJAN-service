@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>loadcheck</artifactId>
+  <name>loadcheck</name>
+  <packaging>jar</packaging>
+
+  <parent>
+    <artifactId>pluginsystem</artifactId>
+    <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
+    <version>0.1</version>
+  </parent>
+
+  <!-- Test-only module: loads the deployment JARs produced by the plugins module (reactor order:
+       loadcheck is declared after plugins). Plugin modules are deliberately NOT dependencies. -->
+  <dependencies>
+    <dependency>
+      <artifactId>loader</artifactId>
+      <groupId>de.dfki.asr.ajan.pluginsystem</groupId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <artifactId>behaviour</artifactId>
+      <groupId>de.dfki.asr.ajan</groupId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <artifactId>common</artifactId>
+      <groupId>de.dfki.asr.ajan</groupId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <artifactId>testng</artifactId>
+      <groupId>org.testng</groupId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <pf4j.mode>deployment</pf4j.mode>
+            <pf4j.pluginsDir>${project.basedir}/../deployments</pf4j.pluginsDir>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

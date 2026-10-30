@@ -18,7 +18,7 @@
             <path>
               <artifactId>pf4j</artifactId>
               <groupId>org.pf4j</groupId>
-              <version>3.6.0</version>
+              <version>${pf4j.version}</version>
             </path>
           </annotationProcessorPaths>
         </configuration>
@@ -103,7 +103,7 @@
       <artifactId>pf4j</artifactId>
       <groupId>org.pf4j</groupId>
       <scope>provided</scope>
-      <version>3.6.0</version>
+      <version>${pf4j.version}</version>
     </dependency>
     <dependency>
       <artifactId>rdfbeans</artifactId>
