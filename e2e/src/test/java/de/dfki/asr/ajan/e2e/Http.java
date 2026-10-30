@@ -38,6 +38,25 @@ public final class Http {
         return CLIENT.send(b.build(), HttpResponse.BodyHandlers.ofString());
     }
 
+    /**
+     * Request with freely chosen headers. Redirects are NOT followed (the shared
+     * client uses the default Redirect.NEVER), so 3xx responses can be inspected.
+     * Origin and Access-Control-* are not restricted on the JDK 11 client.
+     */
+    public static HttpResponse<String> sendWithHeaders(String method, String url,
+            java.util.Map<String, String> headers, String body)
+            throws java.io.IOException, InterruptedException {
+        HttpRequest.Builder b = HttpRequest.newBuilder(URI.create(url))
+                .timeout(Duration.ofSeconds(30));
+        HttpRequest.BodyPublisher pub = body == null
+                ? HttpRequest.BodyPublishers.noBody()
+                : HttpRequest.BodyPublishers.ofString(body);
+        if (headers != null) {
+            headers.forEach(b::header);
+        }
+        return CLIENT.send(b.method(method, pub).build(), HttpResponse.BodyHandlers.ofString());
+    }
+
     /** Pollt bis 200 oder Timeout; wirft AssertionError mit letzter Antwort. */
     public static void awaitOk(String url, Duration timeout) throws InterruptedException {
         long deadline = System.nanoTime() + timeout.toNanos();
