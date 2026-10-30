@@ -16,6 +16,7 @@
     <modules>
         <module>loader</module>
         <module>plugins</module>
+        <module>loadcheck</module>
     </modules>
 
     <dependencies>
