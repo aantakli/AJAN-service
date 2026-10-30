@@ -35,6 +35,23 @@ jobs:
         uses: stCarolas/setup-maven@v4.3
         with:
           maven-version: 3.9.9
+      - name: Check Java release is the same in root and executionservice POM
+        # executionservice has the Boot parent (not ajan-parent) and repeats the
+        # root's maven.compiler.release as java.version; both must move together.
+        # Read from the POM XML on purpose: help:evaluate resolves java.version
+        # to the JVM system property (e.g. 25.0.4.1), not to the POM property.
+        run: |
+          set -eu
+          pomprop() {
+            python3 -c 'import sys, xml.etree.ElementTree as ET; ns = {"m": "http://maven.apache.org/POM/4.0.0"}; e = ET.parse(sys.argv[1]).getroot().find("m:properties/m:" + sys.argv[2], ns); print("" if e is None else e.text.strip())' "$1" "$2"
+          }
+          root_release=$(pomprop pom.xml maven.compiler.release)
+          es_release=$(pomprop executionservice/pom.xml java.version)
+          echo "root maven.compiler.release=$root_release, executionservice java.version=$es_release"
+          if [ -z "$root_release" ] || [ "$root_release" != "$es_release" ]; then
+            echo "ERROR: Java release drift: root pom.xml maven.compiler.release ($root_release) != executionservice/pom.xml java.version ($es_release)" >&2
+            exit 1
+          fi
       - name: Build project
         run: mvn -B -ntp -DskipTests install
       - name: Run E2E smoke suite
@@ -47,3 +64,50 @@ jobs:
           path: |
             e2e/target/logs/
             e2e/target/failsafe-reports/
+
+  # Dry run of the master publish pipeline (docker-image.yml: build + docker
+  # jobs) without publishing: same Maven build WITH tests, same dist assembly,
+  # same Docker build context. No registry login, no secrets, no push, no
+  # release - only proves that the master pipeline would build.
+  publish-dryrun:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Cache local Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v4.3
+        with:
+          maven-version: 3.9.9
+      - name: Test plugin module discovery
+        run: bash docker/plugin-modules-test.sh
+      - name: Build project with Maven (with tests, as on master)
+        run: mvn -B -ntp install
+      - name: Assemble distribution directory
+        env:
+          VERSION: ${{ github.sha }}
+        run: bash docker/assemble-dist.sh dist
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build image (no push)
+        uses: docker/build-push-action@v5
+        with:
+          context: dist
+          file: ./Dockerfile
+          build-args: |
+            AVERSION=${{ github.sha }}
+          push: false
+          load: false
+          tags: ajan-service:ci-dryrun

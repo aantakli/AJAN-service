@@ -211,7 +211,7 @@
   <properties>
     <lombok.version>1.18.48</lombok.version>
     <!-- Drift: executionservice (Boot parent, no ajan-parent) repeats this value as java.version;
-         bump both together. -->
+         bump both together (checked by .github/workflows/ci-branch.yml). -->
     <maven.compiler.release>25</maven.compiler.release>
     <!-- prefix of generated THIRDPARTYLICENSE_<prefix><artifactId>.txt files (overridden in pluginsystem) -->
     <license.namePrefix></license.namePrefix>

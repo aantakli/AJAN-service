@@ -245,7 +245,7 @@ MA 02110-1301  USA
     <!-- Insel (Boot-Parent): erbt nicht vom ajan-parent. Java-Release hier ueber java.version
          (Boot-Konvention), Wert = maven.compiler.release im Root-POM. lombok.version kommt
          von spring-boot-dependencies 4.1.2 (1.18.48). Drift: java.version muss mit
-         maven.compiler.release im Root-POM uebereinstimmen (kein Build-Check). -->
+         maven.compiler.release im Root-POM uebereinstimmen (CI-Check in ci-branch.yml). -->
     <java.version>25</java.version>
     <!-- Boot 4.1.2 verwaltet jakarta.ws.rs-api 4.0.0; RESTEasy 6.2 ist gegen 3.1 gebaut (W5). -->
     <jakarta-ws-rs.version>3.1.0</jakarta-ws-rs.version>
