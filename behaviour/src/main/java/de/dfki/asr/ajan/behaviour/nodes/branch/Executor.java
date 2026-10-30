@@ -96,7 +96,7 @@ public class Executor extends AbstractTDBBranchTask {
 	public void run () {
 		try {
 			if (runningChild == null) {
-				executionOrder = selectedChild.getIntValue(this.getObject());
+				executionOrder = toIndices(selectedChild.getIntValue(this.getObject()));
 				childIndex = 0;
 				runChildByIndex();
 			} else {
@@ -106,6 +106,18 @@ public class Executor extends AbstractTDBBranchTask {
 			LOG.info(ex.toString());
 			fail();
 		}
+	}
+
+	/**
+	 * The mapped values are numbers of whatever XSD datatype the literal carries
+	 * (e.g. BigInteger for xsd:integer), regardless of the declared List&lt;Integer&gt;.
+	 */
+	private static List<Integer> toIndices(final List<? extends Number> values) {
+		List<Integer> indices = new ArrayList<>(values.size());
+		for (Number value : values) {
+			indices.add(value.intValue());
+		}
+		return indices;
 	}
 
 	private void runChildByIndex() {
@@ -159,7 +171,7 @@ public class Executor extends AbstractTDBBranchTask {
 		} else {
 			try {
 				Repository evalRepo = result.getRepo().initialize();
-				int child = selectedChild.getIntValue(evalRepo).get(0);
+				int child = toIndices(selectedChild.getIntValue(evalRepo)).get(0);
 				((TreeNode)this.getChild(child)).simulate(result.setDirection(Direction.Down));
 			} catch (SelectSimulationException ex) {
 				LOG.error("Problems with the Select Query", ex);
