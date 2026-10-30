@@ -6,7 +6,7 @@ This is the Maven based JAVA service to create and run AJAN agents.
 
 You will need the following things properly installed on your computer. So please make sure, that mvn and java (also JAVA_HOME) are correctly set in the environmental variables.
 
-* [Java OpenJDK (Version 21)](https://adoptium.net/temurin/releases/?version=21) (needed to build and to run; all modules target Java 21)
+* [Java OpenJDK (Version 21)](https://adoptium.net/temurin/releases/?version=21) (needed to build and to run; all reactor modules are compiled with release 21 — only the external E2E test client in `e2e/` intentionally stays on release 11)
 * [Maven (Version 3.3.9)](https://archive.apache.org/dist/maven/maven-3/3.3.9/)
 * [Git](https://git-scm.com/)
 * (optional) [Netbeans (Version 11.3)](http://netbeans.apache.org/download/nb113/nb113.html)
