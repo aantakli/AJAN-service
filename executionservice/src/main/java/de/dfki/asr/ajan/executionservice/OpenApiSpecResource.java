@@ -19,48 +19,59 @@
 
 package de.dfki.asr.ajan.executionservice;
 
-import io.swagger.v3.jaxrs2.integration.resources.BaseOpenApiResource;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.jaxrs2.Reader;
+import io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.servers.Server;
-import jakarta.servlet.ServletConfig;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Component;
 
 /**
  * Serves the OpenAPI 3 description of the AJAN REST resources at /ajan/swagger.json.
+ * The spec is built once from the resource package and cached as an immutable string.
  * Only this resource is registered (Spring component), so swagger-core's own
- * OpenApiResource (/openapi.json) is not exposed.
+ * OpenApiResource (/openapi.json) is not exposed. It does not extend BaseOpenApiResource
+ * because that class's getOpenApi(...) declares "throws Exception"; Scanner and Reader are
+ * used directly instead. No Application is involved, so paths stay "/agents" and the base
+ * path is declared once as the server URL.
  */
 @Component
 @Path("/swagger.json")
-public class OpenApiSpecResource extends BaseOpenApiResource {
+public class OpenApiSpecResource {
 	private static final String RESOURCE_PACKAGE = "de.dfki.asr.ajan.rest";
 
+	private final String spec;
+
 	public OpenApiSpecResource() {
+		spec = buildSpec();
+	}
+
+	private static SwaggerConfiguration configuration() {
 		final OpenAPI api = new OpenAPI().servers(List.of(new Server().url(ExecutionServiceApplication.BASE_PATH)));
-		setOpenApiConfiguration(new SwaggerConfiguration().openAPI(api).resourcePackages(Set.of(RESOURCE_PACKAGE)));
+		return new SwaggerConfiguration().openAPI(api).resourcePackages(Set.of(RESOURCE_PACKAGE));
+	}
+
+	private static String buildSpec() {
+		final SwaggerConfiguration config = configuration();
+		final JaxrsAnnotationScanner<?> scanner = new JaxrsAnnotationScanner<>();
+		scanner.setConfiguration(config);
+		try {
+			return Json.mapper().writeValueAsString(new Reader(config).read(scanner.classes()));
+		} catch (JsonProcessingException e) {
+			throw new IllegalStateException("Cannot serialize the OpenAPI description", e);
+		}
 	}
 
 	@GET
 	@Produces("application/json")
-	public Response getSpec(@Context final HttpHeaders headers, @Context final ServletConfig config,
-			@Context final UriInfo uriInfo) {
-		try {
-			// No Application: swagger-core would prefix every path with /ajan; the base path
-			// is declared once as the server URL instead (paths stay "/agents", as before).
-			return getOpenApi(headers, config, null, uriInfo, "json");
-		} catch (Exception e) { // NOPMD - swagger-core declares a plain Exception
-			throw new WebApplicationException("Cannot build the OpenAPI description", e);
-		}
+	public String getSpec() {
+		return spec;
 	}
 }

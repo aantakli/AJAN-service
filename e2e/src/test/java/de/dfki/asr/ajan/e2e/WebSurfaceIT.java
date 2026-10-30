@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Charakterisiert die Web-Oberflaeche, fuer die die uebrige Suite blind ist:
  * CORS, Swagger, Root-Redirect, JSON-Bodies. Pinnt das IST (alter Stack:
- * Spring Boot 1.3.5 / RESTEasy 3.0.16 / Swagger 1.5) fest, damit der
+ * Spring Boot 1.3.5 / RESTEasy 3.0.16 / Swagger 1.5; Swagger-Spec heute OpenAPI 3) fest, damit der
  * Framework-Sprung nichts unbemerkt veraendert.
  * Quellen: ExecutionServiceApplication (CorsFilter), SwaggerUIConfiguration
  * (Redirect), JsonConsumer (exakter Media-Type-Vergleich).
@@ -108,6 +108,7 @@ class WebSurfaceIT extends AjanSystemBase {
         assertEquals(200, r.statusCode());
         assertEquals("application/json", mediaType(r));
         assertTrue(r.body().contains("\"/agents\""), "spec should describe /agents");
+        assertTrue(r.body().contains("\"/agents/{agentName}\""), "spec should describe the agent sub-resource");
     }
 
     // OBSERVED (2026-10-30): GET / -> 302 Found,
