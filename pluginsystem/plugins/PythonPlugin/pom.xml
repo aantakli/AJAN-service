@@ -53,28 +53,51 @@ MA 02110-1301  USA
         <groupId>org.apache.maven.plugins</groupId>
         <version>3.4.1</version>
       </plugin>
+      <!-- The embedded Python environments (python-env/dist/{nix,win}_env.zip) are built outside
+           Git (python-env/build-*.sh or CI artifacts). A missing zip is only a warning: the plugin
+           still builds and starts, and reports "Python not available" at runtime. -->
       <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
+        <artifactId>maven-enforcer-plugin</artifactId>
         <executions>
           <execution>
-            <configuration>
-              <outputDirectory>${project.build.directory}/classes</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>src/main/resources</directory>
-                  <filtering>false</filtering>
-                </resource>
-              </resources>
-            </configuration>
+            <id>warn-missing-python-env</id>
             <goals>
-              <goal>resources</goal>
+              <goal>enforce</goal>
             </goals>
-            <id>copy-resources</id>
-            <phase>package</phase>
+            <phase>validate</phase>
+            <configuration>
+              <fail>false</fail>
+              <rules>
+                <requireFilesExist>
+                  <files>
+                    <file>${project.basedir}/python-env/dist/nix_env.zip</file>
+                  </files>
+                  <message>python-env/dist/nix_env.zip missing: the PythonPlugin JAR will contain no Linux Python environment (build it with python-env/build-linux.sh or fetch the CI artifact).</message>
+                </requireFilesExist>
+                <requireFilesExist>
+                  <files>
+                    <file>${project.basedir}/python-env/dist/win_env.zip</file>
+                  </files>
+                  <message>python-env/dist/win_env.zip missing: the PythonPlugin JAR will contain no Windows Python environment (fetch the CI artifact).</message>
+                </requireFilesExist>
+              </rules>
+            </configuration>
           </execution>
         </executions>
         <groupId>org.apache.maven.plugins</groupId>
-        <version>3.2.0</version>
+        <version>3.5.0</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- JEP loads libjep/libpython via JNI (JEP 472). -->
+          <argLine>--enable-native-access=ALL-UNNAMED</argLine>
+          <systemPropertyVariables>
+            <ajan.python.cacheDir>${project.build.directory}/ajan-python-cache</ajan.python.cacheDir>
+            <ajan.python.requireEnv>${ajan.python.requireEnv}</ajan.python.requireEnv>
+          </systemPropertyVariables>
+        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
       </plugin>
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -111,6 +134,14 @@ MA 02110-1301  USA
           <include>**/*</include>
         </includes>
       </resource>
+      <!-- Lands at the JAR root as /nix_env.zip and /win_env.zip (see PythonEnvironment). -->
+      <resource>
+        <directory>python-env/dist</directory>
+        <includes>
+          <include>nix_env.zip</include>
+          <include>win_env.zip</include>
+        </includes>
+      </resource>
     </resources>
   </build>
   <dependencies>
@@ -118,6 +149,11 @@ MA 02110-1301  USA
       <artifactId>zip4j</artifactId>
       <groupId>net.lingala.zip4j</groupId>
       <version>2.11.5</version>
+    </dependency>
+    <dependency>
+      <artifactId>testng</artifactId>
+      <groupId>org.testng</groupId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <modelVersion>4.0.0</modelVersion>
@@ -133,6 +169,8 @@ MA 02110-1301  USA
   </parent>
 
   <properties>
+    <!-- true: PythonJepTest fails instead of skipping when no env zip for this OS is embedded. -->
+    <ajan.python.requireEnv>false</ajan.python.requireEnv>
     <netbeans.hint.license>licenseheader</netbeans.hint.license>
     <plugin.class>de.dfki.asr.ajan.pluginsystem.pythonplugin.PythonPlugin</plugin.class>
     <plugin.dependencies/>

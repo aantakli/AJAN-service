@@ -1,399 +1,148 @@
 package de.dfki.asr.ajan.pluginsystem.pythonplugin;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
+import java.lang.foreign.Arena;
+import java.lang.foreign.FunctionDescriptor;
+import java.lang.foreign.Linker;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
+import java.lang.invoke.MethodHandle;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import jep.JepConfig;
-import jep.JepException;
 import jep.MainInterpreter;
 import jep.PyConfig;
 import jep.SharedInterpreter;
-import lombok.Getter;
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import org.pf4j.Plugin;
 import org.pf4j.PluginWrapper;
-import org.pf4j.RuntimeMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Starts the embedded CPython (via JEP) once per JVM. The plugin always reaches STARTED: when no
+ * Python environment is found or initialization fails, {@link #isAvailable()} is {@code false}
+ * and {@link #unavailableReason()} says why; Python nodes then fail with that reason.
+ */
 public class PythonPlugin extends Plugin {
 
   private static final Logger LOG = LoggerFactory.getLogger(PythonPlugin.class);
-  private static SharedInterpreter mainInterpreter = null;
-  private static jep.JepConfig jepConfig = null;
-  @Getter private static Path pythonEnvPath = null;
+  private static final int RTLD_NOW = 0x2;
+  private static final int RTLD_GLOBAL = 0x100;
 
-  public PythonPlugin(PluginWrapper wrapper) throws IOException, URISyntaxException {
+  private static boolean initialized;
+  private static volatile boolean available;
+  private static volatile String unavailableReason = "Python runtime not initialized";
+  private static volatile PythonEnvironment environment;
+
+  public PythonPlugin(PluginWrapper wrapper) {
     super(wrapper);
-    System.out.println("PythonPlugin.constructor()");
-
-    setupEmbeddedPythonEnv();
-    initializeJep(pythonEnvPath);
-  }
-
-  public static SharedInterpreter getMainInterpreter() {
-    return mainInterpreter;
-  }
-
-  public static jep.JepConfig getJepConfig() {
-    return jepConfig;
-  }
-
-  private static void initializeJep(Path pythonHome) {
-    try {
-      Path sitePkgs = findSitePackages(pythonHome);
-      if (sitePkgs == null) {
-        throw new RuntimeException("site-packages not found for JEP initialization");
-      }
-      Path jepPath = sitePkgs.resolve("jep");
-
-      String pythonPath = String.join(
-          File.pathSeparator,
-          pythonHome.toAbsolutePath().toString(),
-          sitePkgs.getParent().toAbsolutePath().toString(),
-          sitePkgs.toAbsolutePath().toString(),
-          jepPath.toAbsolutePath().toString());
-
-      // Tell JEP to call Py_SetPythonHome() natively before Py_Initialize().
-      // The reflection-based setEnv() above only mutates Java's view of getenv()
-      // and does not update the C environ array, so the embedded interpreter
-      // would otherwise fail with "ModuleNotFoundError: No module named 'encodings'".
-      // Must be set before the first MainInterpreter access (i.e. before any
-      // SharedInterpreter is constructed).
-      PyConfig pyConfig = new PyConfig();
-      pyConfig.setPythonHome(pythonHome.toAbsolutePath().toString());
-      MainInterpreter.setInitParams(pyConfig);
-
-      jepConfig = new JepConfig();
-      for (String path : pythonPath.split(File.pathSeparator)) {
-        jepConfig.addIncludePaths(path);
-      }
-
-      SharedInterpreter.setConfig(jepConfig);
-      mainInterpreter = new SharedInterpreter();
-
-      LOG.info("Successfully initialized JEP with embedded Python environment");
-
-    } catch (IOException e) {
-      LOG.error("Failed to locate site-packages for JEP", e);
-      throw new RuntimeException("JEP initialization failed", e);
-    } catch (JepException e) {
-      LOG.error("Failed to initialize JEP", e);
-      throw new RuntimeException("JEP initialization failed", e);
-    }
-  }
-
-  private static void fixJepBatFile(Path pythonHome) throws IOException {
-    Path jepBatPath = pythonHome.resolve("Scripts").resolve("jep.bat");
-
-    if (Files.exists(jepBatPath)) {
-      LOG.info("Fixing jep.bat file at: {}", jepBatPath);
-
-      String correctedBatContent =
-          "@echo off\n"
-              + "SETLOCAL\n"
-              + "SET VIRTUAL_ENV=\n"
-              + "\n"
-              + "IF NOT \"%VIRTUAL_ENV%\"==\"\" (\n"
-              + "    SET PATH=\"%VIRTUAL_ENV%\\bin\";\"%JAVA_HOME%\\bin\";\"%PATH%\"\n"
-              + "    SET PYTHONHOME=%VIRTUAL_ENV%\n"
-              + ")\n"
-              + "\n"
-              + "REM Use relative paths to the embedded environment\n"
-              + "SET EMBEDDED_HOME=%~dp0..\n"
-              + "SET cp=\"%EMBEDDED_HOME%\\Lib\\site-packages\\jep\\jep-4.2.2.jar\"\n"
-              + "IF DEFINED CLASSPATH (\n"
-              + "    SET cp=%cp%;%CLASSPATH%\n"
-              + ")\n"
-              + "\n"
-              + "SET jni_path=\"%EMBEDDED_HOME%\\Lib\\site-packages\\jep\"\n"
-              + "\n"
-              + "SET args=%*\n"
-              + "IF \"%args%\"==\"\" (\n"
-              + "    SET args=\"%EMBEDDED_HOME%\\Lib\\site-packages\\jep\\console.py\"\n"
-              + ")\n"
-              + "\n"
-              + "java -classpath %cp% -Djava.library.path=%jni_path% jep.Run %args%\n"
-              + "ENDLOCAL\n";
-
-      Files.write(jepBatPath, correctedBatContent.getBytes());
-      LOG.info("Fixed jep.bat file with embedded environment paths");
-    } else {
-      LOG.debug("jep.bat not present (expected on non-Windows): {}", jepBatPath);
-    }
-  }
-
-  /**
-   * Finds the actual Python home inside an extracted zip. Handles the case where the zip has a
-   * single root wrapper directory (e.g. python-portable/).
-   */
-  private static Path findPythonHome(Path extractedRoot) throws IOException {
-    try (var stream = Files.list(extractedRoot)) {
-      List<Path> children = stream.collect(Collectors.toList());
-      if (children.size() == 1 && Files.isDirectory(children.get(0))) {
-        LOG.info("Python home resolved to: {}", children.get(0));
-        return children.get(0);
-      }
-    }
-    return extractedRoot;
-  }
-
-  /**
-   * Locates site-packages inside the given Python home, handling both Windows-style (Lib/) and
-   * Linux-style (lib/python3.x/) layouts.
-   */
-  private static Path findSitePackages(Path pythonHome) throws IOException {
-    // Windows: Lib/site-packages
-    Path winStyle = pythonHome.resolve("Lib").resolve("site-packages");
-    if (Files.exists(winStyle)) return winStyle;
-
-    // Linux: lib/python3.x/site-packages
-    Path libDir = pythonHome.resolve("lib");
-    if (Files.exists(libDir)) {
-      try (var stream = Files.list(libDir)) {
-        Optional<Path> pythonDir = stream
-            .filter(Files::isDirectory)
-            .filter(p -> p.getFileName().toString().startsWith("python"))
-            .findFirst();
-        if (pythonDir.isPresent()) {
-          Path candidate = pythonDir.get().resolve("site-packages");
-          if (Files.exists(candidate)) return candidate;
-        }
-      }
-    }
-    return null;
-  }
-
-  private static Path setupEmbeddedPythonEnv() throws IOException {
-    String os = System.getProperty("os.name").toLowerCase();
-    String envFolder = os.contains("win") ? "win_env" : "nix_env";
-    Path tempDir = Files.createTempDirectory("embedded_python_env");
-    unzip(PythonPlugin.class.getResourceAsStream("/" + envFolder + ".zip"), tempDir);
-
-    Path pythonHome = findPythonHome(tempDir);
-    pythonEnvPath = pythonHome;
-
-    Path sitePkgs = findSitePackages(pythonHome);
-    if (sitePkgs == null) {
-      throw new IOException("site-packages not found in embedded Python environment");
-    }
-
-    Path jepPath = sitePkgs.resolve("jep");
-    if (!Files.exists(jepPath)) {
-      LOG.error("JEP not found in embedded environment at: {}", jepPath);
-      throw new IOException("JEP not found in embedded Python environment");
-    }
-    LOG.info("JEP found in embedded environment at: {}", jepPath);
-
-    fixJepBatFile(pythonHome);
-
-    if (os.contains("win")) {
-      normalizeEmbeddableWindowsLayout(pythonHome);
-    }
-
-    String pythonHomeStr = pythonHome.toAbsolutePath().toString();
-    String pythonPath = String.join(
-        File.pathSeparator,
-        pythonHomeStr,
-        sitePkgs.getParent().toAbsolutePath().toString(),
-        sitePkgs.toAbsolutePath().toString(),
-        jepPath.toAbsolutePath().toString());
-
-    setEnv("PYTHONHOME", pythonHomeStr);
-    setEnv("PYTHONPATH", pythonPath);
-
-    System.setProperty("jep.python.home", pythonHomeStr);
-    System.setProperty("PYTHONHOME", pythonHomeStr);
-    System.setProperty("PYTHONPATH", pythonPath);
-    System.setProperty("jep.pythonpath", pythonPath);
-    System.setProperty("jep.library.path", jepPath.toAbsolutePath().toString());
-
-    Path jepJarPath = jepPath.resolve("jep-4.2.2.jar");
-    if (Files.exists(jepJarPath)) {
-      System.setProperty("jep.jar.path", jepJarPath.toAbsolutePath().toString());
-      LOG.info("JEP JAR found at: {}", jepJarPath);
-    } else {
-      LOG.warn("JEP JAR not found at: {}", jepJarPath);
-    }
-
-    try {
-      addLibraryPath(pythonHomeStr);
-      addLibraryPath(jepPath.toString());
-
-      if (os.contains("win")) {
-        Path dllsPath = pythonHome.resolve("DLLs");
-        if (Files.exists(dllsPath)) {
-          addLibraryPath(dllsPath.toString());
-          prependToPathEnv(dllsPath.toString());
-        }
-        prependToPathEnv(jepPath.toString());
-        prependToPathEnv(pythonHomeStr);
-      }
-    } catch (Exception e) {
-      LOG.error("Failed to add to library path", e);
-    }
-
-    LOG.info("Configured embedded Python environment:");
-    LOG.info(" - PYTHONHOME: {}", pythonHomeStr);
-    LOG.info(" - PYTHONPATH: {}", pythonPath);
-    LOG.info(" - jep.library.path: {}", jepPath.toAbsolutePath());
-
-    return pythonHome;
-  }
-
-  /**
-   * Turns the Windows "embeddable" Python package into a layout the embedded
-   * interpreter can bootstrap deterministically.
-   *
-   * <p>The embeddable distribution ships the standard library only inside
-   * {@code python3XX.zip} and pins {@code sys.path} via a {@code python3XX._pth}
-   * file. That {@code ._pth} is anchored next to the hosting executable/DLL,
-   * which works for {@code python.exe} but is unreliable when CPython is
-   * initialized by JEP inside {@code java.exe}: the interpreter then fails with
-   * "Failed to import encodings module". By extracting the stdlib into
-   * {@code <home>/Lib} and removing the {@code ._pth}, the explicit
-   * {@code Py_SetPythonHome(home)} prefix drives {@code sys.path} the same way a
-   * regular (non-embeddable) install would, so {@code encodings} is found.
-   */
-  private static void normalizeEmbeddableWindowsLayout(Path pythonHome) throws IOException {
-    Path lib = pythonHome.resolve("Lib");
-    boolean stdlibPresent =
-        Files.exists(lib.resolve("os.py"))
-            || Files.exists(lib.resolve("encodings").resolve("__init__.py"));
-
-    try (var stream = Files.list(pythonHome)) {
-      List<Path> entries = stream.collect(Collectors.toList());
-
-      if (!stdlibPresent) {
-        Optional<Path> stdlibZip = entries.stream()
-            .filter(p -> p.getFileName().toString().toLowerCase().matches("python3\\d+\\.zip"))
-            .findFirst();
-        if (stdlibZip.isPresent()) {
-          Files.createDirectories(lib);
-          extractZipInto(stdlibZip.get(), lib);
-          LOG.info("Extracted embedded stdlib {} into {}", stdlibZip.get().getFileName(), lib);
-        } else {
-          LOG.warn("No python3XX.zip stdlib archive in {}; encodings import may fail", pythonHome);
-        }
-      }
-
-      for (Path p : entries) {
-        if (p.getFileName().toString().toLowerCase().endsWith("._pth")) {
-          Files.deleteIfExists(p);
-          LOG.info("Removed {} to enable PYTHONHOME-based sys.path discovery", p.getFileName());
-        }
-      }
-    }
-  }
-
-  private static void extractZipInto(Path zipFile, Path targetDir) throws IOException {
-    try (ZipFile zip = new ZipFile(zipFile.toFile())) {
-      zip.extractAll(targetDir.toString());
-    } catch (ZipException e) {
-      throw new IOException("Failed to extract " + zipFile, e);
-    }
-  }
-
-  private static void addLibraryPath(String pathToAdd) throws Exception {
-    Field usrPathsField;
-    try {
-      usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
-    } catch (NoSuchFieldException e) {
-      // Removed/renamed on Java 9+. The native library lookup is instead served
-      // by the PATH entries prepended below, so this reflective patch is a
-      // best-effort no-op rather than a failure.
-      LOG.debug("ClassLoader.usr_paths unavailable; skipping java.library.path patch");
-      return;
-    }
-    usrPathsField.setAccessible(true);
-
-    String[] paths = (String[]) usrPathsField.get(null);
-    for (String p : paths) {
-      if (p.equals(pathToAdd)) {
-        return;
-      }
-    }
-    String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
-    newPaths[newPaths.length - 1] = pathToAdd;
-    usrPathsField.set(null, newPaths);
-  }
-
-  private static void setEnv(String name, String value) {
-    try {
-      Map<String, String> env = System.getenv();
-      Class<?> cl = env.getClass();
-      Field field = cl.getDeclaredField("m");
-      field.setAccessible(true);
-      @SuppressWarnings("unchecked")
-      Map<String, String> writableEnv = (Map<String, String>) field.get(env);
-      writableEnv.put(name, value);
-    } catch (Exception e) {
-      try {
-        Class<?> pe = Class.forName("java.lang.ProcessEnvironment");
-        Field theEnvironmentField = pe.getDeclaredField("theEnvironment");
-        theEnvironmentField.setAccessible(true);
-        Map<String, String> env = (Map<String, String>) theEnvironmentField.get(null);
-        env.put(name, value);
-
-        Field cienvField = pe.getDeclaredField("theCaseInsensitiveEnvironment");
-        cienvField.setAccessible(true);
-        Map<String, String> cienv = (Map<String, String>) cienvField.get(null);
-        cienv.put(name, value);
-      } catch (Exception ignored) {
-      }
-    }
-  }
-
-  private static void prependToPathEnv(String dir) {
-    String currentPath = System.getenv("PATH");
-    setEnv("PATH", dir + File.pathSeparator + currentPath);
-  }
-
-  private static void unzip(InputStream is, Path targetDir) throws IOException {
-    LOG.debug("Unzipping to directory: {}", targetDir);
-
-    Path tempZipFile = Files.createTempFile("temp_", ".zip");
-    Files.copy(is, tempZipFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-
-    try {
-      ZipFile zipFile = new ZipFile(tempZipFile.toFile());
-      zipFile.extractAll(targetDir.toString());
-    } catch (ZipException e) {
-      LOG.error("Failed to extract ZIP with Zip4j: {}", e.getMessage());
-      throw new IOException("Failed to extract ZIP", e);
-    } finally {
-      Files.deleteIfExists(tempZipFile);
-    }
   }
 
   @Override
   public void start() {
-    System.out.println("PythonPlugin.start()");
-    if (RuntimeMode.DEVELOPMENT.equals(wrapper.getRuntimeMode())) {
-      LOG.debug("PythonPlugin");
-    }
+    initialize();
   }
 
   @Override
   public void stop() {
-    System.out.println("PythonPlugin.stop()");
-    if (mainInterpreter != null) {
-      try {
-        mainInterpreter.close();
-        mainInterpreter = null;
-      } catch (Exception e) {
-        LOG.warn("Error closing main interpreter", e);
+    // CPython cannot be finalized and restarted inside one process; nothing to release here.
+  }
+
+  public static boolean isAvailable() {
+    return available;
+  }
+
+  public static String unavailableReason() {
+    return available ? null : unavailableReason;
+  }
+
+  public static Optional<PythonEnvironment> environment() {
+    return Optional.ofNullable(environment);
+  }
+
+  /**
+   * Resolves the environment and configures JEP. Idempotent: JEP's global configuration can be
+   * set only once per JVM, so a failed attempt is not retried.
+   *
+   * @return whether Python is available
+   */
+  public static synchronized boolean initialize() {
+    if (initialized) {
+      return available;
+    }
+    initialized = true;
+    try {
+      PythonEnvironment env = PythonEnvironment.resolve();
+      environment = env;
+      LOG.info("Python environment: {}", env);
+      loadNativeLibraries(env);
+      configureJep(env);
+      try (SharedInterpreter probe = new SharedInterpreter()) {
+        probe.exec("import sys");
+        LOG.info("Embedded Python {} ready (jep {})", probe.getValue("sys.version"),
+            env.jepLibrary());
+        try {
+          probe.exec("import AJANlib");
+        } catch (Exception e) {
+          LOG.warn("AJANlib cannot be imported (scripts using it will fail): {}", e.toString());
+        }
+      }
+      available = true;
+    } catch (PythonUnavailableException e) {
+      unavailableReason = e.getMessage();
+      LOG.warn("Python not available: {}", unavailableReason);
+    } catch (Throwable t) { // JepException, UnsatisfiedLinkError, ...
+      unavailableReason = "initialization failed: " + t;
+      LOG.error("Python not available: {}", unavailableReason, t);
+    }
+    return available;
+  }
+
+  private static void loadNativeLibraries(PythonEnvironment env) throws Throwable {
+    boolean windows = PythonEnvironment.isWindows();
+    for (Path lib : env.nativePreloads()) {
+      // Satisfies jep's DT_NEEDED / import of libpython (libjep has no rpath) by soname.
+      System.load(lib.toString());
+      if (!windows) {
+        // C extension modules (e.g. orjson) are not linked against libpython and resolve Py*
+        // symbols from the global namespace; System.load uses RTLD_LOCAL.
+        dlopenGlobal(lib);
+      }
+      LOG.debug("Preloaded {}", lib);
+    }
+    MainInterpreter.setJepLibraryPath(env.jepLibrary().toString());
+  }
+
+  private static void dlopenGlobal(Path lib) throws Throwable {
+    Linker linker = Linker.nativeLinker();
+    MemorySegment dlopenAddr =
+        linker
+            .defaultLookup()
+            .find("dlopen")
+            .orElseThrow(() -> new IllegalStateException("dlopen not found"));
+    MethodHandle dlopen =
+        linker.downcallHandle(
+            dlopenAddr,
+            FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
+    try (Arena arena = Arena.ofConfined()) {
+      MemorySegment handle =
+          (MemorySegment) dlopen.invokeExact(arena.allocateFrom(lib.toString()),
+              RTLD_NOW | RTLD_GLOBAL);
+      if (handle.equals(MemorySegment.NULL)) {
+        throw new IllegalStateException("dlopen(RTLD_GLOBAL) failed for " + lib);
       }
     }
+  }
+
+  private static void configureJep(PythonEnvironment env) throws Exception {
+    PyConfig pyConfig = new PyConfig();
+    pyConfig.setPythonHome(env.home().toString());
+    // Deterministic: ignore PYTHONHOME/PYTHONPATH of the host and the user's site-packages.
+    pyConfig.setIgnoreEnvironmentFlag(1);
+    pyConfig.setNoUserSiteDirectory(1);
+    MainInterpreter.setInitParams(pyConfig);
+
+    JepConfig jepConfig = new JepConfig();
+    jepConfig.addIncludePaths(env.ajanLib().toString(), env.sitePackages().toString());
+    SharedInterpreter.setConfig(jepConfig);
   }
 }

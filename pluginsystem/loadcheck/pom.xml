@@ -16,6 +16,9 @@
 
   <!-- Test-only module: loads the deployment JARs produced by the plugins module (reactor order:
        loadcheck is declared after plugins). Plugin modules are deliberately NOT dependencies. -->
+  <properties>
+    <ajan.python.requireEnv>false</ajan.python.requireEnv>
+  </properties>
   <dependencies>
     <dependency>
       <artifactId>loader</artifactId>
@@ -48,7 +51,11 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <!-- PythonPlugin loads libpython/libjep (JNI, FFM dlopen; JEP 472). -->
+          <argLine>--enable-native-access=ALL-UNNAMED</argLine>
           <systemPropertyVariables>
+            <ajan.python.cacheDir>${project.build.directory}/ajan-python-cache</ajan.python.cacheDir>
+            <ajan.python.requireEnv>${ajan.python.requireEnv}</ajan.python.requireEnv>
             <pf4j.mode>deployment</pf4j.mode>
             <pf4j.pluginsDir>${project.basedir}/../deployments</pf4j.pluginsDir>
           </systemPropertyVariables>

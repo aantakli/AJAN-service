@@ -28,6 +28,7 @@ import de.dfki.asr.ajan.behaviour.nodes.common.SimulationResult;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorConstructQuery;
 import de.dfki.asr.ajan.common.AJANVocabulary;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
+import de.dfki.asr.ajan.pluginsystem.pythonplugin.PythonPlugin;
 import de.dfki.asr.ajan.pluginsystem.pythonplugin.exception.PythonException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -140,6 +141,13 @@ public class PythonLeafNode extends AbstractTDBLeafTask implements NodeExtension
   public NodeStatus executeLeaf() {
     LOG = this.getObject().getLogger();
     LOG.info(this.getClass(), "================= Test" + getSubject() + "=================");
+    if (!PythonPlugin.isAvailable()) {
+      return new NodeStatus(
+          Status.FAILED,
+          this.getObject().getLogger(),
+          this.getClass(),
+          this + " FAILED: Python not available: " + PythonPlugin.unavailableReason());
+    }
     try {
       LOG.info(this.getClass(), "Executing PythonLeafNode: " + this);
       return runPythonScript();

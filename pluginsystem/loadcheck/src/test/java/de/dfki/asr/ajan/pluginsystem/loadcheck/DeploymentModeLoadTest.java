@@ -3,6 +3,9 @@ package de.dfki.asr.ajan.pluginsystem.loadcheck;
 import de.dfki.asr.ajan.pluginsystem.AJANPluginLoader;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.EndpointExtension;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.NodeExtension;
+import de.dfki.asr.ajan.pluginsystem.extensionpoints.PythonExecutionResult;
+import de.dfki.asr.ajan.pluginsystem.extensionpoints.PythonExecutionService;
+import java.util.List;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -75,6 +78,29 @@ public class DeploymentModeLoadTest {
       expected.put(id, PluginState.STARTED);
     }
     Assert.assertEquals(measuredStates(), expected);
+  }
+
+  /**
+   * PythonPlugin starts with or without an embedded Python environment; without one, scripts fail
+   * with a reason instead of crashing. With {@code -Dajan.python.requireEnv=true} the embedded
+   * environment must work inside the pf4j plugin class loader.
+   */
+  @Test
+  public void pythonServiceRunsScriptsOrReportsWhyNot() {
+    List<PythonExecutionService> services =
+        pm.getExtensions(PythonExecutionService.class, "PythonPlugin");
+    Assert.assertEquals(services.size(), 1);
+    PythonExecutionService python = services.get(0);
+    PythonExecutionResult r =
+        python.executeScript("import orjson, AJANlib\nresult = orjson.dumps([1]).decode()", null);
+    if (python.isPythonAvailable()) {
+      Assert.assertTrue(r.isSuccess(), r.getError());
+      Assert.assertEquals(r.getResults().get("result"), "[1]");
+    } else {
+      Assert.assertFalse(Boolean.getBoolean("ajan.python.requireEnv"), r.getError());
+      Assert.assertFalse(r.isSuccess());
+      Assert.assertTrue(r.getError().startsWith("Python not available: "), r.getError());
+    }
   }
 
   @Test

@@ -2,7 +2,7 @@ package de.dfki.asr.ajan.pluginsystem.pythonplugin.extensions;
 
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.PythonExecutionResult;
 import de.dfki.asr.ajan.pluginsystem.extensionpoints.PythonExecutionService;
-import de.dfki.asr.ajan.pluginsystem.pythonplugin.PythonPackageManager;
+import de.dfki.asr.ajan.pluginsystem.pythonplugin.PythonEnvironment;
 import de.dfki.asr.ajan.pluginsystem.pythonplugin.PythonPlugin;
 import de.dfki.asr.ajan.pluginsystem.pythonplugin.monitoring.PythonExecutionMetrics;
 import java.nio.file.Files;
@@ -14,62 +14,58 @@ import org.pf4j.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Runs scripts in a fresh {@link SharedInterpreter} on the calling thread. Not synchronized: each
+ * call has its own globals; the GIL serializes Python bytecode, and blocking calls release it.
+ */
 @Extension
 public class PythonExecutionServiceImpl implements PythonExecutionService {
 
   private static final Logger LOG = LoggerFactory.getLogger(PythonExecutionServiceImpl.class);
 
   @Override
-  public synchronized PythonExecutionResult executeScript(
-      String script, Map<String, Object> inputs) {
+  public PythonExecutionResult executeScript(String script, Map<String, Object> inputs) {
     long startTime = System.currentTimeMillis();
+    if (!PythonPlugin.isAvailable()) {
+      return record(notAvailable());
+    }
 
     try (SharedInterpreter interpreter = new SharedInterpreter()) {
-      // Set inputs
       if (inputs != null) {
         for (Map.Entry<String, Object> entry : inputs.entrySet()) {
           interpreter.set(entry.getKey(), entry.getValue());
         }
       }
 
-      // Execute script
       interpreter.exec(script);
 
-      // Collect results (all variables set in the script)
-      // Note: JEP doesn't easily allow listing all variables,
-      // but we can try to get common result variables or the ones provided in inputs
+      // JEP cannot list globals: collect the input names (possibly reassigned) and 'result'.
       Map<String, Object> results = new HashMap<>();
       if (inputs != null) {
         for (String key : inputs.keySet()) {
           try {
             results.put(key, interpreter.getValue(key));
           } catch (Exception e) {
-            // Ignore if variable is not available
+            // variable deleted by the script
           }
         }
       }
-
-      // Also check for a standard 'result' variable
       try {
         Object result = interpreter.getValue("result");
         if (result != null) {
           results.put("result", result);
         }
       } catch (Exception e) {
-        // Ignore
+        // no 'result' defined
       }
 
-      PythonExecutionResult res =
+      return record(
           PythonExecutionResult.success(
-              "Script executed successfully", results, System.currentTimeMillis() - startTime);
-      PythonExecutionMetrics.getInstance().recordExecution(res);
-      return res;
+              "Script executed successfully", results, System.currentTimeMillis() - startTime));
     } catch (Exception e) {
       LOG.error("Error executing Python script", e);
-      PythonExecutionResult res =
-          PythonExecutionResult.failed(e.getMessage(), e, System.currentTimeMillis() - startTime);
-      PythonExecutionMetrics.getInstance().recordExecution(res);
-      return res;
+      return record(
+          PythonExecutionResult.failed(e.getMessage(), e, System.currentTimeMillis() - startTime));
     }
   }
 
@@ -86,38 +82,41 @@ public class PythonExecutionServiceImpl implements PythonExecutionService {
 
   @Override
   @Deprecated
-  public synchronized PythonExecutionResult executePowerShellCommand(String command) {
-    LOG.error(
-        "executePowerShellCommand is deprecated and no longer supported. Command was: {}", command);
+  public PythonExecutionResult executePowerShellCommand(String command) {
     return PythonExecutionResult.failed(
-        "PowerShell support has been removed. Use executeScript or executeScriptFile instead.",
+        "not supported: PowerShell execution was removed; use executeScript or executeScriptFile",
         null,
         0);
   }
 
   @Override
   public Path getPythonEnvironmentPath() {
-    return PythonPlugin.getPythonEnvPath();
+    return PythonPlugin.environment().map(PythonEnvironment::home).orElse(null);
   }
 
   @Override
   public boolean isPythonAvailable() {
-    return PythonPlugin.getMainInterpreter() != null;
+    return PythonPlugin.isAvailable();
   }
 
   @Override
   public PythonExecutionResult installPythonPackage(String packageName) {
-    long startTime = System.currentTimeMillis();
-    try {
-      PythonPackageManager.getInstance().installPackage(packageName);
-      return PythonExecutionResult.success(
-          "Package installation initiated: " + packageName,
-          null,
-          System.currentTimeMillis() - startTime);
-    } catch (Exception e) {
-      LOG.error("Error installing Python package", e);
-      return PythonExecutionResult.failed(
-          e.getMessage(), e, System.currentTimeMillis() - startTime);
-    }
+    return PythonExecutionResult.failed(
+        "not supported: runtime package installation was removed; add '"
+            + packageName
+            + "' to pluginsystem/plugins/PythonPlugin/python-env/requirements.in and rebuild the"
+            + " environment",
+        null,
+        0);
+  }
+
+  private static PythonExecutionResult notAvailable() {
+    return PythonExecutionResult.failed(
+        "Python not available: " + PythonPlugin.unavailableReason(), null, 0);
+  }
+
+  private static PythonExecutionResult record(PythonExecutionResult result) {
+    PythonExecutionMetrics.getInstance().recordExecution(result);
+    return result;
   }
 }
