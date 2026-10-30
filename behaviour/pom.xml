@@ -115,11 +115,18 @@ MA 02110-1301  USA
       <groupId>org.apache.httpcomponents</groupId>
       <scope>test</scope>
       <version>4.3.6</version>
+      <!-- tests-Jar nur fuer LocalTestServer; httpcore 4.3.3 aus dessen POM wuerde httpcore 4.4.x verdraengen (NoClassDefFoundError SSLContexts) -->
+      <exclusions>
+        <exclusion>
+          <artifactId>httpcore</artifactId>
+          <groupId>org.apache.httpcomponents</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <artifactId>mockito-core</artifactId>
       <groupId>org.mockito</groupId>
-      <version>1.10.19</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <artifactId>rdf4j-repository-sail</artifactId>
@@ -170,6 +177,5 @@ MA 02110-1301  USA
   </parent>
   <properties>
     <netbeans.hint.license>licenseheader</netbeans.hint.license>
-    <skipTests>true</skipTests>
   </properties>
 </project>

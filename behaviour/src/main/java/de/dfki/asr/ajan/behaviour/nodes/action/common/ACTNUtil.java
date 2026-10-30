@@ -146,6 +146,9 @@ public final class ACTNUtil {
 
 	public static String getMimeTypeFromHeaders(final List<HttpHeader> headers) {
 		String mimeType = "text/turtle";
+		if (headers == null) {
+			return mimeType;
+		}
 		for (HttpHeader header : headers) {
 			String headerName = header.getHeaderName().getFragment();
 			if ("Content-Type".equalsIgnoreCase(headerName)) {
