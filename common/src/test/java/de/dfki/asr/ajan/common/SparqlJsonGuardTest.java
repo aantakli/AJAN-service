@@ -58,57 +58,30 @@ public class SparqlJsonGuardTest {
 	private static final List<String> MODULES = Arrays.asList(
 			"common", "behaviour", "functions", "executionservice", "pluginsystem");
 
-	// Positive control: an empty `hits` list is ambiguous on its own - it is
-	// produced both by a genuine clean scan AND by a scan that silently found
-	// nothing to look at (wrong ajan.root, every module directory missing, the
-	// file filter matching zero files). Only a scanned-file count clears that
-	// ambiguity. The five guarded modules' src/main/java trees hold roughly 490
-	// .java files as of this writing; 100 is comfortably below that, tolerant of
-	// normal churn, but still fails hard on a collapse to zero or to a single
-	// stray directory.
-	private static final int MIN_SCANNED_FILES = 100;
-
-	// Per-module floor: the global sum alone stays green when one module's
-	// directory is renamed or moved, as long as the big ones (behaviour,
-	// pluginsystem) keep it above 100. Each module must contribute on its own.
-	// Smallest guarded module (common) holds ~22 files.
+	// Positive control: an empty `hits` list is ambiguous on its own - it is produced both by a
+	// genuine clean scan AND by a scan that silently found nothing to look at (wrong ajan.root,
+	// a module directory renamed or moved, the file filter matching zero files). Each guarded
+	// module must therefore contribute files on its own; a per-module floor also implies the
+	// global one. The smallest guarded module (common) holds ~22 .java files in src/main/java.
 	private static final int MIN_FILES_PER_MODULE = 10;
 
 	@Test
 	public void noProductionCodeRequestsSparqlResultsJson() throws IOException {
 		Path root = Paths.get(System.getProperty("ajan.root", "..")).toAbsolutePath().normalize();
 		List<String> hits = new ArrayList<>();
-		int scanned = 0;
 		for (String module: MODULES) {
 			Path moduleDir = root.resolve(module);
-			if (Files.isDirectory(moduleDir)) {
-				scanned += collectHits(moduleDir, hits);
-			}
+			int scanned = Files.isDirectory(moduleDir) ? collectHits(moduleDir, hits) : 0;
+			assertTrue(scanned >= MIN_FILES_PER_MODULE,
+					"Module '" + module + "' contributed only " + scanned + " .java file(s) under "
+					+ moduleDir + " (expected at least " + MIN_FILES_PER_MODULE + "). The guard "
+					+ "no longer covers this module (wrong ajan.root, module path/list outdated) - "
+					+ "fix the scan before trusting its verdict.");
 		}
-		assertTrue(scanned >= MIN_SCANNED_FILES,
-				"Guard scanned only " + scanned + " .java file(s) under " + root
-				+ " (expected at least " + MIN_SCANNED_FILES + "). The scan found essentially "
-				+ "nothing, which means this test cannot tell an empty result from a broken scan "
-				+ "(wrong ajan.root, missing module directories, ...). Fix the scan before trusting "
-				+ "its verdict.");
 		assertTrue(hits.isEmpty(),
 				"SPARQL-Results-JSON is unusable under the managed Jackson 2.6.6 (see Gate E). "
 				+ "Either switch to another result format or set <jackson.version> in "
 				+ "executionservice/pom.xml. Offending sites:\n" + String.join("\n", hits));
-	}
-
-	@Test
-	public void eachScannedModuleContributesFiles() throws IOException {
-		Path root = Paths.get(System.getProperty("ajan.root", "..")).toAbsolutePath().normalize();
-		List<String> ignoredHits = new ArrayList<>();
-		for (String module: MODULES) {
-			Path moduleDir = root.resolve(module);
-			int count = Files.isDirectory(moduleDir) ? collectHits(moduleDir, ignoredHits) : 0;
-			assertTrue(count >= MIN_FILES_PER_MODULE,
-					"Module '" + module + "' contributed only " + count + " .java file(s) under "
-					+ moduleDir + " (expected at least " + MIN_FILES_PER_MODULE + "). The guard "
-					+ "no longer covers this module - fix the module path/list before trusting the guard.");
-		}
 	}
 
 	@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")

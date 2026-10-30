@@ -49,6 +49,18 @@ import org.eclipse.rdf4j.query.parser.ParsedQuery;
  */
 public final class SPARQLTextGuard {
 
+	/*
+	 * Call sites that put an IRI into SPARQL text:
+	 * - SPARQLUtil.queryRepository(Repository, ParsedQuery) and SPARQLUtil.queryNamedGraph:
+	 *   guarded here (AgentModelManager describe / init-knowledge queries).
+	 * - MappingUtil.getTriplesMaps (MappingPlugin): concatenates java.net.URI values, which cannot
+	 *   contain the characters rejected here; not guarded.
+	 * - RDFBeanManager inverse-property CONSTRUCT (rdfbeans): concatenates property and resource
+	 *   IRIs of already parsed data; not guarded (open).
+	 * Through the public REST API the IllegalArgumentException is defence in depth: every RDF parser
+	 * RDFConsumer accepts (Turtle, N-Triples, RDF/XML, JSON-LD, binary RDF) already rejects these
+	 * IRI characters, so a request cannot reach it and no 4xx mapping is needed.
+	 */
 	private static final String FORBIDDEN_IN_IRIREF = "<>\"{}|^`\\";
 	private static final int LAST_CONTROL_OR_SPACE = 0x20;
 
@@ -78,6 +90,7 @@ public final class SPARQLTextGuard {
 	 * Checks every IRI that {@code SPARQLQueryRenderer} writes into the query
 	 * text: IRI-valued constants and variables, literal datatypes, function
 	 * IRIs and the dataset's FROM / FROM NAMED graphs.
+	 * VALUES bindings and RDF-star triple terms are not inspected; no caller builds such queries.
 	 *
 	 * @param query the query about to be rendered
 	 * @throws IllegalArgumentException if any of these IRIs is not a valid {@code IRIREF}

@@ -28,4 +28,11 @@ public class AgentUtilCsvTest {
 		assertEquals(rows.get(2), new String[] {"2", "say \"hi\"", "x"});
 		assertEquals(rows.get(3), new String[] {"3", "line1\nline2", "y"});
 	}
+
+	@Test(expectedExceptions = IOException.class)
+	public void malformedCsvIsReportedAsIOException() throws IOException {
+		// unterminated quoted field: opencsv fails while reading; callers only ever see an IOException
+		String csv = "id,text\n1,\"never closed\n";
+		AgentUtil.getCSVFromStream(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+	}
 }
