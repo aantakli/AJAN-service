@@ -101,6 +101,21 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- Das Launcher-JAR ist ein Fat-JAR (maven-shade-plugin): alle Abhaengigkeiten
+                 stecken bereits darin. Der vom Root-pluginManagement gesetzte Manifest-Eintrag
+                 Class-Path wuerde auf nicht vorhandene Nachbar-JARs (tomcat-embed-*.jar)
+                 zeigen und fuehrt zu TldScanner-Warnungen beim Start. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>false</addClasspath>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
