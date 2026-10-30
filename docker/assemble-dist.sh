@@ -75,7 +75,7 @@ if [ -f "$py_jar" ]; then
     required_envs="nix_env.zip"
     [ "${REQUIRE_WIN_ENV:-}" = "1" ] && required_envs="nix_env.zip win_env.zip"
     for env_zip in $required_envs; do
-        if ! printf '%s\n' "$py_entries" | grep -qx "$env_zip"; then
+        if ! grep -qx "$env_zip" <<<"$py_entries"; then
             echo "ERROR: $py_jar does not contain $env_zip. Put the generated envs into pluginsystem/plugins/PythonPlugin/python-env/dist/ (python-env/fetch-ci.sh or build-linux.sh) and re-run 'mvn install'." >&2
             exit 1
         fi
