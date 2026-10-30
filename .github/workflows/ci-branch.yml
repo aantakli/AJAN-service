@@ -111,3 +111,6 @@ jobs:
           push: false
           load: false
           tags: ajan-service:ci-dryrun
+
+  python-env:
+    uses: ./.github/workflows/python-env.yml

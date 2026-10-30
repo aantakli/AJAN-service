@@ -1,0 +1,66 @@
+name: python-env
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: python-env (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: linux
+            runner: ubuntu-latest
+            file: nix_env.zip
+          - os: windows
+            runner: windows-latest
+            file: win_env.zip
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    env:
+      ENV_DIR: pluginsystem/plugins/PythonPlugin/python-env
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Restore python-env cache
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: pluginsystem/plugins/PythonPlugin/python-env/dist/${{ matrix.file }}
+          key: python-env-${{ runner.os }}-${{ hashFiles('pluginsystem/plugins/PythonPlugin/python-env/python-env.properties', 'pluginsystem/plugins/PythonPlugin/python-env/requirements.lock', 'pluginsystem/plugins/PythonPlugin/python-env/build-linux.sh', 'pluginsystem/plugins/PythonPlugin/python-env/build-windows.ps1') }}
+      - name: Build Linux env
+        if: matrix.os == 'linux' && steps.cache.outputs.cache-hit != 'true'
+        run: bash ./build-linux.sh
+        working-directory: pluginsystem/plugins/PythonPlugin/python-env
+      - name: Set up JDK 25
+        if: matrix.os == 'windows' && steps.cache.outputs.cache-hit != 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+      - name: Set up MSVC
+        if: matrix.os == 'windows' && steps.cache.outputs.cache-hit != 'true'
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Build Windows env
+        if: matrix.os == 'windows' && steps.cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: ./build-windows.ps1
+        working-directory: pluginsystem/plugins/PythonPlugin/python-env
+      - name: Verify zip
+        shell: bash
+        run: |
+          set -eu
+          ls -l "$ENV_DIR/dist/${{ matrix.file }}"
+          python3 -c "import sys,zipfile; z=zipfile.ZipFile(sys.argv[1]); n=z.namelist(); assert all(x.replace(chr(92),'/').startswith('python-portable/') for x in n), 'bad zip root'; print(len(n),'entries')" "$ENV_DIR/dist/${{ matrix.file }}"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-env-${{ matrix.os }}
+          path: pluginsystem/plugins/PythonPlugin/python-env/dist/${{ matrix.file }}
+          if-no-files-found: error
+          retention-days: 14
