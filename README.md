@@ -6,7 +6,7 @@ This is the Maven based JAVA service to create and run AJAN agents.
 
 You will need the following things properly installed on your computer. So please make sure, that mvn and java (also JAVA_HOME) are correctly set in the environmental variables.
 
-* [Java OpenJDK (Version 21)](https://adoptium.net/temurin/releases/?version=21) (needed to build and to run; all reactor modules are compiled with release 21 — only the external E2E test client in `e2e/` intentionally stays on release 11)
+* [Java OpenJDK (Version 25)](https://adoptium.net/temurin/releases/?version=25) (needed to build and to run; all reactor modules are compiled with release 25, so an older JDK cannot build or run them — only the external E2E test client in `e2e/` intentionally stays on release 11). Without a local JDK 25 you can build inside Docker (see "Build without a local JDK 25" below)
 * [Maven (Version 3.9.x)](https://maven.apache.org/download.cgi)
 * [Git](https://git-scm.com/)
 * (optional) any Java IDE with Maven support (e.g. IntelliJ IDEA, Eclipse, NetBeans)
@@ -23,11 +23,20 @@ You will need the following things properly installed on your computer. So pleas
 * cmd: `cd AJAN-service`
 * run `installAJAN.bat` or cmd: `mvn install`
 
+#### Build without a local JDK 25
+
+Build (and test) inside the official Maven/Temurin 25 image; the named volume `ajan-m2` caches the Maven repository between runs:
+
+```
+docker run --rm -v "$PWD:/w" -v ajan-m2:/root/.m2 -w /w maven:3.9-eclipse-temurin-25 mvn -B clean install
+docker run --rm -v "$PWD:/w" -v ajan-m2:/root/.m2 -w /w maven:3.9-eclipse-temurin-25 mvn -B -f e2e/pom.xml verify
+```
+
 ### Docker
 * [Download latest Docker-Image](https://hub.docker.com/r/aantakli/ajan-service)
 * Read Docker [Wiki](https://github.com/aantakli/AJAN-service/wiki/Docker)
 
-Build and run the image locally (Java 21 runtime, triplestore and service in one container, plugins loaded in pf4j `deployment` mode from `/app/pluginsystem/plugins`):
+Build and run the image locally (Java 25 runtime, triplestore and service in one container, plugins loaded in pf4j `deployment` mode from `/app/pluginsystem/plugins`):
 
 ```
 mvn install
