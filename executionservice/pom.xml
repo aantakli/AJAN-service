@@ -83,9 +83,18 @@ MA 02110-1301  USA
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <excludes>
+            <!-- Braucht einen laufenden Triplestore (8090); das Integrationsverhalten ist ueber die E2E-Tests abgedeckt. -->
             <exclude>**/BeliefUpdateStallTest.java</exclude>
           </excludes>
         </configuration>
+        <dependencies>
+          <!-- junit-jupiter (spring-boot-starter-test) waehlt sonst den JUnit-Platform-Provider; die TestNG-Tests wuerden nicht gefunden. -->
+          <dependency>
+            <groupId>org.apache.maven.surefire</groupId>
+            <artifactId>surefire-testng</artifactId>
+            <version>3.5.2</version>
+          </dependency>
+        </dependencies>
         <groupId>org.apache.maven.plugins</groupId>
         <version>3.5.2</version>
       </plugin>
