@@ -1,0 +1,6 @@
+jep==4.3.2
+rdflib
+asyncua
+aiofiles
+orjson
+pytz
