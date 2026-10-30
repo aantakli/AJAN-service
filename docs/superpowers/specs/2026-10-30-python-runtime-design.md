@@ -1,6 +1,6 @@
 # Python-Laufzeit für AJAN — Design (Variante 2C)
 
-Status: freigegeben (2026-10-30, Variante vom User gewählt: „2C, die Flexibilität möchte ich erhalten“).
+Status: umgesetzt und abgeschlossen (2026-10-31, Plan 5, Head siehe Abschnitt „Ergebnis“). Freigegeben 2026-10-30 (Variante vom User gewählt: „2C, die Flexibilität möchte ich erhalten“).
 Branch: `modernization/java21`. Vorgänger: Java-Modernisierungs-Epic (Etappen 0–6, abgeschlossen).
 
 ## Ziel
@@ -91,3 +91,11 @@ einer reproduzierbar gebauten Umgebung — weiterhin **in-process via JEP, Ausli
 - OPCUA-Methodenknoten gegen nicht erreichbaren Endpoint → FAILED (nicht SUCCEEDED).
 - Volle E2E-Suite grün, lokal (Windows, mit `win_env.zip` aus CI) und im Container; CI grün inkl. publish-dryrun.
 - Keine Python-Zips mehr im Git-Tree.
+
+## Ergebnis (2026-10-31)
+- Plan `docs/superpowers/plans/2026-10-30-python-runtime-plan-5.md`, Tasks 1–7 umgesetzt, Task-Reviews + Gesamt-Review + Code-Health-Review, eine Final-Fix-Welle.
+- CI grün: Run 41142948174 (python-env Linux/Windows, build-and-e2e mit E2E 31/31 inkl. `PythonNodeIT`, publish-dryrun, python-windows mit PythonPlugin 46 Tests/7 POSIX-only übersprungen und OPCUA 13/13). Lokal: Container-E2E 31/31 gegen `ajan-service:dev25`.
+- Akzeptanz erfüllt: Python_Example schreibt `python-ns#label "is an Python Agent"`; `rdflib`, `asyncua`, `orjson`, `AJANlib` importierbar in JEP unter Linux und Windows; OPCUA-Methodenknoten gegen unerreichbaren Endpoint → FAILED; keine Python-Zips mehr im Git-Tree.
+- Bewusste Verhaltensänderungen: FAILED-Leaf-Knoten schreiben kein `rdf_output` mehr; `main.py`-Fehler → Exit 1 mit Grund; externes Python ohne ladbares libpython → Python nicht verfügbar (ERROR); Cache liegt pro Nutzer (`~/.cache/ajan-python`, `%LOCALAPPDATA%\ajan-python`) mit 0700 und In-Use-Locks.
+- Offene manuelle Prüfungen (User): OPCUA gegen echten IJT-Server (Status 0 = OK angenommen); vollständiger Service-Lauf unter Windows-Host mit JDK 25.
+- Geparkt (Wartbarkeit): Duplikate in CI-Workflows/Build-Skripten/Surefire-Konfig, gleichnamige Module verschiedener Skript-Ordner teilen `sys.modules`, Event-Client wird bei Plugin-Stop/Agent-Löschen nicht beendet.
