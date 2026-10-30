@@ -7,9 +7,10 @@ This is the Maven based JAVA service to create and run AJAN agents.
 You will need the following things properly installed on your computer. So please make sure, that mvn and java (also JAVA_HOME) are correctly set in the environmental variables.
 
 * [Java OpenJDK (Version 21)](https://adoptium.net/temurin/releases/?version=21) (needed to build and to run; all reactor modules are compiled with release 21 — only the external E2E test client in `e2e/` intentionally stays on release 11)
-* [Maven (Version 3.3.9)](https://archive.apache.org/dist/maven/maven-3/3.3.9/)
+* [Maven (Version 3.9.x)](https://maven.apache.org/download.cgi)
 * [Git](https://git-scm.com/)
-* (optional) [Netbeans (Version 11.3)](http://netbeans.apache.org/download/nb113/nb113.html)
+* (optional) any Java IDE with Maven support (e.g. IntelliJ IDEA, Eclipse, NetBeans)
+* (optional) [Docker](https://docs.docker.com/get-docker/) to build and run the container image
 
 ## Installation
 
@@ -25,6 +26,24 @@ You will need the following things properly installed on your computer. So pleas
 ### Docker
 * [Download latest Docker-Image](https://hub.docker.com/r/aantakli/ajan-service)
 * Read Docker [Wiki](https://github.com/aantakli/AJAN-service/wiki/Docker)
+
+Build and run the image locally (Java 21 runtime, triplestore and service in one container, plugins loaded in pf4j `deployment` mode from `/app/pluginsystem/plugins`):
+
+```
+mvn install
+bash docker/assemble-dist.sh build/dist
+docker build -f Dockerfile -t ajan-service:dev build/dist
+docker run -d --name ajan -p 8080:8080 -p 8090:8090 ajan-service:dev
+```
+
+`docker/assemble-dist.sh` assembles the same distribution directory the CI release ZIP is made from (both JARs, every plugin fat JAR, use-case data, start scripts, `.env`); it is also the Docker build context. The container is healthy once `http://localhost:8090/rdf4j/repositories` answers; the service is at `http://localhost:8080/ajan/agents`.
+
+The E2E suite can run against such a container instead of starting local processes:
+
+```
+docker logs -f ajan > build/container.log &
+mvn -f e2e/pom.xml verify -Dajan.e2e.serviceUrl=http://localhost:8080/ajan -Dajan.e2e.triplestoreUrl=http://localhost:8090/rdf4j -Dajan.e2e.serviceLogFile="$PWD/build/container.log"
+```
 
 ## Setup Triplestore
 
