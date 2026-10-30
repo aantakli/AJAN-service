@@ -206,23 +206,20 @@ public final class SPARQLUtil {
 		// necessarily a SailRepository -- it may be a remote HTTP-backed
 		// repository (e.g. an external TDB), for which the SPARQL protocol
 		// over HTTP is the only way to query it, so rendering to text here is
-		// unavoidable, not a choice. This already rendered before this etappe
-		// (queryModel(Model, ParsedGraphQuery/ParsedTupleQuery) below do not
-		// anymore, see there); it is therefore not a regression introduced by
-		// this refactor. It remains exposed to renderQuery()'s use of
-		// RenderUtils.toSPARQL(Value), which interpolates an IRI's string value
-		// between "<" and ">" with no escaping (RDF4J 3.6.3 source,
-		// org.eclipse.rdf4j.queryrender.RenderUtils) -- a resource value with
-		// unusual characters can still corrupt the rendered query text on this
-		// path. Not addressed here; the fix would require this method to stop
-		// talking to arbitrary (including remote) repositories via SPARQL text,
-		// which is out of this task's scope.
+		// unavoidable, not a choice. RDF4J's RenderUtils.toSPARQL(Value) writes
+		// an IRI as "<" + iri + ">" with no escaping, so renderQuery() first
+		// validates every IRI it is about to render against the SPARQL IRIREF
+		// grammar (SPARQLTextGuard) and rejects the query with an
+		// IllegalArgumentException instead of rendering a rewritten one.
 		String renderedQuery = renderQuery(query);
 		return queryRepository(repo, renderedQuery);
 	}
 
 	@SuppressWarnings("PMD.AvoidCatchingGenericException")
 	public static String renderQuery(final ParsedQuery query) throws QueryEvaluationException {
+		// Outside the try: an invalid IRI must surface as IllegalArgumentException,
+		// not be wrapped like a renderer failure.
+		SPARQLTextGuard.requireRenderableIris(query);
 		QueryRenderer renderer = new SPARQLQueryRenderer();
 		String renderedQuery;
 		try {
@@ -295,6 +292,7 @@ public final class SPARQLUtil {
 	public static String getSelectQuery(final TupleExpr tupleExpr) throws Exception {
 		List<String> list = new ArrayList(tupleExpr.getBindingNames());
 		ParsedTupleQuery query = SPARQLUtil.getSelectQuery(tupleExpr, list);
+		SPARQLTextGuard.requireRenderableIris(query);
 		return new SPARQLQueryRenderer().render(query);
 	}
 
@@ -328,7 +326,8 @@ public final class SPARQLUtil {
 	// queryModel(Model, ParsedGraphQuery) wertet diese Algebra direkt gegen die
 	// SailConnection aus und rendert nie -- dort schliesst das Injection aus und
 	// erhaelt BNode-Semantik. queryRepository(Repository, ParsedQuery) rendert dieselbe
-	// Algebra weiterhin zu Text (siehe dortiger Kommentar) und bleibt daher exponiert.
+	// Algebra weiterhin zu Text (siehe dortiger Kommentar); dort verhindert die
+	// IRIREF-Pruefung in renderQuery() (SPARQLTextGuard), dass eine IRI die Query umschreibt.
 	// Byte-Identitaet zur alten QueryBuilderFactory-Ausgabe (ein/zwei Ressourcen, BNode)
 	// ist verifiziert vom committed Differential-Harness unter
 	// spikes/etappe3-query-equivalence -- nicht von SPARQLUtilQueryTest.
@@ -363,6 +362,10 @@ public final class SPARQLUtil {
 	}
 
 	public static String queryNamedGraph(final String graphName) {
+		// graphName comes from client-supplied agent-template RDF and is
+		// concatenated into the query text: it must be a valid IRIREF, or it
+		// could close GRAPH <...> early and continue as query syntax.
+		SPARQLTextGuard.requireIriRef(graphName);
 		return "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <" + graphName + "> { ?s ?p ?o }}";
 	}
 
