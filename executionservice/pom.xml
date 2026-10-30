@@ -83,6 +83,7 @@ MA 02110-1301  USA
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <excludes>
+            <!-- Braucht einen laufenden Triplestore (8090); das Integrationsverhalten ist ueber die E2E-Tests abgedeckt. -->
             <exclude>**/BeliefUpdateStallTest.java</exclude>
           </excludes>
         </configuration>
@@ -156,6 +157,14 @@ MA 02110-1301  USA
       <artifactId>swagger-ui</artifactId>
       <groupId>org.webjars</groupId>
       <version>5.34.0</version>
+    </dependency>
+    <!-- Surefire nutzt wegen junit-jupiter (spring-boot-starter-test) den JUnit-Platform-Provider; die TestNG-Tests
+         wuerden dort nicht gefunden. Die testng-engine laesst TestNG und JUnit Jupiter zusammen auf der Platform laufen. -->
+    <dependency>
+      <artifactId>testng-engine</artifactId>
+      <groupId>org.junit.support</groupId>
+      <scope>test</scope>
+      <version>1.1.0</version>
     </dependency>
     <dependency>
       <artifactId>testng</artifactId>

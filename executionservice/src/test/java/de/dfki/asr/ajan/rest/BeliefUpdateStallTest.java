@@ -41,6 +41,10 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 
 
+/**
+ * Excluded from the surefire run (executionservice/pom.xml): needs a running triplestore on port 8090.
+ * The integration behaviour is covered by the E2E tests instead.
+ */
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class BeliefUpdateStallTest extends AbstractTestNGSpringContextTests {
 
