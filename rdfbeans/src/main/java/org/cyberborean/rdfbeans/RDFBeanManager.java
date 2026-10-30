@@ -318,6 +318,9 @@ public class RDFBeanManager {
 		RDFBeanInfo rbi = RDFBeanInfo.get(rdfBeanClass);
 		IRI type = rbi.getRDFType();
 		if (type == null) {
+			// Unreachable today: RDFBeanInfo#initBeanType throws RDFBeanValidationException for a
+			// class without @RDFBean or without a type value, so getRDFType() is never null here.
+			// Kept (and untested) as a defensive empty iteration.
 			return new CloseableIteration<T>() {
 
 				@Override

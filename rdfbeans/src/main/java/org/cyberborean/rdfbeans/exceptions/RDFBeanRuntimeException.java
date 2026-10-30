@@ -7,9 +7,9 @@ package org.cyberborean.rdfbeans.exceptions;
  */
 public class RDFBeanRuntimeException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public RDFBeanRuntimeException(RDFBeanException cause) {
-        super(cause.getMessage(), cause);
-    }
+	public RDFBeanRuntimeException(RDFBeanException cause) {
+	    super(cause.getMessage(), cause);
+	}
 }
