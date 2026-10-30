@@ -36,21 +36,18 @@ import org.springframework.stereotype.Component;
 
 @Provider
 @Consumes("application/json")
-@SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.AvoidPrefixingMethodParameters"})
+@SuppressWarnings("PMD.ExcessiveParameterList")
 @Component
 public class JsonConsumer implements MessageBodyReader<JsonNode> {
 
     @Override
     public boolean isReadable(final Class<?> type, final Type type1, final Annotation[] antns, final MediaType mt) {
-        if (!type.isAssignableFrom(ObjectNode.class)) {
-            return false;
-        }
-        return mt.toString().equals("application/json");
+        return type.isAssignableFrom(ObjectNode.class) && "application/json".equals(mt.toString());
     }
 
     @Override
     public JsonNode readFrom(final Class<JsonNode> t, final Type type, final Annotation[] annts, final MediaType mt, final MultivaluedMap<String, String> mm, final InputStream in) throws IOException, WebApplicationException {
-        if (!mt.toString().equals("application/json")) {
+        if (!"application/json".equals(mt.toString())) {
             createErrorMsg(mt);
         }
         return AgentUtil.setMessageInformation(AgentUtil.getJsonFromStream(in), mm);

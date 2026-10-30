@@ -25,7 +25,6 @@ import static de.dfki.asr.ajan.AJANDataBase.Store.ACTION_SERVICE;
 import static de.dfki.asr.ajan.AJANDataBase.Store.AGENT_TEMPLATE;
 import static de.dfki.asr.ajan.AJANDataBase.Store.BEHAVIOR;
 import static de.dfki.asr.ajan.AJANDataBase.Store.DOMAIN;
-import de.dfki.asr.ajan.behaviour.nodes.BTRoot;
 import de.dfki.asr.ajan.common.TripleDataBase;
 import de.dfki.asr.ajan.common.TripleStoreManager;
 import de.dfki.asr.ajan.data.AgentTDBManager;
@@ -42,7 +41,6 @@ import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import jakarta.annotation.PostConstruct;
@@ -85,7 +83,7 @@ public class AgentManager {
         private static final Logger LOG = LoggerFactory.getLogger(AgentManager.class);
 
 	@Autowired
-	@SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.NcssConstructorCount"})
+	@SuppressWarnings("PMD.ExcessiveParameterList")
 	public AgentManager(final TripleStoreManager manager,
 					final @AJANDataBase(AGENT_TEMPLATE) TripleDataBase agentDatabase,
 					final @AJANDataBase(BEHAVIOR) TripleDataBase behaviorDatabase,
@@ -166,9 +164,8 @@ public class AgentManager {
             if (agent != null) {
                 registerAgent(agent);
                 if (agent.getInitialBehavior() != null) {
-                    BTRoot initialBT = agent.getInitialBehavior().getBehaviorTree();
                     LOG.info("Start Initial Behavior: {}", agent.getInitialBehavior().getName());
-                    new Thread(initialBT::run).start();
+                    new Thread(agent.getInitialBehavior().getBehaviorTree()::run).start();
                 }
             }
         }
@@ -223,11 +220,7 @@ public class AgentManager {
 
 	@PreDestroy
 	public void cleanAllAgents() {
-		for (Iterator<Map.Entry<String, Agent>> iterator = agentMap.entrySet().iterator(); iterator.hasNext();) {
-                    Agent agent = iterator.next().getValue();
-                    TripleDataBase db = agent.getBeliefs();
-                    tripleStoreManager.removeTripleDataBase(db);
-                    iterator.remove();
-		}
+		agentMap.values().forEach(agent -> tripleStoreManager.removeTripleDataBase(agent.getBeliefs()));
+		agentMap.clear();
 	}
 }

@@ -139,8 +139,8 @@ public class BTRoot extends BehaviorTree<AgentTaskInformation> implements TreeNo
 	@Override
 	public void simulate(final SimulationResult result) {
 		Direction direction = result.getDirection();
-		if (direction == Direction.Down) {
-			((TreeNode)getChild(0)).simulate(result.setDirection(Direction.Down));
+		if (direction == Direction.DOWN) {
+			((TreeNode)getChild(0)).simulate(result.setDirection(Direction.DOWN));
 		}
 	}
 

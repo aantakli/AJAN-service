@@ -185,7 +185,7 @@ public class Repeater extends LoopDecorator<AgentTaskInformation> implements Tre
 			} else {
 				evalCount = count;
 			}
-			if (direction.equals(Direction.Up)) {
+			if (direction.equals(Direction.UP)) {
 				evalCount--;
 			}
 			evaluateChild(result);
@@ -193,14 +193,14 @@ public class Repeater extends LoopDecorator<AgentTaskInformation> implements Tre
 			LOG.error("Problems with defined query", ex);
 			result.setChildResult(Result.FAIL);
 		}
-		if (direction.equals(Direction.Up)) {
-			((TreeNode)control).simulate(result.setDirection(Direction.Up));
+		if (direction.equals(Direction.UP)) {
+			((TreeNode)control).simulate(result.setDirection(Direction.UP));
 		}
 	}
 
 	protected void evaluateChild(final SimulationResult result) {
 		while (evalCount > 0) {
-			((TreeNode)child).simulate(result.setDirection(Direction.Down));
+			((TreeNode)child).simulate(result.setDirection(Direction.DOWN));
 			evalCount--;
 		}
 		result.setChildResult(Result.SUCCESS);

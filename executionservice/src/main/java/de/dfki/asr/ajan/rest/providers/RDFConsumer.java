@@ -54,7 +54,7 @@ import org.springframework.stereotype.Component;
 				"application/rdf+json",
 				"application/xhtml+xml"
 				})
-@SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.AvoidPrefixingMethodParameters"})
+@SuppressWarnings("PMD.ExcessiveParameterList")
 @Component
 public class RDFConsumer implements MessageBodyReader<Model> {
 

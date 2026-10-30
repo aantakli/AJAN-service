@@ -77,10 +77,7 @@ public class SyncMessage extends Message {
 	protected boolean checkResponse(final Object response) {
 		if (response instanceof Model) {
 			Model model = (Model) response;
-			if (model.isEmpty()) {
-				return true;
-			}
-			return updateBeliefs(modifyResponse(model), validate.getTargetBase());
+			return model.isEmpty() || updateBeliefs(modifyResponse(model), validate.getTargetBase());
 		}
 		return true;
 	}

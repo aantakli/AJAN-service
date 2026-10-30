@@ -174,7 +174,7 @@ public class Message extends AbstractTDBLeafTask {
 			return getQueryTemplate(tmpl);
 		}
 		BehaviorQuery query = binding.getPayload().getBtQuery();
-		if (query.getSparql().equals("")) {
+		if (query.getSparql().isEmpty()) {
 			return null;
 		}
 		Repository repo = BTUtil.getInitializedRepository(getObject(), query.getOriginBase());

@@ -44,7 +44,7 @@ public class PerformHttpExecuteRequest extends AbstractPerformRequest {
 	@Override
 	public IConnection getConnection(final TaskContext context) throws URISyntaxException {
 		return context.get(HttpConnection.class);
-	};
+	}
 
 	@Override
 	public String getInput(final Model inputModel) {

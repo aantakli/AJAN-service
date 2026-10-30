@@ -50,7 +50,7 @@ public class Agent {
         private final String reportURI;
 
 	@Getter(NONE) @Setter(NONE)
-	private final Object LOCK = new Object();
+	private final Object lock = new Object();
 
 	public void setEndpointEvent(final String capability, final Object input) {
 		if (endpoints.containsKey(capability)) {
@@ -79,7 +79,7 @@ public class Agent {
 	}
 
 	public void stop(final Resource btResc) {
-		synchronized (LOCK) {
+		synchronized (lock) {
 			if (behaviors.containsKey(btResc)) {
 				BehaviorTree<AgentTaskInformation> behavior = behaviors.get(btResc).getBehaviorTree();
 				behavior.cancel();

@@ -53,7 +53,7 @@ import org.springframework.stereotype.Component;
 				"application/rdf+json",
 				"application/xhtml+xml"
 				})
-@SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.AvoidPrefixingMethodParameters", "PMD.ExcessiveImports"})
+@SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.ExcessiveImports"})
 @Component
 public class AgentCollectionProducer extends ModelProducer implements MessageBodyWriter<Collection<Agent>> {
 
@@ -63,7 +63,7 @@ public class AgentCollectionProducer extends ModelProducer implements MessageBod
 			return false;
 		}
 		if (type1 instanceof ParameterizedType) {
-			ParameterizedType pType = ((ParameterizedType)type1);
+			ParameterizedType pType = (ParameterizedType) type1;
 			if (pType.getActualTypeArguments().length < 1) {
 				return false;
 			}

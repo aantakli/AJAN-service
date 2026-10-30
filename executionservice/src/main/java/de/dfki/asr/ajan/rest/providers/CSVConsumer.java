@@ -35,21 +35,18 @@ import org.springframework.stereotype.Component;
 
 @Provider
 @Consumes("text/csv")
-@SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.AvoidPrefixingMethodParameters"})
+@SuppressWarnings("PMD.ExcessiveParameterList")
 @Component
 public class CSVConsumer implements MessageBodyReader<CSVInput> {
 
     @Override
     public boolean isReadable(final Class<?> type, final Type type1, final Annotation[] antns, final MediaType mt) {
-        if (!type.isAssignableFrom(CSVInput.class)) {
-            return false;
-        }
-        return mt.toString().equals("text/csv") ;
+        return type.isAssignableFrom(CSVInput.class) && "text/csv".equals(mt.toString());
     }
 
     @Override
     public CSVInput readFrom(final Class<CSVInput> t, final Type type, final Annotation[] annts, final MediaType mt, final MultivaluedMap<String, String> mm, final InputStream in) throws IOException, WebApplicationException {
-        if (!mt.toString().equals("text/csv")) {
+        if (!"text/csv".equals(mt.toString())) {
             String msg = "Can not consume XML of mimetype + " + mt.toString();
             Response response = Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN).entity(msg).build();
             throw new WebApplicationException(response);

@@ -32,7 +32,7 @@ import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.repository.util.Repositories;
 
 public abstract class AbstractBeliefBase {
-	private final Object BELIEFBASE_LOCK = new Object();
+	private final Object beliefBaseLock = new Object();
 
 	public abstract Repository initialize();
 
@@ -41,7 +41,7 @@ public abstract class AbstractBeliefBase {
 	}
 
 	public void update(final Model add, final Model remove, final boolean mode) {
-		synchronized (BELIEFBASE_LOCK) {
+		synchronized (beliefBaseLock) {
 			Repository repo = initialize();
 			try (RepositoryConnection connection = repo.getConnection()) {
 				connection.begin(IsolationLevels.SERIALIZABLE);
@@ -78,7 +78,7 @@ public abstract class AbstractBeliefBase {
 	}
 
 	public Model asModel() {
-		synchronized (BELIEFBASE_LOCK) {
+		synchronized (beliefBaseLock) {
 			Model model = new LinkedHashModel();
 			Repository repo = initialize();
 			Repositories.consume(repo, conn -> {

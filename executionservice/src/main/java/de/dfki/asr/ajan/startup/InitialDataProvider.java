@@ -188,7 +188,7 @@ public class InitialDataProvider {
               String folderPath = entry.getKey();
               TripleDataBase repo = entry.getValue();
               repo.clear();
-              ArrayList<String> result = (ArrayList<String>) getAllFilesFromFolder(folderPath);
+              List<String> result = getAllFilesFromFolder(folderPath);
               result.forEach(
                   (filePath) -> {
                     pushFileToStore(filePath, repo);

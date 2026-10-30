@@ -100,7 +100,7 @@ public class Simulate extends AbstractTDBLeafTask {
 		}
 		SimulationResult result = new SimulationResult(init, this.getObject());
 		simulate(result);
-		((TreeNode)control).simulate(result.setDirection(Direction.Up));
+		((TreeNode)control).simulate(result.setDirection(Direction.UP));
 		Model model = AgentUtil.setNamedGraph(result.getEvaluationModel(), context);
 		writeToTarget(model);
 	}
@@ -121,10 +121,5 @@ public class Simulate extends AbstractTDBLeafTask {
 	@Override
 	public Result simulateNodeLogic(final SimulationResult result, final Resource root) {
 		return Result.SUCCESS;
-	}
-
-	@Override
-	public Model getModel(final Model model, final BTRoot root, final BTUtil.ModelMode mode) {
-		return super.getModel(model, root, mode);
 	}
 }

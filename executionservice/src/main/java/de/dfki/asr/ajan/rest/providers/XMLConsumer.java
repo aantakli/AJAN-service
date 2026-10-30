@@ -36,7 +36,7 @@ import org.xml.sax.SAXException;
 
 @Provider
 @Consumes({"application/xml", "text/xml"})
-@SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.AvoidPrefixingMethodParameters"})
+@SuppressWarnings("PMD.ExcessiveParameterList")
 @Component
 public class XMLConsumer implements MessageBodyReader<Document> {
 
@@ -45,12 +45,12 @@ public class XMLConsumer implements MessageBodyReader<Document> {
         if (!type.isAssignableFrom(Document.class)) {
             return false;
         }
-        return mt.toString().equals("application/xml") || mt.toString().equals("text/xml") ;
+        return "application/xml".equals(mt.toString()) || "text/xml".equals(mt.toString());
     }
 
     @Override
     public Document readFrom(final Class<Document> t, final Type type, final Annotation[] annts, final MediaType mt, final MultivaluedMap<String, String> mm, final InputStream in) throws IOException, WebApplicationException {
-        if (!mt.toString().equals("application/xml") && !mt.toString().equals("text/xml")) {
+        if (!"application/xml".equals(mt.toString()) && !"text/xml".equals(mt.toString())) {
             createErrorMsg(mt);
         }
         try {

@@ -50,7 +50,7 @@ public class IntValue {
 
 	public List<Integer> getIntValue(final AgentTaskInformation info) throws SelectSimulationException {
 		try {
-			if (query == null || query.getSparql().equals("")) {
+			if (query == null || query.getSparql().isEmpty()) {
 				return returnValue();
 			}
 			return getIntValue(BTUtil.getInitializedRepository(info, query.getOriginBase()));

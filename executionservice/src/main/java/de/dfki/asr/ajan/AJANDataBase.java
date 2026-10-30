@@ -32,9 +32,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @Retention(RetentionPolicy.RUNTIME)
 @Qualifier
 public @interface AJANDataBase {
-	public Store value();
+	Store value();
 
-	public enum Store {
+	enum Store {
 		AGENT_TEMPLATE,
 		BEHAVIOR,
 		DOMAIN,

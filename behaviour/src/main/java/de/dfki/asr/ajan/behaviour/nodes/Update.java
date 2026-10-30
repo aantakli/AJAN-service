@@ -19,6 +19,7 @@
 
 package de.dfki.asr.ajan.behaviour.nodes;
 
+import de.dfki.asr.ajan.behaviour.AJANLogger;
 import de.dfki.asr.ajan.behaviour.nodes.common.AbstractTDBLeafTask;
 import de.dfki.asr.ajan.behaviour.nodes.query.BehaviorQuery;
 import de.dfki.asr.ajan.behaviour.nodes.common.BTUtil;
@@ -89,7 +90,10 @@ public class Update extends AbstractTDBLeafTask {
 
 	@Override
 	public void end() {
-		this.getObject().getLogger().info(this.getClass(), "Status (" + getStatus() + ")");
+		AJANLogger logger = this.getObject().getLogger();
+		if (logger.isInfoEnabled(this.getClass())) {
+			logger.info(this.getClass(), "Status (" + getStatus() + ")");
+		}
 	}
 
 	private Boolean performUpdateLogic(final Repository repo) {
@@ -120,7 +124,10 @@ public class Update extends AbstractTDBLeafTask {
 			httpResponse = httpClient.execute(httpPost);
 			StatusLine statusLine = httpResponse.getStatusLine();
 			if (statusLine.getStatusCode() >= 300) {
-				this.getObject().getLogger().info(this.getClass(), "POST Response Status: " + httpResponse.getStatusLine().getStatusCode());
+				AJANLogger logger = this.getObject().getLogger();
+				if (logger.isInfoEnabled(this.getClass())) {
+					logger.info(this.getClass(), "POST Response Status: " + statusLine.getStatusCode());
+				}
 				return false;
 			}
 		} catch (IOException ex) {

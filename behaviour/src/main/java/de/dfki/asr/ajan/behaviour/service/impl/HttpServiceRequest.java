@@ -29,11 +29,11 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 
-public class HttpServiceRequest extends HttpEntityEnclosingRequestBase {
+public final class HttpServiceRequest extends HttpEntityEnclosingRequestBase {
 	public static final String OUTPUT_MIME_TYPE = "text/turtle";
-	protected String mimeType = OUTPUT_MIME_TYPE;
-	protected final HttpBinding binding;
-	protected String payload;
+	private String mimeType = OUTPUT_MIME_TYPE;
+	private final HttpBinding binding;
+	private String payload;
 
 	public HttpServiceRequest(final HttpBinding binding) {
 		this.binding = binding;
@@ -86,7 +86,7 @@ public class HttpServiceRequest extends HttpEntityEnclosingRequestBase {
 
 	private void importProtocolVersion() {
 		String boundVersion = binding.getVersion();
-		if (boundVersion == null || boundVersion.equals("")) {
+		if (boundVersion == null || boundVersion.isEmpty()) {
 			setProtocolVersion(HttpVersion.HTTP_1_1);
 			return;
 		}
