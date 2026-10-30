@@ -23,7 +23,6 @@ MA 02110-1301  USA
   xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <artifactId>MQTTPlugin</artifactId>
-
   <build>
     <plugins>
       <plugin>

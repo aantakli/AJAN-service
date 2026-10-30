@@ -75,7 +75,7 @@ public class DeploymentModeLoadTest {
   @Test
   public void extensionCountsPerPluginMatchObserved() {
     Map<String, String> expected = new TreeMap<>();
-    // OBSERVED, format "nodeExt,endpointExt" 
+    // OBSERVED, format "nodeExt,endpointExt"
     expected.put("ASPPlugin", "15,0");
     expected.put("MOSIMPlugin", "14,1");
     expected.put("MQTTPlugin", "8,0");
