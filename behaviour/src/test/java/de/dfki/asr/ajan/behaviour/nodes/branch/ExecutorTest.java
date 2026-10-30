@@ -20,10 +20,8 @@
 package de.dfki.asr.ajan.behaviour.nodes.branch;
 
 import com.badlogic.gdx.ai.btree.BehaviorTree;
-import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
 import de.dfki.asr.ajan.behaviour.AgentTaskInformation;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,63 +30,31 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
-/**
- * RDF literals without an explicit datatype ({@code bt:intValue 1}) are mapped to
- * {@code xsd:integer}, i.e. {@link BigInteger}, not {@link Integer}.
- */
 public class ExecutorTest {
+	private static final String FIRST = "first";
+	private static final String SECOND = "second";
 
-	private static class CountingLeaf extends LeafTask<AgentTaskInformation> {
-		private int runs;
-
-		@Override
-		public Status execute() {
-			runs++;
-			return Status.SUCCEEDED;
-		}
-
-		@Override
-		protected Task<AgentTaskInformation> copyTo(final Task<AgentTaskInformation> task) {
-			return task;
-		}
-	}
-
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	private IntValue xsdIntegerOrder(final long... order) {
-		List raw = new ArrayList();
-		for (long index : order) {
-			raw.add(BigInteger.valueOf(index));
-		}
-		IntValue value = new IntValue();
-		value.setValue(raw);
-		return value;
+	private Executor runExecutor(final boolean sequence, final IntValue order, final List<String> log) {
+		Executor executor = new Executor();
+		executor.setSequence(sequence);
+		executor.setSelectedChild(order);
+		executor.setChildren(Arrays.asList(new RecordingLeaf(FIRST, log), new RecordingLeaf(SECOND, log)));
+		new BehaviorTree<>(executor, Mockito.mock(AgentTaskInformation.class)).step();
+		return executor;
 	}
 
 	@Test
-	public void sequenceRunsAllChildrenOfXsdIntegerOrder() {
-		CountingLeaf first = new CountingLeaf();
-		CountingLeaf second = new CountingLeaf();
-		Executor executor = new Executor();
-		executor.setSequence(true);
-		executor.setSelectedChild(xsdIntegerOrder(1, 0));
-		executor.setChildren(Arrays.asList(first, second));
-		BehaviorTree<AgentTaskInformation> tree = new BehaviorTree<>(executor, Mockito.mock(AgentTaskInformation.class));
-		tree.step();
-		assertThat(first.runs, is(1));
-		assertThat(second.runs, is(1));
+	public void sequenceRunsChildrenInXsdIntegerOrder() {
+		List<String> log = new ArrayList<>();
+		Executor executor = runExecutor(true, RecordingLeaf.xsdIntegerValue(1, 0), log);
+		assertThat(log, is(Arrays.asList(SECOND, FIRST)));
 		assertThat(executor.getStatus(), is(Task.Status.SUCCEEDED));
 	}
 
 	@Test
 	public void singleXsdIntegerSelectsOnlyThatChild() {
-		CountingLeaf first = new CountingLeaf();
-		CountingLeaf second = new CountingLeaf();
-		Executor executor = new Executor();
-		executor.setSelectedChild(xsdIntegerOrder(1));
-		executor.setChildren(Arrays.asList(first, second));
-		BehaviorTree<AgentTaskInformation> tree = new BehaviorTree<>(executor, Mockito.mock(AgentTaskInformation.class));
-		tree.step();
-		assertThat(first.runs, is(0));
-		assertThat(second.runs, is(1));
+		List<String> log = new ArrayList<>();
+		runExecutor(false, RecordingLeaf.xsdIntegerValue(1), log);
+		assertThat(log, is(Arrays.asList(SECOND)));
 	}
 }
