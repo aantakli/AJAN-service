@@ -112,11 +112,27 @@ class _ThreadLocalStdout(io.TextIOBase):
 _install_lock = threading.Lock()
 
 
+def _line_buffered(stream):
+   """Switches stream to line buffering where possible and returns it.
+
+   CPython block-buffers stdout when it is not a terminal (Docker, supervisord, a pipe), so
+   uncaptured prints (script files such as CustomScriptNode/OPCUA scripts, other threads) would
+   sit in the buffer instead of reaching the service log.
+   """
+   reconfigure = getattr(stream, "reconfigure", None)
+   if reconfigure is not None:
+      try:
+         reconfigure(line_buffering=True)
+      except (ValueError, OSError, io.UnsupportedOperation):
+         pass  # e.g. a closed or non-reconfigurable stream: keep it as it is
+   return stream
+
+
 def install_stdout_proxy() -> _ThreadLocalStdout:
    """Installs the thread-local stdout proxy once (idempotent) and returns it."""
    with _install_lock:
       if not getattr(sys.stdout, "_ajan_stdout_proxy", False):
-         sys.stdout = _ThreadLocalStdout(sys.stdout)
+         sys.stdout = _ThreadLocalStdout(_line_buffered(sys.stdout))
       return sys.stdout
 
 

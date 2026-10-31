@@ -215,6 +215,25 @@ public class PythonLeafContractTest {
   }
 
   @Test
+  public void realStdoutIsLineBuffered() {
+    // Uncaptured prints (script files, other threads) go to the real stdout, which CPython
+    // block-buffers when it is not a terminal (surefire pipe, Docker): they would not reach the
+    // service log until 8 KiB had accumulated.
+    PythonExecutionResult check =
+        new PythonExecutionServiceImpl()
+            .executeScript(
+                "import sys, AJANlib\n"
+                    + "real = sys.stdout._real\n"
+                    + "result = '%s|%s' % (real.isatty(), real.line_buffering)\n",
+                null);
+    assertTrue(check.isSuccess(), check.getError());
+    assertTrue(
+        String.valueOf(check.getResults().get("result")).endsWith("|True"),
+        "real stdout should be line-buffered, was (isatty|line_buffering): "
+            + check.getResults().get("result"));
+  }
+
+  @Test
   public void statusMapping() {
     assertEquals(PythonLeafNode.toStatus("SUCCEEDED"), Status.SUCCEEDED);
     assertEquals(PythonLeafNode.toStatus("RUNNING"), Status.RUNNING);
