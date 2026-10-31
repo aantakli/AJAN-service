@@ -73,6 +73,34 @@ public class OPCUANodeRdfTest {
         "[endpointUrl, label, targetBase, venvPath]");
   }
 
+  /**
+   * The predicates must be the vocabulary of node_definitions.ttl, i.e. the opcua/bt/rdfs prefixes
+   * must resolve (package-info @RDFNamespaces). Unresolved, RDFBeans maps "opcua:endpointUrl" as
+   * an IRI of its own and a behavior tree from the editor leaves every field empty.
+   */
+  @Test
+  public void predicatesUseTheNodeDefinitionVocabulary() throws Exception {
+    String opcua = "http://www.ajan.de/behavior/opcua-ns#";
+    String label = "http://www.w3.org/2000/01/rdf-schema#label";
+    String targetBase = "http://www.ajan.de/behavior/bt-ns#targetBase";
+    assertEquals(
+        properties(OPCUAEnableAssetNode.class).toString(),
+        "{enabled=" + opcua + "enabled, endpointUrl=" + opcua + "endpointUrl, label=" + label
+            + ", targetBase=" + targetBase + "}");
+    assertEquals(
+        properties(OPCUASelectJointNode.class).toString(),
+        "{endpointUrl=" + opcua + "endpointUrl, jointId=" + opcua + "jointId, label=" + label
+            + ", targetBase=" + targetBase + "}");
+    assertEquals(
+        properties(OPCUAStartJoiningNode.class).toString(),
+        "{deselect=" + opcua + "deselect, endpointUrl=" + opcua + "endpointUrl, label=" + label
+            + ", targetBase=" + targetBase + "}");
+    assertEquals(
+        properties(OPCUASetupNode.class).toString(),
+        "{endpointUrl=" + opcua + "endpointUrl, label=" + label + ", targetBase=" + targetBase
+            + ", venvPath=" + opcua + "venvPath}");
+  }
+
   @Test
   public void methodNodesDeserializeAndBuildTheirCall() throws Exception {
     OPCUAEnableAssetNode enable =
