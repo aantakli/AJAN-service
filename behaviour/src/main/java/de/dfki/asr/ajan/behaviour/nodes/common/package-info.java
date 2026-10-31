@@ -23,7 +23,8 @@
 	"ws = http://bla/ws#",
 	"http-core = http://www.w3.org/2006/http#",
 	"http-methods = http://www.w3.org/2008/http-methods#",
-	"sp = http://spinrdf.org/sp#"})
+	"sp = http://spinrdf.org/sp#",
+	"rdf = http://www.w3.org/1999/02/22-rdf-syntax-ns#"})
 package de.dfki.asr.ajan.behaviour.nodes.common;
 
 import org.cyberborean.rdfbeans.annotations.RDFNamespaces;
